@@ -3,19 +3,20 @@
 #define INCLUDED_SERDES_MANAGED_BUFFER
 
 #include "serdes_common.h"
+#include "buffer.h"
 
 #include <memory>
 
 namespace serdes {
 
-struct ManagedBuffer {
+struct ManagedBuffer : Buffer {
   using ByteType = SerialByteType[];
 
   ManagedBuffer(SizeType const& size)
     : buffer_(std::make_unique<ByteType>(size))
   { }
 
-  SerialByteType* getBuffer() const {
+  virtual SerialByteType* getBuffer() const override {
     return buffer_.get();
   }
 

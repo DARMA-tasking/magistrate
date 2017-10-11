@@ -8,8 +8,8 @@ namespace serdes {
 
 template <typename BufferT>
 PackerBuffer<BufferT>::PackerBuffer(SizeType const& in_size)
-  : MemorySerializer(ModeType::Packing), size_(in_size),
-    buffer_(std::make_unique<BufferT>(size_))
+   : MemorySerializer(ModeType::Packing), size_(in_size),
+     buffer_(std::make_unique<BufferT>(size_))
 {
   MemorySerializer::initializeBuffer(buffer_->getBuffer());
   debug_serdes(
@@ -18,7 +18,19 @@ PackerBuffer<BufferT>::PackerBuffer(SizeType const& in_size)
 }
 
 template <typename BufferT>
-typename PackerBuffer<BufferT>::BufferPtrType
+PackerBuffer<BufferT>::PackerBuffer(
+  SizeType const& in_size, BufferTPtrType buf_ptr
+) : MemorySerializer(ModeType::Packing), size_(in_size),
+    buffer_(std::move(buf_ptr))
+{
+  MemorySerializer::initializeBuffer(buffer_->getBuffer());
+  debug_serdes(
+    "PackerBuffer: size=%ld, start_=%p, cur_=%p\n", size_, start_, cur_
+  );
+}
+
+template <typename BufferT>
+typename PackerBuffer<BufferT>::BufferTPtrType
 PackerBuffer<BufferT>::extractPackedBuffer() {
   auto ret = std::move(buffer_);
   buffer_ = nullptr;

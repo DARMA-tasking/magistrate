@@ -16,11 +16,14 @@
 
 #include <cstdlib>
 #include <cstdint>
+#include <functional>
 
 namespace serdes {
 
 using SizeType = size_t;
 using SerialByteType = char;
+
+using BufferObtainFnType = std::function<SerialByteType*(SizeType size)>;
 
 } /* end namespace serdes */
 
