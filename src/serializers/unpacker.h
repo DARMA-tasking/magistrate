@@ -3,7 +3,6 @@
 #define INCLUDED_SERDES_UNPACKER
 
 #include "serdes_common.h"
-#include "serdes.h"
 #include "memory_serializer.h"
 
 namespace serdes {

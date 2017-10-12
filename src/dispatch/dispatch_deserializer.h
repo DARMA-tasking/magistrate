@@ -4,7 +4,7 @@
 
 #include "serdes_common.h"
 #include "serdes_all.h"
-#include "serializable_traits.h"
+#include "traits/serializable_traits.h"
 
 #include <type_traits>
 #include <tuple>

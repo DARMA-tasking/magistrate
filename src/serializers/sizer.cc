@@ -1,6 +1,6 @@
 
 #include "serdes_common.h"
-#include "serdes.h"
+#include "base_serializer.h"
 #include "sizer.h"
 
 namespace serdes {

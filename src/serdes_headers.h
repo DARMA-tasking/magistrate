@@ -2,9 +2,9 @@
 #if !defined INCLUDED_SERDES_HEADERS
 #define INCLUDED_SERDES_HEADERS
 
-#include "serdes.h"
-#include "dispatch.h"
-#include "serializable_traits.h"
+#include "serializers/serializers_headers.h"
+#include "dispatch/dispatch.h"
+#include "traits/serializable_traits.h"
 
 #include "container/list_serialize.h"
 #include "container/map_serialize.h"

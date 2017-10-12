@@ -4,7 +4,7 @@
 
 #include "serdes_common.h"
 #include "serdes_all.h"
-#include "serializable_traits.h"
+#include "traits/serializable_traits.h"
 
 #include <type_traits>
 #include <tuple>
@@ -16,31 +16,14 @@ template <typename SerializerT, typename T>
 struct SerializerDispatch {
   template <typename U>
   using isByteCopyType =
-    typename std::enable_if<std::is_arithmetic<U>::value, T>::type;
+  typename std::enable_if<std::is_arithmetic<U>::value, T>::type;
 
   template <typename U>
   using isNotByteCopyType =
-    typename std::enable_if<not std::is_arithmetic<U>::value, T>::type;
-
-  template <typename U>
-  using isConst = typename std::enable_if<std::is_const<U>::value, T>::type;
-
-  template <typename U>
-  using isNotConst = typename std::enable_if<!std::is_const<U>::value, T>::type;
+  typename std::enable_if<not std::is_arithmetic<U>::value, T>::type;
 
   template <typename U = T>
-  void operator()(
-    SerializerT& s, T* val, SizeType num, isConst<U>* x = nullptr
-  ) {
-    using NonConstT = typename std::remove_const<T>::type;
-    SerializerDispatch<SerializerT, NonConstT> ap;
-    return ap(s, const_cast<NonConstT*>(val), num);
-  }
-
-  template <typename U = T>
-  void operator()(
-    SerializerT& s, T* val, SizeType num, isNotConst<U>* x = nullptr
-  ) {
+  void operator()(SerializerT& s, T* val, SizeType num) {
     return apply(s, val, num);
   }
 

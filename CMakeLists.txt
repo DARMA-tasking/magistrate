@@ -20,19 +20,56 @@ set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(PROJECT_EXAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/examples)
 set(PROJECT_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
+set(
+  PROJECT_SUBDIRS_LIST
+  traits container serializers traits buffer
+)
+
 file(
   GLOB
   HEADER_FILES
   ${PROJECT_SOURCE_DIR}/*.h
-  ${PROJECT_SOURCE_DIR}/container/*.h
 )
 
 file(
   GLOB
   SOURCE_FILES
   ${PROJECT_SOURCE_DIR}/*.cc
-  ${PROJECT_SOURCE_DIR}/container/*.cc
 )
+
+#message("headers=${HEADER_FILES}")
+#message("source=${SOURCE_FILES}")
+
+foreach(SUB_DIR ${PROJECT_SUBDIRS_LIST})
+
+  file(
+    GLOB
+    "${SUB_DIR}_HEADER_FILES"
+    ${PROJECT_SOURCE_DIR}/${SUB_DIR}/*.h
+  )
+
+  file(
+    GLOB
+    "${SUB_DIR}_SOURCE_FILES"
+    ${PROJECT_SOURCE_DIR}/${SUB_DIR}/*.cc
+  )
+
+  #message("headers=${${SUB_DIR}_HEADER_FILES}")
+  #message("source=${${SUB_DIR}_SOURCE_FILES}")
+
+  list(
+    APPEND
+    HEADER_FILES
+    "${${SUB_DIR}_HEADER_FILES}"
+  )
+
+  list(
+    APPEND
+    SOURCE_FILES
+    "${${SUB_DIR}_SOURCE_FILES}"
+  )
+
+endforeach()
 
 set(SERDES_LIBRARY serdes)
 
@@ -99,7 +136,7 @@ file(
   RELATIVE
   "${PROJECT_TESTS}"
   "${PROJECT_TESTS}/*.cc"
-  )
+)
 
 if (NOT GTEST_DIR)
   message("Unit test are disabled because GoogleTest is not setup via -DGTEST_DIR=")

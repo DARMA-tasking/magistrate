@@ -54,9 +54,12 @@ int main(int, char**) {
 
   printf("ptr=%p, size=%ld\n", buf->getBuffer(), buf_size);
 
-  auto& t = serdes::deserializeType<MyTest>(buf->getBuffer(), buf_size);
+  auto tptr = serdes::deserializeType<MyTest>(buf->getBuffer(), buf_size);
+  auto& t = *tptr;
 
   t.print();
+
+  delete tptr;
 
   return 0;
 }

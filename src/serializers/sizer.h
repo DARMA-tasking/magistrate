@@ -3,7 +3,7 @@
 #define INCLUDED_SERDES_SIZER
 
 #include "serdes_common.h"
-#include "serdes.h"
+#include "base_serializer.h"
 
 namespace serdes {
 

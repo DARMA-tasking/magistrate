@@ -45,9 +45,10 @@ static void testContainer(bool is_ordered, std::initializer_list<T> lst) {
   auto s1 = serdes::serializeType(c1);
   auto const& buf1 = std::get<0>(s1);
 
-  auto& t1 = serdes::deserializeType<ContainerT>(
+  auto tptr = serdes::deserializeType<ContainerT>(
     buf1->getBuffer(), std::get<1>(s1)
   );
+  auto& t1 = *tptr;
 
   EXPECT_EQ(c1.size(), t1.size());
 
@@ -56,6 +57,8 @@ static void testContainer(bool is_ordered, std::initializer_list<T> lst) {
   } else {
     testEqualityContainerUnordered(c1, t1);
   }
+
+  delete tptr;
 }
 
 TYPED_TEST_P(TestContainer, test_single_ordered_container) {
@@ -128,9 +131,10 @@ static void testMultiContainer(bool is_ordered, std::initializer_list<Pair> lst)
   auto s1 = serdes::serializeType(c1);
   auto const& buf1 = std::get<0>(s1);
 
-  auto& t1 = serdes::deserializeType<ContainerT>(
+  auto tptr = serdes::deserializeType<ContainerT>(
     buf1->getBuffer(), std::get<1>(s1)
   );
+  auto& t1 = *tptr;
 
   EXPECT_EQ(c1.size(), t1.size());
 
@@ -139,6 +143,8 @@ static void testMultiContainer(bool is_ordered, std::initializer_list<Pair> lst)
   } else {
     testEqualityContainerUnordered(c1, t1);
   }
+
+  delete tptr;
 }
 
 TYPED_TEST_P(TestMultiContainer, test_multi_container) {

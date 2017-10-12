@@ -1,8 +1,7 @@
 
 #include "serdes_common.h"
-#include "serdes.h"
 #include "memory_serializer.h"
-#include "managed_buffer.h"
+#include "buffer/buffer.h"
 
 namespace serdes {
 

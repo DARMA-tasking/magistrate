@@ -3,7 +3,7 @@
 #define INCLUDED_SERDES_VECTOR_SERIALIZE
 
 #include "serdes_common.h"
-#include "serdes.h"
+#include "serializers/serializers_headers.h"
 
 #include <vector>
 

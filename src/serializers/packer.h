@@ -3,10 +3,10 @@
 #define INCLUDED_SERDES_PACKER
 
 #include "serdes_common.h"
-#include "serdes.h"
 #include "memory_serializer.h"
-#include "managed_buffer.h"
-#include "user_buffer.h"
+#include "buffer/buffer.h"
+#include "buffer/managed_buffer.h"
+#include "buffer/user_buffer.h"
 
 namespace serdes {
 

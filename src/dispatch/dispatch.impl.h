@@ -3,15 +3,19 @@
 #define INCLUDED_SERDES_DISPATCH_IMPL
 
 #include "serdes_common.h"
-#include "dispatch.h"
+#include "dispatch/dispatch.h"
 
 namespace serdes {
 
 template <typename T>
 SizeType Dispatch<T>::sizeType(T& to_size) {
+  using DispatchT = DispatchCommon<T>;
+  using CleanT = typename DispatchT::CleanT;
+  auto val = DispatchT::clean(&to_size);
+
   Sizer sizer;
-  SerializerDispatch<Sizer, T> ap;
-  ap(sizer, &to_size, 1);
+  SerializerDispatch<Sizer, CleanT> ap;
+  ap(sizer, val, 1);
   return sizer.getSize();
 }
 
@@ -20,8 +24,12 @@ template <typename PackerT>
 BufferPtrType Dispatch<T>::packTypeWithPacker(
   PackerT& packer, T& to_pack, SizeType const& size
 ) {
-  SerializerDispatch<PackerT, T> ap;
-  ap(packer, &to_pack, 1);
+  using DispatchT = DispatchCommon<T>;
+  using CleanT = typename DispatchT::CleanT;
+  auto val = DispatchT::clean(&to_pack);
+
+  SerializerDispatch<PackerT, CleanT> ap;
+  ap(packer, val, 1);
   return packer.extractPackedBuffer();
 }
 
@@ -42,24 +50,35 @@ template <typename T>
 T& Dispatch<T>::unpackType(
   SerialByteType* buf, SerialByteType* data, SizeType const& size
 ) {
-  DeserializerDispatch<Serializer, T> apply_des;
+  using DispatchT = DispatchCommon<T>;
+  using CleanT = typename DispatchT::CleanT;
+
+  DeserializerDispatch<Serializer, CleanT> apply_des;
   auto& target = apply_des(buf);
   Unpacker unpacker(data, size);
-  SerializerDispatch<Unpacker, T> ap;
+  SerializerDispatch<Unpacker, CleanT> ap;
   ap(unpacker, &target, 1);
   return target;
 }
 
 template <typename Serializer, typename T>
 inline void operator|(Serializer& s, T& target) {
-  SerializerDispatch<Serializer, T> ap;
-  ap(s, &target, 1);
+  using DispatchT = DispatchCommon<T>;
+  using CleanT = typename DispatchT::CleanT;
+  auto val = DispatchT::clean(&target);
+
+  SerializerDispatch<Serializer, CleanT> ap;
+  ap(s, val, 1);
 }
 
 template <typename Serializer, typename T>
 inline void serializeArray(Serializer& s, T* array, SizeType const num_elms) {
-  SerializerDispatch<Serializer, T> ap;
-  ap(s, array, num_elms);
+  using DispatchT = DispatchCommon<T>;
+  using CleanT = typename DispatchT::CleanT;
+  auto val = DispatchT::clean(array);
+
+  SerializerDispatch<Serializer, CleanT> ap;
+  ap(s, val, num_elms);
 }
 
 template <typename T>
@@ -76,11 +95,11 @@ SerializedReturnType serializeType(T& to_serialize, BufferObtainFnType fn) {
 }
 
 template <typename T>
-T& deserializeType(SerialByteType* data, SizeType const& size) {
-  auto const& size_of_t = sizeof(T);
-  auto mem = new SerialByteType[size_of_t];
+T* deserializeType(SerialByteType* data, SizeType const& size, T* allocBuf) {
+  SerialByteType* mem = allocBuf ?
+    reinterpret_cast<SerialByteType*>(allocBuf) : new SerialByteType[sizeof(T)];
   auto& t = Dispatch<T>::unpackType(mem, data, size);
-  return t;
+  return &t;
 }
 
 } /* end namespace serdes */

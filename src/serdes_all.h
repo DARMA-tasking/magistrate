@@ -3,9 +3,6 @@
 #define INCLUDED_SERDES_ALL
 
 #include "serdes_common.h"
-#include "serdes.h"
-#include "sizer.h"
-#include "packer.h"
-#include "unpacker.h"
+#include "serializers/serializers_headers.h"
 
 #endif /*INCLUDED_SERDES_ALL*/

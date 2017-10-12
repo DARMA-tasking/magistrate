@@ -1,6 +1,6 @@
 
-#if !defined INCLUDED_SERDES_SERDES
-#define INCLUDED_SERDES_SERDES
+#if !defined INCLUDED_SERDES_BASE_SERIALIZER
+#define INCLUDED_SERDES_BASE_SERIALIZER
 
 #include "serdes_common.h"
 
@@ -42,4 +42,4 @@ protected:
 
 } /* end namespace serdes */
 
-#endif /*INCLUDED_SERDES_SERDES*/
+#endif /*INCLUDED_SERDES_BASE_SERIALIZER*/

@@ -2,7 +2,8 @@
 #if ! defined INCLUDED_SERDES_SERIALIZABILITY_TRAITS
 #define INCLUDED_SERDES_SERIALIZABILITY_TRAITS
 
-#include "serdes.h"
+#include "serdes_common.h"
+#include "serializers/serializers_headers.h"
 
 #include <cstdint>
 

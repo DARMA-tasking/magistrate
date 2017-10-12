@@ -3,7 +3,8 @@
 #define INCLUDED_SERDES_DISPATCH
 
 #include "serdes_common.h"
-#include "managed_buffer.h"
+#include "buffer/buffer.h"
+#include "dispatch_common.h"
 #include "dispatch_serializer.h"
 #include "dispatch_deserializer.h"
 
@@ -38,7 +39,9 @@ SerializedReturnType serializeType(
 );
 
 template <typename T>
-T& deserializeType(SerialByteType* data, SizeType const& size);
+T* deserializeType(
+  SerialByteType* data, SizeType const& size, T* allocBuf = nullptr
+);
 
 } /* end namespace serdes */
 

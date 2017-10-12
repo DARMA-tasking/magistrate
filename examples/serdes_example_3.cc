@@ -52,7 +52,7 @@ struct TestNoSerialize {
 }} // end namespace serdes::examples
 
 #if HAS_DETECTION_COMPONENT
-  #include "serializable_traits.h"
+  #include "traits/serializable_traits.h"
 
   namespace serdes {
 
