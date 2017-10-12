@@ -15,7 +15,9 @@ template <typename T>
 SerializedReturnType serialize(T& target, BufferCallbackType fn) {
   auto ret = ::serdes::serializeType<T>(target, fn);
   auto& buf = std::get<0>(ret);
-  std::unique_ptr<SerializedInfo> base_ptr(static_cast<SerializedInfo*>(buf.release()));
+  std::unique_ptr<SerializedInfo> base_ptr(
+    static_cast<SerializedInfo*>(buf.release())
+  );
   return base_ptr;
 }
 
