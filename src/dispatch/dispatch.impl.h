@@ -41,7 +41,7 @@ BufferPtrType Dispatch<T>::packType(
     Packer packer(size);
     return packTypeWithPacker(packer, to_pack, size);
   } else {
-    PackerUserBuf packer(size, std::make_unique<UserBuffer>(buf));
+    PackerUserBuf packer(size, std::make_unique<UserBuffer>(buf, size));
     return packTypeWithPacker(packer, to_pack, size);
   }
 }

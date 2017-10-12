@@ -71,7 +71,7 @@ foreach(SUB_DIR ${PROJECT_SUBDIRS_LIST})
 
 endforeach()
 
-set(SERDES_LIBRARY serdes)
+set(SERDES_LIBRARY serialization)
 
 add_library(
   ${SERDES_LIBRARY}

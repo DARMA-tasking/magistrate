@@ -3,13 +3,17 @@
 #define INCLUDED_SERDES_BUFFER
 
 #include "serdes_common.h"
+#include "serialize_interface.h"
 
 #include <memory>
 
 namespace serdes {
 
-struct Buffer {
+using SerializedInfo = ::serialization::interface::SerializedInfo;
+
+struct Buffer : SerializedInfo {
   virtual SerialByteType* getBuffer() const = 0;
+  virtual SizeType getSize() const = 0;
   virtual ~Buffer() { }
 };
 

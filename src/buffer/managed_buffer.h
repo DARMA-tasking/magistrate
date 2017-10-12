@@ -13,14 +13,20 @@ struct ManagedBuffer : Buffer {
   using ByteType = SerialByteType[];
 
   ManagedBuffer(SizeType const& size)
-    : buffer_(std::make_unique<ByteType>(size))
+    : size_(size), buffer_(std::make_unique<ByteType>(size))
   { }
 
   virtual SerialByteType* getBuffer() const override {
     return buffer_.get();
   }
 
+  virtual SizeType getSize() const override {
+    return size_;
+  }
+
 private:
+  SizeType size_ = 0;
+
   std::unique_ptr<ByteType> buffer_ = nullptr;
 };
 
