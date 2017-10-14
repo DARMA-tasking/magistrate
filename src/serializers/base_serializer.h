@@ -27,11 +27,7 @@ struct Serializer {
   bool isPacking() const { return cur_mode_ == ModeType::Packing; }
   bool isUnpacking() const { return cur_mode_ == ModeType::Unpacking; }
 
-  template <
-    typename SerializerT,
-    typename T,
-    typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type
-  >
+  template <typename SerializerT, typename T>
   static void contiguousTyped(SerializerT& serdes, T* ptr, SizeType num_elms) {
     serdes.contiguousBytes(static_cast<void*>(ptr), sizeof(T), num_elms);
   }

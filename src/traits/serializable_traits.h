@@ -15,11 +15,28 @@
 
 namespace serdes {
 
+struct SerdesByteCopy {
+  using isByteCopyable = std::true_type;
+};
+
 template <typename T>
 struct SerializableTraits {
   template <typename U>
   using serialize_t = decltype(std::declval<U>().serialize(std::declval<Serializer&>()));
   using has_serialize = detection::is_detected<serialize_t, T>;
+
+  template <typename U>
+  using byteCopyTrait_t = typename U::isByteCopyable;
+  using has_byteCopyTrait = detection::is_detected<byteCopyTrait_t, T>;
+  using has_byteCopyTraitTrue = detection::is_detected_convertible<
+    std::true_type, byteCopyTrait_t, T
+  >;
+  using has_byteCopyTraitFalse = detection::is_detected_convertible<
+    std::false_type, byteCopyTrait_t, T
+  >;
+
+  template <typename U>
+  using has_isArith = std::is_arithmetic<U>;
 
   template <typename U>
   using nonintrustive_serialize_t = decltype(serialize(
@@ -34,6 +51,10 @@ struct SerializableTraits {
   template <typename U>
   using reconstruct_t = decltype(U::reconstruct(std::declval<void*>()));
   using has_reconstruct = detection::is_detected_convertible<T&, reconstruct_t, T>;
+
+  // This defines what it means to be reconstructible
+  static constexpr auto const is_bytecopyable =
+    has_byteCopyTraitTrue::value or has_isArith<T>::value;
 
   // This defines what it means to be reconstructible
   static constexpr auto const is_reconstructible =

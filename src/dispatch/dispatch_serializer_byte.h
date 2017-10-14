@@ -13,16 +13,57 @@
 
 namespace serdes {
 
+#if !HAS_DETECTION_COMPONENT
+template <typename T>
+struct hasByteCopy {
+  template <typename C, typename = typename C::isByteCopyable>
+  static std::true_type test(int);
+
+  template <typename C>
+  static std::false_type test(...);
+
+  static constexpr bool value = decltype(test<T>(0))::value;
+};
+#endif
+
 template <typename SerializerT, typename T>
 struct SerializerDispatchByte {
-  template <typename U>
-  using isByteCopyType =
-  typename std::enable_if<std::is_arithmetic<U>::value, T>::type;
+  #if HAS_DETECTION_COMPONENT
+    template <typename U>
+    using isByteCopyType =
+    typename std::enable_if<SerializableTraits<U>::is_bytecopyable, T>::type;
 
-  template <typename U>
-  using isNotByteCopyType =
-  typename std::enable_if<not std::is_arithmetic<U>::value, T>::type;
+    template <typename U>
+    using isNotByteCopyType =
+    typename std::enable_if<not SerializableTraits<U>::is_bytecopyable, T>::type;
+  #else
+    template <typename U>
+    using isArithType =
+    typename std::enable_if<std::is_arithmetic<U>::value, T>::type;
 
+    template <typename U>
+    using isNotArithType =
+    typename std::enable_if<not std::is_arithmetic<U>::value, T>::type;
+
+    template <typename U>
+    using isByteCopyType =
+    typename std::enable_if<hasByteCopy<U>::value, T>::type;
+
+    template <typename U>
+    using isNotByteCopyType =
+    typename std::enable_if<not hasByteCopy<U>::value, T>::type;
+
+    template <typename U>
+    using isTrueByteCopyType =
+    typename std::enable_if<std::is_same<typename U::isByteCopyable, std::true_type>::value>::type;
+
+    template <typename U>
+    using isFalseByteCopyType =
+    typename std::enable_if<std::is_same<typename U::isByteCopyable, std::false_type>::value>::type;
+  #endif
+
+
+  #if HAS_DETECTION_COMPONENT
   template <typename U = T>
   void operator()(
     SerializerT& s, T* val, SizeType num, isByteCopyType<U>* x = nullptr
@@ -37,6 +78,53 @@ struct SerializerDispatchByte {
     SerializerDispatchNonByte<SerializerT, T> dispatch;
     dispatch(s, val, num);
   }
+  #else
+  template <typename U = T>
+  void operator()(
+    SerializerT& s, T* val, SizeType num, isArithType<U>* x = nullptr
+  ) {
+    SerializerT::contiguousTyped(s, val, num);
+  }
+
+  template <typename U = T>
+  void operator()(
+    SerializerT& s, T* val, SizeType num, isNotArithType<U>* x = nullptr
+  ) {
+    SerializerDispatchByte<SerializerT, U> dispatch;
+    dispatch.checkByte(s, val, num);
+  }
+
+  template <typename U = T>
+  void checkByte(
+    SerializerT& s, T* val, SizeType num, isByteCopyType<U>* x = nullptr
+  ) {
+    SerializerDispatchByte<SerializerT, U> dispatch;
+    dispatch.checkTrueByte(s, val, num);
+  }
+
+  template <typename U = T>
+  void checkByte(
+    SerializerT& s, T* val, SizeType num, isNotByteCopyType<U>* x = nullptr
+  ) {
+    SerializerDispatchNonByte<SerializerT, T> dispatch;
+    dispatch(s, val, num);
+  }
+
+  template <typename U = T>
+  void checkTrueByte(
+    SerializerT& s, T* val, SizeType num, isTrueByteCopyType<U>* x = nullptr
+  ) {
+    SerializerT::contiguousTyped(s, val, num);
+  }
+
+  template <typename U = T>
+  void checkTrueByte(
+    SerializerT& s, T* val, SizeType num, isFalseByteCopyType<U>* x = nullptr
+  ) {
+    SerializerDispatchNonByte<SerializerT, T> dispatch;
+    dispatch(s, val, num);
+  }
+  #endif
 };
 
 } //end namespace serdes
