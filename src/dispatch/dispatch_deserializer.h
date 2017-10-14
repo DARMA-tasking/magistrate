@@ -34,7 +34,9 @@ struct DeserializerDispatch {
   #endif
 
   template <typename U = T>
-  T& operator()(void* buf, isDefaultConsType<U>* x = nullptr) {
+  T& operator()(
+    void* buf, isDefaultConsType<U>* __attribute__((unused)) x = nullptr
+  ) {
     debug_serdes("DeserializerDispatch: default constructor: buf=%p\n", buf);
     T* t_ptr = new (buf) T{};
     auto& t = *t_ptr;
@@ -42,7 +44,9 @@ struct DeserializerDispatch {
   }
 
   template <typename U = T>
-  T& operator()(void* buf, isReconstructibleType<U>* x = nullptr) {
+  T& operator()(
+    void* buf, isReconstructibleType<U>*  __attribute__((unused)) x = nullptr
+  ) {
     debug_serdes("DeserializerDispatch: T::reconstruct(): buf=%p\n", buf);
     return T::reconstruct(buf);
   }

@@ -61,7 +61,8 @@ struct SerializerDispatchNonByte {
 
   template <typename U = T>
   void apply(
-    SerializerT& s, T* val, SizeType num, hasInSerialize<U>* x = nullptr
+    SerializerT& s, T* val, SizeType num,
+    hasInSerialize<U>* __attribute__((unused)) x = nullptr
   ) {
     debug_serdes("SerializerDispatch: intrusive serialize: val=%p\n", &val);
     for (SizeType i = 0; i < num; i++) {
@@ -71,7 +72,8 @@ struct SerializerDispatchNonByte {
 
   template <typename U = T>
   void apply(
-    SerializerT& s, T* val, SizeType num, hasNoninSerialize<U>* x = nullptr
+    SerializerT& s, T* val, SizeType num,
+    hasNoninSerialize<U>* __attribute__((unused)) x = nullptr
   ) {
     debug_serdes("SerializerDispatch: non-intrusive serialize: val=%p\n", &val);
     for (SizeType i = 0; i < num; i++) {
