@@ -7,6 +7,7 @@
 #include "dispatch_common.h"
 #include "dispatch_serializer.h"
 #include "dispatch_deserializer.h"
+#include "dispatch_byte_macro.h"
 
 #include <tuple>
 
