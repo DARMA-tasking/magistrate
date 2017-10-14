@@ -10,7 +10,7 @@
 #include <vector>
 #include <cstdio>
 
-#define TEST_BYTE_DEBUG_PRINT 1
+#define TEST_BYTE_DEBUG_PRINT 0
 
 namespace serdes { namespace tests { namespace unit {
 
@@ -39,7 +39,9 @@ TEST_F(TestByteCopyTrait, test_bytecopy_trait) {
   );
   auto& dest = *tptr;
 
-  printf("ByteCopyStruct {%d,%d}\n", dest.x, dest.y);
+  #if TEST_BYTE_DEBUG_PRINT
+    printf("ByteCopyStruct {%d,%d}\n", dest.x, dest.y);
+  #endif
 }
 
 }}} // end namespace serdes::tests::unit
