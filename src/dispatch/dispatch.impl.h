@@ -62,13 +62,15 @@ T& Dispatch<T>::unpackType(
 }
 
 template <typename Serializer, typename T>
-inline void operator|(Serializer& s, T& target) {
+inline Serializer& operator|(Serializer& s, T& target) {
   using DispatchT = DispatchCommon<T>;
   using CleanT = typename DispatchT::CleanT;
   auto val = DispatchT::clean(&target);
 
   SerializerDispatch<Serializer, CleanT> ap;
   ap(s, val, 1);
+
+  return s;
 }
 
 template <typename Serializer, typename T>

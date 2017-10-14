@@ -28,7 +28,7 @@ struct Dispatch {
 };
 
 template <typename Serializer, typename T>
-inline void operator|(Serializer& s, T& target);
+inline Serializer& operator|(Serializer& s, T& target);
 
 template <typename Serializer, typename T>
 inline void serializeArray(Serializer& s, T* array, SizeType const num_elms);
