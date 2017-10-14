@@ -27,13 +27,8 @@ struct SerializableTraits {
 
   template <typename U>
   using byteCopyTrait_t = typename U::isByteCopyable;
-  using has_byteCopyTrait = detection::is_detected<byteCopyTrait_t, T>;
-  using has_byteCopyTraitTrue = detection::is_detected_convertible<
-    std::true_type, byteCopyTrait_t, T
-  >;
-  using has_byteCopyTraitFalse = detection::is_detected_convertible<
-    std::false_type, byteCopyTrait_t, T
-  >;
+  using has_byteCopyTraitTrue =
+    detection::is_detected_convertible<std::true_type, byteCopyTrait_t, T>;
 
   template <typename U>
   using has_isArith = std::is_arithmetic<U>;
