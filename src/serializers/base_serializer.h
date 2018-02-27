@@ -32,6 +32,9 @@ struct Serializer {
     serdes.contiguousBytes(static_cast<void*>(ptr), sizeof(T), num_elms);
   }
 
+  SerialByteType* getBuffer() const { return nullptr; }
+  SerialByteType* getSpotIncrement(SizeType const inc) { return nullptr; }
+
 protected:
   ModeType cur_mode_ = ModeType::Invalid;
 };

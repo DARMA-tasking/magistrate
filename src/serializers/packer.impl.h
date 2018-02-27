@@ -3,6 +3,8 @@
 #include "memory_serializer.h"
 #include "buffer/buffer.h"
 
+#include <cstring>
+
 namespace serdes {
 
 template <typename BufferT>
