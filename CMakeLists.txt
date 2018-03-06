@@ -83,6 +83,9 @@ add_library(
   ${HEADER_FILES} ${SOURCE_FILES}
 )
 
+#Generate position independent code for use in darma-backend
+target_compile_options(${SERDES_LIBRARY} PUBLIC "-fPIC")
+
 install(TARGETS ${SERDES_LIBRARY} EXPORT ${SERDES_LIBRARY} DESTINATION lib)
 
 include_directories(${PROJECT_SOURCE_DIR})
