@@ -1,6 +1,0 @@
-# Get compiler and flags
-get_filename_component(SELF_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-include(${SELF_DIR}/darma_checkpoint.cmake)
-
-set (darma_detector_DIR @darma_detector_DIR@)
-find_package(darma_detector)

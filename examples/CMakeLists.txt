@@ -39,7 +39,7 @@ if (${CHECKPOINT_BUILD_EXAMPLES})
 
     target_link_libraries(
       ${EXAMPLE}
-      ${SERDES_LIBRARY}
+      ${SERDES_LIBRARY_NS}
     )
   endforeach()
 endif()

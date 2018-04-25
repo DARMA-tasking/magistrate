@@ -60,10 +60,12 @@ add_library(
   ${HEADER_FILES} ${SOURCE_FILES}
 )
 
-# Generate position independent code for use in darma-backend
+add_library(${SERDES_LIBRARY_NS} ALIAS ${SERDES_LIBRARY})
+
 target_compile_options(${SERDES_LIBRARY} PUBLIC "-fPIC")
 target_compile_options(${SERDES_LIBRARY} PUBLIC ${CXX_STANDARD_FLAGS})
-target_link_libraries(${SERDES_LIBRARY} darma_detector) # imported cmake libs
+
+target_link_libraries(${SERDES_LIBRARY} vt::lib::detector)
 
 target_include_directories(
   ${SERDES_LIBRARY} PUBLIC
@@ -78,14 +80,24 @@ target_include_directories(
 )
 
 install(
-  TARGETS ${SERDES_LIBRARY}
-  EXPORT ${SERDES_LIBRARY}
-  LIBRARY DESTINATION "lib"
-  ARCHIVE DESTINATION "lib"
+  TARGETS                   ${SERDES_LIBRARY}
+  EXPORT                    ${SERDES_LIBRARY}
+  LIBRARY DESTINATION       lib
+  ARCHIVE DESTINATION       lib
+  RUNTIME DESTINATION       bin
+  INCLUDES DESTINATION      include
 )
 
 install(
-  EXPORT darma_checkpoint
-  DESTINATION cmake
-  COMPONENT extCfg
+  EXPORT                    ${SERDES_LIBRARY}
+  DESTINATION               cmake
+  FILE                      "checkpointTargets.cmake"
+  NAMESPACE                 vt::lib::
+  COMPONENT                 runtime
+)
+
+export(
+  TARGETS                   ${SERDES_LIBRARY}
+  FILE                      "darma_checkpointTargets.cmake"
+  NAMESPACE                 darma::backend::
 )

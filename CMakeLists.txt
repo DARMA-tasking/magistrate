@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 project(serdes)
 
-set(CMAKE_CXX_STANDARD 14)
-
-enable_language(CXX)
-
 include (CTest)
 enable_testing()
 
@@ -36,12 +32,13 @@ macro(find_package_local pkg_name pkg_directory)
   )
 endmacro(find_package_local)
 
-set(SERDES_LIBRARY darma_checkpoint)
+set(SERDES_LIBRARY checkpoint)
+set(SERDES_LIBRARY_NS vt::lib::checkpoint)
 
 # require directories for these packages
-require_pkg_directory(darma_detector "DARMA detector")
+require_pkg_directory(detector "VT detector library")
 # find these required packages locally
-find_package_local(darma_detector "${darma_detector_DIR}/cmake")
+find_package_local(detector "${detector_DIR}/cmake")
 
 set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(PROJECT_EXAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/examples)
@@ -56,13 +53,12 @@ add_custom_target(checkpoint_tests)
 add_subdirectory(tests)
 
 configure_file(
-  cmake/darma_checkpointConfig.cmake.in
-  "${PROJECT_BINARY_DIR}/darma_checkpointConfig.cmake" @ONLY
+  cmake/checkpointConfig.cmake.in
+  "${PROJECT_BINARY_DIR}/checkpointConfig.cmake" @ONLY
 )
 
 install(
-  FILES
-  "${PROJECT_BINARY_DIR}/darma_checkpointConfig.cmake"
+  FILES "${PROJECT_BINARY_DIR}/checkpointConfig.cmake"
   DESTINATION cmake
   COMPONENT extCfg
 )

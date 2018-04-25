@@ -18,13 +18,13 @@ else
     detector_path=
 fi
 
-cmake ../checkpoint \
-      -DCMAKE_INSTALL_PREFIX=../checkpoint-install \
-      -DCMAKE_CXX_COMPILER=clang++-mp-3.9 \
-      -DCMAKE_C_COMPILER=clang-mp-3.9 \
-      -Ddarma_detector_DIR=${detector_path} \
-      -DCHECKPOINT_BUILD_TESTS:bool=ON \
-      -DCHECKPOINT_BUILD_EXAMPLES:bool=ON \
-      -DGTEST_DIR=${gtest_directory} \
-      -DCMAKE_BUILD_TYPE=debug \
+cmake ../checkpoint                                                    \
+      -DCMAKE_INSTALL_PREFIX=../checkpoint-install                     \
+      -DCMAKE_CXX_COMPILER=clang++-mp-3.9                              \
+      -DCMAKE_C_COMPILER=clang-mp-3.9                                  \
+      -Ddetector_DIR=${detector_path}                                  \
+      -DCHECKPOINT_BUILD_TESTS:bool=ON                                 \
+      -DCHECKPOINT_BUILD_EXAMPLES:bool=ON                              \
+      -DGTEST_DIR=${gtest_directory}                                   \
+      -DCMAKE_BUILD_TYPE=debug                                         \
       -DCMAKE_EXPORT_COMPILE_COMMANDS=true
