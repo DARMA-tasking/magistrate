@@ -2,21 +2,32 @@
 
 if test $# -lt 2
 then
-    echo "usage $0 <build-mode> <has-detector>"
+    echo "usage $0 <build-mode> <has-detector> [detector-path] [gtest-path]"
     exit 1;
 fi
 
 build_mode=$1
 has_detector=$2
 
-gtest_directory=/Users/jliffla/codes/gtest/gtest-install
-
 if test ${has_detector} -gt 0
 then
-    detector_path=/Users/jliffla/codes/vt/detector-install
+    if test $# -gt 2
+    then
+        detector_path=$3
+    else
+        detector_path=/Users/jliffla/codes/vt/detector-install
+    fi
 else
     detector_path=
 fi
+
+if test $# -gt 3
+then
+    gtest_directory=$4
+else
+    gtest_directory=/Users/jliffla/codes/gtest/gtest-install
+fi
+
 
 cmake ../checkpoint                                                    \
       -DCMAKE_INSTALL_PREFIX=../checkpoint-install                     \
