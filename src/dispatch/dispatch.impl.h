@@ -162,53 +162,53 @@ inline void parserdesArray(Serializer& s, T* array, SizeType const num_elms) {
 }
 
 template <typename T>
-SerializedReturnType serializeType(
-  T& to_serialize, BufferObtainFnType fn, bool const partial
-) {
-  SizeType size = 0;
-
-  if (partial) {
-    size = Dispatch<T>::sizeTypePartial(to_serialize);
-  } else {
-    size = Dispatch<T>::sizeType(to_serialize);
-  }
-
+SerializedReturnType serializeType(T& to_serialize, BufferObtainFnType fn) {
+  SizeType size = Dispatch<T>::sizeType(to_serialize);
   debug_serdes("serializeType: size=%ld\n", size);
-
   SerialByteType* user_buf = fn ? fn(size) : nullptr;
+  auto managed = Dispatch<T>::packType(to_serialize, size, user_buf);
+  auto const& buf = managed->getBuffer();
+  debug_serdes(
+    "serializeType: buf=%p, size=%ld: val=%d\n",
+    buf, size, *reinterpret_cast<int*>(buf)
+  );
+  return std::make_tuple(std::move(managed), size);
+}
 
-  if (partial) {
-    auto managed = Dispatch<T>::packTypePartial(to_serialize, size, user_buf);
-    auto const& buf = managed->getBuffer();
-    debug_serdes(
-      "serializeType (partial): buf=%p, size=%ld: val=%d\n",
-      buf, size, *reinterpret_cast<int*>(buf)
-    );
-    return std::make_tuple(std::move(managed), size);
-  } else {
-    auto managed = Dispatch<T>::packType(to_serialize, size, user_buf);
-    auto const& buf = managed->getBuffer();
-    debug_serdes(
-      "serializeType: buf=%p, size=%ld: val=%d\n",
-      buf, size, *reinterpret_cast<int*>(buf)
-    );
-    return std::make_tuple(std::move(managed), size);
-  }
+template <typename T>
+SerializedReturnType serializeTypePartial(
+  T& to_serialize, BufferObtainFnType fn
+) {
+  SizeType size = Dispatch<T>::sizeTypePartial(to_serialize);
+  debug_serdes("serializeTypePartial: size=%ld\n", size);
+  SerialByteType* user_buf = fn ? fn(size) : nullptr;
+  auto managed = Dispatch<T>::packTypePartial(to_serialize, size, user_buf);
+  auto const& buf = managed->getBuffer();
+  debug_serdes(
+    "serializeType (partial): buf=%p, size=%ld: val=%d\n",
+    buf, size, *reinterpret_cast<int*>(buf)
+  );
+  return std::make_tuple(std::move(managed), size);
 }
 
 template <typename T>
 T* deserializeType(
-  SerialByteType* data, SizeType const& size, T* allocBuf, bool const partial
+  SerialByteType* data, SizeType const& size, T* allocBuf
 ) {
   SerialByteType* mem = allocBuf ?
     reinterpret_cast<SerialByteType*>(allocBuf) : new SerialByteType[sizeof(T)];
-  if (partial) {
-    auto& t = Dispatch<T>::unpackTypePartial(mem, data, size);
-    return &t;
-  } else {
-    auto& t = Dispatch<T>::unpackType(mem, data, size);
-    return &t;
-  }
+  auto& t = Dispatch<T>::unpackType(mem, data, size);
+  return &t;
+}
+
+template <typename T>
+T* deserializeTypePartial(
+  SerialByteType* data, SizeType const& size, T* allocBuf
+) {
+  SerialByteType* mem = allocBuf ?
+    reinterpret_cast<SerialByteType*>(allocBuf) : new SerialByteType[sizeof(T)];
+  auto& t = Dispatch<T>::unpackTypePartial(mem, data, size);
+  return &t;
 }
 
 } /* end namespace serdes */

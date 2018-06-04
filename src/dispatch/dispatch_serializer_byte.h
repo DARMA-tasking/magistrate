@@ -76,7 +76,7 @@ struct SerializerDispatchByte {
   void partial(
     SerializerT& s, T* val, SizeType num, isNotByteCopyType<U>* x = nullptr
   ) {
-    SerializerDispatchNonByte<SerializerT, T> dispatch;
+    SerializerDispatchNonByteParserdes<SerializerT, T> dispatch;
     dispatch.partial(s, val, num);
   }
 };

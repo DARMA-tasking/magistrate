@@ -30,16 +30,24 @@ struct hasSerialize {
 
   static constexpr bool value = decltype(test<T>(0))::value;
 };
+
+template <typename SerializerT, typename T>
+struct hasParserdes {
+  template <
+    typename C,
+    typename = decltype(std::declval<C>().parserdes(std::declval<SerializerT&>()))
+  >
+  static std::true_type test(int);
+
+  template <typename C>
+  static std::false_type test(...);
+
+  static constexpr bool value = decltype(test<T>(0))::value;
+};
 #endif
 
 template <typename SerializerT, typename T>
-struct SerializerDispatchNonByte {
-
-  template <typename U = T>
-  void operator()(SerializerT& s, T* val, SizeType num) {
-    return apply(s, val, num);
-  }
-
+struct SerializerDispatchNonByteParserdes {
   template <typename U = T>
   void partial(SerializerT& s, T* val, SizeType num) {
     return applyPartial(s, val, num);
@@ -48,10 +56,6 @@ struct SerializerDispatchNonByte {
   // If we have the detection component, we can more precisely check for
   // serializability
   #if HAS_DETECTION_COMPONENT
-    template <typename U>
-    using hasInSerialize =
-    typename std::enable_if<SerializableTraits<U>::has_serialize_instrusive, T>::type;
-
     template <typename U>
     using hasInParserdes =
     typename std::enable_if<SerializableTraits<U>::has_int_parserdes, T>::type;
@@ -63,25 +67,14 @@ struct SerializerDispatchNonByte {
     template <typename U>
     using hasNoParserdes =
     typename std::enable_if<!SerializableTraits<U>::has_parserdes, T>::type;
-
-    template <typename U>
-    using hasSplitSerialize =
-    typename std::enable_if<SerializableTraits<U>::has_split_serialize, T>::type;
-    template <typename U>
-    using hasNotSplitSerialize =
-    typename std::enable_if<!SerializableTraits<U>::has_split_serialize, T>::type;
-
-    template <typename U>
-    using hasNoninSerialize =
-    typename std::enable_if<SerializableTraits<U>::has_serialize_noninstrusive, T>::type;
   #else
     template <typename U>
-    using hasInSerialize =
-    typename std::enable_if<hasSerialize<SerializerT, U>::value, T>::type;
+    using hasInParserdes =
+    typename std::enable_if<hasParserdes<SerializerT, U>::value, T>::type;
 
     template <typename U>
-    using hasNoninSerialize =
-    typename std::enable_if<!hasSerialize<SerializerT, U>::value, T>::type;
+    using hasNoParserdes =
+    typename std::enable_if<!hasParserdes<SerializerT, U>::value, T>::type;
   #endif
 
   template <typename U = T>
@@ -95,6 +88,7 @@ struct SerializerDispatchNonByte {
     }
   }
 
+  #if HAS_DETECTION_COMPONENT
   template <typename U = T>
   void applyPartial(
     SerializerT& s, T* val, SizeType num,
@@ -105,6 +99,7 @@ struct SerializerDispatchNonByte {
       parserdes(s, val[i]);
     }
   }
+  #endif
 
   template <typename U = T>
   void applyPartial(
@@ -113,6 +108,43 @@ struct SerializerDispatchNonByte {
   ) {
     // do nothing, it can be skipped
   }
+};
+
+template <typename SerializerT, typename T>
+struct SerializerDispatchNonByte {
+
+  template <typename U = T>
+  void operator()(SerializerT& s, T* val, SizeType num) {
+    return apply(s, val, num);
+  }
+
+  // If we have the detection component, we can more precisely check for
+  // serializability
+  #if HAS_DETECTION_COMPONENT
+    template <typename U>
+    using hasSplitSerialize =
+    typename std::enable_if<SerializableTraits<U>::has_split_serialize, T>::type;
+
+    template <typename U>
+    using hasNotSplitSerialize =
+    typename std::enable_if<!SerializableTraits<U>::has_split_serialize, T>::type;
+
+    template <typename U>
+    using hasInSerialize =
+    typename std::enable_if<SerializableTraits<U>::has_serialize_instrusive, T>::type;
+
+    template <typename U>
+    using hasNoninSerialize =
+    typename std::enable_if<SerializableTraits<U>::has_serialize_noninstrusive, T>::type;
+  #else
+    template <typename U>
+    using hasInSerialize =
+    typename std::enable_if<hasSerialize<SerializerT, U>::value, T>::type;
+
+    template <typename U>
+    using hasNoninSerialize =
+    typename std::enable_if<!hasSerialize<SerializerT, U>::value, T>::type;
+  #endif
 
   template <typename U = T>
   void applyElm(

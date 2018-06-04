@@ -54,13 +54,22 @@ inline void parserdesArray(Serializer& s, T* array, SizeType const num_elms);
 
 template <typename T>
 SerializedReturnType serializeType(
-  T& to_serialize, BufferObtainFnType fn = nullptr, bool const partial = false
+  T& to_serialize, BufferObtainFnType fn = nullptr
 );
 
 template <typename T>
 T* deserializeType(
-  SerialByteType* data, SizeType const& size, T* allocBuf = nullptr,
-  bool const partial = false
+  SerialByteType* data, SizeType const& size, T* allocBuf = nullptr
+);
+
+template <typename T>
+SerializedReturnType serializeTypePartial(
+  T& to_serialize, BufferObtainFnType fn = nullptr
+);
+
+template <typename T>
+T* deserializeTypePartial(
+  SerialByteType* data, SizeType const& size, T* allocBuf = nullptr
 );
 
 } /* end namespace serdes */
