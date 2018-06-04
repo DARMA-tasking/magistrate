@@ -49,6 +49,9 @@ inline Serializer& operator&(Serializer& s, T& target);
 template <typename Serializer, typename T>
 inline void serializeArray(Serializer& s, T* array, SizeType const num_elms);
 
+template <typename Serializer, typename T>
+inline void parserdesArray(Serializer& s, T* array, SizeType const num_elms);
+
 template <typename T>
 SerializedReturnType serializeType(
   T& to_serialize, BufferObtainFnType fn = nullptr, bool const partial = false

@@ -130,6 +130,11 @@ inline Serializer& operator&(Serializer& s, T& target) {
   using CleanT = typename DispatchT::CleanT;
   auto val = DispatchT::clean(&target);
 
+  if (s.isUnpacking()) {
+    auto target_ptr = reinterpret_cast<char*>(val);
+    T* new_target = new (target_ptr) T();
+  }
+
   SerializerDispatch<Serializer, CleanT> ap;
   ap.partial(s, val, 1);
 
@@ -144,6 +149,16 @@ inline void serializeArray(Serializer& s, T* array, SizeType const num_elms) {
 
   SerializerDispatch<Serializer, CleanT> ap;
   ap(s, val, num_elms);
+}
+
+template <typename Serializer, typename T>
+inline void parserdesArray(Serializer& s, T* array, SizeType const num_elms) {
+  using DispatchT = DispatchCommon<T>;
+  using CleanT = typename DispatchT::CleanT;
+  auto val = DispatchT::clean(array);
+
+  SerializerDispatch<Serializer, CleanT> ap;
+  ap.partial(s, val, num_elms);
 }
 
 template <typename T>

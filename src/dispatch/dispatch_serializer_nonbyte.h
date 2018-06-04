@@ -111,7 +111,7 @@ struct SerializerDispatchNonByte {
     SerializerT& s, T* val, SizeType num,
     hasNoParserdes<U>* __attribute__((unused)) x = nullptr
   ) {
-    assert(0);
+    // do nothing, it can be skipped
   }
 
   template <typename U = T>
