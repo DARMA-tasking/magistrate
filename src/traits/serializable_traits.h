@@ -112,7 +112,9 @@ struct SerializableTraits {
   // This defines what it means to be serializable
   static constexpr auto const is_serializable =
     has_serialize_function and (is_default_constructible or is_reconstructible);
-;
+
+  static constexpr auto const is_parserdes =
+    has_parserdes and not has_serialize_function;
 };
 
 }  // end namespace serdes
