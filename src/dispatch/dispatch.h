@@ -26,22 +26,38 @@ struct Dispatch {
   static T& unpackType(
     SerialByteType* buf, SerialByteType* data, SizeType const& size
   );
+
+  static SizeType sizeTypePartial(T& to_size);
+  static BufferPtrType packTypePartial(
+    T& to_pack, SizeType const& size, SerialByteType* buf
+  );
+  template <typename PackerT>
+  static BufferPtrType packTypeWithPackerPartial(
+    PackerT& packer, T& to_pack, SizeType const& size
+  );
+  static T& unpackTypePartial(
+    SerialByteType* buf, SerialByteType* data, SizeType const& size
+  );
 };
 
 template <typename Serializer, typename T>
 inline Serializer& operator|(Serializer& s, T& target);
 
 template <typename Serializer, typename T>
+inline Serializer& operator&(Serializer& s, T& target);
+
+template <typename Serializer, typename T>
 inline void serializeArray(Serializer& s, T* array, SizeType const num_elms);
 
 template <typename T>
 SerializedReturnType serializeType(
-  T& to_serialize, BufferObtainFnType fn = nullptr
+  T& to_serialize, BufferObtainFnType fn = nullptr, bool const partial = false
 );
 
 template <typename T>
 T* deserializeType(
-  SerialByteType* data, SizeType const& size, T* allocBuf = nullptr
+  SerialByteType* data, SizeType const& size, T* allocBuf = nullptr,
+  bool const partial = false
 );
 
 } /* end namespace serdes */

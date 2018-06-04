@@ -26,6 +26,28 @@ struct SerializableTraits {
   using has_serialize = detection::is_detected<serialize_t, T>;
 
   template <typename U>
+  using serializeParent_t =
+    decltype(std::declval<U>().serializeParent(std::declval<Serializer&>()));
+  using has_serializeParent = detection::is_detected<serializeParent_t, T>;
+
+  template <typename U>
+  using serializeThis_t =
+    decltype(std::declval<U>().serializeThis(std::declval<Serializer&>()));
+  using has_serializeThis = detection::is_detected<serializeThis_t, T>;
+
+  template <typename U>
+  using parserdes_t =
+    decltype(std::declval<U>().parserdes(std::declval<Serializer&>()));
+  using has_intrusive_parserdes = detection::is_detected<parserdes_t, T>;
+
+  template <typename U>
+  using nonintrustive_parserdes_t = decltype(parserdes(
+    std::declval<Serializer&>(), std::declval<U&>()
+  ));
+  using has_nonintrustive_parserdes =
+    detection::is_detected<nonintrustive_parserdes_t, T>;
+
+  template <typename U>
   using byteCopyTrait_t = typename U::isByteCopyable;
   using has_byteCopyTraitTrue =
     detection::is_detected_convertible<std::true_type, byteCopyTrait_t, T>;
@@ -46,6 +68,25 @@ struct SerializableTraits {
   template <typename U>
   using reconstruct_t = decltype(U::reconstruct(std::declval<void*>()));
   using has_reconstruct = detection::is_detected_convertible<T&, reconstruct_t, T>;
+
+  // Partial serializability (intrusive)
+  static constexpr auto const has_int_parserdes = has_intrusive_parserdes::value;
+  // Partial serializability (non-intrusive)
+  static constexpr auto const has_nonint_parserdes =
+    has_nonintrustive_parserdes::value;
+
+  static constexpr auto const has_parserdes =
+    has_nonint_parserdes or has_int_parserdes;
+
+  // This defines what it means to have parent serializability
+  static constexpr auto const has_parent_serialize = has_serializeParent::value;
+
+  // This defines what it means to have this serializability
+  static constexpr auto const has_this_serialize = has_serializeThis::value;
+
+  // This defines what it means to have this serializability
+  static constexpr auto const has_split_serialize =
+    has_parent_serialize and has_this_serialize;
 
   // This defines what it means to be reconstructible
   static constexpr auto const is_bytecopyable =

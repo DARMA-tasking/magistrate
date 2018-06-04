@@ -12,7 +12,9 @@
 namespace serialization { namespace interface {
 
 template <typename T>
-SerializedReturnType serialize(T& target, BufferCallbackType fn) {
+SerializedReturnType serialize(
+  T& target, BufferCallbackType fn, bool const partial
+) {
   auto ret = ::serdes::serializeType<T>(target, fn);
   auto& buf = std::get<0>(ret);
   std::unique_ptr<SerializedInfo> base_ptr(
@@ -22,7 +24,9 @@ SerializedReturnType serialize(T& target, BufferCallbackType fn) {
 }
 
 template <typename T>
-T* deserialize(SerialByteType* buf, SizeType size, T* user_buf) {
+T* deserialize(
+  SerialByteType* buf, SizeType size, T* user_buf, bool const partial
+) {
   return ::serdes::deserializeType<T>(buf, size, user_buf);
 }
 
