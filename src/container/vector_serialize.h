@@ -23,8 +23,15 @@ void serialize(Serializer& s, std::vector<T>& vec) {
 }
 
 template <typename Serializer, typename T>
+void parserdesVectorMeta(Serializer& s, std::vector<T>& vec) {
+  SizeType vec_size = vec.size();
+  s & vec_size;
+  vec.resize(vec_size);
+}
+
+template <typename Serializer, typename T>
 void parserdes(Serializer& s, std::vector<T>& vec) {
-  serializeVectorMeta(s, vec);
+  parserdesVectorMeta(s, vec);
   parserdesArray(s, &vec[0], vec.size());
 }
 
