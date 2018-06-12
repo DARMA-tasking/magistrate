@@ -31,8 +31,8 @@ fi
 compiler_c=clang-mp-3.9
 compiler_cxx=clang++-mp-3.9
 
-if test $# -gt 4; then; compiler_c=$5; fi
-if test $# -gt 5; then; compiler_cxx=$6; fi
+if test $# -gt 4; then compiler_c=$5; fi
+if test $# -gt 5; then compiler_cxx=$6; fi
 
 cmake ../checkpoint                                                    \
       -DCMAKE_INSTALL_PREFIX=../checkpoint-install                     \
