@@ -28,11 +28,22 @@ else
     gtest_directory=/Users/jliffla/codes/gtest/gtest-install
 fi
 
+compiler_c=clang-mp-3.9
+compiler_cxx=clang++-mp-3.9
+
+if test $# -gt 4
+then
+    if test $5 = "gnu"
+    then
+        compiler_c=gcc
+        compiler_cxx=g++
+    fi
+fi
 
 cmake ../checkpoint                                                    \
       -DCMAKE_INSTALL_PREFIX=../checkpoint-install                     \
-      -DCMAKE_CXX_COMPILER=clang++-mp-3.9                              \
-      -DCMAKE_C_COMPILER=clang-mp-3.9                                  \
+      -DCMAKE_CXX_COMPILER=${compiler_cxx}                             \
+      -DCMAKE_C_COMPILER=${compiler_c}                                 \
       -Ddetector_DIR=${detector_path}                                  \
       -DCHECKPOINT_BUILD_TESTS:bool=ON                                 \
       -DCHECKPOINT_BUILD_EXAMPLES:bool=ON                              \
