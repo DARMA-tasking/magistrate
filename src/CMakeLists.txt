@@ -68,6 +68,7 @@ target_compile_options(${SERDES_LIBRARY} PUBLIC ${CXX_STANDARD_FLAGS})
 target_compile_definitions(${SERDES_LIBRARY} PUBLIC HAS_DETECTION_COMPONENT=1)
 
 target_link_libraries(${SERDES_LIBRARY} vt::lib::detector)
+target_link_libraries(${SERDES_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
 
 target_include_directories(
   ${SERDES_LIBRARY} PUBLIC
