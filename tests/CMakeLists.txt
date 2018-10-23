@@ -51,11 +51,9 @@ if (${CHECKPOINT_BUILD_TESTS})
         ${PROJECT_TEST_UNIT_DIR}/${TEST}.cc
       )
 
-      target_link_libraries(
-        ${TEST}
-        ${SERDES_LIBRARY}
-        gtest gmock
-      )
+      target_link_libraries(${TEST} PUBLIC ${SERDES_LIBRARY})
+      target_link_libraries(${TEST} PRIVATE GTest::GTest)
+      target_link_libraries(${TEST} PRIVATE GTest::Main)
 
       add_test(
         ${TEST}
