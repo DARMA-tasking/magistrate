@@ -10,17 +10,17 @@ file(
 )
 
 if (${CHECKPOINT_BUILD_TESTS})
-  if (NOT GTEST_DIR)
+  if (NOT ${HAS_GTEST_FLAG})
     message(
       STATUS
       "Checkpoint: Unit test are disabled because GoogleTest is not setup"
-      " via -DGTEST_DIR="
+      " via enable_gtest option: gtest_DIR=${gtest_DIR}"
     )
   else()
     message(
       STATUS
-      "Checkpoint: GTEST_DIR is set: unit tests are enabled "
-      "GTEST_DIR=${GTEST_DIR}"
+      "Checkpoint: GTEST package is found: unit tests are enabled "
+      "gtest_DIR=${gtest_DIR}, GTEST_ROOT=${GTEST_ROOT}"
     )
 
     set(
