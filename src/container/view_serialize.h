@@ -18,20 +18,20 @@ static ViewType&& buildView(
   // If ``val_ptr'' is set then we will initialize an unmanaged view and pass it
   // to the constructor
   if (val_ptr != nullptr) {
-    ViewType v{label,val_ptr,extents[I]...);
+    ViewType v{label,val_ptr,extents[I]...};
     return std::move(v);
   } else {
-    ViewType v{label,extents[I]...);
+    ViewType v{label,extents[I]...};
     return std::move(v);
   }
 }
 
 template <typename SerializerT, typename T, typename... Args>
-inline void serialize(SerializerT& s, kokkos::View<T,Args...>& view) {
-  using ViewType = kokkos::View<T,Args...>;
+inline void serialize(SerializerT& s, Kokkos::View<T,Args...>& view) {
+  using ViewType = Kokkos::View<T,Args...>;
 
   static constexpr auto const rank_val = ViewType::Rank;
-  static constexpr auto const managed = ViewType::traits::is_managed;
+  static constexpr auto const is_managed = ViewType::traits::is_managed;
 
   // Serialize whether the underlying data pointer is null
   bool is_null_ptr;
@@ -84,7 +84,7 @@ inline void serialize(SerializerT& s, kokkos::View<T,Args...>& view) {
     }
 
     // Index sequence for unwinding the extent array into the constructor
-    static constexpr auto index_seq const = std::make_index_sequence<N>{};
+    static constexpr auto index_seq = std::make_index_sequence<rank_val>{};
 
     if (is_contig) {
       if (is_managed) {
@@ -111,7 +111,7 @@ inline void serialize(SerializerT& s, kokkos::View<T,Args...>& view) {
         // Unmanaged view so we will allocate the memory and pass it to the
         // ViewType constructor
         if (s.isUnpacking()) {
-          auto view_data_ = ::operator new T[num_elms]{};
+          auto view_data_ = new T[num_elms]{};
           serializeArray(s, view_data_, num_elms);
 
           auto n_ = buildView<ViewType,T,rank_val>(

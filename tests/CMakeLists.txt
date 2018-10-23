@@ -1,6 +1,10 @@
 
 set(PROJECT_TEST_UNIT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/unit)
 
+#KOKKOS
+find_path(KOKKOS_INCLUDE_DIR Kokkos_View.hpp)
+find_library(KOKKOS_LIB NAMES kokkos)
+
 file(
   GLOB
   PROJECT_TEST_LIST
@@ -35,6 +39,7 @@ if (${CHECKPOINT_BUILD_TESTS})
 
     include_directories(${GTEST_DIR}/include)
     include_directories(${PROJECT_TEST_UNIT_DIR})
+    include_directories(${KOKKOS_INCLUDE_DIR})
 
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L${GTEST_DIR}/lib")
 
@@ -54,6 +59,7 @@ if (${CHECKPOINT_BUILD_TESTS})
       target_link_libraries(
         ${TEST}
         ${SERDES_LIBRARY}
+        ${KOKKOS_LIB}
         gtest gmock
       )
 
