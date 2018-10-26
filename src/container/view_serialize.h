@@ -5,144 +5,164 @@
 #include "serdes_common.h"
 #include "serializers/serializers_headers.h"
 
-#include <type_traits>
+#include <array>
 #include <cassert>
+#include <tuple>
+#include <type_traits>
+#include <utility>
 
 namespace serdes {
+namespace details {
 
-template <typename ViewType, typename T, std::size_t N, std::size_t... I>
-static ViewType&& buildView(
-  std::size_t extents[N], std::string const& label, T* const val_ptr,
-  std::index_sequence<I...>
-) {
-  // If ``val_ptr'' is set then we will initialize an unmanaged view and pass it
-  // to the constructor
-  if (val_ptr != nullptr) {
-    ViewType v{label,val_ptr,extents[I]...};
-    return std::move(v);
-  } else {
-    ViewType v{label,extents[I]...};
-    return std::move(v);
+template <typename SerializerT, typename ViewType, typename T>
+struct Helper {
+  static constexpr size_t dynamic_count = 0;
+  static void countRunTimeDimensions( SerializerT& s, int & dim, ViewType view)
+  {
+    dim = 0;
   }
+};
+
+template <typename SerializerT, typename ViewType, typename T>
+struct Helper<SerializerT, ViewType, T*> {
+  static constexpr size_t dynamic_count =  Helper<SerializerT, ViewType, T>::dynamic_count +1;
+
+  static void countRunTimeDimensions( SerializerT& s, int & dim, ViewType view)
+  {
+    Helper<SerializerT, ViewType, T>::countRunTimeDimensions(s, dim, view);
+    size_t cur_extent = view.extent(dim);
+    s | cur_extent;
+    ++dim;
+  }
+};
+
+template <typename SerializerT, typename ViewType, typename T, size_t N>
+struct Helper<SerializerT, ViewType, T[N]> {
+  static constexpr size_t dynamic_count =  Helper<SerializerT, ViewType, T>::dynamic_count;
+  static void countRunTimeDimensions( SerializerT& s, int & dim, ViewType view)
+  {
+    Helper<SerializerT, ViewType, T>::countRunTimeDimensions(s, dim, view);
+    ++dim;
+  }
+};
+} // namespace detail
+
+
+// DEPRECATED: Will be removed after unmaged view serialization is implemented
+//template <typename ViewType, typename T, std::size_t N, std::size_t... I>
+//static ViewType&& buildView(
+//  std::size_t extents[N], std::string const& label, T* const val_ptr,
+//  std::index_sequence<I...>
+//) {
+//  std::cout << "View construction : "<< N <<std::endl;
+//  // If ``val_ptr'' is set then we will initialize an unmanaged view and pass it
+//  // to the constructor
+////  if (val_ptr != nullptr ) {
+////    ViewType v{val_ptr,extents[I]...};
+////    return std::move(v);
+////  } else {
+////    ViewType v{label,extents[I]...};
+////    return std::move(v);
+////  }
+//  ViewType v{label,extents[I]...};
+//  return std::move(v);
+//}
+
+template <typename ViewType, std::size_t N,typename... I>
+static ViewType buildView(std::string const& label, typename ViewType::pointer_type const val_ptr,
+                          I&&... index
+                          ) {
+  ViewType v{label, std::forward<I>(index)...};
+  return v;
+}
+
+template <class ViewType, class Tuple, std::size_t... I>
+constexpr decltype(auto) apply_impl(std::string const& view_label, typename ViewType::pointer_type const val_ptr, Tuple&& t, std::index_sequence<I...>)
+{
+  constexpr auto const rank_val = ViewType::Rank;
+
+  return buildView<ViewType,rank_val>(
+        view_label,val_ptr,std::get<I>(std::forward<Tuple>(t))...
+        );
+}
+
+template <class ViewType, class Tuple>
+constexpr decltype(auto) apply(std::string const&  view_label, typename ViewType::pointer_type const val_ptr,Tuple&& t)
+{
+  return apply_impl<ViewType>(
+        view_label,val_ptr,
+        std::forward<Tuple>(t),
+        std::make_index_sequence<std::tuple_size<std::remove_reference_t<Tuple>>::value>{});
 }
 
 template <typename SerializerT, typename T, typename... Args>
 inline void serialize(SerializerT& s, Kokkos::View<T,Args...>& view) {
   using ViewType = Kokkos::View<T,Args...>;
+  using ViewTraitsType = Kokkos::ViewTraits<T,Args...>;
 
   static constexpr auto const rank_val = ViewType::Rank;
   static constexpr auto const is_managed = ViewType::traits::is_managed;
 
-  // Serialize whether the underlying data pointer is null
-  bool is_null_ptr;
-  if (s.isUnpacking()) {
-    s | is_null_ptr;
-  } else {
-    bool view_is_null = view.data() == nullptr;
-    s | view_is_null;
-  }
-
-  if (!is_null_ptr) {
-    // Serialize whether it is contiguous or not
-    bool is_contig;
-    if (s.isUnpacking()) {
-      s | is_contig;
-    } else {
-      bool view_is_contig = view.span_is_contiguous();
-      s | view_is_contig;
-    }
-
-    // Serialize number of elements
-    size_t num_elms;
-    if (s.isUnpacking()) {
-      s | num_elms;
-    } else {
-      size_t view_num_elms = view.size();
-      s | view_num_elms;
-    }
-
-    // Serialize the label of the view
-    std::string view_label;
+  // Serialize the label of the view
+  std::string view_label;
+  if (is_managed) {
     if (s.isUnpacking()) {
       s | view_label;
     } else {
-      size_t label = view.label();
+      std::string label = view.label();
       s | label;
     }
+  }
 
-    // For each dimension, serialize the extents
-    size_t extents_[rank_val];
+  int rtDim = 0;
+  if (s.isUnpacking())
+  {
+    // Get the dynamic_count (number of runtime dimension) at deserialization
+    details::Helper<SerializerT, ViewType, T>::dynamic_count;
+  }
+  else
+  {
+    // Compute the runtime extension at serialization
+    details::Helper<SerializerT, ViewType, T>::countRunTimeDimensions(s, rtDim, view);
+  }
+
+  std::array<size_t, details::Helper<SerializerT, ViewType, T>::dynamic_count> dynamicExtentsArray;
+  if (s.isUnpacking())
+  {
+    s | dynamicExtentsArray;
+  }
+
+  if (is_managed) {
     if (s.isUnpacking()) {
-      for (int i = 0; i < rank_val; i++) {
-        s | extents_[i];
-      }
+      auto n_ = apply<ViewType>(
+            view_label,nullptr, dynamicExtentsArray
+            );
+      view = n_;
+
+      // Serialize the data out of the buffer directly into the internal
+      // allocated memory
+      serializeArray(s, view.data(), view.size());
     } else {
-      for (int i = 0; i < rank_val; i++) {
-        size_t cur_extent = view.extent(i);
-        s | cur_extent;
-      }
+      serializeArray(s,  view.data(), view.size());
     }
+  } else {
+    // TODO: Implement the unmanaged view => See what can be combined and not combined with the managed one
+    // Unmanaged view so we will allocate the memory and pass it to the
+    // ViewType constructor
+    //    if (s.isUnpacking()) {
+    //      auto view_data_ = num_elms > 0 ? new T[num_elms]{} : nullptr;
+    //       serializeArray(s, view_data_, num_elms);
 
-    // Index sequence for unwinding the extent array into the constructor
-    static constexpr auto index_seq = std::make_index_sequence<rank_val>{};
+    //      auto n_ = buildView<ViewType, T,rank_val>(
+    //            extents_,view_label,view_data_,index_seq
+    //            );
+    //      view = n_;
 
-    if (is_contig) {
-      if (is_managed) {
-        if (s.isUnpacking()) {
-          // Construct ViewType and use operator= to set the output ref ``view''
-          auto n_ = buildView<ViewType,T,rank_val>(
-            extents_,view_label,nullptr,index_seq
-          );
-          view = n_;
-
-          T& view_internal_data = view.operator()();
-          T* view_internal_ptr = &view_internal_data;
-
-          assert(num_elms == view.size() && "Num elements must equal size");
-
-          // Serialize the data out of the buffer directly into the internal
-          // allocated memory
-          serializeArray(s, view_internal_ptr, num_elms);
-        } else {
-          T* raw_ptr = view.data();
-          serializeArray(s, raw_ptr, num_elms);
-        }
-      } else {
-        // Unmanaged view so we will allocate the memory and pass it to the
-        // ViewType constructor
-        if (s.isUnpacking()) {
-          auto view_data_ = new T[num_elms]{};
-          serializeArray(s, view_data_, num_elms);
-
-          auto n_ = buildView<ViewType,T,rank_val>(
-            extents_,view_label,view_data_,index_seq
-          );
-          view = n_;
-
-          assert(num_elms == view.size() && "Num elements must equal size");
-        } else {
-          T* raw_ptr = view.data();
-          serializeArray(s, raw_ptr, num_elms);
-        }
-      }
-    } else {
-      // Serialize the strides in each dimension for the view: ``rank_val'' is a
-      // statically known value.
-      // int64_t strides[rank_val + 1];
-
-      // if (s.isUnpacking()) {
-      //   for (int i = 0; i < rank_val; i++) {
-      //     s | strides[i];
-      //   }
-      //   // By passing a pointer, Kokkos assigns the strides to the view
-      //   view.stride(strides);
-      // } else {
-      //   for (int i = 0; i < rank_val; i++) {
-      //     // Get the stride for the view during packing for each dimension
-      //     s | view.stride(i);
-      //   }
-      // }
-    }
+    //      assert(num_elms == view.size() && "Num elements must equal size");
+    //    } else {
+    //      auto raw_ptr = num_elms > 0 ? view.data() : nullptr;
+    //      serializeArray(s,  raw_ptr, num_elms);
+    //    }
   }
 }
 
