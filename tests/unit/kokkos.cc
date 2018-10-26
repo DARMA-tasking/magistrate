@@ -111,7 +111,7 @@ protected:
 TEST_F(KokkosViewTest, kokkosViewTest)
 {
   const size_t N = 10;
-  Kokkos::View<double*[2]> k("A", N);
+  Kokkos::View<double*[3]> k("A", N);
 
   Kokkos::parallel_for(10, KOKKOS_LAMBDA(int i)
   {
@@ -124,35 +124,60 @@ TEST_F(KokkosViewTest, kokkosViewTest)
   serdes::Packer s(1000);
   serdes::serialize(s, k);
 
-  Kokkos::View<double*[2]> outk;
+  Kokkos::View<double*[3]> outk;
   serdes::Unpacker us(s.getBuffer(),1000);
   serdes::serialize(us, outk);
 
   compareKokkosView(k, outk, 2);
 }
 
-//TEST_F(KokkosViewTest, kokkosViewTest2)
+TEST_F(KokkosViewTest, kokkosViewTestLeftLayout)
+{
+  const size_t N = 10;
+  Kokkos::View<double*[3], Kokkos::LayoutLeft> k("A", N);
+
+  Kokkos::parallel_for(10, KOKKOS_LAMBDA(int i)
+  {
+                         // Read and write access to data comes via operator()
+                         k(0 ,i) = 1.0*i ;
+                         k(1 ,i) = 1.0*i*i ;
+                         k(2 ,i) = 1.0*i*i*i ;
+                       });
+
+  serdes::Packer s(1000);
+  serdes::serialize(s, k);
+
+  Kokkos::View<double*[3], Kokkos::LayoutLeft> outk;
+  serdes::Unpacker us(s.getBuffer(),1000);
+  serdes::serialize(us, outk);
+
+  compareKokkosView(k, outk, 2);
+}
+
+//TEST_F(KokkosViewTest, kokkosViewTestStrideLayout)
 //{
 //  const size_t N = 10;
-//  Kokkos::View<double*[2], Kokkos::LayoutStride> k("A", N);
-//  std::cout << "size : " << k.size() <<std::endl;
+//  Kokkos::View<double*[3], Kokkos::LayoutStride> k("A", N);
+//  size_t strides[3];
+//  k.stride(2); // fill 'strides' with strides
 
 //  Kokkos::parallel_for(10, KOKKOS_LAMBDA(int i)
 //  {
 //                         // Read and write access to data comes via operator()
-//                         k(i ,0) = 1.0*i ;
-//                         k(i ,1) = 1.0*i*i ;
-//                         k(i ,2) = 1.0*i*i*i ;
+//                         k(0 ,i) = 1.0*i ;
+//                         k(1 ,i) = 1.0*i*i ;
+//                         k(2 ,i) = 1.0*i*i*i ;
 //                       });
-//  std::cout << "// for OK " <<std::endl;
 
+//  std::cout <<" Init of View with Stride Layout OK " << std::endl;
 //  serdes::Packer s(1000);
 //  serdes::serialize(s, k);
 
-//  Kokkos::View<double*[2], Kokkos::LayoutStride> outk;
+//  Kokkos::View<double*[3], Kokkos::LayoutStride> outk;
 //  serdes::Unpacker us(s.getBuffer(),1000);
 //  serdes::serialize(us, outk);
 
 //  compareKokkosView(k, outk, 2);
 //}
+
 
