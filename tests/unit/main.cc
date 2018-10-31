@@ -8,7 +8,6 @@
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
-  ::testing::InitGoogleMock(&argc, argv);
 
   serdes::tests::unit::TestHarness::store_cmdline_args(argc, argv);
 
