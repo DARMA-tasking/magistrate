@@ -1,10 +1,6 @@
 
 set(PROJECT_TEST_UNIT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/unit)
 
-#KOKKOS
-find_path(KOKKOS_INCLUDE_DIR Kokkos_View.hpp)
-find_library(KOKKOS_LIB NAMES kokkos)
-
 file(
   GLOB
   PROJECT_TEST_LIST
@@ -14,17 +10,17 @@ file(
 )
 
 if (${CHECKPOINT_BUILD_TESTS})
-  if (NOT GTEST_DIR)
+  if (NOT CHECKPOINT_HAS_GTEST)
     message(
       STATUS
-      "Checkpoint: Unit test are disabled because GoogleTest is not setup"
-      " via -DGTEST_DIR="
+      "Checkpoint: Unit test are disabled because GoogleTest is not setup:"
+      "gtest_DIR=${gtest_DIR}"
     )
   else()
     message(
       STATUS
-      "Checkpoint: GTEST_DIR is set: unit tests are enabled "
-      "GTEST_DIR=${GTEST_DIR}"
+      "Checkpoint: gtest is enabled; thus, unit tests are enabled: "
+      "gtest_DIR=${gtest_DIR}"
     )
 
     set(
@@ -37,11 +33,7 @@ if (${CHECKPOINT_BUILD_TESTS})
       ${PROJECT_TEST_UNIT_DIR}/main.cc
     )
 
-    include_directories(${GTEST_DIR}/include)
     include_directories(${PROJECT_TEST_UNIT_DIR})
-    include_directories(${KOKKOS_INCLUDE_DIR})
-
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L${GTEST_DIR}/lib")
 
     foreach(TEST_FULL ${PROJECT_TEST_LIST})
       GET_FILENAME_COMPONENT(
@@ -50,18 +42,22 @@ if (${CHECKPOINT_BUILD_TESTS})
         NAME_WE
       )
 
-      add_executable(
+    add_executable(
         ${TEST}
         ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES}
         ${PROJECT_TEST_UNIT_DIR}/${TEST}.cc
       )
 
-      target_link_libraries(
-        ${TEST}
-        ${SERDES_LIBRARY}
-        ${KOKKOS_LIB}
-        gtest gmock
-      )
+      # target_link_libraries(
+      #   ${TEST}
+      #   ${SERDES_LIBRARY}
+      #   gtest gmock
+      # )
+
+      target_link_libraries(${TEST} PUBLIC ${SERDES_LIBRARY})
+      target_link_libraries(${TEST} PUBLIC kokkos)
+      target_link_libraries(${TEST} PRIVATE GTest::GTest)
+      target_link_libraries(${TEST} PRIVATE GTest::Main)
 
       add_test(
         ${TEST}

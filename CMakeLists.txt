@@ -71,6 +71,14 @@ if (${kokkos_DIR_FOUND})
   find_package_local(kokkos "${kokkos_DIR}/cmake")
 endif()
 
+# If checkpoint build tests require the GTest package
+if (${CHECKPOINT_BUILD_TESTS})
+  set(CHECKPOINT_HAS_GTEST TRUE)
+  find_package(GTest REQUIRED)
+else()
+  set(CHECKPOINT_HAS_GTEST FALSE)
+endif()
+
 set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(PROJECT_EXAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/examples)
 set(PROJECT_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tests)

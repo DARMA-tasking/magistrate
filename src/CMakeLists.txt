@@ -67,7 +67,14 @@ target_compile_options(${SERDES_LIBRARY} PUBLIC ${CXX_STANDARD_FLAGS})
 
 target_compile_definitions(${SERDES_LIBRARY} PUBLIC HAS_DETECTION_COMPONENT=1)
 
-target_link_libraries(${SERDES_LIBRARY} vt::lib::detector)
+if (${kokkos_DIR_FOUND})
+  target_compile_definitions(${SERDES_LIBRARY} PUBLIC KOKKOS_ENABLED_SERDES=1)
+  target_link_libraries(${SERDES_LIBRARY} PUBLIC kokkos)
+  # This should not have to be done, missing include configuration from kokkos
+  target_include_directories(${SERDES_LIBRARY} PUBLIC ${Kokkos_INCLUDE_DIRS})
+endif()
+
+target_link_libraries(${SERDES_LIBRARY} PUBLIC vt::lib::detector)
 
 target_include_directories(
   ${SERDES_LIBRARY} PUBLIC

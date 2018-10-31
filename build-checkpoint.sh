@@ -42,7 +42,7 @@ cmake ../checkpoint                                                    \
       -Ddetector_DIR=${detector_path}                                  \
       -DCHECKPOINT_BUILD_TESTS:bool=${build_tests}                     \
       -DCHECKPOINT_BUILD_EXAMPLES:bool=${build_tests}                  \
-      -DGTEST_DIR=${gtest_directory}                                   \
+      -Dgtest_DIR=${gtest_directory}                                   \
       -DCMAKE_BUILD_TYPE=${build_mode}                                 \
       -Dkokkos_DIR=/Users/jliffla/codes/kokkos-install-cmake/lib/      \
       -DCMAKE_EXPORT_COMPILE_COMMANDS=true
