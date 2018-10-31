@@ -32,6 +32,30 @@ macro(find_package_local pkg_name pkg_directory)
   )
 endmacro(find_package_local)
 
+macro(optional_pkg_directory pkg_name pkg_user_name)
+  #message(STATUS "optional_pkg_directory: name=${pkg_name}")
+  option(${pkg_name}_DIR "Root folder for ${pkg_user_name} installation" OFF)
+  if (NOT ${pkg_name}_DIR)
+    message(
+      STATUS
+      "Path for ${pkg_user_name} library (optional) not specified "
+      "with -D${pkg_name}_DIR="
+    )
+    message(
+      STATUS
+      "Building without ${pkg_user_name} library"
+    )
+    set(${pkg_name}_DIR_FOUND 0)
+  else()
+    message(
+      STATUS
+      "Path for ${pkg_user_name} library (optional) specified "
+      "with -D${pkg_name}_DIR=${${pkg_name}_DIR}"
+    )
+    set(${pkg_name}_DIR_FOUND 1)
+  endif()
+endmacro(optional_pkg_directory)
+
 set(SERDES_LIBRARY checkpoint)
 set(SERDES_LIBRARY_NS vt::lib::checkpoint)
 
