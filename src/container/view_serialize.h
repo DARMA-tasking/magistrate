@@ -5,6 +5,12 @@
 #include "serdes_common.h"
 #include "serializers/serializers_headers.h"
 
+#if KOKKOS_ENABLED_SERDES
+
+#include <Kokkos_Core.hpp>
+#include <Kokkos_View.hpp>
+#include <Kokkos_Serial.hpp>
+
 #include <array>
 #include <cassert>
 #include <tuple>
@@ -174,5 +180,7 @@ inline void serialize(SerializerT& s, Kokkos::View<T,Args...>& view) {
 }
 
 } /* end namespace serdes */
+
+#endif /*KOKKOS_ENABLED_SERDES*/
 
 #endif /*INCLUDED_SERDES_CONTAINER_VIEW_SERIALIZE_H*/
