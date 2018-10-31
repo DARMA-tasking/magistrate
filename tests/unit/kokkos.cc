@@ -1,3 +1,5 @@
+#if KOKKOS_ENABLED_SERDES
+
 #include "test_harness.h"
 #include <Kokkos_Core.hpp>
 #include <Kokkos_View.hpp>
@@ -190,4 +192,4 @@ TEST_F(KokkosViewTest, kokkosViewTestStrideLayout)
   compareKokkosView(k, outk, 2);
 }
 
-
+#endif
