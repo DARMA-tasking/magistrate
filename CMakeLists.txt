@@ -64,6 +64,11 @@ require_pkg_directory(detector "VT detector library")
 # find these required packages locally
 find_package_local(detector "${detector_DIR}/cmake")
 
+
+# If checkpoint build tests require the GTest package
+if (${CHECKPOINT_BUILD_TESTS})
+  find_package(GTest REQUIRED)
+endif()
 set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(PROJECT_EXAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/examples)
 set(PROJECT_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tests)
