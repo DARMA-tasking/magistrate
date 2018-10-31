@@ -124,6 +124,7 @@ inline void serialize(SerializerT& s, Kokkos::View<T,Args...>& view) {
   {
     // Compute the runtime extension at serialization
     details::Helper<SerializerT, ViewType, T>::countRunTimeDimensions(s, rtDim, view);
+    std::cout << "countRunTimeDimensions: "<< rtDim <<std::endl;
   }
 
   std::array<size_t, details::Helper<SerializerT, ViewType, T>::dynamic_count> dynamicExtentsArray;
@@ -143,7 +144,13 @@ inline void serialize(SerializerT& s, Kokkos::View<T,Args...>& view) {
       // allocated memory
       serializeArray(s, view.data(), view.size());
     } else {
-      serializeArray(s,  view.data(), view.size());
+      for(int i = 0; i < 21; ++i)
+      {
+            std::cout << "data : " << i << " : " << view.data()[i]<<std::endl;
+      }
+      std::cout << "serializeArray of size "<< view.size() <<std::endl;
+      serializeArray(s,  view.data(), 21);
+      std::cout << "serializeArray OK " <<std::endl;
     }
   } else {
     // TODO: Implement the unmanaged view => See what can be combined and not combined with the managed one
