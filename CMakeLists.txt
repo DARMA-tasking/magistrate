@@ -64,11 +64,13 @@ require_pkg_directory(detector "VT detector library")
 # find these required packages locally
 find_package_local(detector "${detector_DIR}/cmake")
 
+# optional packages
+optional_pkg_directory(kokkos "Kokkos library")
 
-# If checkpoint build tests require the GTest package
-if (${CHECKPOINT_BUILD_TESTS})
-  find_package(GTest REQUIRED)
+if (${kokkos_DIR_FOUND})
+  find_package_local(kokkos "${kokkos_DIR}/cmake")
 endif()
+
 set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(PROJECT_EXAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/examples)
 set(PROJECT_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tests)
