@@ -156,6 +156,8 @@ protected:
 //  compareKokkosView(k, outk, 2);
 //}
 
+#if 0
+
 TEST_F(KokkosViewTest, kokkosViewTestStrideLayout)
 {
   const size_t N =7;
@@ -191,5 +193,7 @@ TEST_F(KokkosViewTest, kokkosViewTestStrideLayout)
 
   compareKokkosView(k, outk, 2);
 }
+
+#endif
 
 #endif
