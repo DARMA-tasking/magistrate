@@ -112,21 +112,19 @@ static ViewType buildView(
   return v;
 }
 
-template <class ViewType, class Tuple, std::size_t... I>
-static constexpr decltype(auto) apply_impl(
+template <typename ViewType, typename Tuple, std::size_t... I>
+static constexpr ViewType apply_impl(
   std::string const& view_label, typename ViewType::pointer_type const val_ptr,
   Tuple&& t, std::index_sequence<I...>
-)
-{
+) {
   constexpr auto const rank_val = ViewType::Rank;
-
   return buildView<ViewType,rank_val>(
     view_label,val_ptr,std::get<I>(std::forward<Tuple>(t))...
   );
 }
 
-template <class ViewType, class Tuple>
-static constexpr decltype(auto) apply(
+template <typename ViewType, typename Tuple>
+static constexpr ViewType apply(
   std::string const& view_label, typename ViewType::pointer_type const val_ptr,
   Tuple&& t
 ) {
@@ -214,12 +212,8 @@ inline void serialize(SerializerT& s, Kokkos::View<T,Args...>& view) {
 
   if (s.isUnpacking()) {
     s | dynamicExtentsArray;
-    // for (auto i = 0; i < dyn_dims; i++) {
-    //   std::cout << "unpack extent: " << i << ", val=" << dynamicExtentsArray[i] <<std::endl;
-    // }
   } else {
     for (auto i = 0; i < dyn_dims; i++) {
-      //std::cout << "pack/size extent: " << i << ", val=" << view.extent(i) <<std::endl;
       dynamicExtentsArray[i] = view.extent(i);
     }
     s | dynamicExtentsArray;
@@ -232,14 +226,14 @@ inline void serialize(SerializerT& s, Kokkos::View<T,Args...>& view) {
 
     if (s.isUnpacking()) {
       view = apply<ViewType>(view_label, nullptr, std::make_tuple(layout));
-    } else {
-      std::cout << "serializeArray of size "<< view.size() <<std::endl;
-      std::cout << "serializeArray OK " <<std::endl;
     }
 
-    // Serialize the data out of the buffer directly into the internal
-    // allocated memory
-    if (view.span_is_contiguous()) {
+    bool is_contig = view.span_is_contiguous();
+    s | is_contig;
+
+    if (is_contig) {
+      // Serialize the data out of the buffer directly into the internal
+      // allocated memory
       serializeArray(s, view.data(), num_elms);
     } else {
       TraverseManual<SerializerT,ViewType,rank_val>::apply(s,view);
