@@ -29,6 +29,9 @@ template <typename T>
 T* deserialize(SerialByteType* buf, SizeType size, T* user_buf = nullptr);
 
 template <typename T>
+T* deserialize(SerializedReturnType&& in);
+
+template <typename T>
 SerializedReturnType serializePartial(T& target, BufferCallbackType fn = nullptr);
 
 template <typename T>

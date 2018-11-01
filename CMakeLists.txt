@@ -32,6 +32,30 @@ macro(find_package_local pkg_name pkg_directory)
   )
 endmacro(find_package_local)
 
+macro(optional_pkg_directory pkg_name pkg_user_name)
+  #message(STATUS "optional_pkg_directory: name=${pkg_name}")
+  option(${pkg_name}_DIR "Root folder for ${pkg_user_name} installation" OFF)
+  if (NOT ${pkg_name}_DIR)
+    message(
+      STATUS
+      "Path for ${pkg_user_name} library (optional) not specified "
+      "with -D${pkg_name}_DIR="
+    )
+    message(
+      STATUS
+      "Building without ${pkg_user_name} library"
+    )
+    set(${pkg_name}_DIR_FOUND 0)
+  else()
+    message(
+      STATUS
+      "Path for ${pkg_user_name} library (optional) specified "
+      "with -D${pkg_name}_DIR=${${pkg_name}_DIR}"
+    )
+    set(${pkg_name}_DIR_FOUND 1)
+  endif()
+endmacro(optional_pkg_directory)
+
 set(SERDES_LIBRARY checkpoint)
 set(SERDES_LIBRARY_NS vt::lib::checkpoint)
 
@@ -39,6 +63,21 @@ set(SERDES_LIBRARY_NS vt::lib::checkpoint)
 require_pkg_directory(detector "VT detector library")
 # find these required packages locally
 find_package_local(detector "${detector_DIR}/cmake")
+
+# optional packages
+optional_pkg_directory(kokkos "Kokkos library")
+
+if (${kokkos_DIR_FOUND})
+  find_package_local(kokkos "${kokkos_DIR}/cmake")
+endif()
+
+# If checkpoint build tests require the GTest package
+if (${CHECKPOINT_BUILD_TESTS})
+  set(CHECKPOINT_HAS_GTEST TRUE)
+  find_package(GTest REQUIRED)
+else()
+  set(CHECKPOINT_HAS_GTEST FALSE)
+endif()
 
 set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(PROJECT_EXAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/examples)

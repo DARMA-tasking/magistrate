@@ -10,11 +10,11 @@ file(
 )
 
 if (${CHECKPOINT_BUILD_TESTS})
-  if (NOT ${HAS_GTEST_FLAG})
+  if (NOT CHECKPOINT_HAS_GTEST)
     message(
       STATUS
-      "Checkpoint: Unit test are disabled because GoogleTest is not setup"
-      " via enable_gtest option: gtest_DIR=${gtest_DIR}"
+      "Checkpoint: Unit test are disabled because GoogleTest is not setup:"
+      "gtest_DIR=${gtest_DIR}"
     )
   else()
     message(
@@ -33,10 +33,7 @@ if (${CHECKPOINT_BUILD_TESTS})
       ${PROJECT_TEST_UNIT_DIR}/main.cc
     )
 
-    include_directories(${GTEST_DIR}/include)
     include_directories(${PROJECT_TEST_UNIT_DIR})
-
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L${GTEST_DIR}/lib")
 
     foreach(TEST_FULL ${PROJECT_TEST_LIST})
       GET_FILENAME_COMPONENT(
@@ -45,13 +42,16 @@ if (${CHECKPOINT_BUILD_TESTS})
         NAME_WE
       )
 
-      add_executable(
+    add_executable(
         ${TEST}
         ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES}
         ${PROJECT_TEST_UNIT_DIR}/${TEST}.cc
       )
 
       target_link_libraries(${TEST} PUBLIC ${SERDES_LIBRARY})
+      if (${kokkos_DIR_FOUND})
+        target_link_libraries(${TEST} PUBLIC kokkos)
+      endif()
       target_link_libraries(${TEST} PRIVATE GTest::GTest)
       target_link_libraries(${TEST} PRIVATE GTest::Main)
 
