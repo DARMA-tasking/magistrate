@@ -193,6 +193,9 @@ inline std::string serializeViewLabel(SerializerT& s, ViewT& view) {
   // Serialize the label of the view
   std::string view_label = view.label();
   s | view_label;
+
+  DEBUG_PRINT_SERDES(s, "serializeViewLabel: label=%s\n", view_label.c_str());
+
   return view_label;
 }
 
@@ -222,9 +225,10 @@ inline void serialize(
   s | max_extent;
   s | view_size;
 
-  // std::cout << "chunk_size:" << chunk_size << std::endl;
-  // std::cout << "max_extent:" << max_extent << std::endl;
-  // std::cout << "view_size:" << view_size << std::endl;
+  DEBUG_PRINT_SERDES(
+    s, "label=%s: chunk_size=%zu, max_extent=%zu, view_size=%zu\n",
+    label.c_str(), chunk_size, max_extent, view_size
+  );
 
   // Reconstruct the view with the chunk size/extent information
   if (s.isUnpacking()) {
@@ -237,6 +241,8 @@ inline void serialize(
     // Resize the view to the size that was packed. It seems this is necessary.
     view.resize_serial(view_size);
   }
+
+  DEBUG_PRINT_SERDES(s, "label=%s: size=%zu\n", label.c_str(), view.size());
 
   // Serialize the Kokkos::DynamicView data manually by traversing with
   // DynamicView::operator()(...).
@@ -292,6 +298,11 @@ inline void serialize(SerializerT& s, Kokkos::View<T,Args...>& view) {
   // Serialize whether the view is contiguous or not. Is this required?
   bool is_contig = view.span_is_contiguous();
   s | is_contig;
+
+  DEBUG_PRINT_SERDES(
+    s, "label=%s: contig=%s, size=%zu, rt_dim=%d\n",
+    label.c_str(), is_contig ? "true" : "false", num_elms, rt_dim
+  );
 
   // Serialize the actual data owned by the Kokkos::View
   if (is_contig) {
