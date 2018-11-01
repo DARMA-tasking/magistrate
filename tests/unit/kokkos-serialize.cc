@@ -3,6 +3,7 @@
 #include "test_harness.h"
 #include <Kokkos_Core.hpp>
 #include <Kokkos_View.hpp>
+#include <Kokkos_DynamicView.hpp>
 #include <Kokkos_Serial.hpp>
 #include <container/array_serialize.h>
 #include <container/view_serialize.h>
@@ -87,13 +88,20 @@ static inline void compareStaticDim(Kokkos::View<AnyT,Args...> const& v) {
   // no static dimension match
 }
 
+template <typename AnyT, typename... Args>
+static inline void compareStaticDim(
+  Kokkos::Experimental::DynamicView<AnyT,Args...> const& v
+) {
+  // no static dimension match
+}
+
 template <typename ViewT>
 static void compareBasic(ViewT const& k1, ViewT const& k2) {
-  EXPECT_EQ(k1.label(),         k2.label());
-  EXPECT_EQ(k1.size(),          k2.size());
-  EXPECT_EQ(k1.is_contiguous(), k2.is_contiguous());
-  EXPECT_EQ(k1.use_count(),     k2.use_count());
-  EXPECT_EQ(k1.span(),          k2.span());
+  EXPECT_EQ(k1.label(),              k2.label());
+  EXPECT_EQ(k1.size(),               k2.size());
+  EXPECT_EQ(k1.span_is_contiguous(), k2.span_is_contiguous());
+  EXPECT_EQ(k1.use_count(),          k2.use_count());
+  EXPECT_EQ(k1.span(),               k2.span());
   isSameMemoryLayout(k1, k2);
   compareStaticDim(k1);
   compareStaticDim(k2);
@@ -142,6 +150,15 @@ static inline void init1d(Kokkos::View<T*,Args...> const& v) {
 template <typename T, unsigned N, typename... Args>
 static inline void init1d(Kokkos::View<T[N],Args...> const& v) {
   EXPECT_EQ(N, v.extent(0));
+  for (auto i = 0; i < v.extent(0); i++) {
+    v.operator()(i) = i;
+  }
+}
+
+template <typename T, typename... Args>
+static inline void init1d(
+  Kokkos::Experimental::DynamicView<T*,Args...> const& v
+) {
   for (auto i = 0; i < v.extent(0); i++) {
     v.operator()(i) = i;
   }
@@ -625,6 +642,35 @@ TEST_F(KokkosIntegrateTest, test_integrate_1) {
   Data::checkIsGolden(*out);
   Data::checkIsGolden(test_data);
 }
+
+////////// Dynamic View //////////
+
+struct KokkosDynamicViewTest : KokkosBaseTest { };
+
+TEST_F(KokkosDynamicViewTest, test_dynamic_1d) {
+  using namespace serialization::interface;
+
+  using DataType = double*;
+  using ViewType = Kokkos::Experimental::DynamicView<DataType>;
+
+  static constexpr std::size_t const N = 64;
+  static constexpr unsigned const min_chunk = 8;
+  static constexpr unsigned const max_extent = 1024;
+
+  ViewType in_view("my-dynamic-view", min_chunk, max_extent);
+  in_view.resize_serial(N);
+
+  // std::cout << "INIT size=" << in_view.size() << std::endl;
+
+  init1d(in_view);
+
+  auto ret = serialize<ViewType>(in_view);
+  auto out_view = deserialize<ViewType>(ret->getBuffer(), ret->getSize());
+  auto const& out_view_ref = *out_view;
+
+  compare1d(in_view, out_view_ref);
+}
+
 
 #endif
 
