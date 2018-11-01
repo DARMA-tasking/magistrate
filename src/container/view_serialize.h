@@ -265,7 +265,7 @@ inline void serialize(SerializerT& s, Kokkos::View<T,Args...>& view) {
 
   // Serialize the label for the view which is used to construct a new view with
   // the same label. Labels may not be unique and are for debugging Kokkos::View
-  auto const view_label = serializeViewLabel(s,view);
+  auto const label = serializeViewLabel(s,view);
 
   // Serialize the total number of dimensions, including runtime+static dims
   int rt_dim = 0;
@@ -292,7 +292,7 @@ inline void serialize(SerializerT& s, Kokkos::View<T,Args...>& view) {
 
   // Construct a view with the layout and use operator= to propagate out
   if (s.isUnpacking()) {
-    view = constructView<ViewType>(view_label, nullptr, std::make_tuple(layout));
+    view = constructView<ViewType>(label, nullptr, std::make_tuple(layout));
   }
 
   // Serialize whether the view is contiguous or not. Is this required?
