@@ -645,14 +645,19 @@ TEST_F(KokkosIntegrateTest, test_integrate_1) {
   Data::checkIsGolden(test_data);
 }
 
-////////// Dynamic View //////////
+///////////////////////////////////////////////////////////////////////////////
+// Kokkos::DynamicView Unit Tests: dynamic view is restricted to 1-D in kokkos
+///////////////////////////////////////////////////////////////////////////////
 
-struct KokkosDynamicViewTest : KokkosBaseTest { };
+template <typename ParamT>
+struct KokkosDynamicViewTest : KokkosViewTest<ParamT> { };
 
-TEST_F(KokkosDynamicViewTest, test_dynamic_1d) {
+TYPED_TEST_CASE_P(KokkosDynamicViewTest);
+
+TYPED_TEST_P(KokkosDynamicViewTest, test_dynamic_1d) {
   using namespace serialization::interface;
 
-  using DataType = double*;
+  using DataType = TypeParam;
   using ViewType = Kokkos::Experimental::DynamicView<DataType>;
 
   static constexpr std::size_t const N = 64;
@@ -673,6 +678,22 @@ TEST_F(KokkosDynamicViewTest, test_dynamic_1d) {
   compare1d(in_view, out_view_ref);
 }
 
+REGISTER_TYPED_TEST_CASE_P(KokkosDynamicViewTest, test_dynamic_1d);
+
+using DynamicTestTypes = testing::Types<
+  int      *,
+  double   *,
+  float    *,
+  int32_t  *,
+  int64_t  *,
+  unsigned *,
+  long     *,
+  long long*
+>;
+
+INSTANTIATE_TYPED_TEST_CASE_P(
+  test_dynamic_view_1, KokkosDynamicViewTest, DynamicTestTypes
+);
 
 #endif
 
