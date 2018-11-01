@@ -27,18 +27,17 @@ static void isSameMemoryLayout(ViewTypeA const&, ViewTypeB const&) {
 
 template <typename ViewT, unsigned ndim>
 static void compareInner1d(ViewT const& k1, ViewT const& k2) {
+  std::cout << "compareInner1d: " << k1.extent(0) << "," << k2.extent(0) << "\n";
   EXPECT_EQ(k1.extent(0), k2.extent(0));
   for (typename ViewT::size_type i = 0; i < k1.extent(0); i++) {
-    // std::cout << "i=" << i << ", val1=" << k1.operator()(i) << "" << ", val2=" << k2.operator()(i) <<"\n";
     EXPECT_EQ(k1.operator()(i), k2.operator()(i));
-    // EXPECT_EQ(k1.operator()(i,1), k2.operator()(i,1));
   }
 }
 
 template <typename ViewT, unsigned ndim>
 static void compareInner2d(ViewT const& k1, ViewT const& k2) {
-  std::cout << "compareInner2d: " << k1.extent(0) << "," << k2.extent(0) << std::endl;
-  std::cout << "compareInner2d: " << k1.extent(1) << "," << k2.extent(1) << std::endl;
+  std::cout << "compareInner2d: " << k1.extent(0) << "," << k2.extent(0) << "\n";
+  std::cout << "compareInner2d: " << k1.extent(1) << "," << k2.extent(1) << "\n";
   EXPECT_EQ(k1.extent(0), k2.extent(0));
   EXPECT_EQ(k1.extent(1), k2.extent(1));
   for (typename ViewT::size_type i = 0; i < k1.extent(0); i++) {
@@ -50,9 +49,9 @@ static void compareInner2d(ViewT const& k1, ViewT const& k2) {
 
 template <typename ViewT, unsigned ndim>
 static void compareInner3d(ViewT const& k1, ViewT const& k2) {
-  std::cout << "compareInner3d: " << k1.extent(0) << "," << k2.extent(0) << std::endl;
-  std::cout << "compareInner3d: " << k1.extent(1) << "," << k2.extent(1) << std::endl;
-  std::cout << "compareInner3d: " << k1.extent(2) << "," << k2.extent(2) << std::endl;
+  std::cout << "compareInner3d: " << k1.extent(0) << "," << k2.extent(0) << "\n";
+  std::cout << "compareInner3d: " << k1.extent(1) << "," << k2.extent(1) << "\n";
+  std::cout << "compareInner3d: " << k1.extent(2) << "," << k2.extent(2) << "\n";
   EXPECT_EQ(k1.extent(0), k2.extent(0));
   EXPECT_EQ(k1.extent(1), k2.extent(1));
   EXPECT_EQ(k1.extent(2), k2.extent(2));
@@ -65,36 +64,54 @@ static void compareInner3d(ViewT const& k1, ViewT const& k2) {
   }
 }
 
+// This is just a sanity check that the dynamic extent matches the known static
+template <typename T, unsigned N, typename... Args>
+static inline void compareStaticDim(Kokkos::View<T**[N],Args...> const& v) {
+  EXPECT_EQ(v.extent(2), N);
+}
+
+template <typename T, unsigned N, typename... Args>
+static inline void compareStaticDim(Kokkos::View<T*[N],Args...> const& v) {
+  EXPECT_EQ(v.extent(1), N);
+}
+
+template <typename T, unsigned N, typename... Args>
+static inline void compareStaticDim(Kokkos::View<T[N],Args...> const& v) {
+  EXPECT_EQ(v.extent(0), N);
+}
+
+template <typename AnyT, typename... Args>
+static inline void compareStaticDim(Kokkos::View<AnyT,Args...> const& v) {
+  // no static dimension match
+}
+
 template <typename ViewT>
-static void compare1d(ViewT const& k1, ViewT const& k2) {
+static void compareBasic(ViewT const& k1, ViewT const& k2) {
   EXPECT_EQ(k1.label(),         k2.label());
   EXPECT_EQ(k1.size(),          k2.size());
   EXPECT_EQ(k1.is_contiguous(), k2.is_contiguous());
   EXPECT_EQ(k1.use_count(),     k2.use_count());
   EXPECT_EQ(k1.span(),          k2.span());
   isSameMemoryLayout(k1, k2);
+  compareStaticDim(k1);
+  compareStaticDim(k2);
+}
+
+template <typename ViewT>
+static void compare1d(ViewT const& k1, ViewT const& k2) {
+  compareBasic(k1,k2);
   compareInner1d<ViewT,1>(k1,k2);
 }
 
 template <typename ViewT>
 static void compare2d(ViewT const& k1, ViewT const& k2) {
-  EXPECT_EQ(k1.label(),         k2.label());
-  EXPECT_EQ(k1.size(),          k2.size());
-  EXPECT_EQ(k1.is_contiguous(), k2.is_contiguous());
-  EXPECT_EQ(k1.use_count(),     k2.use_count());
-  EXPECT_EQ(k1.span(),          k2.span());
-  isSameMemoryLayout(k1, k2);
+  compareBasic(k1,k2);
   compareInner2d<ViewT,1>(k1,k2);
 }
 
 template <typename ViewT>
 static void compare3d(ViewT const& k1, ViewT const& k2) {
-  EXPECT_EQ(k1.label(),         k2.label());
-  EXPECT_EQ(k1.size(),          k2.size());
-  EXPECT_EQ(k1.is_contiguous(), k2.is_contiguous());
-  EXPECT_EQ(k1.use_count(),     k2.use_count());
-  EXPECT_EQ(k1.span(),          k2.span());
-  isSameMemoryLayout(k1, k2);
+  compareBasic(k1,k2);
   compareInner3d<ViewT,1>(k1,k2);
 }
 
