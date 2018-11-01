@@ -9,6 +9,7 @@
 
 #include <Kokkos_Core.hpp>
 #include <Kokkos_View.hpp>
+#include <Kokkos_DynamicView.hpp>
 #include <Kokkos_Serial.hpp>
 
 #include <array>
@@ -156,6 +157,66 @@ inline void serializeLayout(SerdesT& s, int dim, Kokkos::LayoutRight& layout) {
   for (auto i = 0; i < dim; i++) {
     s | layout.dimension[i];
   }
+}
+
+// template <typename... Args>
+// using DynamicViewType = Kokkos::Experimental::DynamicView<Args...>;
+
+template <typename SerializerT, typename ViewT>
+inline std::string serializeViewLabel(SerializerT& s, ViewT& view) {
+  static constexpr auto const is_managed = ViewT::traits::is_managed;
+
+  // Serialize the label of the view
+  std::string view_label = view.label();
+  if (is_managed) {
+    s | view_label;
+  } else {
+    assert(0 && "Unmanaged not handled currently");
+  }
+
+  return view_label;
+}
+
+template <typename SerializerT, typename T, typename... Args>
+inline void serialize(
+  SerializerT& s, Kokkos::Experimental::DynamicView<T,Args...>& view
+) {
+  using ViewType = Kokkos::Experimental::DynamicView<T,Args...>;
+
+  // serialize the label
+  auto const label = serializeViewLabel(s,view);
+
+  std::cout << "label:" << label << std::endl;
+
+  // serialize the min chunk size and extent which is used to recreate this
+  std::size_t chunk_size = 0;
+  std::size_t max_extent = 0;
+  std::size_t view_size = 0;
+
+  if (!s.isUnpacking()) {
+    chunk_size = view.chunk_size();
+    max_extent = view.allocation_extent();
+    view_size = view.size();
+  }
+
+  s | chunk_size;
+  s | max_extent;
+  s | view_size;
+
+  // std::cout << "chunk_size:" << chunk_size << std::endl;
+  // std::cout << "max_extent:" << max_extent << std::endl;
+  // std::cout << "view_size:" << view_size << std::endl;
+
+  if (s.isUnpacking()) {
+    unsigned min_chunk_size = static_cast<unsigned>(chunk_size);
+    unsigned max_alloc_extent = static_cast<unsigned>(max_extent);
+    view = apply<ViewType>(
+      label, nullptr, std::make_tuple(min_chunk_size,max_alloc_extent)
+    );
+    view.resize_serial(view_size);
+  }
+
+  TraverseManual<SerializerT,ViewType,1>::apply(s,view);
 }
 
 template <typename SerializerT, typename T, typename... Args>
