@@ -219,7 +219,6 @@ inline Kokkos::LayoutStride layout1d(lsType d1) {
 
 template <>
 inline Kokkos::LayoutStride layout2d(lsType d1,lsType d2) {
-  std::cout << "USING OVERLOAD for layout2d\n";
   return Kokkos::LayoutStride{d1,1,d2,d1};
 }
 
