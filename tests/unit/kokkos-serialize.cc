@@ -16,6 +16,8 @@
 #include "serdes_headers.h"
 #include "serialization_library_headers.h"
 
+#define DO_DIRECT_VIEW_TESTS 1
+
 template <typename ViewTypeA, typename ViewTypeB>
 static void isSameMemoryLayout(ViewTypeA const&, ViewTypeB const&) {
   using array_layoutA = typename ViewTypeA::array_layout;
@@ -120,7 +122,6 @@ struct KokkosViewTest : ::testing::TestWithParam<ParamT> {
   virtual void SetUp() override {
     Kokkos::initialize();
   }
-
   virtual void TearDown() override {
     Kokkos::finalize();
   }
@@ -377,9 +378,12 @@ struct TestFactory {
     typename ConvertTupleType<ResultTupleType,testing::Types>::ResultType;
 };
 
+#if DO_DIRECT_VIEW_TESTS
+
 ///////////////////////////////////////////////////////////////////////////////
 // 1-D Kokkos::View Tests
 ///////////////////////////////////////////////////////////////////////////////
+
 using Test1DTypes = std::tuple<
   int      *, int      [1], int      [4],
   double   *, double   [1], double   [4],
@@ -405,6 +409,7 @@ INSTANTIATE_TYPED_TEST_CASE_P(test_1d_S, KokkosViewTest1D, Test1DTypesStride);
 ///////////////////////////////////////////////////////////////////////////////
 // 2-D Kokkos::View Tests
 ///////////////////////////////////////////////////////////////////////////////
+
 using Test2DTypes = std::tuple<
   int      **, int      *[1], int      *[4],
   double   **, double   *[1], double   *[4],
@@ -431,6 +436,7 @@ INSTANTIATE_TYPED_TEST_CASE_P(test_2d_S, KokkosViewTest2D, Test2DTypesStride);
 ///////////////////////////////////////////////////////////////////////////////
 // 3-D Kokkos::View Tests
 ///////////////////////////////////////////////////////////////////////////////
+
 using Test3DTypes = std::tuple<
   int      ***, int      **[1], int      **[9],
   double   ***, double   **[1], double   **[9],
@@ -452,6 +458,173 @@ using Test3DTypesStride =
 INSTANTIATE_TYPED_TEST_CASE_P(test_3d_L, KokkosViewTest3D, Test3DTypesLeft);
 INSTANTIATE_TYPED_TEST_CASE_P(test_3d_R, KokkosViewTest3D, Test3DTypesRight);
 INSTANTIATE_TYPED_TEST_CASE_P(test_3d_S, KokkosViewTest3D, Test3DTypesStride);
+
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
+// Kokkos::View Integration Tests with other elements
+///////////////////////////////////////////////////////////////////////////////
+
+struct BaseData { int a = 10; };
+
+static struct DataConsTagType { } DataConsTag { };
+
+static constexpr int const gold_val1 = 10;
+static constexpr int const gold_val2 = 20;
+static constexpr int const gold_val3 = 29;
+
+static constexpr std::size_t const d1_a = 100;
+static constexpr std::size_t const d2_a = 8, d2_b = 7;
+static constexpr std::size_t const d3_a = 2, d3_b = 7, d3_c = 4;
+static constexpr std::size_t const d4_a = 2;
+
+struct Data : BaseData {
+  using Kokkos_ViewType1 = ::Kokkos::View<int*,     Kokkos::LayoutLeft>;
+  using Kokkos_ViewType2 = ::Kokkos::View<double**, Kokkos::LayoutRight>;
+  using Kokkos_ViewType3 = ::Kokkos::View<float***>;
+  using Kokkos_ViewType4 = ::Kokkos::View<int*[2]>;
+  using DimType          = typename Kokkos_ViewType1::size_type;
+
+  Data() = default;
+
+  explicit Data(DataConsTagType)
+    : val1(gold_val1), val2(gold_val2), vec({gold_val3,gold_val3+1,gold_val3+2})
+  {
+    Kokkos_ViewType1 v1_tmp("v1_tmp",d1_a);
+    Kokkos_ViewType2 v2_tmp("v2_tmp",d2_a,d2_b);
+    Kokkos_ViewType3 v3_tmp("v3_tmp",d3_a,d3_b,d3_c);
+    Kokkos_ViewType4 v4_tmp("v4_tmp",d4_a);
+
+    for (DimType i = 0; i < d1_a; i++) {
+      v1_tmp.operator()(i) = v1val(i);
+    }
+    for (DimType i = 0; i < d2_a; i++) {
+      for (DimType j = 0; j < d2_b; j++) {
+        v2_tmp.operator()(i,j) = v2val(i,j);
+      }
+    }
+    for (DimType i = 0; i < d3_a; i++) {
+      for (DimType j = 0; j < d3_b; j++) {
+        for (DimType k = 0; k < d3_c; k++) {
+          v3_tmp.operator()(i,j,k) = v3val(i,j,k);//d3_a*d3_b*i + j*d3_a + k;
+        }
+      }
+    }
+    for (DimType i = 0; i < d4_a; i++) {
+      v4_tmp.operator()(i,0) = v4val(i,0);//d4_a*i*2 + 1;
+      v4_tmp.operator()(i,1) = v4val(i,1);//d4_a*i*2 + 2;
+    }
+    v1 = v1_tmp;
+    v2 = v2_tmp;
+    v3 = v3_tmp;
+    v4 = v4_tmp;
+  }
+
+  /* Generators for creating expected data values */
+  static int v1val(DimType i) {
+    return d1_a * i;
+  }
+  static double v2val(DimType i, DimType j) {
+    return d2_a*i + j;
+  }
+  static float v3val(DimType i, DimType j, DimType k) {
+    return d3_a*d3_b*i + j*d3_a + k;
+  }
+  static int v4val(DimType i, DimType j) {
+    return j == 0 ? d4_a*i*2 + 1 : d4_a*i*2 + 2;
+  }
+
+  /* Check that all values are golden and match with expected generators */
+  static void checkIsGolden(Data const& in) {
+    EXPECT_EQ(in.val1,gold_val1);
+    EXPECT_EQ(in.val2,gold_val2);
+    EXPECT_EQ(in.vec.size(),3);
+    EXPECT_EQ(in.vec[0],gold_val3+0);
+    EXPECT_EQ(in.vec[1],gold_val3+1);
+    EXPECT_EQ(in.vec[2],gold_val3+2);
+    EXPECT_EQ(in.v1.size(),d1_a);
+    EXPECT_EQ(in.v2.size(),d2_a*d2_b);
+    EXPECT_EQ(in.v3.size(),d3_a*d3_b*d3_c);
+    EXPECT_EQ(in.v4.size(),d4_a*2);
+
+    for (DimType i = 0; i < d1_a; i++) {
+      EXPECT_EQ(in.v1.operator()(i), v1val(i));
+    }
+    for (DimType i = 0; i < d2_a; i++) {
+      for (DimType j = 0; j < d2_b; j++) {
+        EXPECT_EQ(in.v2.operator()(i,j), v2val(i,j));
+      }
+    }
+    for (DimType i = 0; i < d3_a; i++) {
+      for (DimType j = 0; j < d3_b; j++) {
+        for (DimType k = 0; k < d3_c; k++) {
+          EXPECT_EQ(in.v3.operator()(i,j,k), v3val(i,j,k));
+        }
+      }
+    }
+    for (DimType i = 0; i < d4_a; i++) {
+      EXPECT_EQ(in.v4.operator()(i,0), v4val(i,0));
+      EXPECT_EQ(in.v4.operator()(i,1), v4val(i,1));
+    }
+  }
+
+  template <typename SerializerT>
+  friend void serdes::serialize(SerializerT& s, Data& data);
+
+private:
+  std::vector<int> vec = {};
+  int val1 = 1, val2 = 2;
+  Kokkos_ViewType1 v1;
+  Kokkos_ViewType2 v2;
+  Kokkos_ViewType3 v3;
+  Kokkos_ViewType4 v4;
+};
+
+namespace serdes {
+
+template <typename SerializerT>
+void serialize(SerializerT& s, BaseData& base) {
+  s | base.a;
+}
+
+template <typename SerializerT>
+void serialize(SerializerT& s, Data& data) {
+  BaseData& base_cls = static_cast<BaseData&>(data);
+  s | base_cls;
+  s | data.vec;
+  s | data.val1 | data.val2;
+  s | data.v1 | data.v2 | data.v3 | data.v4;
+}
+
+} /* end namespace serdes */
+
+struct KokkosBaseTest : virtual testing::Test {
+  virtual void SetUp() override {
+    Kokkos::initialize();
+  }
+  virtual void TearDown() override {
+    Kokkos::finalize();
+  }
+};
+
+struct KokkosIntegrateTest : KokkosBaseTest { };
+
+TEST_F(KokkosIntegrateTest, test_integrate_1) {
+  using namespace serialization::interface;
+  using DataType = Data;
+
+  // Init test_data, check for golden status before and after serialization
+  DataType test_data(DataConsTag);
+  Data::checkIsGolden(test_data);
+
+  auto ret = serialize<DataType>(test_data);
+  auto out = deserialize<DataType>(std::move(ret));
+
+  //std::cout << "size=" << ret->getSize() << std::endl;
+
+  Data::checkIsGolden(*out);
+  Data::checkIsGolden(test_data);
+}
 
 #endif
 
