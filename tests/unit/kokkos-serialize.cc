@@ -17,7 +17,11 @@
 #include "serdes_headers.h"
 #include "serialization_library_headers.h"
 
-#define DO_DIRECT_VIEW_TESTS 1
+/*
+ * Compiling all the unit tests for Kokkos::View takes a long time, thus a
+ * compile-time option to disable the unit tests if needed
+ */
+#define DO_UNIT_TESTS_FOR_VIEW 1
 
 template <typename ViewTypeA, typename ViewTypeB>
 static void isSameMemoryLayout(ViewTypeA const&, ViewTypeB const&) {
@@ -393,7 +397,7 @@ struct TestFactory {
     typename ConvertTupleType<ResultTupleType,testing::Types>::ResultType;
 };
 
-#if DO_DIRECT_VIEW_TESTS
+#if DO_UNIT_TESTS_FOR_VIEW
 
 ///////////////////////////////////////////////////////////////////////////////
 // 1-D Kokkos::View Tests
