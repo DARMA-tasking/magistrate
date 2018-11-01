@@ -55,7 +55,9 @@ if (${CHECKPOINT_BUILD_TESTS})
       # )
 
       target_link_libraries(${TEST} PUBLIC ${SERDES_LIBRARY})
-      target_link_libraries(${TEST} PUBLIC kokkos)
+      if (${kokkos_DIR_FOUND})
+        target_link_libraries(${TEST} PUBLIC kokkos)
+      endif()
       target_link_libraries(${TEST} PRIVATE GTest::GTest)
       target_link_libraries(${TEST} PRIVATE GTest::Main)
 
