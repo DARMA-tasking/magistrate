@@ -212,6 +212,9 @@ inline LayoutT layout4d(lsType d1, lsType d2, lsType d3, lsType d4) {
   return LayoutT{d1,d2,d3,d4};
 }
 
+// Be very careful here: Kokkos strides must be laid out properly for this to be
+// correct. This computes a simple strided layout. Strides are absolute for each
+// dimension and shall calculated as such.
 template <>
 inline Kokkos::LayoutStride layout1d(lsType d1) {
   return Kokkos::LayoutStride{d1,1};
