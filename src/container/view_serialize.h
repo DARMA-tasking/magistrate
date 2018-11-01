@@ -204,10 +204,10 @@ inline void serialize(SerializerT& s, Kokkos::View<T,Args...>& view) {
     serializeLayout<SerializerT>(s, rt_dim, layout_cur);
   }
 
+#if CHECKPOINT_KOKKOS_PACK_EXPLICIT_EXTENTS
   constexpr auto dyn_dims =
     detail::Helper<SerializerT, ViewType, T>::dynamic_count;
 
-#if CHECKPOINT_KOKKOS_PACK_EXPLICIT_EXTENTS
   std::array<size_t, dyn_dims> dynamicExtentsArray;
 
   if (s.isUnpacking()) {
