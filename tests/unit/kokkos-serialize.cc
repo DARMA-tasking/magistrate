@@ -288,8 +288,7 @@ TYPED_TEST_P(KokkosViewTest2D, test_2d_any) {
   static constexpr size_t const N = 23;
   static constexpr size_t const M = 32;
 
-  constexpr auto dyn =
-    serdes::detail::Helper<void,ViewType,DataType>::dynamic_count;
+  constexpr auto dyn = serdes::CountDims<ViewType,DataType>::dynamic;
 
   LayoutType layout = layout2d<LayoutType>(N,M);
   //dyn == 2 ? layout2d<LayoutType>(N,M) : layout1d<LayoutType>(N);
@@ -315,8 +314,7 @@ TYPED_TEST_P(KokkosViewTest3D, test_3d_any) {
   static constexpr size_t const M = 17;
   static constexpr size_t const Q = 7;
 
-  constexpr auto dyn =
-    serdes::detail::Helper<void,ViewType,DataType>::dynamic_count;
+  constexpr auto dyn = serdes::CountDims<ViewType,DataType>::dynamic;
 
   LayoutType layout = layout3d<LayoutType>(N,M,Q);
   ViewType in_view("test-2D-some-string", layout);
