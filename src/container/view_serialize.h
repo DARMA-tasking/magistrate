@@ -17,6 +17,20 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
+#include <cstdio>
+
+#define SERDES_DEBUG_ENABLED 0
+
+#if SERDES_DEBUG_ENABLED
+  #define DEBUG_PRINT_SERDES(ser, str, args...) do {                 \
+      auto state = ser.isUnpacking() ? "Unpacking" : (               \
+        ser.isSizing()               ? "Sizing"    : (               \
+        ser.isPacking()              ? "Packing"   : "Invalid"));    \
+        printf("mode=%s: " str, state, args);                        \
+    } while (0);
+#else
+  #define DEBUG_PRINT_SERDES(str, args...)
+#endif
 
 namespace serdes {
 
