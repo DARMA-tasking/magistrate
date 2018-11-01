@@ -141,8 +141,6 @@ inline void serializeLayout(SerdesT& s, int dim, Kokkos::LayoutStride& layout) {
   for (auto i = 0; i < dim; i++) {
     s | layout.dimension[i];
     s | layout.stride[i];
-    std::cout << "i=" << i << ", dim: "<< layout.dimension[i] <<std::endl;
-    std::cout << "i=" << i << ", stride: "<< layout.stride[i] <<std::endl;
   }
 }
 
@@ -150,7 +148,6 @@ template <typename SerdesT>
 inline void serializeLayout(SerdesT& s, int dim, Kokkos::LayoutLeft& layout) {
   for (auto i = 0; i < dim; i++) {
     s | layout.dimension[i];
-    std::cout << "i=" << i << ", dim: "<< layout.dimension[i] <<std::endl;
   }
 }
 
@@ -173,16 +170,9 @@ inline void serialize(SerializerT& s, Kokkos::View<T,Args...>& view) {
   std::string view_label = view.label();
   if (is_managed) {
     s | view_label;
-    if (s.isUnpacking()) {
-      std::cout << "unpack view_label here: " << view_label << "\n";
-    } else {
-      std::cout << "pack/size view_label here: " << view_label << "\n";
-    }
   } else {
     assert(0 && "Unmanaged not handled currently");
   }
-
-  std::cout << "spot before rt_dim: " << s.getSpotIncrement(0)-s.getBuffer() << "\n";
 
   int rt_dim = 0;
   if (!s.isUnpacking()) {
@@ -190,7 +180,7 @@ inline void serialize(SerializerT& s, Kokkos::View<T,Args...>& view) {
   }
   s | rt_dim;
 
-  std::cout << "rt_dim: "<< rt_dim <<std::endl;
+  // std::cout << "rt_dim: "<< rt_dim <<std::endl;
 
   // This is explicitly done like this because the view.layout() might fail
   // before proper initialization
