@@ -3,5 +3,12 @@ get_filename_component(SELF_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 
 include(${SELF_DIR}/checkpointTargets.cmake)
 
-set (darma_detector_DIR @detector_DIR@)
-find_package(detector)
+include(CMakeFindDependencyMacro)
+
+set (detector_DIR @detector_DIR@)
+find_dependency(detector REQUIRED HINTS @detector_DIR@)
+
+if (@CHECKPOINT_HAS_KOKKOS_LIBRARY@)
+  set (kokkos_DIR @kokkos_DIR@)
+  find_dependency(kokkos REQUIRED HINTS @kokkos_DIR@)
+endif()

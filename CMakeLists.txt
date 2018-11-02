@@ -69,6 +69,10 @@ optional_pkg_directory(kokkos "Kokkos library")
 
 if (${kokkos_DIR_FOUND})
   find_package_local(kokkos "${kokkos_DIR}/cmake")
+  # Used to properly setup transitive dependency in checkpointConfig.cmake.in
+  set(CHECKPOINT_HAS_KOKKOS_LIBRARY 1)
+else()
+  set(CHECKPOINT_HAS_KOKKOS_LIBRARY 0)
 endif()
 
 # If checkpoint build tests require the GTest package
