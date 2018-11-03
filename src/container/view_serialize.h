@@ -4,6 +4,9 @@
 
 #include "serdes_common.h"
 #include "serializers/serializers_headers.h"
+#include "container/view_traits_extract.h"
+#include "container/view_traverse_manual.h"
+#include "container/view_traverse_ndim.h"
 
 #if KOKKOS_ENABLED_SERDES
 
@@ -18,9 +21,12 @@
 #include <type_traits>
 #include <utility>
 #include <cstdio>
+#include <tuple>
+#include <type_traits>
 
 #define SERDES_DEBUG_ENABLED 0
 #define CHECKPOINT_KOKKOS_PACK_LAYOUT 1
+#define CHECKPOINT_KOKKOS_NDIM_TRAVERSE 1
 
 #if SERDES_DEBUG_ENABLED
   #define DEBUG_PRINT_SERDES(ser, str, args...) do {                 \
@@ -34,94 +40,6 @@
 #endif
 
 namespace serdes {
-
-/*
- * Serialization helper classes to count the number of runtime and static
- * dimensions of a Kokkos::View
- */
-
-template <typename ViewType, typename T>
-struct CountDims {
-  static constexpr size_t dynamic = 0;
-  static int numDims(ViewType const& view) { return 0; }
-};
-
-template <typename ViewType, typename T>
-struct CountDims<ViewType, T*> {
-  static constexpr size_t dynamic = CountDims<ViewType, T>::dynamic + 1;
-
-  static int numDims(ViewType const& view) {
-    auto const val = CountDims<ViewType, T>::numDims(view);
-    return val + 1;
-  }
-};
-
-template <typename ViewType, typename T, size_t N>
-struct CountDims<ViewType, T[N]> {
-  static constexpr size_t dynamic = CountDims<ViewType, T>::dynamic;
-  static int numDims(ViewType const& view) {
-    auto const val = CountDims<ViewType, T>::numDims(view);
-    return val + 1;
-  }
-};
-
-/*
- * Serialization of data backing a view by manually traversing the data using
- * the Kokkos::View::operator()(...) or
- * Kokkos::DynamicView::operator()(...). The access operator is guaranteed to
- * correctly accesses the data regardless of the layout.
- */
-
-template <typename SerializerT, typename ViewType, std::size_t dims>
-struct TraverseManual;
-
-template <typename SerializerT, typename ViewType>
-struct TraverseManual<SerializerT,ViewType,1> {
-  static void apply(SerializerT& s, ViewType const& v) {
-    for (typename ViewType::size_type i = 0; i < v.extent(0); i++) {
-      s | v.operator()(i);
-    }
-  }
-};
-
-template <typename SerializerT, typename ViewType>
-struct TraverseManual<SerializerT,ViewType,2> {
-  static void apply(SerializerT& s, ViewType const& v) {
-    for (typename ViewType::size_type i = 0; i < v.extent(0); i++) {
-      for (typename ViewType::size_type j = 0; j < v.extent(1); j++) {
-        s | v.operator()(i,j);
-      }
-    }
-  }
-};
-
-template <typename SerializerT, typename ViewType>
-struct TraverseManual<SerializerT,ViewType,3> {
-  static void apply(SerializerT& s, ViewType const& v) {
-    for (typename ViewType::size_type i = 0; i < v.extent(0); i++) {
-      for (typename ViewType::size_type j = 0; j < v.extent(1); j++) {
-        for (typename ViewType::size_type k = 0; k < v.extent(2); k++) {
-          s | v.operator()(i,j,k);
-        }
-      }
-    }
-  }
-};
-
-template <typename SerializerT, typename ViewType>
-struct TraverseManual<SerializerT,ViewType,4> {
-  static void apply(SerializerT& s, ViewType const& v) {
-    for (typename ViewType::size_type i = 0; i < v.extent(0); i++) {
-      for (typename ViewType::size_type j = 0; j < v.extent(1); j++) {
-        for (typename ViewType::size_type k = 0; k < v.extent(2); k++) {
-          for (typename ViewType::size_type l = 0; l < v.extent(3); l++) {
-            s | v.operator()(i,j,k,l);
-          }
-        }
-      }
-    }
-  }
-};
 
 /*
  * Serialization factory re-constructors for views taking a parameter pack for
@@ -250,7 +168,19 @@ inline void serialize(
   //
   // @todo Optimize this by serializing by chunk
   //
-  TraverseManual<SerializerT,ViewType,1>::apply(s,view);
+
+#if CHECKPOINT_KOKKOS_NDIM_TRAVERSE
+    using CountDimType = CountDims<ViewType>;
+    using BaseType = typename CountDimType::BaseT;
+
+    auto fn = [&s](BaseType& elm){
+      s | elm;
+    };
+
+    TraverseRecur<ViewType,T,1,decltype(fn)>::apply(view,fn);
+#else
+    TraverseManual<SerializerT,ViewType,1>::apply(s,view);
+#endif
 }
 
 template <typename SerializerT, typename T, typename... Args>
@@ -293,6 +223,8 @@ inline void serialize(SerializerT& s, Kokkos::View<T,Args...>& view) {
     view = constructView<ViewType>(label, nullptr, std::make_tuple(layout));
   }
 #else
+  //
+  // This code for now is disabled by default
   //
   // Works only for Kokkos::LayoutLeft and Kokkos::LayoutRight
   //
@@ -341,7 +273,20 @@ inline void serialize(SerializerT& s, Kokkos::View<T,Args...>& view) {
     serializeArray(s, view.data(), num_elms);
   } else {
     // Serialize manually traversing the data with Kokkos::View::operator()(...)
+
+#if CHECKPOINT_KOKKOS_NDIM_TRAVERSE
+    using CountDimType = CountDims<ViewType>;
+    using BaseType = typename CountDimType::BaseT;
+
+    constexpr auto dims = CountDimType::dynamic;
+    auto fn = [&s](BaseType& elm){
+      s | elm;
+    };
+
+    TraverseRecur<ViewType,T,dims,decltype(fn)>::apply(view,fn);
+#else
     TraverseManual<SerializerT,ViewType,rank_val>::apply(s,view);
+#endif
   }
 }
 

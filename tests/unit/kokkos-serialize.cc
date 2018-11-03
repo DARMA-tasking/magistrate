@@ -23,6 +23,9 @@
  */
 #define DO_UNIT_TESTS_FOR_VIEW 1
 
+// By default, using manual compare...should I switch this?
+#define SERDES_USE_ND_COMPARE 0
+
 template <typename ViewTypeA, typename ViewTypeB>
 static void isSameMemoryLayout(ViewTypeA const&, ViewTypeB const&) {
   using array_layoutA = typename ViewTypeA::array_layout;
@@ -32,6 +35,28 @@ static void isSameMemoryLayout(ViewTypeA const&, ViewTypeB const&) {
   );
 }
 
+// N-D dimension comparison
+template <typename ViewT>
+static void compareInnerND(ViewT const& k1, ViewT const& k2) {
+  std::cout << "compareInnerND: " << k1.extent(0) << "," << k2.extent(0) << "\n";
+
+  using DataType     = typename serdes::ViewGetType<ViewT>::DataType;
+  using CountDimType = serdes::CountDims<ViewT>;
+  using BaseType     = typename CountDimType::BaseT;
+  using TupleType     = std::tuple<ViewT,ViewT>;
+
+  constexpr auto dims = CountDimType::dynamic;
+
+  auto fn = [](BaseType& elm1, BaseType& elm2){
+    EXPECT_EQ(elm1,elm2);
+  };
+
+  serdes::TraverseRecur<TupleType,DataType,dims,decltype(fn)>::apply(
+    std::make_tuple(k1,k2),fn
+  );
+}
+
+// Manual 1,2,3 dimension comparison
 template <typename ViewT, unsigned ndim>
 static void compareInner1d(ViewT const& k1, ViewT const& k2) {
   std::cout << "compareInner1d: " << k1.extent(0) << "," << k2.extent(0) << "\n";
@@ -111,6 +136,7 @@ static void compareBasic(ViewT const& k1, ViewT const& k2) {
   compareStaticDim(k2);
 }
 
+// Manual 1,2,3 dimension comparison
 template <typename ViewT>
 static void compare1d(ViewT const& k1, ViewT const& k2) {
   compareBasic(k1,k2);
@@ -127,6 +153,13 @@ template <typename ViewT>
 static void compare3d(ViewT const& k1, ViewT const& k2) {
   compareBasic(k1,k2);
   compareInner3d<ViewT,1>(k1,k2);
+}
+
+// N-D dimension comparison
+template <typename ViewT>
+static void compareND(ViewT const& k1, ViewT const& k2) {
+  compareBasic(k1,k2);
+  compareInnerND<ViewT>(k1,k2);
 }
 
 template <typename ParamT>
@@ -278,7 +311,11 @@ TYPED_TEST_P(KokkosViewTest1D, test_1d_any) {
   auto out_view = deserialize<ViewType>(ret->getBuffer(), ret->getSize());
   auto const& out_view_ref = *out_view;
 
+#if SERDES_USE_ND_COMPARE
+  compareND(in_view, out_view_ref);
+#else
   compare1d(in_view, out_view_ref);
+#endif
 }
 
 TYPED_TEST_P(KokkosViewTest2D, test_2d_any) {
@@ -303,7 +340,11 @@ TYPED_TEST_P(KokkosViewTest2D, test_2d_any) {
   auto out_view = deserialize<ViewType>(ret->getBuffer(), ret->getSize());
   auto const& out_view_ref = *out_view;
 
+#if SERDES_USE_ND_COMPARE
+  compareND(in_view, out_view_ref);
+#else
   compare2d(in_view, out_view_ref);
+#endif
 }
 
 TYPED_TEST_P(KokkosViewTest3D, test_3d_any) {
@@ -328,7 +369,11 @@ TYPED_TEST_P(KokkosViewTest3D, test_3d_any) {
   auto out_view = deserialize<ViewType>(ret->getBuffer(), ret->getSize());
   auto const& out_view_ref = *out_view;
 
+#if SERDES_USE_ND_COMPARE
+  compareND(in_view, out_view_ref);
+#else
   compare3d(in_view, out_view_ref);
+#endif
 }
 
 REGISTER_TYPED_TEST_CASE_P(KokkosViewTest1D, test_1d_any);
