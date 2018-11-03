@@ -26,7 +26,11 @@
 
 #define SERDES_DEBUG_ENABLED 0
 #define CHECKPOINT_KOKKOS_PACK_LAYOUT 1
-#define CHECKPOINT_KOKKOS_NDIM_TRAVERSE 1
+
+// I am shutting the n-dim traversal off by default for now, due to the extra
+// template complexity that needs to be tested more extensively on different
+// compiler versions
+#define CHECKPOINT_KOKKOS_NDIM_TRAVERSE 0
 
 #if SERDES_DEBUG_ENABLED
   #define DEBUG_PRINT_SERDES(ser, str, args...) do {                 \
