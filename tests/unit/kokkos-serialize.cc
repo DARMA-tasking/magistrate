@@ -180,7 +180,6 @@ static inline void init2d(Kokkos::View<T**,Args...> const& v) {
 
 template <typename T, unsigned N, typename... Args>
 static inline void init2d(Kokkos::View<T*[N],Args...> const& v) {
-  std::cout << "doing this\n";
   EXPECT_EQ(N, v.extent(1));
   for (auto i = 0; i < v.extent(0); i++) {
     for (auto j = 0; j < N; j++) {
