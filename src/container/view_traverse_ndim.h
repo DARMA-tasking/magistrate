@@ -18,8 +18,7 @@
 #include <cassert>
 #include <type_traits>
 
-namespace serdes {
-
+namespace serdes { namespace detail {
 
 /*
  * Traversal of data backing a view by recursively traversing each dimension and
@@ -28,9 +27,10 @@ namespace serdes {
  * correctly accesses the data regardless of the layout. This new code does a
  * recursive traversal so it works for n-dimensional views.
  *
- * This code generally allows you to specify any callable, and use two views if
+ * This code generally allows you to specify any callable, and use k-views if
  * you want to operate by essentially zipping the elements and passing to the
- * call function.
+ * call function. You can compare equality, apply element-by-element equality,
+ * or other n-dim operators on k-views.
  *
  */
 
@@ -38,70 +38,77 @@ namespace serdes {
 template <
   typename ViewT, typename T, typename TupleT, unsigned d, typename Callable
 >
-struct RecurDimTraverse;
+struct TraverseRecurImpl;
 
-// Simple meta-code for detecting a tuple type
+/*
+ * Simple meta-code for detecting a tuple type
+ */
 template <typename T>
 struct IsTuple : std::false_type {};
 template <typename... U>
 struct IsTuple<std::tuple<U...>> : std::true_type {};
 
+/*
+ * Extract the size_type from the View, overload to extract from
+ * std::tuple<Kokkos::View...> of
+ */
 template <typename T>
-struct GetViewSizeType {
+struct ViewSizeTraits {
   using SizeType = typename T::size_type;
 };
 
-template <typename T, typename W>
-struct GetViewSizeType<std::tuple<T,W>> {
+template <typename T, typename... Args>
+struct ViewSizeTraits<std::tuple<T,Args...>> {
   using SizeType = typename T::size_type;
 };
 
-// General code for traversing a static or dynamic dimension and recursively
-// preceding pushing the index into the tuple
+/*
+ * General code for traversing a static or dynamic dimension and recursively
+ * preceding pushing the index into the tuple
+ */
 template <
   typename ViewT, typename T, typename TupleT, unsigned d, typename Callable
 >
-struct RecurBaseTraverseDim {
-  using SizeType = typename GetViewSizeType<ViewT>::SizeType;
+struct TraverseRecurImplBase {
+  using SizeType       = typename ViewSizeTraits<ViewT>::SizeType;
+  template <typename U>
+  using ViewIsTuple    = typename std::enable_if<IsTuple<U>::value,ViewT>::type;
+  template <typename U>
+  using ViewNotTuple   = typename std::enable_if<!IsTuple<U>::value,ViewT>::type;
 
-  using TupleNextT = decltype(
+  using TupleChildT = decltype(
     std::tuple_cat(
       std::declval<TupleT>(),
       std::declval<std::tuple<SizeType>>()
     )
   );
-  using RecurT = RecurDimTraverse<ViewT,T,TupleNextT,d-1,Callable>;
-
-  template <typename U>
-  using ViewTupleT = typename std::enable_if<IsTuple<U>::value,ViewT>::type;
-  template <typename U>
-  using NotViewTupleT = typename std::enable_if<!IsTuple<U>::value,ViewT>::type;
+  using ChildT = TraverseRecurImpl<ViewT,T,TupleChildT,d-1,Callable>;
 
   template <typename U = ViewT>
   static void applyImpl(
     ViewT const& view, unsigned nd, TupleT idx, Callable call,
-    ViewTupleT<U>* _x = nullptr
+    ViewIsTuple<U>* x_ = nullptr
   ) {
     auto const ex1 = std::get<0>(view).extent(nd-d);
     auto const ex2 = std::get<1>(view).extent(nd-d);
     assert(ex1 == ex2 && "Matching extents must be equal");
     for (SizeType i = 0; i < ex1; i++) {
-      RecurT::apply(view,nd,std::tuple_cat(idx,std::tuple<SizeType>(i)),call);
+      ChildT::apply(view,nd,std::tuple_cat(idx,std::tuple<SizeType>(i)),call);
     }
   }
 
   template <typename U = ViewT>
   static void applyImpl(
     ViewT const& view, unsigned nd, TupleT idx, Callable call,
-    NotViewTupleT<U>* _x = nullptr
+    ViewNotTuple<U>* x_ = nullptr
   ) {
     for (SizeType i = 0; i < view.extent(nd-d); i++) {
-      RecurT::apply(view,nd,std::tuple_cat(idx,std::tuple<SizeType>(i)),call);
+      ChildT::apply(view,nd,std::tuple_cat(idx,std::tuple<SizeType>(i)),call);
     }
   }
 
   static void apply(ViewT const& view, unsigned nd, TupleT idx, Callable call) {
-    applyImpl(view,nd,idx,call);
+    applyImpl<ViewT>(view,nd,idx,call);
   }
 };
 
@@ -110,16 +117,16 @@ template <
   typename ViewT, typename T, unsigned N, typename TupleT, unsigned d,
   typename Callable
 >
-struct RecurDimTraverse<ViewT, T[N], TupleT, d, Callable>
-  : RecurBaseTraverseDim<ViewT,T,TupleT,d,Callable>
+struct TraverseRecurImpl<ViewT, T[N], TupleT, d, Callable>
+  : TraverseRecurImplBase<ViewT,T,TupleT,d,Callable>
 { };
 
 // Overload for traversing a dynamic (T*) dimension
 template <
   typename ViewT, typename T, typename TupleT, unsigned d, typename Callable
 >
-struct RecurDimTraverse<ViewT, T*, TupleT, d, Callable>
-  : RecurBaseTraverseDim<ViewT,T,TupleT,d,Callable>
+struct TraverseRecurImpl<ViewT, T*, TupleT, d, Callable>
+  : TraverseRecurImplBase<ViewT,T,TupleT,d,Callable>
 { };
 
 // Overload for traversing after we reach recursively the last dimension and now
@@ -127,61 +134,70 @@ struct RecurDimTraverse<ViewT, T*, TupleT, d, Callable>
 template <
   typename ViewT, typename T, typename TupleT, unsigned d, typename Callable
 >
-struct RecurDimTraverse {
-  using SizeType = typename GetViewSizeType<ViewT>::SizeType;
-
-  using TupleNextT = decltype(std::declval<std::tuple<>>());
-
+struct TraverseRecurImpl {
+  using SizeType     = typename ViewSizeTraits<ViewT>::SizeType;
   template <typename U>
-  using ViewTupleT = typename std::enable_if<IsTuple<U>::value,ViewT>::type;
+  using ViewIsTuple  = typename std::enable_if<IsTuple<U>::value,ViewT>::type;
   template <typename U>
-  using NotViewTupleT = typename std::enable_if<!IsTuple<U>::value,ViewT>::type;
+  using ViewNotTuple = typename std::enable_if<!IsTuple<U>::value,ViewT>::type;
+  template <typename U>
+  using GetBaseType  = typename CountDims<U>::BaseT;
 
-  template <typename U, std::size_t... I>
-  static void dispatchImpl(
-    ViewT const& view, Callable call, TupleT tup, std::index_sequence<I...>,
-    ViewTupleT<U>* _x = nullptr
+  // Unwind the inner tuple for operator()(...)
+  template <typename ViewU, std::size_t... I>
+  static GetBaseType<ViewU>& expandTupleToOp(
+    ViewU const& view, TupleT tup, std::index_sequence<I...> idx
   ) {
-    // Dispatch the call operator on both elements of the view tuple, used for
-    // comparison between the elements
-    call(
-      std::get<0>(view).operator()(std::get<I>(tup)...),
-      std::get<1>(view).operator()(std::get<I>(tup)...)
-    );
+    return view.operator()(std::get<I>(tup)...);
   }
 
-  template <typename U, std::size_t... I>
-  static void dispatchImpl(
-    ViewT const& view, Callable call, TupleT tup, std::index_sequence<I...>,
-    NotViewTupleT<U>* _x = nullptr
+  // Unwind the inner tuple for operator()(...)
+  template <typename ViewU>
+  static GetBaseType<ViewU>& expandTupleToOp(ViewU const& view, TupleT tup) {
+    constexpr auto size = std::tuple_size<TupleT>::value;
+    return expandTupleToOp(view,tup,std::make_index_sequence<size>{});
+  }
+
+  // If it's a std::tuple<Kokkos::vie<T>...>, first unwind the outer tuple
+  template <std::size_t... I>
+  static void dispatchViewTuple(
+    ViewT const& view, Callable call, TupleT tup, std::index_sequence<I...>
   ) {
     // Dispatch the call operator on the view
-    call(view.operator()(std::get<I>(tup)...));
+    call(expandTupleToOp(std::get<I>(view),tup)...);
   }
 
-
-  template <std::size_t... I>
-  static void dispatch(
-    ViewT const& view, Callable call, TupleT tup, std::index_sequence<I...> idx
+  // Test whether the ViewT is actually a std::tuple<Kokkos::View<T>...>
+  template <typename U = ViewT>
+  static void dispatchViewType(
+    ViewT const& view, Callable call, TupleT tup, ViewIsTuple<U>* x_ = nullptr
   ) {
-    dispatchImpl<ViewT,I...>(view,call,tup,idx);
+    constexpr auto size = std::tuple_size<ViewT>::value;
+    return dispatchViewTuple(view,call,tup,std::make_index_sequence<size>{});
   }
 
-  static void dispatch(ViewT const& view, Callable call, TupleT idx_tup) {
-    constexpr auto tup_size = std::tuple_size<TupleT>::value;
-    return dispatch(view,call,idx_tup,std::make_index_sequence<tup_size>{});
+  template <typename U = ViewT>
+  static void dispatchViewType(
+    ViewT const& view, Callable call, TupleT tup, ViewNotTuple<U>* x_ = nullptr
+  ) {
+    call(expandTupleToOp(view,tup));
   }
 
-  static void apply(ViewT const& view, unsigned, TupleT idx, Callable call) {
-    return dispatch(view,call,idx);
+  static void apply(ViewT const& view, unsigned, TupleT tup, Callable call) {
+    return dispatchViewType(view,call,tup);
   }
 };
 
+
+}} /* end namespace serdes::detail */
+
+namespace serdes {
+
 template <typename ViewT, typename T, unsigned nd, typename Callable>
-struct TraverseRecur {
-  using RecurImplT = RecurDimTraverse<ViewT,T,std::tuple<>,nd,Callable>;
+struct TraverseRecursive {
+  using RecurT = detail::TraverseRecurImpl<ViewT,T,std::tuple<>,nd,Callable>;
   static void apply(ViewT const& view, Callable call) {
-    return RecurImplT::apply(view,nd,std::tuple<>{},call);
+    return RecurT::apply(view,nd,std::tuple<>{},call);
   }
 };
 

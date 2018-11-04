@@ -181,7 +181,7 @@ inline void serialize(
       s | elm;
     };
 
-    TraverseRecur<ViewType,T,1,decltype(fn)>::apply(view,fn);
+    TraverseRecursive<ViewType,T,1,decltype(fn)>::apply(view,fn);
 #else
     TraverseManual<SerializerT,ViewType,1>::apply(s,view);
 #endif
@@ -287,7 +287,7 @@ inline void serialize(SerializerT& s, Kokkos::View<T,Args...>& view) {
       s | elm;
     };
 
-    TraverseRecur<ViewType,T,dims,decltype(fn)>::apply(view,fn);
+    TraverseRecursive<ViewType,T,dims,decltype(fn)>::apply(view,fn);
 #else
     TraverseManual<SerializerT,ViewType,rank_val>::apply(s,view);
 #endif

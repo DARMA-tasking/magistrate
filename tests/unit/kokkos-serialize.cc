@@ -43,7 +43,7 @@ static void compareInnerND(ViewT const& k1, ViewT const& k2) {
   using DataType     = typename serdes::ViewGetType<ViewT>::DataType;
   using CountDimType = serdes::CountDims<ViewT>;
   using BaseType     = typename CountDimType::BaseT;
-  using TupleType     = std::tuple<ViewT,ViewT>;
+  using TupleType    = std::tuple<ViewT,ViewT>;
 
   constexpr auto dims = CountDimType::dynamic;
 
@@ -51,7 +51,7 @@ static void compareInnerND(ViewT const& k1, ViewT const& k2) {
     EXPECT_EQ(elm1,elm2);
   };
 
-  serdes::TraverseRecur<TupleType,DataType,dims,decltype(fn)>::apply(
+  serdes::TraverseRecursive<TupleType,DataType,dims,decltype(fn)>::apply(
     std::make_tuple(k1,k2),fn
   );
 }
