@@ -10,5 +10,5 @@ find_dependency(detector REQUIRED HINTS @detector_DIR@)
 
 if (@CHECKPOINT_HAS_KOKKOS_LIBRARY@)
   set (kokkos_DIR @kokkos_DIR@)
-  find_dependency(kokkos REQUIRED HINTS @kokkos_DIR@)
+  find_dependency(kokkos REQUIRED HINTS @kokkos_DIR@ NAMES Kokkos)
 endif()
