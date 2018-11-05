@@ -18,13 +18,14 @@ macro(require_pkg_directory pkg_name pkg_user_name)
   endif()
 endmacro(require_pkg_directory)
 
-macro(find_package_local pkg_name pkg_directory)
+macro(find_package_local pkg_name pkg_directory pkg_other_name)
   message(STATUS "find_package_local: pkg name=\"${pkg_name}\", directory=\"${pkg_directory}\"")
   # search locally only for package
   find_package(
     ${pkg_name}
     PATHS ${pkg_directory}
     REQUIRED
+    NAMES ${pkg_name} ${pkg_other_name}
     NO_CMAKE_PACKAGE_REGISTRY
     NO_CMAKE_BUILDS_PATH
     NO_CMAKE_SYSTEM_PATH
@@ -62,13 +63,13 @@ set(SERDES_LIBRARY_NS vt::lib::checkpoint)
 # require directories for these packages
 require_pkg_directory(detector "VT detector library")
 # find these required packages locally
-find_package_local(detector "${detector_DIR}/cmake")
+find_package_local(detector "${detector_DIR}/cmake" detector)
 
 # optional packages
 optional_pkg_directory(kokkos "Kokkos library")
 
 if (${kokkos_DIR_FOUND})
-  find_package_local(kokkos "${kokkos_DIR}/cmake")
+  find_package_local(kokkos "${kokkos_DIR}/CMake/Kokkos/" Kokkos)
   # Used to properly setup transitive dependency in checkpointConfig.cmake.in
   set(CHECKPOINT_HAS_KOKKOS_LIBRARY 1)
 else()
