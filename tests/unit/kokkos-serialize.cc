@@ -634,7 +634,7 @@ struct Data : BaseData {
   template <typename SerializerT>
   friend void serdes::serialize(SerializerT& s, Data& data);
 
-private:
+public:
   std::vector<int> vec = {};
   int val1 = 1, val2 = 2;
   Kokkos_ViewType1 v1;
