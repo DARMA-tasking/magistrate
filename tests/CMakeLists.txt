@@ -48,12 +48,15 @@ if (${CHECKPOINT_BUILD_TESTS})
         ${PROJECT_TEST_UNIT_DIR}/${TEST}.cc
       )
 
+      target_link_libraries(${TEST} PRIVATE GTest::GTest)
+      target_link_libraries(${TEST} PRIVATE GTest::Main)
       target_link_libraries(${TEST} PUBLIC ${SERDES_LIBRARY})
       if (${kokkos_DIR_FOUND})
         target_link_libraries(${TEST} PUBLIC kokkos)
       endif()
-      target_link_libraries(${TEST} PRIVATE GTest::GTest)
-      target_link_libraries(${TEST} PRIVATE GTest::Main)
+      if (${kokkoscore_DIR_FOUND})
+        target_link_libraries(${TEST} PUBLIC kokkoscore)
+      endif()
 
       add_test(
         ${TEST}

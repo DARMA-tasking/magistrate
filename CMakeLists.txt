@@ -65,23 +65,38 @@ require_pkg_directory(detector "VT detector library")
 # find these required packages locally
 find_package_local(detector "${detector_DIR}/cmake" detector)
 
-# optional packages
-optional_pkg_directory(kokkos "Kokkos library")
-
-if (${kokkos_DIR_FOUND})
-  find_package_local(kokkos "${kokkos_DIR}/CMake/Kokkos/" Kokkos)
-  # Used to properly setup transitive dependency in checkpointConfig.cmake.in
-  set(CHECKPOINT_HAS_KOKKOS_LIBRARY 1)
-else()
-  set(CHECKPOINT_HAS_KOKKOS_LIBRARY 0)
-endif()
-
 # If checkpoint build tests require the GTest package
 if (${CHECKPOINT_BUILD_TESTS})
   set(CHECKPOINT_HAS_GTEST TRUE)
   find_package(GTest REQUIRED)
 else()
   set(CHECKPOINT_HAS_GTEST FALSE)
+endif()
+
+# unless kokkos or kokkoscore is found later
+set(CHECKPOINT_HAS_KOKKOS_LIBRARY 0)
+
+# optional packages
+optional_pkg_directory(kokkos "Kokkos library")
+# optional packages
+optional_pkg_directory(kokkoscore "KokkosCore library")
+
+if (${kokkos_DIR_FOUND})
+  if (${kokkoscore_DIR_FOUND})
+    message (FATAL_ERROR "Use either kokkos_DIR or kokkoscore_DIR, not both")
+  endif()
+endif()
+
+if (${kokkos_DIR_FOUND})
+  find_package_local(kokkos "${kokkos_DIR}/CMake/Kokkos/" Kokkos)
+  # Used to properly setup transitive dependency in checkpointConfig.cmake.in
+  set(CHECKPOINT_HAS_KOKKOS_LIBRARY 1)
+endif()
+
+if (${kokkoscore_DIR_FOUND})
+  find_package_local(kokkoscore "${kokkoscore_DIR}/CMake/KokkosCore/" KokkosCore)
+  # Used to properly setup transitive dependency in checkpointConfig.cmake.in
+  set(CHECKPOINT_HAS_KOKKOS_LIBRARY 1)
 endif()
 
 set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)

@@ -37,9 +37,26 @@ if test $# -gt 6; then compiler_cxx=$7; fi
 
 if test $# -gt 7
 then
-    kokkos_path_str="-Dkokkos_DIR=$8"
+    if [ "x$8" != "x-" ]
+    then
+        kokkos_path_str="-Dkokkos_DIR=$8"
+    else
+        kokkos_path_str=
+    fi
 else
     kokkos_path_str=
+fi
+
+if test $# -gt 8
+then
+    if [ "x$9" != "x-" ]
+    then
+        kokkoscore_path_str="-Dkokkoscore_DIR=$9"
+    else
+        kokkoscore_path_str=
+    fi
+else
+    kokkoscore_path_str=
 fi
 
 
@@ -54,4 +71,5 @@ cmake ../checkpoint                                                    \
       -DGTEST_ROOT=${gtest_directory}                                  \
       -DCMAKE_BUILD_TYPE=${build_mode}                                 \
       ${kokkos_path_str}                                               \
+      ${kokkoscore_path_str}                                           \
       -DCMAKE_EXPORT_COMPILE_COMMANDS=true
