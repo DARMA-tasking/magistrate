@@ -5,7 +5,14 @@ include (CTest)
 enable_testing()
 
 option(CHECKPOINT_BUILD_TESTS "Option for turning on checkpoint tests" OFF)
+option(CHECKPOINT_BUILD_TESTS_WITH_MPI "Option for turning on checkpoint examples using MPI" OFF)
 option(CHECKPOINT_BUILD_EXAMPLES "Option for turning on checkpoint examples" OFF)
+
+
+# MPI package
+if(CHECKPOINT_BUILD_TESTS_WITH_MPI)
+ include(cmake/load_mpi_package.cmake)
+endif()
 
 message (STATUS "Checkpoint build tests: ${CHECKPOINT_BUILD_TESTS}")
 message (STATUS "Checkpoint build examples: ${CHECKPOINT_BUILD_EXAMPLES}")
