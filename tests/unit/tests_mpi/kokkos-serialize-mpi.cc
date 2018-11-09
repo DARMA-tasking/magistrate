@@ -19,6 +19,7 @@
 #include "serdes_headers.h"
 #include "serialization_library_headers.h"
 
+
 /*
  * Compiling all the unit tests for Kokkos::View takes a long time, thus a
  * compile-time option to disable the unit tests if needed
@@ -167,34 +168,10 @@ static void compareND(ViewT const& k1, ViewT const& k2) {
 template <typename ParamT>
 struct KokkosViewTest : ::testing::TestWithParam<ParamT> {
   virtual void SetUp() override {
-
-    // Initialize the MPI environment
-    MPI_Init(NULL, NULL);
-
-    // Get the number of processes
-    int world_size;
-    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
-
-    // Get the rank of the process
-    int world_rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-
-    // Get the name of the processor
-    char processor_name[MPI_MAX_PROCESSOR_NAME];
-    int name_len;
-    MPI_Get_processor_name(processor_name, &name_len);
-
-    // Print off a hello world message
-    printf("Hello world from processor %s, rank %d out of %d processors\n",
-           processor_name, world_rank, world_size);
-
     Kokkos::initialize();
   }
   virtual void TearDown() override {
     Kokkos::finalize();
-
-    // Finalize the MPI environment.
-    MPI_Finalize();
   }
 };
 
