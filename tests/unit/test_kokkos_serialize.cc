@@ -21,7 +21,7 @@
  * Compiling all the unit tests for Kokkos::View takes a long time, thus a
  * compile-time option to disable the unit tests if needed
  */
-#define DO_UNIT_TESTS_FOR_VIEW 1
+#define DO_UNIT_TESTS_FOR_VIEW 0
 
 // By default, using manual compare...should I switch this?
 #define SERDES_USE_ND_COMPARE 0
