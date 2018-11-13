@@ -92,6 +92,31 @@ struct DefaultEQ {
 
 /*
  * Check equality of two views: meta-data, internal data, etc.
+ *
+ *   ========== Example w/default equality operator: =================
+ *
+ *     serdes::ViewEquality<ViewT>::compare(view1,view2);
+ *
+ *   ========== Example w/user-specified equality operator: ==========
+ *
+ *     struct EqFunctor {
+ *       template <typename T>
+ *       void operator()(T& a, T& b) const { EXPECT_EQ(a,b); }
+ *       template <typename T>
+ *       void operator()(T&& a, T&& b) const { EXPECT_EQ(a,b); }
+ *     };
+ *
+ *     serdes::ViewEquality<ViewT>::template compare<EqFunctor>(view1,view2);
+ *
+ *  Note: if you specify your own equality functor, it needs to handle l-values
+ *  and r-values based on how ViewEquality uses it. You can also specify a
+ *  lambda or even two lambdas, one typed with the underlying data type of the
+ *  view.
+ *
+ *  Depending on what your equality functor does, the comparison code will not
+ *  stop when inequality is determined: it just invokes the function and does
+ *  not have a return value to indicate incorrectness.
+ *
  */
 
 template <typename ViewT, typename ViewU = ViewT>
@@ -105,6 +130,12 @@ struct ViewEquality {
   using LayoutU = typename ViewU::array_layout;
   static_assert(std::is_same<LayoutT, LayoutU>::value, "Must be same layout");
 
+  /*
+   * This is the main compare call: it compares between two views the statically
+   * specified extents in the type wrt to the dyanmic extents, extent equality
+   * across two views, the meta-data in the view (label,span,etc.), and the
+   * actual internal data inside the views by invoking the quality functor
+   */
   template <typename DataEq = detail::DefaultEQ, typename MetaEq = DataEq>
   static void compare(
     ViewT const& v1, ViewU const& v2, DataEq eqd = {}, MetaEq eqm = {}
@@ -120,12 +151,20 @@ struct ViewEquality {
     compareData(v1, v2, eqd);
   }
 
+  /*
+   * This compares the equality for a single view of the static type-specified
+   * extents to the dynamic extents to ensure equality
+   */
   template <typename EqT = detail::DefaultEQ>
   static void compareStaticDim(ViewT const& v1, EqT c = {}) {
     detail::ViewEqualityStatic<ViewT,EqT> static_eq;
     static_eq.operator()(v1,c);
   }
 
+  /*
+   * This compares the extents of two views, including the static and dynamic
+   * extents
+   */
   template <typename EqT = detail::DefaultEQ>
   static void compareExtents(ViewT const& v1, ViewU const& v2, EqT eq = {}) {
     auto const ndims_v1 = CountDims<ViewT>::numDims(v1);
@@ -136,7 +175,9 @@ struct ViewEquality {
     }
   }
 
-  // N-D view meta-data comparison: size, label, contig, span
+  /*
+   * This compares the view meta-data: size, label, contig, span
+   */
   template <typename EqT = detail::DefaultEQ>
   static void compareMeta(ViewT const& v1, ViewU const& v2, EqT eq = {}) {
     eq(v1.label(),              v2.label());
@@ -145,7 +186,12 @@ struct ViewEquality {
     eq(v1.span(),               v2.span());
   }
 
-  // N-D Kokkos View/Dynamic comparison function for internal data
+  /*
+   * This compares the N-D internal data between two inputs that may be a
+   * Kokkos::View<T> or Kokkos::DynamicView<T> (or conform to the interface). It
+   * recursively traverses both of them and applies a supplied operator by
+   * essentially zipping the elements
+   */
   template <typename EqT = detail::DefaultEQ>
   static void compareData(ViewT const& v1, ViewU const& v2, EqT eq) {
     using DataType     = typename serdes::ViewGetType<ViewT>::DataType;
