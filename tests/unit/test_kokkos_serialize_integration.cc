@@ -1,10 +1,7 @@
-
 #if KOKKOS_ENABLED_SERDES
 
 #include "test_harness.h"
 #include "test_commons.h"
-
-// Manual 1,2,3 dimension comparison
 
 ///////////////////////////////////////////////////////////////////////////////
 // Kokkos::View Integration Tests with other elements
@@ -246,4 +243,3 @@ INSTANTIATE_TYPED_TEST_CASE_P(
 );
 
 #endif
-
