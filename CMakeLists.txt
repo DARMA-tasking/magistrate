@@ -42,8 +42,8 @@ endmacro(find_package_local)
 
 macro(optional_pkg_directory pkg_name pkg_user_name)
   #message(STATUS "optional_pkg_directory: name=${pkg_name}")
-  option(${pkg_name}_DIR "Root folder for ${pkg_user_name} installation" OFF)
-  if (NOT ${pkg_name}_DIR)
+  option(${pkg_name}_ENABLE "Root folder for ${pkg_user_name} installation" OFF)
+  if (NOT ${pkg_name}_ENABLE)
     message(
       STATUS
       "Path for ${pkg_user_name} library (optional) not specified "
@@ -53,14 +53,14 @@ macro(optional_pkg_directory pkg_name pkg_user_name)
       STATUS
       "Building without ${pkg_user_name} library"
     )
-    set(${pkg_name}_DIR_FOUND 0)
+    #set(${pkg_name}_DIR_FOUND 0)
   else()
     message(
       STATUS
-      "Path for ${pkg_user_name} library (optional) specified "
+      "${pkg_name}_ENABLE=${${pkg_name}_ENABLE} : Path for ${pkg_user_name} library (optional) specified "
       "with -D${pkg_name}_DIR=${${pkg_name}_DIR}"
     )
-    set(${pkg_name}_DIR_FOUND 1)
+    #set(${pkg_name}_DIR_FOUND 1)
   endif()
 endmacro(optional_pkg_directory)
 
@@ -75,12 +75,17 @@ find_package_local(detector "${detector_DIR}/cmake" detector)
 # optional packages
 optional_pkg_directory(kokkos "Kokkos library")
 
-if (${kokkos_DIR_FOUND})
+if (${kokkos_ENABLE})
   if (EXISTS "${kokkos_DIR}/CMake/Kokkos/")
     find_package_local(kokkos "${kokkos_DIR}/CMake/Kokkos/" Kokkos)
-  else()
+    message(STATUS "Kokkos package found")
+    set(kokkos_DIR_FOUND 1)
+else()
+    set(kokkos_DIR ${kokkos_DIR} CACHE PATH "Path for kokkos library (optional) specified ")
     if (EXISTS "${kokkos_DIR}/cmake/Kokkos/")
       find_package_local(kokkos "${kokkos_DIR}/cmake/Kokkos/" Kokkos)
+      set(kokkos_DIR_FOUND 1)
+      message(STATUS "Kokkos package found")
     else()
       message(STATUS "Failure to find Kokkos due too path not existing")
     endif()
