@@ -77,10 +77,18 @@ void reconstruct(SerializerT& s, UserObjectB*& obj, void* buf) {
 struct UserObjectC {
   explicit UserObjectC(int in_u) : u_(std::to_string(in_u)) { }
 
+public:
   void check() {
     EXPECT_EQ(u_, std::to_string(u_val));
   }
 
+  template <typename SerializerT>
+  friend void serdes::serialize(SerializerT&, UserObjectC&);
+
+  template <typename SerializerT>
+  friend void serdes::reconstruct(SerializerT&, UserObjectC*&, void*);
+
+private:
   std::string u_ = {};
 };
 
