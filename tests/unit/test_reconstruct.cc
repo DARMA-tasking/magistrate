@@ -159,7 +159,8 @@ TYPED_TEST_P(TestReconstruct, test_reconstruct_multi_type) {
 using ConstructTypes = ::testing::Types<
   UserObjectA,
   UserObjectB,
-  UserObjectC
+  UserObjectC,
+  UserObjectD
 >;
 
 REGISTER_TYPED_TEST_CASE_P(TestReconstruct, test_reconstruct_multi_type);
