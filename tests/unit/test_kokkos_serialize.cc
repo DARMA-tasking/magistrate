@@ -10,6 +10,7 @@
 #include <container/string_serialize.h>
 #include <container/vector_serialize.h>
 #include <container/tuple_serialize.h>
+#include <container/view_equality.h>
 
 #include <Kokkos_Core.hpp>
 #include <Kokkos_View.hpp>
@@ -21,40 +22,15 @@
  * Compiling all the unit tests for Kokkos::View takes a long time, thus a
  * compile-time option to disable the unit tests if needed
  */
-#define DO_UNIT_TESTS_FOR_VIEW 0
+#define DO_UNIT_TESTS_FOR_VIEW 1
 
 // By default, using manual compare...should I switch this?
 #define SERDES_USE_ND_COMPARE 0
 
-template <typename ViewTypeA, typename ViewTypeB>
-static void isSameMemoryLayout(ViewTypeA const&, ViewTypeB const&) {
-  using array_layoutA = typename ViewTypeA::array_layout;
-  using array_layoutB = typename ViewTypeB::array_layout;
-  static_assert(
-    std::is_same<array_layoutA, array_layoutB>::value, "Must be same layout"
-  );
-}
-
-// N-D dimension comparison
-template <typename ViewT>
-static void compareInnerND(ViewT const& k1, ViewT const& k2) {
-  std::cout << "compareInnerND: " << k1.extent(0) << "," << k2.extent(0) << "\n";
-
-  using DataType     = typename serdes::ViewGetType<ViewT>::DataType;
-  using CountDimType = serdes::CountDims<ViewT>;
-  using BaseType     = typename CountDimType::BaseT;
-  using TupleType    = std::tuple<ViewT,ViewT>;
-
-  constexpr auto dims = CountDimType::dynamic;
-
-  auto fn = [](BaseType& elm1, BaseType& elm2){
-    EXPECT_EQ(elm1,elm2);
-  };
-
-  serdes::TraverseRecursive<TupleType,DataType,dims,decltype(fn)>::apply(
-    std::make_tuple(k1,k2),fn
-  );
-}
+/*
+ * This manual compare code should be removed once serdes::ViewEquality is fully
+ * tested on target platforms
+ */
 
 // Manual 1,2,3 dimension comparison
 template <typename ViewT, unsigned ndim>
@@ -96,44 +72,23 @@ static void compareInner3d(ViewT const& k1, ViewT const& k2) {
   }
 }
 
-// This is just a sanity check that the dynamic extent matches the known static
-template <typename T, unsigned N, typename... Args>
-static inline void compareStaticDim(Kokkos::View<T**[N],Args...> const& v) {
-  EXPECT_EQ(v.extent(2), N);
-}
-
-template <typename T, unsigned N, typename... Args>
-static inline void compareStaticDim(Kokkos::View<T*[N],Args...> const& v) {
-  EXPECT_EQ(v.extent(1), N);
-}
-
-template <typename T, unsigned N, typename... Args>
-static inline void compareStaticDim(Kokkos::View<T[N],Args...> const& v) {
-  EXPECT_EQ(v.extent(0), N);
-}
-
-template <typename AnyT, typename... Args>
-static inline void compareStaticDim(Kokkos::View<AnyT,Args...> const& v) {
-  // no static dimension match
-}
-
-template <typename AnyT, typename... Args>
-static inline void compareStaticDim(
-  Kokkos::Experimental::DynamicView<AnyT,Args...> const& v
-) {
-  // no static dimension match
-}
+struct GTestEquality {
+  template <typename T>
+  void operator()(T& a, T& b) const {
+    EXPECT_EQ(a,b);
+  }
+  template <typename T>
+  void operator()(T&& a, T&& b) const {
+    EXPECT_EQ(a,b);
+  }
+};
 
 template <typename ViewT>
 static void compareBasic(ViewT const& k1, ViewT const& k2) {
-  EXPECT_EQ(k1.label(),              k2.label());
-  EXPECT_EQ(k1.size(),               k2.size());
-  EXPECT_EQ(k1.span_is_contiguous(), k2.span_is_contiguous());
-  EXPECT_EQ(k1.use_count(),          k2.use_count());
-  EXPECT_EQ(k1.span(),               k2.span());
-  isSameMemoryLayout(k1, k2);
-  compareStaticDim(k1);
-  compareStaticDim(k2);
+  using EqualityType = serdes::ViewEquality<ViewT>;
+  EqualityType::template compareStaticDim<GTestEquality>(k1);
+  EqualityType::template compareStaticDim<GTestEquality>(k2);
+  EqualityType::template compareMeta<GTestEquality>(k1,k2);
 }
 
 // Manual 1,2,3 dimension comparison
@@ -158,8 +113,7 @@ static void compare3d(ViewT const& k1, ViewT const& k2) {
 // N-D dimension comparison
 template <typename ViewT>
 static void compareND(ViewT const& k1, ViewT const& k2) {
-  compareBasic(k1,k2);
-  compareInnerND<ViewT>(k1,k2);
+  serdes::ViewEquality<ViewT>::template compare<GTestEquality>(k1,k2);
 }
 
 template <typename ParamT>
