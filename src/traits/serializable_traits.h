@@ -21,6 +21,9 @@
 
 namespace serdes {
 
+template <typename T>
+void reconstruct(T) { assert(0); }
+
 struct SerdesByteCopy {
   using isByteCopyable = std::true_type;
 };
