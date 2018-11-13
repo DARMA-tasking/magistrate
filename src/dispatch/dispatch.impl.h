@@ -53,9 +53,9 @@ T& Dispatch<T>::unpackType(
   using DispatchT = DispatchCommon<T>;
   using CleanT = typename DispatchT::CleanT;
 
-  DeserializerDispatch<Serializer, CleanT> apply_des;
-  auto& target = apply_des(buf);
   Unpacker unpacker(data, size);
+  DeserializerDispatch<Serializer, CleanT> apply_des;
+  auto& target = apply_des(unpacker,buf);
   SerializerDispatch<Unpacker, CleanT> ap;
   ap(unpacker, &target, 1);
   return target;

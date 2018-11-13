@@ -28,14 +28,21 @@ struct DeserializerDispatch {
     template <typename U>
     using isReconstructibleType =
       typename std::enable_if<SerializableTraits<U>::is_reconstructible, T>::type;
+
+    template <typename U>
+    using isNonIntReconstructibleType =
+      typename std::enable_if<
+        SerializableTraits<U>::is_nonintrusive_reconstructible, T
+      >::type;
   #else
     template <typename U>
-    using isReconstructibleType = isNotDefaultConsType<U>;
+    using isNonIntReconstructibleType = isNotDefaultConsType<U>;
   #endif
 
   template <typename U = T>
   T& operator()(
-    void* buf, isDefaultConsType<U>* __attribute__((unused)) x = nullptr
+    SerializerT& s, void* buf,
+    isDefaultConsType<U>* __attribute__((unused)) x = nullptr
   ) {
     debug_serdes("DeserializerDispatch: default constructor: buf=%p\n", buf);
     T* t_ptr = new (buf) T{};
@@ -43,12 +50,26 @@ struct DeserializerDispatch {
     return t;
   }
 
+  #if HAS_DETECTION_COMPONENT
   template <typename U = T>
   T& operator()(
-    void* buf, isReconstructibleType<U>*  __attribute__((unused)) x = nullptr
+    SerializerT& s, void* buf,
+    isReconstructibleType<U>*  __attribute__((unused)) x = nullptr
   ) {
     debug_serdes("DeserializerDispatch: T::reconstruct(): buf=%p\n", buf);
     return T::reconstruct(buf);
+  }
+  #endif
+
+  template <typename U = T>
+  T& operator()(
+    SerializerT& s, void* buf,
+    isNonIntReconstructibleType<U>*  __attribute__((unused)) x = nullptr
+  ) {
+    debug_serdes("DeserializerDispatch: non-int reconstruct(): buf=%p\n", buf);
+    T* t = nullptr;
+    reconstruct(s,t,buf);
+    return *t;
   }
 };
 
