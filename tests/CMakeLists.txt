@@ -38,6 +38,7 @@ if (${CHECKPOINT_BUILD_TESTS})
 
     set(
       TEST_HEADER_FILES
+      ${PROJECT_TEST_UNIT_DIR}/test_commons.h
       ${PROJECT_TEST_UNIT_DIR}/test_harness.h
     )
 
