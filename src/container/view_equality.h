@@ -38,29 +38,34 @@ struct ViewEqualityStatic {
   // equal for correctness
   template <typename T, unsigned N, unsigned M, typename... Args>
   void operator()(Kokkos::View<T*[N][M],Args...> const& v, Callable eq) {
-    eq(v.extent(1), N);
-    eq(v.extent(2), M);
+    using ExtentType = decltype(v.extent(1));
+    eq(v.extent(1), static_cast<ExtentType>(N));
+    eq(v.extent(2), static_cast<ExtentType>(M));
   }
 
   template <typename T, unsigned N, unsigned M, typename... Args>
   void operator()(Kokkos::View<T[N][M],Args...> const& v, Callable eq) {
-    eq(v.extent(0), N);
-    eq(v.extent(1), M);
+    using ExtentType = decltype(v.extent(1));
+    eq(v.extent(0), static_cast<ExtentType>(N));
+    eq(v.extent(1), static_cast<ExtentType>(M));
   }
 
   template <typename T, unsigned N, typename... Args>
   void operator()(Kokkos::View<T**[N],Args...> const& v, Callable eq) {
-    eq(v.extent(2), N);
+    using ExtentType = decltype(v.extent(1));
+    eq(v.extent(2), static_cast<ExtentType>(N));
   }
 
   template <typename T, unsigned N, typename... Args>
   void operator()(Kokkos::View<T*[N],Args...> const& v, Callable eq) {
-    eq(v.extent(1), N);
+    using ExtentType = decltype(v.extent(1));
+    eq(v.extent(1), static_cast<ExtentType>(N));
   }
 
   template <typename T, unsigned N, typename... Args>
   void operator()(Kokkos::View<T[N],Args...> const& v, Callable eq) {
-    eq(v.extent(0), N);
+    using ExtentType = decltype(v.extent(1));
+    eq(v.extent(0), static_cast<ExtentType>(N));
   }
 
   template <typename AnyT, typename... Args>
