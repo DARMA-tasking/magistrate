@@ -37,40 +37,40 @@ struct ViewEqualityStatic {
   // Compare the static dimension to the dynamic extent: it must always be
   // equal for correctness
   template <typename T, unsigned N, unsigned M, typename... Args>
-  void operator()(Kokkos::View<T*[N][M],Args...> const& v, Callable c) {
-    EXPECT_EQ(v.extent(1), N);
-    EXPECT_EQ(v.extent(2), M);
+  void operator()(Kokkos::View<T*[N][M],Args...> const& v, Callable eq) {
+    eq(v.extent(1), N);
+    eq(v.extent(2), M);
   }
 
   template <typename T, unsigned N, unsigned M, typename... Args>
-  void operator()(Kokkos::View<T[N][M],Args...> const& v, Callable c) {
-    EXPECT_EQ(v.extent(0), N);
-    EXPECT_EQ(v.extent(1), M);
+  void operator()(Kokkos::View<T[N][M],Args...> const& v, Callable eq) {
+    eq(v.extent(0), N);
+    eq(v.extent(1), M);
   }
 
   template <typename T, unsigned N, typename... Args>
-  void operator()(Kokkos::View<T**[N],Args...> const& v, Callable c) {
-    EXPECT_EQ(v.extent(2), N);
+  void operator()(Kokkos::View<T**[N],Args...> const& v, Callable eq) {
+    eq(v.extent(2), N);
   }
 
   template <typename T, unsigned N, typename... Args>
-  void operator()(Kokkos::View<T*[N],Args...> const& v, Callable c) {
-    EXPECT_EQ(v.extent(1), N);
+  void operator()(Kokkos::View<T*[N],Args...> const& v, Callable eq) {
+    eq(v.extent(1), N);
   }
 
   template <typename T, unsigned N, typename... Args>
-  void operator()(Kokkos::View<T[N],Args...> const& v, Callable c) {
-    EXPECT_EQ(v.extent(0), N);
+  void operator()(Kokkos::View<T[N],Args...> const& v, Callable eq) {
+    eq(v.extent(0), N);
   }
 
   template <typename AnyT, typename... Args>
-  void operator()(Kokkos::View<AnyT,Args...> const& v, Callable c) {
+  void operator()(Kokkos::View<AnyT,Args...> const& v, Callable eq) {
     // no static dimension match
   }
 
   template <typename AnyT, typename... Args>
   void operator()(
-    Kokkos::Experimental::DynamicView<AnyT,Args...> const& v, Callable c
+    Kokkos::Experimental::DynamicView<AnyT,Args...> const& v, Callable eq
   ) {
     // no static dimension match
   }
