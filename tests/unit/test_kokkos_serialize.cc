@@ -1,21 +1,21 @@
+
 #if KOKKOS_ENABLED_SERDES
 
 #include "test_harness.h"
-#include <Kokkos_Core.hpp>
-#include <Kokkos_View.hpp>
-#include <Kokkos_DynamicView.hpp>
-#include <Kokkos_Serial.hpp>
+
+#include <serdes_headers.h>
+#include <serialization_library_headers.h>
 #include <container/array_serialize.h>
 #include <container/view_serialize.h>
 #include <container/string_serialize.h>
 #include <container/vector_serialize.h>
 #include <container/tuple_serialize.h>
-#include <serializers/packer.h>
-#include <serializers/unpacker.h>
-#include <serdes_headers.h>
 
-#include "serdes_headers.h"
-#include "serialization_library_headers.h"
+#include <Kokkos_Core.hpp>
+#include <Kokkos_View.hpp>
+#include <Kokkos_DynamicView.hpp>
+#include <Kokkos_Serial.hpp>
+
 
 /*
  * Compiling all the unit tests for Kokkos::View takes a long time, thus a
