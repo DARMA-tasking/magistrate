@@ -55,7 +55,7 @@ if (${CHECKPOINT_BUILD_TESTS})
         NAME_WE
       )
 
-    add_executable(
+      add_executable(
         ${TEST}
         ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES}
         ${PROJECT_TEST_UNIT_DIR}/${TEST}.cc
@@ -65,6 +65,7 @@ if (${CHECKPOINT_BUILD_TESTS})
       target_link_libraries(${TEST} PRIVATE GTest::Main)
       target_link_libraries(${TEST} PUBLIC ${SERDES_LIBRARY})
       if (${kokkos_DIR_FOUND})
+        target_include_directories(${TEST} SYSTEM PUBLIC ${Kokkos_INCLUDE_DIRS})
         target_link_libraries(${TEST} PUBLIC ${Kokkos_LIBRARIES})
       endif()
 
