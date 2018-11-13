@@ -14,42 +14,6 @@
 
 #if HAS_DETECTION_COMPONENT
 
-// /*
-//  * Pre-declare a serdes::reconstruct with an invalid signature, but allows ADL
-//  * to continue in an unevaluated context---see below. This is used to invoke ADL
-//  * on reconstruct so that it can be put in the `serdes' namespace and found
-//  * properly.
-//  */
-
-// namespace serdes {
-
-// template <typename T>
-// void reconstruct(T) {
-//   assert(0);
-// }
-
-// } /* end namespace serdes */
-
-// /*
-//  * Create a archetype for reconstruct by explicitly importing
-//  * serdes::reconstruct (resolved as the above) to allow the code to
-//  * compile. Then, use ADL to declare a reconstruct function.
-//  */
-
-// namespace serdes { namespace detail {
-
-// using serdes::reconstruct;
-
-// template <typename Serializer, typename U>
-// auto reconstructDetectADL() -> decltype(
-//   reconstruct(
-//     std::declval<Serializer&>(),std::declval<U*&>(),std::declval<void*>()
-//   )){
-//   //return begin(c);
-// }
-
-// }}  /* end namespace detail::serdes */
-
 /*
  * Start the traits class with all the archetypes that can be detected for
  * serialization
@@ -115,18 +79,6 @@ struct SerializableTraits {
   using has_reconstruct =
     detection::is_detected_convertible<T&, reconstruct_t, T>;
 
-  // Call the ADL-specific version of reconstruct. Note: it can not be part of
-  // this class because the explicit import of serdes::reconstruct is not
-  // allowed in classes
-  // template <typename U>
-  // using nonintrustive_reconstruct_t = decltype(
-  //   detail::reconstructDetectADL<Serializer,U>()
-  // );
-
-  //
-  // This is the non-specific version of reconstruct. It works, but does not
-  // allow the reconstruct function to be in the `serdes' namespace
-  //
   template <typename U>
   using nonintrustive_reconstruct_t = decltype(
     reconstruct(
