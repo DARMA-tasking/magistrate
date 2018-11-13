@@ -114,7 +114,7 @@ struct DefaultEQ {
  *  view.
  *
  *  Depending on what your equality functor does, the comparison code will not
- *  stop when inequality is determined: it just invokes the function and does
+ *  stop when (in)equality is determined: it just invokes the function and does
  *  not have a return value to indicate incorrectness.
  *
  */
