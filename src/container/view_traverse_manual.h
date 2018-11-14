@@ -34,6 +34,13 @@ template <typename SerializerT, typename ViewType, std::size_t dims>
 struct TraverseManual;
 
 template <typename SerializerT, typename ViewType>
+struct TraverseManual<SerializerT,ViewType,0> {
+  static void apply(SerializerT& s, ViewType const& v) {
+    s | v.operator()();
+  }
+};
+
+template <typename SerializerT, typename ViewType>
 struct TraverseManual<SerializerT,ViewType,1> {
   static void apply(SerializerT& s, ViewType const& v) {
     for (typename ViewType::size_type i = 0; i < v.extent(0); i++) {
