@@ -88,7 +88,13 @@ static void compareBasic(ViewT const& k1, ViewT const& k2) {
   EqualityType::template compareMeta<GTestEquality>(k1,k2);
 }
 
-// Manual 1,2,3 dimension comparison
+// Manual 0,1,2,3 dimension comparison
+template <typename ViewT>
+static void compare0d(ViewT const& k1, ViewT const& k2) {
+  compareBasic(k1,k2);
+  EXPECT_EQ(k1.operator()(), k2.operator()());
+}
+
 template <typename ViewT>
 static void compare1d(ViewT const& k1, ViewT const& k2) {
   compareBasic(k1,k2);
