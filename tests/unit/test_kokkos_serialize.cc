@@ -323,6 +323,14 @@ TYPED_TEST_P(KokkosViewTest3D, test_3d_any) {
   auto out_view = deserialize<ViewType>(ret->getBuffer(), ret->getSize());
   auto const& out_view_ref = *out_view;
 
+  /*
+   *  Uncomment this line to test the failure mode: ensure the view equality
+   *  code is operating correctly.
+   *
+   *   out_view->operator()(3,1,0) = 1283;
+   *
+   */
+
 #if SERDES_USE_ND_COMPARE
   compareND(in_view, out_view_ref);
 #else
@@ -673,7 +681,20 @@ TYPED_TEST_P(KokkosDynamicViewTest, test_dynamic_1d) {
   auto out_view = deserialize<ViewType>(ret->getBuffer(), ret->getSize());
   auto const& out_view_ref = *out_view;
 
+  /*
+   *  Uncomment these lines (one or both) to test the failure mode: ensure the
+   *  view equality test code is operating correctly.
+   *
+   *   out_view_ref(3) = 10;
+   *   out_view->resize_serial(N-1);
+   *
+   */
+
+#if SERDES_USE_ND_COMPARE
+  compareND(in_view, out_view_ref);
+#else
   compare1d(in_view, out_view_ref);
+#endif
 }
 
 REGISTER_TYPED_TEST_CASE_P(KokkosDynamicViewTest, test_dynamic_1d);
