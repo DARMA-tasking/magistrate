@@ -69,10 +69,35 @@ void reconstruct(SerializerT& s, UserObjectB*& obj, void* buf) {
   obj = new (buf) UserObjectB(100);
 }
 
+}}} // end namespace serdes::tests::unit
+
 /*
  * Unit test with `UserObjectC` with non-intrusive reconstruct for
  * deserialization purposes in the serdes namespace (ADL check)
  */
+
+// Forward-declare UserObjectC
+namespace serdes { namespace tests { namespace unit {
+
+struct UserObjectC;
+
+}}} // end namespace serdes::tests::unit
+
+// Forward-declare serialize/reconstruct methods
+namespace serdes {
+
+// This using declaration is only used for convenience
+using UserObjType = serdes::tests::unit::UserObjectC;
+
+template <typename SerializerT>
+void reconstruct(SerializerT& s, UserObjType*& obj, void* buf);
+template <typename SerializerT>
+void serialize(SerializerT& s, UserObjType& x);
+
+} /* end namespace serdes */
+
+// Actually define the UserObjectC
+namespace serdes { namespace tests { namespace unit {
 
 struct UserObjectC {
   explicit UserObjectC(int in_u) : u_(std::to_string(in_u)) { }
@@ -94,6 +119,7 @@ private:
 
 }}} // end namespace serdes::tests::unit
 
+// Implement the serialize and reconstruct in `serdes` namespace
 namespace serdes {
 
 // This using declaration is only used for convenience
