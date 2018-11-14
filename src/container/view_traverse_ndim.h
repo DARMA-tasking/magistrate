@@ -159,6 +159,7 @@ struct TraverseRecurImpl {
   template <typename U>
   using GetBaseType  = typename CountDims<U>::BaseT;
   using IndexTupleType = TupleT;
+  using CountType      = uint64_t;
 
   // Unwind the inner tuple for operator()(...)
   template <typename ViewU, std::size_t... I>
