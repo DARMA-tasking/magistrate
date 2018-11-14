@@ -133,6 +133,12 @@ template <typename ParamT> struct KokkosViewTest1D : KokkosViewTest<ParamT> { };
 template <typename ParamT> struct KokkosViewTest2D : KokkosViewTest<ParamT> { };
 template <typename ParamT> struct KokkosViewTest3D : KokkosViewTest<ParamT> { };
 
+// 0-D initialization
+template <typename T, typename... Args>
+static inline void init0d(Kokkos::View<T,Args...> const& v) {
+  v.operator()() = 29;
+}
+
 // 1-D initialization
 template <typename T, typename... Args>
 static inline void init1d(Kokkos::View<T*,Args...> const& v) {
