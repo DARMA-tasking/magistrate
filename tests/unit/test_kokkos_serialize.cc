@@ -129,6 +129,7 @@ struct KokkosViewTest : ::testing::TestWithParam<ParamT> {
   }
 };
 
+template <typename ParamT> struct KokkosViewTest0D : KokkosViewTest<ParamT> { };
 template <typename ParamT> struct KokkosViewTest1D : KokkosViewTest<ParamT> { };
 template <typename ParamT> struct KokkosViewTest2D : KokkosViewTest<ParamT> { };
 template <typename ParamT> struct KokkosViewTest3D : KokkosViewTest<ParamT> { };
@@ -252,9 +253,33 @@ inline Kokkos::LayoutStride layout4d(lsType d1,lsType d2,lsType d3,lsType d4) {
   return Kokkos::LayoutStride{d1,1,d2,d1,d3,d1*d2,d4,d1*d2*d3};
 }
 
+TYPED_TEST_CASE_P(KokkosViewTest0D);
 TYPED_TEST_CASE_P(KokkosViewTest1D);
 TYPED_TEST_CASE_P(KokkosViewTest2D);
 TYPED_TEST_CASE_P(KokkosViewTest3D);
+
+TYPED_TEST_P(KokkosViewTest0D, test_0d_any) {
+  using namespace serialization::interface;
+
+  using DataType = TypeParam;
+  using ViewType = Kokkos::View<DataType>;
+
+  static constexpr size_t const N = 241;
+
+  ViewType in_view("test");
+
+  init0d(in_view);
+
+  auto ret = serialize<ViewType>(in_view);
+  auto out_view = deserialize<ViewType>(ret->getBuffer(), ret->getSize());
+  auto const& out_view_ref = *out_view;
+
+#if SERDES_USE_ND_COMPARE
+  compareND(in_view, out_view_ref);
+#else
+  compare0d(in_view, out_view_ref);
+#endif
+}
 
 TYPED_TEST_P(KokkosViewTest1D, test_1d_any) {
   using namespace serialization::interface;
@@ -347,6 +372,7 @@ TYPED_TEST_P(KokkosViewTest3D, test_3d_any) {
 #endif
 }
 
+REGISTER_TYPED_TEST_CASE_P(KokkosViewTest0D, test_0d_any);
 REGISTER_TYPED_TEST_CASE_P(KokkosViewTest1D, test_1d_any);
 REGISTER_TYPED_TEST_CASE_P(KokkosViewTest2D, test_2d_any);
 REGISTER_TYPED_TEST_CASE_P(KokkosViewTest3D, test_3d_any);
@@ -413,6 +439,23 @@ struct TestFactory {
 };
 
 #if DO_UNIT_TESTS_FOR_VIEW
+
+///////////////////////////////////////////////////////////////////////////////
+// 0-D Kokkos::View Tests (a single value)
+///////////////////////////////////////////////////////////////////////////////
+
+using Test0DTypes = testing::Types<
+  int      ,
+  double   ,
+  float    ,
+  int32_t  ,
+  int64_t  ,
+  unsigned ,
+  long     ,
+  long long
+>;
+
+INSTANTIATE_TYPED_TEST_CASE_P(test_0d, KokkosViewTest0D, Test0DTypes);
 
 ///////////////////////////////////////////////////////////////////////////////
 // 1-D Kokkos::View Tests
