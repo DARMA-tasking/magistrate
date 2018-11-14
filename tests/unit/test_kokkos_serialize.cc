@@ -74,12 +74,9 @@ static void compareInner3d(ViewT const& k1, ViewT const& k2) {
 
 struct GTestEquality {
   template <typename T>
-  void operator()(T& a, T& b) const {
+  bool operator()(T&& a, T&& b) const {
     EXPECT_EQ(a,b);
-  }
-  template <typename T>
-  void operator()(T&& a, T&& b) const {
-    EXPECT_EQ(a,b);
+    return a == b;
   }
 };
 
