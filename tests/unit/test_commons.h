@@ -1,6 +1,7 @@
 #ifndef TEST_COMMONS_H
 #define TEST_COMMONS_H
 
+#include "test_harness.h"
 
 #include <serdes_headers.h>
 #include <serialization_library_headers.h>
@@ -32,12 +33,9 @@
 
 struct GTestEquality {
   template <typename T>
-  void operator()(T& a, T& b) const {
+  bool operator()(T&& a, T&& b) const {
     EXPECT_EQ(a,b);
-  }
-  template <typename T>
-  void operator()(T&& a, T&& b) const {
-    EXPECT_EQ(a,b);
+    return a == b;
   }
 };
 

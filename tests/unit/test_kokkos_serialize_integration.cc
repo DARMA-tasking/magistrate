@@ -42,7 +42,7 @@ struct Data : BaseData {
 
     v0_tmp.operator()() = v0val();
 
-   for (DimType i = 0; i < d1_a; i++) {
+    for (DimType i = 0; i < d1_a; i++) {
       v1_tmp.operator()(i) = v1val(i);
     }
     for (DimType i = 0; i < d2_a; i++) {
@@ -177,68 +177,5 @@ TEST_F(KokkosIntegrateTest, test_integrate_1) {
   Data::checkIsGolden(*out);
   Data::checkIsGolden(test_data);
 }
-
-///////////////////////////////////////////////////////////////////////////////
-// Kokkos::DynamicView Unit Tests: dynamic view is restricted to 1-D in kokkos
-///////////////////////////////////////////////////////////////////////////////
-
-template <typename ParamT>
-struct KokkosDynamicViewTest : KokkosViewTest<ParamT> { };
-
-TYPED_TEST_CASE_P(KokkosDynamicViewTest);
-
-TYPED_TEST_P(KokkosDynamicViewTest, test_dynamic_1d) {
-  using namespace serialization::interface;
-
-  using DataType = TypeParam;
-  using ViewType = Kokkos::Experimental::DynamicView<DataType>;
-
-  static constexpr std::size_t const N = 64;
-  static constexpr unsigned const min_chunk = 8;
-  static constexpr unsigned const max_extent = 1024;
-
-  ViewType in_view("my-dynamic-view", min_chunk, max_extent);
-  in_view.resize_serial(N);
-
-  // std::cout << "INIT size=" << in_view.size() << std::endl;
-
-  init1d(in_view);
-
-  auto ret = serialize<ViewType>(in_view);
-  auto out_view = deserialize<ViewType>(ret->getBuffer(), ret->getSize());
-  auto const& out_view_ref = *out_view;
-
-  /*
-   *  Uncomment these lines (one or both) to test the failure mode: ensure the
-   *  view equality test code is operating correctly.
-   *
-   *   out_view_ref(3) = 10;
-   *   out_view->resize_serial(N-1);
-   *
-   */
-
-#if SERDES_USE_ND_COMPARE
-  compareND(in_view, out_view_ref);
-#else
-  compare1d(in_view, out_view_ref);
-#endif
-}
-
-REGISTER_TYPED_TEST_CASE_P(KokkosDynamicViewTest, test_dynamic_1d);
-
-using DynamicTestTypes = testing::Types<
-  int      *,
-  double   *,
-  float    *,
-  int32_t  *,
-  int64_t  *,
-  unsigned *,
-  long     *,
-  long long*
->;
-
-INSTANTIATE_TYPED_TEST_CASE_P(
-  test_dynamic_view_1, KokkosDynamicViewTest, DynamicTestTypes
-);
 
 #endif

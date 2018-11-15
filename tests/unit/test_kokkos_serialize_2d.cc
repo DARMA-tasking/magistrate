@@ -64,7 +64,7 @@ TYPED_TEST_P(KokkosViewTest2D, test_2d_any) {
 
   using LayoutType = typename std::tuple_element<0,TypeParam>::type;
   using DataType   = typename std::tuple_element<1,TypeParam>::type;
-  using ViewType = Kokkos::View<DataType, LayoutType>;
+  using ViewType   = Kokkos::View<DataType, LayoutType>;
 
   static constexpr size_t const N = 23;
   static constexpr size_t const M = 32;

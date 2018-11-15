@@ -46,6 +46,7 @@ static inline void init1d(
   }
 }
 
+
 template <typename LayoutT>
 inline LayoutT layout1d(lsType d1) {
   return LayoutT{d1};
@@ -66,7 +67,7 @@ TYPED_TEST_P(KokkosViewTest1D, test_1d_any) {
 
   using LayoutType = typename std::tuple_element<0,TypeParam>::type;
   using DataType   = typename std::tuple_element<1,TypeParam>::type;
-  using ViewType = Kokkos::View<DataType, LayoutType>;
+  using ViewType   = Kokkos::View<DataType, LayoutType>;
 
   static constexpr size_t const N = 241;
 
@@ -85,6 +86,7 @@ TYPED_TEST_P(KokkosViewTest1D, test_1d_any) {
   compare1d(in_view, out_view_ref);
 #endif
 }
+
 
 REGISTER_TYPED_TEST_CASE_P(KokkosViewTest1D, test_1d_any);
 
@@ -148,7 +150,20 @@ TYPED_TEST_P(KokkosDynamicViewTest, test_dynamic_1d) {
   auto out_view = deserialize<ViewType>(ret->getBuffer(), ret->getSize());
   auto const& out_view_ref = *out_view;
 
+  /*
+   *  Uncomment these lines (one or both) to test the failure mode: ensure the
+   *  view equality test code is operating correctly.
+   *
+   *   out_view_ref(3) = 10;
+   *   out_view->resize_serial(N-1);
+   *
+   */
+
+#if SERDES_USE_ND_COMPARE
+  compareND(in_view, out_view_ref);
+#else
   compare1d(in_view, out_view_ref);
+#endif
 }
 
 REGISTER_TYPED_TEST_CASE_P(KokkosDynamicViewTest, test_dynamic_1d);
@@ -167,6 +182,7 @@ using DynamicTestTypes = testing::Types<
 INSTANTIATE_TYPED_TEST_CASE_P(
   test_dynamic_view_1, KokkosDynamicViewTest, DynamicTestTypes
 );
+
 
 
 #endif
