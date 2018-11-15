@@ -42,7 +42,7 @@ struct Data : BaseData {
 
     v0_tmp.operator()() = v0val();
 
-    for (DimType i = 0; i < d1_a; i++) {
+   for (DimType i = 0; i < d1_a; i++) {
       v1_tmp.operator()(i) = v1val(i);
     }
     for (DimType i = 0; i < d2_a; i++) {
@@ -178,7 +178,6 @@ TEST_F(KokkosIntegrateTest, test_integrate_1) {
   Data::checkIsGolden(test_data);
 }
 
-<<<<<<< HEAD
 ///////////////////////////////////////////////////////////////////////////////
 // Kokkos::DynamicView Unit Tests: dynamic view is restricted to 1-D in kokkos
 ///////////////////////////////////////////////////////////////////////////////
