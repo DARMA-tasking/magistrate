@@ -776,5 +776,22 @@ INSTANTIATE_TYPED_TEST_CASE_P(
   test_dynamic_view_1, KokkosDynamicViewTest, DynamicTestTypes
 );
 
+///////////////////////////////////////////////////////////////////////////////
+// Kokkos::View unit test with no-data (null), default constructor
+///////////////////////////////////////////////////////////////////////////////
+
+struct KokkosNullTest : KokkosBaseTest { };
+
+TEST_F(KokkosNullTest, test_null_1) {
+  using namespace serialization::interface;
+  using ViewType = Kokkos::View<int*>;
+
+  // Default construct
+  ViewType test_data = {};
+
+  auto ret = serialize<ViewType>(test_data);
+  auto out = deserialize<ViewType>(std::move(ret));
+}
+
 #endif
 
