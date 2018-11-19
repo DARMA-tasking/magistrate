@@ -58,5 +58,6 @@ using Test0DTypes = testing::Types<
   long     ,
   long long
 >;
-
 INSTANTIATE_TYPED_TEST_CASE_P(test_0d, KokkosViewTest0D, Test0DTypes);
+
+#endif
