@@ -1,23 +1,11 @@
 #include "test_harness.h"
 #include "test_commons.h"
+#include "test_kokkos_0d_commons.h"
 #include "tests_mpi/mpi-init.h"
 
 #include <mpich-clang39/mpi.h>
 
-template <typename ViewT>
-static void compare0d(ViewT const& k1, ViewT const& k2) {
-  compareBasic(k1,k2);
-  EXPECT_EQ(k1.operator()(), k2.operator()());
-}
-
 template <typename ParamT> struct KokkosViewTest0DMPI : KokkosViewTest<ParamT> { };
-
-// 0-D initialization
-template <typename T, typename... Args>
-static inline void init0d(Kokkos::View<T,Args...> const& v) {
-  v.operator()() = 29;
-}
-
 TYPED_TEST_CASE_P(KokkosViewTest0DMPI);
 
 TYPED_TEST_P(KokkosViewTest0DMPI, test_0d_any) {
@@ -32,11 +20,11 @@ TYPED_TEST_P(KokkosViewTest0DMPI, test_0d_any) {
 
   init0d(in_view);
 
+  // Test the respect of the max rank needed for the test'
+  EXPECT_EQ(MPIEnvironment::isRankValid(1), true);  
+
   int world_rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-
-  // Test the respect of the max rank needed for the test'
-  EXPECT_EQ(MPIEnvironment::isRankValid(1), true);
 
   if (world_rank == 0) {
     std::cout << " RANK 0 ==== > Do the Serialization " << std::endl;

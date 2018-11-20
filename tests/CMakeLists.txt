@@ -42,9 +42,10 @@ if (${CHECKPOINT_BUILD_TESTS})
     )
 
     set(
+      GLOB
       TEST_HEADER_FILES
-      ${PROJECT_TEST_UNIT_DIR}/test_commons.h
-      ${PROJECT_TEST_UNIT_DIR}/test_harness.h
+      RELATIVE
+      "${PROJECT_TEST_UNIT_DIR}/*.h"
     )
 
 if(CHECKPOINT_BUILD_TESTS_WITH_MPI)
