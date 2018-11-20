@@ -178,4 +178,22 @@ TEST_F(KokkosIntegrateTest, test_integrate_1) {
   Data::checkIsGolden(test_data);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// Kokkos::View unit test with no-data (null), default constructor
+///////////////////////////////////////////////////////////////////////////////
+
+struct KokkosNullTest : KokkosBaseTest { };
+
+TEST_F(KokkosNullTest, test_null_1) {
+  using namespace serialization::interface;
+  using ViewType = Kokkos::View<int*>;
+
+  // Default construct
+  ViewType test_data = {};
+
+  auto ret = serialize<ViewType>(test_data);
+  auto out = deserialize<ViewType>(std::move(ret));
+}
+
+
 #endif
