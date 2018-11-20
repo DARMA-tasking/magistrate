@@ -37,7 +37,7 @@ if test $# -gt 6; then compiler_cxx=$7; fi
 
 if test $# -gt 7
 then
-    kokkos_path_str="-Dkokkos_DIR=$8"
+    kokkos_path_str="-Dkokkos_ENABLE=1 -Dkokkos_DIR=$8"
 else
     kokkos_path_str=
 fi
