@@ -4,6 +4,7 @@ set(PROJECT_TEST_MPI_UNIT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/unit/tests_mpi)
 
 if(CHECKPOINT_BUILD_TESTS_WITH_MPI)
   message("Building test using MPI")
+  set(HAVE_MPI ON)
   file(
       GLOB
       PROJECT_TEST_LIST_MPI
@@ -20,6 +21,10 @@ file(
   "${PROJECT_TEST_UNIT_DIR}"
   "${PROJECT_TEST_UNIT_DIR}/*.cc"
 )
+
+if (HAVE_MPI)
+  add_definitions(-DHAVE_MPI)
+endif()
 message("TEST :" ${PROJECT_TEST_LIST})
 
 if (${CHECKPOINT_BUILD_TESTS})
@@ -42,6 +47,13 @@ if (${CHECKPOINT_BUILD_TESTS})
       ${PROJECT_TEST_UNIT_DIR}/test_harness.h
     )
 
+if(CHECKPOINT_BUILD_TESTS_WITH_MPI)
+    set(
+      TEST_HEADER_FILES ${TEST_HEADER_FILES}
+      ${PROJECT_TEST_MPI_UNIT_DIR}/mpi-init.h
+    )
+endif()
+
     set(
       TEST_SOURCE_FILES
       ${PROJECT_TEST_UNIT_DIR}/main.cc
@@ -56,7 +68,7 @@ if (${CHECKPOINT_BUILD_TESTS})
         NAME_WE
       )
 
-    add_executable(
+      add_executable(
         ${TEST}
         ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES}
         ${PROJECT_TEST_UNIT_DIR}/${TEST}.cc
@@ -67,6 +79,9 @@ if (${CHECKPOINT_BUILD_TESTS})
       target_link_libraries(${TEST} PUBLIC ${SERDES_LIBRARY})
       if (${kokkos_DIR_FOUND})
         target_link_libraries(${TEST} PUBLIC ${Kokkos_LIBRARIES})
+      endif()
+      if (HAVE_MPI)
+        target_link_libraries(${TEST} PRIVATE ${MPI_LIBRARIES})
       endif()
 
       add_test(
@@ -80,7 +95,6 @@ if (${CHECKPOINT_BUILD_TESTS})
         FAIL_REGULAR_EXPRESSION "FAILED;should be deleted but never is;WARNING"
         PASS_REGULAR_EXPRESSION "PASSED"
       )
-
     endforeach()
 
     if(CHECKPOINT_BUILD_TESTS_WITH_MPI)
@@ -91,7 +105,7 @@ if (${CHECKPOINT_BUILD_TESTS})
             NAME_WE
           )
 
-        add_executable(
+          add_executable(
             ${TEST}
             ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES}
             ${PROJECT_TEST_MPI_UNIT_DIR}/${TEST}.cc
@@ -104,8 +118,6 @@ if (${CHECKPOINT_BUILD_TESTS})
             target_link_libraries(${TEST} PUBLIC ${Kokkos_LIBRARIES})
           endif()
           target_link_libraries(${TEST} PRIVATE ${MPI_LIBRARIES})
-
-          message("MPILIB ${MPI_LIBRARIES}")
 
           add_test(
             ${TEST}
