@@ -20,7 +20,6 @@ file(
   "${PROJECT_TEST_UNIT_DIR}"
   "${PROJECT_TEST_UNIT_DIR}/*.cc"
 )
-message("TEST :" ${PROJECT_TEST_LIST})
 
 if (${CHECKPOINT_BUILD_TESTS})
   if (NOT CHECKPOINT_HAS_GTEST)
@@ -105,8 +104,6 @@ if (${CHECKPOINT_BUILD_TESTS})
             target_link_libraries(${TEST} PUBLIC ${Kokkos_LIBRARIES})
           endif()
           target_link_libraries(${TEST} PRIVATE ${MPI_LIBRARIES})
-
-          message("MPILIB ${MPI_LIBRARIES}")
 
           add_test(
             ${TEST}
