@@ -23,55 +23,7 @@ endif()
 message (STATUS "Checkpoint build tests: ${CHECKPOINT_BUILD_TESTS}")
 message (STATUS "Checkpoint build examples: ${CHECKPOINT_BUILD_EXAMPLES}")
 
-macro(require_pkg_directory pkg_name pkg_user_name)
-  #message(STATUS "require_directory: name=${pkg_name}")
-  option(${pkg_name}_DIR "Root folder for ${pkg_user_name} installation" OFF)
-  if (NOT ${pkg_name}_DIR)
-    message(FATAL_ERROR "Please specify ${pkg_user_name} library installation root with -D${pkg_name}_DIR=")
-  endif()
-endmacro(require_pkg_directory)
-
-macro(find_package_local pkg_name pkg_directory pkg_other_name)
-  message(STATUS "find_package_local: pkg name=\"${pkg_name}\", directory=\"${pkg_directory}\"")
-  # search locally only for package
-  set("${pkg_name}_PREV" ${pkg_name})
-  set("${pkg_name}_DIR" ${pkg_directory})
-  find_package(
-    ${pkg_name}
-    PATHS ${pkg_directory}
-    REQUIRED
-    NAMES ${pkg_name} ${pkg_other_name}
-    NO_CMAKE_PACKAGE_REGISTRY
-    NO_CMAKE_BUILDS_PATH
-    NO_CMAKE_SYSTEM_PATH
-    NO_CMAKE_SYSTEM_PACKAGE_REGISTRY
-  )
-  set("${pkg_name}_DIR" ${${pkg_name}_PREV})
-endmacro(find_package_local)
-
-macro(optional_pkg_directory pkg_name pkg_user_name)
-  #message(STATUS "optional_pkg_directory: name=${pkg_name}")
-  option(${pkg_name}_ENABLE "Root folder for ${pkg_user_name} installation" OFF)
-  if (NOT ${pkg_name}_ENABLE)
-    message(
-      STATUS
-      "Path for ${pkg_user_name} library (optional) not specified "
-      "with -D${pkg_name}_DIR="
-    )
-    message(
-      STATUS
-      "Building without ${pkg_user_name} library"
-    )
-    #set(${pkg_name}_DIR_FOUND 0)
-  else()
-    message(
-      STATUS
-      "${pkg_name}_ENABLE=${${pkg_name}_ENABLE} : Path for ${pkg_user_name} library (optional) specified "
-      "with -D${pkg_name}_DIR=${${pkg_name}_DIR}"
-    )
-    #set(${pkg_name}_DIR_FOUND 1)
-  endif()
-endmacro(optional_pkg_directory)
+include(cmake/load_package.cmake)
 
 set(SERDES_LIBRARY checkpoint)
 set(SERDES_LIBRARY_NS vt::lib::checkpoint)
@@ -79,26 +31,15 @@ set(SERDES_LIBRARY_NS vt::lib::checkpoint)
 # require directories for these packages
 require_pkg_directory(detector "VT detector library")
 # find these required packages locally
-find_package_local(detector "${detector_DIR}/cmake" detector)
+find_package_local(detector "${detector_DIR}" detector)
 
 # optional packages
 optional_pkg_directory(kokkos "Kokkos library")
 
-if (${kokkos_ENABLE})
-  if (EXISTS "${kokkos_DIR}/CMake/Kokkos/")
-    find_package_local(kokkos "${kokkos_DIR}/CMake/Kokkos/" Kokkos)
-    message(STATUS "Kokkos package found")
-    set(kokkos_DIR_FOUND 1)
-  else()
-    set(kokkos_DIR ${kokkos_DIR} CACHE PATH "Path for kokkos library (optional) specified ")
-    if (EXISTS "${kokkos_DIR}/cmake/Kokkos/")
-      find_package_local(kokkos "${kokkos_DIR}/cmake/Kokkos/" Kokkos)
-      set(kokkos_DIR_FOUND 1)
-      message(STATUS "Kokkos package found")
-    else()
-      message(STATUS "Failure to find Kokkos due too path not existing")
-    endif()
-  endif()
+if (${kokkos_DIR_FOUND})
+  find_package_local(
+    kokkos "${kokkos_DIR}/" Kokkos "CMake/Kokkos/" "cmake/Kokkos/"
+  )
   # Used to properly setup transitive dependency in checkpointConfig.cmake.in
   set(CHECKPOINT_HAS_KOKKOS_LIBRARY 1)
 else()
