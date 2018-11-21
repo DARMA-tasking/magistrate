@@ -28,6 +28,8 @@ endmacro(require_pkg_directory)
 macro(find_package_local pkg_name pkg_directory pkg_other_name)
   message(STATUS "find_package_local: pkg name=\"${pkg_name}\", directory=\"${pkg_directory}\"")
   # search locally only for package
+  set("${pkg_name}_PREV" ${pkg_name})
+  set("${pkg_name}_DIR" ${pkg_directory})
   find_package(
     ${pkg_name}
     PATHS ${pkg_directory}
@@ -38,6 +40,7 @@ macro(find_package_local pkg_name pkg_directory pkg_other_name)
     NO_CMAKE_SYSTEM_PATH
     NO_CMAKE_SYSTEM_PACKAGE_REGISTRY
   )
+  set("${pkg_name}_DIR" ${${pkg_name}_PREV})
 endmacro(find_package_local)
 
 macro(optional_pkg_directory pkg_name pkg_user_name)
