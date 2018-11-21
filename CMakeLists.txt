@@ -4,10 +4,16 @@ project(serdes)
 include (CTest)
 enable_testing()
 
-option(CHECKPOINT_BUILD_TESTS "Option for turning on checkpoint tests" OFF)
-option(CHECKPOINT_BUILD_TESTS_WITH_MPI "Option for turning on checkpoint examples using MPI" OFF)
-option(CHECKPOINT_BUILD_EXAMPLES "Option for turning on checkpoint examples" OFF)
-
+option(
+  CHECKPOINT_BUILD_TESTS "Option for turning on checkpoint tests" OFF
+)
+option(
+  CHECKPOINT_BUILD_TESTS_WITH_MPI
+  "Option for turning on checkpoint examples using MPI" OFF
+)
+option(
+  CHECKPOINT_BUILD_EXAMPLES "Option for turning on checkpoint examples" OFF
+)
 
 # MPI package
 if(CHECKPOINT_BUILD_TESTS_WITH_MPI)
