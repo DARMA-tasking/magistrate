@@ -22,10 +22,6 @@ file(
   "${PROJECT_TEST_UNIT_DIR}/*.cc"
 )
 
-if (HAVE_MPI)
-  add_definitions(-DHAVE_MPI)
-endif()
-
 if (${CHECKPOINT_BUILD_TESTS})
   if (NOT CHECKPOINT_HAS_GTEST)
     message(
@@ -79,9 +75,10 @@ if (${CHECKPOINT_BUILD_TESTS})
       if (${kokkos_DIR_FOUND})
         target_include_directories(${TEST} SYSTEM PUBLIC ${Kokkos_INCLUDE_DIRS})
         target_link_libraries(${TEST} PUBLIC ${Kokkos_LIBRARIES})
-      endif()
+     endif()
 
       if (HAVE_MPI)
+        target_compile_definitions(${TEST} PUBLIC HAVE_MPI=1)
         target_link_libraries(${TEST} PRIVATE ${MPI_LIBRARIES})
       endif()
 
@@ -119,6 +116,7 @@ if (${CHECKPOINT_BUILD_TESTS})
             target_link_libraries(${TEST} PUBLIC ${Kokkos_LIBRARIES})
           endif()
           target_link_libraries(${TEST} PRIVATE ${MPI_LIBRARIES})
+          target_compile_definitions(${TEST} PUBLIC HAVE_MPI=1)
 
           add_test(
             ${TEST}
