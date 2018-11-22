@@ -1,19 +1,8 @@
 #include "test_harness.h"
 #include "test_commons.h"
-
-template <typename ViewT>
-static void compare0d(ViewT const& k1, ViewT const& k2) {
-  compareBasic(k1,k2);
-  EXPECT_EQ(k1.operator()(), k2.operator()());
-}
+#include "test_kokkos_0d_commons.h"
 
 template <typename ParamT> struct KokkosViewTest0D : KokkosViewTest<ParamT> { };
-
-// 0-D initialization
-template <typename T, typename... Args>
-static inline void init0d(Kokkos::View<T,Args...> const& v) {
-  v.operator()() = 29;
-}
 
 TYPED_TEST_CASE_P(KokkosViewTest0D);
 
