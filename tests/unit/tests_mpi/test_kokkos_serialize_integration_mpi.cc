@@ -24,7 +24,6 @@ TEST_F(KokkosIntegrateTestMPI, test_integrate_1) {
   MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
   if (world_rank == 0) {
-    std::cout << " RANK 0 ==== > Do the Serialization " << std::endl;
     auto ret = serialize<DataType>(test_data);
     int dataSize = ret->getSize();
     MPI_Send( &dataSize, 1, MPI_INT, 1, 0, MPI_COMM_WORLD );
@@ -32,7 +31,6 @@ TEST_F(KokkosIntegrateTestMPI, test_integrate_1) {
     MPI_Send(viewBuffer, dataSize, MPI_CHAR, 1, 0, MPI_COMM_WORLD);
   }
   else  {
-    std::cout << " RANK "<< world_rank << " ==== > Do the Deserialization " << std::endl;
     int dataSize;
     MPI_Recv( & dataSize, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     char * recv = (char *) malloc(dataSize);
