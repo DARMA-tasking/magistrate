@@ -1,5 +1,5 @@
-#ifndef TEST_KOKKOS_2D_COMMONS_H
-#define TEST_KOKKOS_2D_COMMONS_H
+#ifndef TEST_KOKKOS_1D_COMMONS_H
+#define TEST_KOKKOS_1D_COMMONS_H
 
 template <typename ViewT, unsigned ndim>
 static void compareInner1d(ViewT const& k1, ViewT const& k2) {
@@ -54,4 +54,4 @@ template <>
 inline Kokkos::LayoutStride layout1d(lsType d1) {
   return Kokkos::LayoutStride{d1,1};
 }
-#endif // TEST_KOKKOS_2D_COMMONS_H
+#endif // TEST_KOKKOS_1D_COMMONS_H

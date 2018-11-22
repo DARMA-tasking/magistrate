@@ -1,5 +1,5 @@
-#ifndef TEST_KOKKOS_2D_COMMONS_H
-#define TEST_KOKKOS_2D_COMMONS_H
+#ifndef TEST_KOKKOS_0D_COMMONS_H
+#define TEST_KOKKOS_0D_COMMONS_H
 
 template <typename ViewT>
 static void compare0d(ViewT const& k1, ViewT const& k2) {
@@ -13,4 +13,4 @@ static inline void init0d(Kokkos::View<T,Args...> const& v) {
   v.operator()() = 29;
 }
 
-#endif // TEST_KOKKOS_2D_COMMONS_H
+#endif // TEST_KOKKOS_0D_COMMONS_H
