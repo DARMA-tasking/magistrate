@@ -5,13 +5,16 @@
 
 #include "test_kokkos_1d_commons.h"
 
+#include "tests_mpi/mpi-init.h"
+
+#include <mpich-clang39/mpi.h>
 // Manual 1,2,3 dimension comparison
 
-template <typename ParamT> struct KokkosViewTest1D : KokkosViewTest<ParamT> { };
+template <typename ParamT> struct KokkosViewTest1DMPI : KokkosViewTest<ParamT> { };
 
-TYPED_TEST_CASE_P(KokkosViewTest1D);
+TYPED_TEST_CASE_P(KokkosViewTest1DMPI);
 
-TYPED_TEST_P(KokkosViewTest1D, test_1d_any) {
+TYPED_TEST_P(KokkosViewTest1DMPI, test_1d_any) {
   using namespace serialization::interface;
 
   using LayoutType = typename std::tuple_element<0,TypeParam>::type;
@@ -25,19 +28,42 @@ TYPED_TEST_P(KokkosViewTest1D, test_1d_any) {
 
   init1d(in_view);
 
-  auto ret = serialize<ViewType>(in_view);
-  auto out_view = deserialize<ViewType>(ret->getBuffer(), ret->getSize());
-  auto const& out_view_ref = *out_view;
+  // Test the respect of the max rank needed for the test'
+  EXPECT_EQ(MPIEnvironment::isRankValid(1), true);
 
+  int world_rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+
+  if (world_rank == 0) {
+    std::cout << " RANK 0 ==== > Do the Serialization " << std::endl;
+    auto ret = serialize<ViewType>(in_view);
+    int viewSize = ret->getSize();
+    MPI_Send( &viewSize, 1, MPI_INT, 1, 0, MPI_COMM_WORLD );
+    char * viewBuffer = ret->getBuffer();
+    MPI_Send(viewBuffer, viewSize, MPI_CHAR, 1, 0, MPI_COMM_WORLD);
+  }
+  else  {
+    // MPI_Recv(void *buf, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Status *status)
+    std::cout << " RANK "<< world_rank << " ==== > Do the Deserialization " << std::endl;
+    int viewSize;
+    MPI_Recv( & viewSize, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    char * recv = (char *) malloc(viewSize);
+
+    MPI_Recv(recv, viewSize, MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+    auto out_view = deserialize<ViewType>(recv, viewSize);
+    auto const& out_view_ref = *out_view;
 #if SERDES_USE_ND_COMPARE
   compareND(in_view, out_view_ref);
 #else
   compare1d(in_view, out_view_ref);
 #endif
+  }
+
 }
 
 
-REGISTER_TYPED_TEST_CASE_P(KokkosViewTest1D, test_1d_any);
+REGISTER_TYPED_TEST_CASE_P(KokkosViewTest1DMPI, test_1d_any);
 
 #if DO_UNIT_TESTS_FOR_VIEW
 
@@ -63,9 +89,9 @@ using Test1DTypesRight =
 using Test1DTypesStride =
   typename TestFactory<Test1DTypes,Kokkos::LayoutStride>::ResultType;
 
-INSTANTIATE_TYPED_TEST_CASE_P(test_1d_L, KokkosViewTest1D, Test1DTypesLeft);
-INSTANTIATE_TYPED_TEST_CASE_P(test_1d_R, KokkosViewTest1D, Test1DTypesRight);
-INSTANTIATE_TYPED_TEST_CASE_P(test_1d_S, KokkosViewTest1D, Test1DTypesStride);
+INSTANTIATE_TYPED_TEST_CASE_P(test_1d_L, KokkosViewTest1DMPI, Test1DTypesLeft);
+INSTANTIATE_TYPED_TEST_CASE_P(test_1d_R, KokkosViewTest1DMPI, Test1DTypesRight);
+INSTANTIATE_TYPED_TEST_CASE_P(test_1d_S, KokkosViewTest1DMPI, Test1DTypesStride);
 
 #endif
 
@@ -74,11 +100,11 @@ INSTANTIATE_TYPED_TEST_CASE_P(test_1d_S, KokkosViewTest1D, Test1DTypesStride);
 ///////////////////////////////////////////////////////////////////////////////
 
 template <typename ParamT>
-struct KokkosDynamicViewTest : KokkosViewTest<ParamT> { };
+struct KokkosDynamicViewTestMPI : KokkosViewTest<ParamT> { };
 
-TYPED_TEST_CASE_P(KokkosDynamicViewTest);
+TYPED_TEST_CASE_P(KokkosDynamicViewTestMPI);
 
-TYPED_TEST_P(KokkosDynamicViewTest, test_dynamic_1d) {
+TYPED_TEST_P(KokkosDynamicViewTestMPI, test_dynamic_1d) {
   using namespace serialization::interface;
 
   using DataType = TypeParam;
@@ -115,7 +141,7 @@ TYPED_TEST_P(KokkosDynamicViewTest, test_dynamic_1d) {
 #endif
 }
 
-REGISTER_TYPED_TEST_CASE_P(KokkosDynamicViewTest, test_dynamic_1d);
+REGISTER_TYPED_TEST_CASE_P(KokkosDynamicViewTestMPI, test_dynamic_1d);
 
 using DynamicTestTypes = testing::Types<
   int      *,
@@ -129,7 +155,7 @@ using DynamicTestTypes = testing::Types<
 >;
 
 INSTANTIATE_TYPED_TEST_CASE_P(
-  test_dynamic_view_1, KokkosDynamicViewTest, DynamicTestTypes
+  test_dynamic_view_1, KokkosDynamicViewTestMPI, DynamicTestTypes
 );
 
 
