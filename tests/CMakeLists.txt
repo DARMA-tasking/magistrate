@@ -4,7 +4,6 @@ set(PROJECT_TEST_MPI_UNIT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/unit/tests_mpi)
 
 if(CHECKPOINT_BUILD_TESTS_WITH_MPI)
   message("Building test using MPI")
-  set(HAVE_MPI ON)
   file(
       GLOB
       PROJECT_TEST_LIST_MPI
@@ -77,7 +76,7 @@ if (${CHECKPOINT_BUILD_TESTS})
         target_link_libraries(${TEST} PUBLIC ${Kokkos_LIBRARIES})
      endif()
 
-      if (HAVE_MPI)
+      if (CHECKPOINT_BUILD_TESTS_WITH_MPI)
         target_compile_definitions(${TEST} PUBLIC HAVE_MPI=1)
         target_link_libraries(${TEST} PRIVATE ${MPI_LIBRARIES})
       endif()
