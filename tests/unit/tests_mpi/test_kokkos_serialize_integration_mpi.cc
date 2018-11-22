@@ -15,7 +15,7 @@ TEST_F(KokkosIntegrateTestMPI, test_integrate_1) {
 
   // Init test_data, check for golden status before and after serialization
   DataType test_data(DataConsTag);
-  Data::checkIsGolden(test_data);
+  //Data::checkIsGolden(test_data);
 
   // Test the respect of the max rank needed for the test'
   EXPECT_EQ(MPIEnvironment::isRankValid(1), true);
@@ -32,7 +32,6 @@ TEST_F(KokkosIntegrateTestMPI, test_integrate_1) {
     MPI_Send(viewBuffer, dataSize, MPI_CHAR, 1, 0, MPI_COMM_WORLD);
   }
   else  {
-    // MPI_Recv(void *buf, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Status *status)
     std::cout << " RANK "<< world_rank << " ==== > Do the Deserialization " << std::endl;
     int dataSize;
     MPI_Recv( & dataSize, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -49,12 +48,6 @@ TEST_F(KokkosIntegrateTestMPI, test_integrate_1) {
     Data::checkIsGolden(test_data);
 #endif
   }
-
-//  auto ret = serialize<DataType>(test_data);
-//  auto out = deserialize<DataType>(std::move(ret));
-
-//  Data::checkIsGolden(*out);
-//  Data::checkIsGolden(test_data);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
