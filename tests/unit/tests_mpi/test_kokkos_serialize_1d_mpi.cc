@@ -2,13 +2,10 @@
 
 #include "test_harness.h"
 #include "test_commons.h"
-
 #include "test_kokkos_1d_commons.h"
-
 #include "tests_mpi/mpi-init.h"
 
 #include <mpich-clang39/mpi.h>
-// Manual 1,2,3 dimension comparison
 
 template <typename ParamT> struct KokkosViewTest1DMPI : KokkosViewTest<ParamT> { };
 
