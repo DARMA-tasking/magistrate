@@ -32,7 +32,6 @@ TYPED_TEST_P(KokkosViewTest1DMPI, test_1d_any) {
   MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
   if (world_rank == 0) {
-    std::cout << " RANK 0 ==== > Do the Serialization " << std::endl;
     auto ret = serialize<ViewType>(in_view);
     int viewSize = ret->getSize();
     MPI_Send( &viewSize, 1, MPI_INT, 1, 0, MPI_COMM_WORLD );
@@ -40,8 +39,6 @@ TYPED_TEST_P(KokkosViewTest1DMPI, test_1d_any) {
     MPI_Send(viewBuffer, viewSize, MPI_CHAR, 1, 0, MPI_COMM_WORLD);
   }
   else  {
-    // MPI_Recv(void *buf, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Status *status)
-    std::cout << " RANK "<< world_rank << " ==== > Do the Deserialization " << std::endl;
     int viewSize;
     MPI_Recv( & viewSize, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     char * recv = (char *) malloc(viewSize);
@@ -113,8 +110,6 @@ TYPED_TEST_P(KokkosDynamicViewTestMPI, test_dynamic_1d) {
 
   ViewType in_view("my-dynamic-view", min_chunk, max_extent);
   in_view.resize_serial(N);
-
-  // std::cout << "INIT size=" << in_view.size() << std::endl;
 
   init1d(in_view);
 
