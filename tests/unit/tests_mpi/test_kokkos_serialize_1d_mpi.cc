@@ -132,17 +132,6 @@ TYPED_TEST_P(KokkosDynamicViewTestMPI, test_dynamic_1d) {
 
 REGISTER_TYPED_TEST_CASE_P(KokkosDynamicViewTestMPI, test_dynamic_1d);
 
-using DynamicTestTypes = testing::Types<
-  int      *,
-  double   *,
-  float    *,
-  int32_t  *,
-  int64_t  *,
-  unsigned *,
-  long     *,
-  long long*
->;
-
 INSTANTIATE_TYPED_TEST_CASE_P(
   test_dynamic_view_1, KokkosDynamicViewTestMPI, DynamicTestTypes
 );

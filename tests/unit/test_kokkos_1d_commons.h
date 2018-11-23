@@ -81,6 +81,17 @@ using Test1DTypesRight =
 using Test1DTypesStride =
   typename TestFactory<Test1DTypes,Kokkos::LayoutStride>::ResultType;
 
+using DynamicTestTypes = testing::Types<
+  int      *,
+  double   *,
+  float    *,
+  int32_t  *,
+  int64_t  *,
+  unsigned *,
+  long     *,
+  long long*
+>;
+
 #endif
 
 #endif // TEST_KOKKOS_1D_COMMONS_H
