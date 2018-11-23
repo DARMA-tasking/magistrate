@@ -5,7 +5,7 @@
 #include "test_kokkos_0d_commons.h"
 #include "tests_mpi/mpi-init.h"
 
-#include <mpich-clang39/mpi.h>
+#include <mpi.h>
 
 namespace  {
 template <typename T>
