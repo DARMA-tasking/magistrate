@@ -1,6 +1,8 @@
 #ifndef TEST_KOKKOS_1D_COMMONS_H
 #define TEST_KOKKOS_1D_COMMONS_H
 
+#include "test_commons.h"
+
 template <typename ViewT, unsigned ndim>
 static void compareInner1d(ViewT const& k1, ViewT const& k2) {
   std::cout << "compareInner1d: " << k1.extent(0) << "," << k2.extent(0) << "\n";
@@ -54,4 +56,31 @@ template <>
 inline Kokkos::LayoutStride layout1d(lsType d1) {
   return Kokkos::LayoutStride{d1,1};
 }
+
+#if DO_UNIT_TESTS_FOR_VIEW
+
+///////////////////////////////////////////////////////////////////////////////
+// 1-D Kokkos::View Tests
+///////////////////////////////////////////////////////////////////////////////
+
+using Test1DTypes = std::tuple<
+  int      *, int      [1], int      [3],
+  double   *, double   [1], double   [4],
+  float    *, float    [1], float    [4],
+  int32_t  *, int32_t  [1], int32_t  [4],
+  int64_t  *, int64_t  [1], int64_t  [4],
+  unsigned *, unsigned [1], unsigned [4],
+  long     *, long     [1], long     [4],
+  long long*, long long[1], long long[4]
+>;
+
+using Test1DTypesLeft =
+  typename TestFactory<Test1DTypes,Kokkos::LayoutLeft>::ResultType;
+using Test1DTypesRight =
+  typename TestFactory<Test1DTypes,Kokkos::LayoutRight>::ResultType;
+using Test1DTypesStride =
+  typename TestFactory<Test1DTypes,Kokkos::LayoutStride>::ResultType;
+
+#endif
+
 #endif // TEST_KOKKOS_1D_COMMONS_H

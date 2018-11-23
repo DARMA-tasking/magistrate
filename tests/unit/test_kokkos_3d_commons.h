@@ -1,7 +1,6 @@
 #ifndef TEST_KOKKOS_3D_COMMONS_H
 #define TEST_KOKKOS_3D_COMMONS_H
 
-#include "test_harness.h"
 #include "test_commons.h"
 
 template <typename ViewT, unsigned ndim>
@@ -75,5 +74,31 @@ template <typename T, typename... Args>
 static inline void init0d(Kokkos::View<T,Args...> const& v) {
   v.operator()() = 29;
 }
+
+#if DO_UNIT_TESTS_FOR_VIEW
+
+///////////////////////////////////////////////////////////////////////////////
+// 3-D Kokkos::View Tests
+///////////////////////////////////////////////////////////////////////////////
+
+using Test3DTypes = std::tuple<
+  int      ***, int      **[1], int      **[9],
+  double   ***, double   **[1], double   **[9],
+  float    ***, float    **[1], float    **[9],
+  int32_t  ***, int32_t  **[1], int32_t  **[9],
+  int64_t  ***, int64_t  **[1], int64_t  **[9],
+  unsigned ***, unsigned **[1], unsigned **[9],
+  long     ***, long     **[1], long     **[9],
+  long long***, long long**[1], long long**[9]
+>;
+
+using Test3DTypesLeft =
+  typename TestFactory<Test3DTypes,Kokkos::LayoutLeft>::ResultType;
+using Test3DTypesRight =
+  typename TestFactory<Test3DTypes,Kokkos::LayoutRight>::ResultType;
+using Test3DTypesStride =
+  typename TestFactory<Test3DTypes,Kokkos::LayoutStride>::ResultType;
+
+#endif
 
 #endif // TEST_KOKKOS_3D_COMMONS_H
