@@ -1,11 +1,7 @@
 #if KOKKOS_ENABLED_SERDES
 
-#include "test_harness.h"
-#include "test_commons.h"
 #include "test_kokkos_1d_commons.h"
-#include "tests_mpi/mpi-init.h"
-
-#include <mpich-clang39/mpi.h>
+#include "tests_mpi/test_commons_mpi.h"
 
 template <typename ParamT> struct KokkosViewTest1DMPI : KokkosViewTest<ParamT> { };
 
@@ -25,35 +21,7 @@ TYPED_TEST_P(KokkosViewTest1DMPI, test_1d_any) {
 
   init1d(in_view);
 
-  // Test the respect of the max rank needed for the test'
-  EXPECT_EQ(MPIEnvironment::isRankValid(1), true);
-
-  int world_rank;
-  MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-
-  if (world_rank == 0) {
-    auto ret = serialize<ViewType>(in_view);
-    int viewSize = ret->getSize();
-    MPI_Send( &viewSize, 1, MPI_INT, 1, 0, MPI_COMM_WORLD );
-    char * viewBuffer = ret->getBuffer();
-    MPI_Send(viewBuffer, viewSize, MPI_CHAR, 1, 0, MPI_COMM_WORLD);
-  }
-  else  {
-    int viewSize;
-    MPI_Recv( & viewSize, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    char * recv = (char *) malloc(viewSize);
-
-    MPI_Recv(recv, viewSize, MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-    auto out_view = deserialize<ViewType>(recv, viewSize);
-    auto const& out_view_ref = *out_view;
-#if SERDES_USE_ND_COMPARE
-  compareND(in_view, out_view_ref);
-#else
-  compare1d(in_view, out_view_ref);
-#endif
-  }
-
+  serialiseDeserializeBasic<ViewType>(in_view, &compare1d<ViewType>);
 }
 
 
@@ -91,51 +59,15 @@ TYPED_TEST_P(KokkosDynamicViewTestMPI, test_dynamic_1d) {
 
   init1d(in_view);
 
-  // Test the respect of the max rank needed for the test'
-  EXPECT_EQ(MPIEnvironment::isRankValid(1), true);
-
-  int world_rank;
-  MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-
-  if (world_rank == 0) {
-    auto ret = serialize<ViewType>(in_view);
-    int viewSize = ret->getSize();
-    MPI_Send( &viewSize, 1, MPI_INT, 1, 0, MPI_COMM_WORLD );
-    char * viewBuffer = ret->getBuffer();
-    MPI_Send(viewBuffer, viewSize, MPI_CHAR, 1, 0, MPI_COMM_WORLD);
-  }
-  else  {
-    int viewSize;
-    MPI_Recv( & viewSize, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    char * recv = (char *) malloc(viewSize);
-
-    MPI_Recv(recv, viewSize, MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-    auto out_view = deserialize<ViewType>(recv, viewSize);
-    auto const& out_view_ref = *out_view;
-
-  /*
-   *  Uncomment these lines (one or both) to test the failure mode: ensure the
-   *  view equality test code is operating correctly.
-   *
-   *   out_view_ref(3) = 10;
-   *   out_view->resize_serial(N-1);
-   *
-   */
-#if SERDES_USE_ND_COMPARE
-  compareND(in_view, out_view_ref);
-#else
-  compare1d(in_view, out_view_ref);
-#endif
-  }
+  serialiseDeserializeBasic<ViewType>(in_view, &compare1d<ViewType>);
 }
 
 REGISTER_TYPED_TEST_CASE_P(KokkosDynamicViewTestMPI, test_dynamic_1d);
 
+#if DO_UNIT_TESTS_FOR_VIEW
 INSTANTIATE_TYPED_TEST_CASE_P(
   test_dynamic_view_1, KokkosDynamicViewTestMPI, DynamicTestTypes
 );
-
-
+#endif
 
 #endif

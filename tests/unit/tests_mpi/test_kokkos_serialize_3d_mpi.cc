@@ -1,12 +1,7 @@
 #if KOKKOS_ENABLED_SERDES
 
-#include "test_harness.h"
-#include "test_commons.h"
 #include "test_kokkos_3d_commons.h"
-
-#include "tests_mpi/mpi-init.h"
-
-#include <mpich-clang39/mpi.h>
+#include "tests_mpi/test_commons_mpi.h"
 
 template <typename ParamT> struct KokkosViewTest3DMPI : KokkosViewTest<ParamT> { };
 
@@ -30,43 +25,7 @@ TYPED_TEST_P(KokkosViewTest3DMPI, test_3d_any) {
 
   init3d(in_view);
 
-  // Test the respect of the max rank needed for the test'
-  EXPECT_EQ(MPIEnvironment::isRankValid(1), true);
-
-  int world_rank;
-  MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-
-  if (world_rank == 0) {
-    auto ret = serialize<ViewType>(in_view);
-    int viewSize = ret->getSize();
-    MPI_Send( &viewSize, 1, MPI_INT, 1, 0, MPI_COMM_WORLD );
-    char * viewBuffer = ret->getBuffer();
-    MPI_Send(viewBuffer, viewSize, MPI_CHAR, 1, 0, MPI_COMM_WORLD);
-  }
-  else  {
-    int viewSize;
-    MPI_Recv( & viewSize, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    char * recv = (char *) malloc(viewSize);
-
-    MPI_Recv(recv, viewSize, MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-    auto out_view = deserialize<ViewType>(recv, viewSize);
-    auto const& out_view_ref = *out_view;
-
-    /*
-     *  Uncomment this line to test the failure mode: ensure the view equality
-     *  code is operating correctly.
-     *
-     *   out_view->operator()(3,1,0) = 1283;
-     *
-     */
-
-#if SERDES_USE_ND_COMPARE
-  compareND(in_view, out_view_ref);
-#else
-  compare3d(in_view, out_view_ref);
-#endif
-  }
+  serialiseDeserializeBasic<ViewType>(in_view, &compare3d<ViewType>);
 }
 
 REGISTER_TYPED_TEST_CASE_P(KokkosViewTest3DMPI, test_3d_any);
