@@ -78,8 +78,9 @@ if (${CHECKPOINT_BUILD_TESTS})
      endif()
 
       if (CHECKPOINT_BUILD_TESTS_WITH_MPI)
-        target_compile_definitions(${TEST} PUBLIC HAVE_MPI=1)
-        target_link_libraries(${TEST} PRIVATE ${MPI_LIBRARIES})
+        target_compile_definitions(${TEST} PRIVATE HAVE_MPI=1)
+        target_include_directories(${TEST} PUBLIC ${MPI_INCLUDE_PATH})
+        target_link_libraries(${TEST} PUBLIC ${MPI_LIBRARIES})
       endif()
 
       add_test(
@@ -109,13 +110,15 @@ if (${CHECKPOINT_BUILD_TESTS})
             ${PROJECT_TEST_MPI_UNIT_DIR}/${TEST}.cc
           )
 
+          target_include_directories(${TEST} PUBLIC ${MPI_INCLUDE_PATH})
           target_link_libraries(${TEST} PRIVATE GTest::GTest)
           target_link_libraries(${TEST} PRIVATE GTest::Main)
           target_link_libraries(${TEST} PUBLIC ${SERDES_LIBRARY})
           if (${kokkos_DIR_FOUND})
+            target_include_directories(${TEST} SYSTEM PUBLIC ${Kokkos_INCLUDE_DIRS})
             target_link_libraries(${TEST} PUBLIC ${Kokkos_LIBRARIES})
           endif()
-          target_link_libraries(${TEST} PRIVATE ${MPI_LIBRARIES})
+          target_link_libraries(${TEST} PUBLIC ${MPI_LIBRARIES})
           target_compile_definitions(${TEST} PUBLIC HAVE_MPI=1)
 
           add_test(

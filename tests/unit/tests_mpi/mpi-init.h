@@ -3,7 +3,7 @@
 
 #include <gtest/gtest.h>
 
-#include <mpich-clang39/mpi.h>
+#include <mpi.h>
 
 class MPIEnvironment : public ::testing::Environment
 {
