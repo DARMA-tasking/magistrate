@@ -113,9 +113,28 @@ TYPED_TEST_P(KokkosDynamicViewTestMPI, test_dynamic_1d) {
 
   init1d(in_view);
 
-  auto ret = serialize<ViewType>(in_view);
-  auto out_view = deserialize<ViewType>(ret->getBuffer(), ret->getSize());
-  auto const& out_view_ref = *out_view;
+  // Test the respect of the max rank needed for the test'
+  EXPECT_EQ(MPIEnvironment::isRankValid(1), true);
+
+  int world_rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+
+  if (world_rank == 0) {
+    auto ret = serialize<ViewType>(in_view);
+    int viewSize = ret->getSize();
+    MPI_Send( &viewSize, 1, MPI_INT, 1, 0, MPI_COMM_WORLD );
+    char * viewBuffer = ret->getBuffer();
+    MPI_Send(viewBuffer, viewSize, MPI_CHAR, 1, 0, MPI_COMM_WORLD);
+  }
+  else  {
+    int viewSize;
+    MPI_Recv( & viewSize, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    char * recv = (char *) malloc(viewSize);
+
+    MPI_Recv(recv, viewSize, MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+    auto out_view = deserialize<ViewType>(recv, viewSize);
+    auto const& out_view_ref = *out_view;
 
   /*
    *  Uncomment these lines (one or both) to test the failure mode: ensure the
@@ -125,12 +144,12 @@ TYPED_TEST_P(KokkosDynamicViewTestMPI, test_dynamic_1d) {
    *   out_view->resize_serial(N-1);
    *
    */
-
 #if SERDES_USE_ND_COMPARE
   compareND(in_view, out_view_ref);
 #else
   compare1d(in_view, out_view_ref);
 #endif
+  }
 }
 
 REGISTER_TYPED_TEST_CASE_P(KokkosDynamicViewTestMPI, test_dynamic_1d);
