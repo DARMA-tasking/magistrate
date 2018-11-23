@@ -45,6 +45,7 @@ if (${CHECKPOINT_BUILD_TESTS})
       set(
         TEST_HEADER_FILES ${TEST_HEADER_FILES}
         ${PROJECT_TEST_MPI_UNIT_DIR}/mpi-init.h
+        ${PROJECT_TEST_MPI_UNIT_DIR}/test_commons_mpi.h
       )
     endif()
 

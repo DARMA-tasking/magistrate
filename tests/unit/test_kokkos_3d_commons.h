@@ -63,18 +63,6 @@ inline Kokkos::LayoutStride layout3d(lsType d1,lsType d2,lsType d3) {
   return Kokkos::LayoutStride{d1,1,d2,d1,d3,d1*d2};
 }
 
-template <typename ViewT>
-static void compare0d(ViewT const& k1, ViewT const& k2) {
-  compareBasic(k1,k2);
-  EXPECT_EQ(k1.operator()(), k2.operator()());
-}
-
-// 0-D initialization
-template <typename T, typename... Args>
-static inline void init0d(Kokkos::View<T,Args...> const& v) {
-  v.operator()() = 29;
-}
-
 #if DO_UNIT_TESTS_FOR_VIEW
 
 ///////////////////////////////////////////////////////////////////////////////

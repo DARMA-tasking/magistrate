@@ -1,11 +1,7 @@
 #if KOKKOS_ENABLED_SERDES
 
-#include "test_harness.h"
 #include "test_commons.h"
-
 #include "test_kokkos_1d_commons.h"
-
-// Manual 1,2,3 dimension comparison
 
 template <typename ParamT> struct KokkosViewTest1D : KokkosViewTest<ParamT> { };
 
