@@ -33,20 +33,6 @@ REGISTER_TYPED_TEST_CASE_P(KokkosViewTest0D, test_0d_any);
 
 #if DO_UNIT_TESTS_FOR_VIEW
 
-///////////////////////////////////////////////////////////////////////////////
-// 0-D Kokkos::View Tests (a single value)
-///////////////////////////////////////////////////////////////////////////////
-
-using Test0DTypes = testing::Types<
-  int      ,
-  double   ,
-  float    ,
-  int32_t  ,
-  int64_t  ,
-  unsigned ,
-  long     ,
-  long long
->;
 INSTANTIATE_TYPED_TEST_CASE_P(test_0d, KokkosViewTest0D, Test0DTypes);
 
 #endif

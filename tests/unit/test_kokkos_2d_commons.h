@@ -55,5 +55,30 @@ inline Kokkos::LayoutStride layout2d(lsType d1,lsType d2) {
   return Kokkos::LayoutStride{d1,1,d2,d1};
 }
 
+#if DO_UNIT_TESTS_FOR_VIEW
+
+///////////////////////////////////////////////////////////////////////////////
+// 2-D Kokkos::View Tests
+///////////////////////////////////////////////////////////////////////////////
+
+using Test2DTypes = std::tuple<
+  int      **, int      *[1], int      *[4],
+  double   **, double   *[1], double   *[4],
+  float    **, float    *[1], float    *[4],
+  int32_t  **, int32_t  *[1], int32_t  *[4],
+  int64_t  **, int64_t  *[1], int64_t  *[4],
+  unsigned **, unsigned *[1], unsigned *[4],
+  long     **, long     *[1], long     *[4],
+  long long**, long long*[1], long long*[4]
+>;
+
+using Test2DTypesLeft =
+  typename TestFactory<Test2DTypes,Kokkos::LayoutLeft>::ResultType;
+using Test2DTypesRight =
+  typename TestFactory<Test2DTypes,Kokkos::LayoutRight>::ResultType;
+using Test2DTypesStride =
+  typename TestFactory<Test2DTypes,Kokkos::LayoutStride>::ResultType;
+
+#endif
 
 #endif // TEST_KOKKOS_2D_COMMONS_H

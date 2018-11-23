@@ -73,28 +73,6 @@ REGISTER_TYPED_TEST_CASE_P(KokkosViewTest3DMPI, test_3d_any);
 
 #if DO_UNIT_TESTS_FOR_VIEW
 
-///////////////////////////////////////////////////////////////////////////////
-// 3-D Kokkos::View Tests
-///////////////////////////////////////////////////////////////////////////////
-
-using Test3DTypes = std::tuple<
-  int      ***, int      **[1], int      **[9],
-  double   ***, double   **[1], double   **[9],
-  float    ***, float    **[1], float    **[9],
-  int32_t  ***, int32_t  **[1], int32_t  **[9],
-  int64_t  ***, int64_t  **[1], int64_t  **[9],
-  unsigned ***, unsigned **[1], unsigned **[9],
-  long     ***, long     **[1], long     **[9],
-  long long***, long long**[1], long long**[9]
->;
-
-using Test3DTypesLeft =
-  typename TestFactory<Test3DTypes,Kokkos::LayoutLeft>::ResultType;
-using Test3DTypesRight =
-  typename TestFactory<Test3DTypes,Kokkos::LayoutRight>::ResultType;
-using Test3DTypesStride =
-  typename TestFactory<Test3DTypes,Kokkos::LayoutStride>::ResultType;
-
 INSTANTIATE_TYPED_TEST_CASE_P(test_3d_L, KokkosViewTest3DMPI, Test3DTypesLeft);
 INSTANTIATE_TYPED_TEST_CASE_P(test_3d_R, KokkosViewTest3DMPI, Test3DTypesRight);
 INSTANTIATE_TYPED_TEST_CASE_P(test_3d_S, KokkosViewTest3DMPI, Test3DTypesStride);
