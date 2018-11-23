@@ -15,7 +15,7 @@ TEST_F(KokkosIntegrateTestMPI, test_integrate_1) {
 
   // Init test_data, check for golden status before and after serialization
   DataType test_data(DataConsTag);
-  //Data::checkIsGolden(test_data);
+  Data::checkIsGolden(test_data);
 
   // Test the respect of the max rank needed for the test'
   EXPECT_EQ(MPIEnvironment::isRankValid(1), true);
@@ -61,8 +61,28 @@ TEST_F(KokkosNullTestMPI, test_null_1) {
   // Default construct
   ViewType test_data = {};
 
-  auto ret = serialize<ViewType>(test_data);
-  auto out = deserialize<ViewType>(std::move(ret));
+  // Test the respect of the max rank needed for the test'
+  EXPECT_EQ(MPIEnvironment::isRankValid(1), true);
+
+  int world_rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+
+  if (world_rank == 0) {
+    auto ret = serialize<ViewType>(test_data);
+    int dataSize = ret->getSize();
+    MPI_Send( &dataSize, 1, MPI_INT, 1, 0, MPI_COMM_WORLD );
+    char * viewBuffer = ret->getBuffer();
+    MPI_Send(viewBuffer, dataSize, MPI_CHAR, 1, 0, MPI_COMM_WORLD);
+  }
+  else  {
+    int dataSize;
+    MPI_Recv( & dataSize, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    char * recv = (char *) malloc(dataSize);
+
+    MPI_Recv(recv, dataSize, MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+    auto out_data = deserialize<ViewType>(recv, dataSize);
+  }
 }
 
 #endif
