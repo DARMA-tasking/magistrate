@@ -77,12 +77,6 @@ if (${CHECKPOINT_BUILD_TESTS})
         target_link_libraries(${TEST} PUBLIC ${Kokkos_LIBRARIES})
      endif()
 
-      if (CHECKPOINT_BUILD_TESTS_WITH_MPI)
-        target_compile_definitions(${TEST} PRIVATE HAVE_MPI=1)
-        target_include_directories(${TEST} PUBLIC ${MPI_INCLUDE_PATH})
-        target_link_libraries(${TEST} PUBLIC ${MPI_LIBRARIES})
-      endif()
-
       add_test(
         ${TEST}
         ${CMAKE_CURRENT_BINARY_DIR}/${TEST}
