@@ -188,7 +188,7 @@ inline void serialize(
 }
 
 template <typename SerializerT, typename T, typename... Args>
-inline void serialize(SerializerT& s, Kokkos::View<T,Args...>& view) {
+inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
   using ViewType = Kokkos::View<T,Args...>;
   using ViewTraitsType = Kokkos::ViewTraits<T,Args...>;
   using ArrayLayoutType = typename ViewType::traits::array_layout;
@@ -293,6 +293,60 @@ inline void serialize(SerializerT& s, Kokkos::View<T,Args...>& view) {
 #endif
   }
 }
+
+template <typename SerializerT, typename T, typename... Args>
+inline void serialize_const(SerializerT& s, Kokkos::View<T,Args...>& view) {
+  using ViewType = Kokkos::View<T,Args...>;
+  using T_non_const = typename ViewType::traits::non_const_data_type;
+  Kokkos::View<T_non_const,Args...> tmp_non_const;
+  if (s.isPacking() || s.isSizing()) {
+    Kokkos::deep_copy(tmp_non_const, view);
+  }
+  serialize_impl(s, tmp_non_const);
+  if (s.isUnpacking()) {
+    view = tmp_non_const;
+  }
+}
+
+template <typename ViewT>
+using KokkosConstArchetype = typename std::is_same<
+  typename ViewT::traits::const_data_type, typename ViewT::traits::data_type
+>;
+
+template <typename ViewT, typename = void>
+struct SerializeConst;
+
+template <typename ViewT>
+struct SerializeConst<
+  ViewT,
+  std::enable_if_t<!KokkosConstArchetype<ViewT>::value>
+>
+{
+  template <typename SerializerT>
+  static void apply(SerializerT& s, ViewT& v) {
+    return serialize_impl(s,v);
+  }
+};
+
+template <typename ViewT>
+struct SerializeConst<
+  ViewT,
+  std::enable_if_t<KokkosConstArchetype<ViewT>::value>
+>
+{
+  template <typename SerializerT>
+  static void apply(SerializerT& s, ViewT& v) {
+    return serialize_const(s, v);
+  }
+};
+
+template <typename SerializerT, typename T, typename... Args>
+inline void serialize(SerializerT& s, Kokkos::View<T,Args...>& view) {
+  using ViewType = Kokkos::View<T,Args...>;
+  SerializeConst<ViewType>::apply(s,view);
+}
+
+
 
 } /* end namespace serdes */
 
