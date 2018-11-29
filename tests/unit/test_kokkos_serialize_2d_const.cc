@@ -62,17 +62,20 @@ TYPED_TEST_CASE_P(KokkosViewTest2DConst);
 TYPED_TEST_P(KokkosViewTest2DConst, test_2d_any) {
   using namespace serialization::interface;
 
-  using LayoutType = typename std::tuple_element<0,TypeParam>::type;
-  using DataType   = typename std::tuple_element<1,TypeParam>::type;
-  using ViewType   = Kokkos::View<DataType, LayoutType>;
-  using ConstViewType   = Kokkos::View<const DataType, LayoutType>;
+  using LayoutType        = typename std::tuple_element<0,TypeParam>::type;
+  using DataType          = typename std::tuple_element<1,TypeParam>::type;
+  using ViewType          = Kokkos::View<DataType, LayoutType>;
+  using NonConstT         = typename ViewType::traits::non_const_data_type;
+  using NonConstViewType  = Kokkos::View<NonConstT, LayoutType>;
 
   static constexpr size_t const N = 23;
   static constexpr size_t const M = 32;
 
   LayoutType layout = layout2d<LayoutType>(N,M);
-  ViewType in_view("test-2D-some-string", layout);
+  NonConstViewType in_view("test-2D-some-string", layout);
   init2d(in_view);
+
+  ViewType in_view_2 = in_view;
 
   // Uncomment to make the compilation failed
   // ConstViewType const_in_view(in_view);
@@ -97,7 +100,7 @@ REGISTER_TYPED_TEST_CASE_P(KokkosViewTest2DConst, test_2d_any);
 ///////////////////////////////////////////////////////////////////////////////
 
 using Test2DTypes = std::tuple<
-   signed char **
+   signed char const **
 >;
 
 using Test2DTypesLeft =
