@@ -67,6 +67,8 @@ TYPED_TEST_P(KokkosViewTest2DConst, test_2d_any) {
   using ViewType          = Kokkos::View<DataType, LayoutType>;
   using NonConstT         = typename ViewType::traits::non_const_data_type;
   using NonConstViewType  = Kokkos::View<NonConstT, LayoutType>;
+  using ConstT         = typename ViewType::traits::const_data_type;
+  using ConstViewType  = Kokkos::View<ConstT, LayoutType>;
 
   static constexpr size_t const N = 23;
   static constexpr size_t const M = 32;
@@ -75,19 +77,17 @@ TYPED_TEST_P(KokkosViewTest2DConst, test_2d_any) {
   NonConstViewType in_view("test-2D-some-string", layout);
   init2d(in_view);
 
-  ViewType in_view_2 = in_view;
+  ConstViewType const_in_view(in_view);
 
-  // Uncomment to make the compilation failed
-  // ConstViewType const_in_view(in_view);
+  auto ret = serialize<ConstViewType>(const_in_view);
+  auto out_view = deserialize<ConstViewType>(ret->getBuffer(), ret->getSize());
+  auto const& out_view_ref = *out_view;
 
-//  auto ret = serialize<Kokkos::View<ConstDataType, LayoutType>>(const_in_view);
-//  auto out_view = deserialize<Kokkos::View<ConstDataType, LayoutType>>(ret->getBuffer(), ret->getSize());
-//  auto const& out_view_ref = *out_view;
-
+  // Uncomment to make the test failed
 //#if SERDES_USE_ND_COMPARE
-//  compareND(in_view, out_view_ref);
+//  compareND(const_in_view, out_view_ref);
 //#else
-//  compare2d(in_view, out_view_ref);
+//  compare2d(const_in_view, out_view_ref);
 //#endif
 }
 
