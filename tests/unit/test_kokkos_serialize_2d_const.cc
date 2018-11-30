@@ -77,18 +77,25 @@ TYPED_TEST_P(KokkosViewTest2DConst, test_2d_any) {
   NonConstViewType in_view("test-2D-some-string", layout);
   init2d(in_view);
 
-  ConstViewType const_in_view(in_view);
+  std::cout << "in_view size=" << in_view.size() << std::endl;
+
+  ConstViewType const_in_view = in_view;
+
+  std::cout << "const_in_view size=" << const_in_view.size() << std::endl;
 
   auto ret = serialize<ConstViewType>(const_in_view);
   auto out_view = deserialize<ConstViewType>(ret->getBuffer(), ret->getSize());
   auto const& out_view_ref = *out_view;
 
+  std::cout << "out_view_ref size=" << out_view_ref.size() << std::endl;
+
+
   // Uncomment to make the test failed
-//#if SERDES_USE_ND_COMPARE
-//  compareND(const_in_view, out_view_ref);
-//#else
-//  compare2d(const_in_view, out_view_ref);
-//#endif
+#if SERDES_USE_ND_COMPARE
+ compareND(const_in_view, out_view_ref);
+#else
+ compare2d(const_in_view, out_view_ref);
+#endif
 }
 
 REGISTER_TYPED_TEST_CASE_P(KokkosViewTest2DConst, test_2d_any);
