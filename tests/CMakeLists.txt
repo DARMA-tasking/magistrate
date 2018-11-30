@@ -21,6 +21,27 @@ file(
   "${PROJECT_TEST_UNIT_DIR}/*.cc"
 )
 
+#
+# Setup a potential target (a test, example, etc. that uses checkpoint) will all
+# the libraries to link, include directories, definitions
+#
+macro(checkpoint_link_target target has_mpi)
+  target_include_directories(${target} PUBLIC ${PROJECT_TEST_UNIT_DIR})
+  target_link_libraries(${target} PRIVATE GTest::GTest)
+  target_link_libraries(${target} PRIVATE GTest::Main)
+  target_link_libraries(${target} PUBLIC ${SERDES_LIBRARY})
+  if (${kokkos_DIR_FOUND})
+    target_include_directories(${target} SYSTEM PUBLIC ${Kokkos_INCLUDE_DIRS})
+    target_link_libraries(${target} PUBLIC ${Kokkos_LIBRARIES})
+  endif()
+
+  if (${has_mpi})
+    target_link_libraries(${target} PUBLIC ${MPI_LIBRARIES})
+    target_compile_definitions(${target} PUBLIC HAVE_MPI=1)
+    target_include_directories(${target} PUBLIC ${MPI_INCLUDE_PATH})
+  endif()
+endmacro()
+
 if (${CHECKPOINT_BUILD_TESTS})
   if (NOT CHECKPOINT_HAS_GTEST)
     message(
@@ -67,14 +88,7 @@ if (${CHECKPOINT_BUILD_TESTS})
         ${PROJECT_TEST_UNIT_DIR}/${TEST}.cc
       )
 
-      target_include_directories(${TEST} PUBLIC ${PROJECT_TEST_UNIT_DIR})
-      target_link_libraries(${TEST} PRIVATE GTest::GTest)
-      target_link_libraries(${TEST} PRIVATE GTest::Main)
-      target_link_libraries(${TEST} PUBLIC ${SERDES_LIBRARY})
-      if (${kokkos_DIR_FOUND})
-        target_include_directories(${TEST} SYSTEM PUBLIC ${Kokkos_INCLUDE_DIRS})
-        target_link_libraries(${TEST} PUBLIC ${Kokkos_LIBRARIES})
-     endif()
+      checkpoint_link_target(${TEST} 0)
 
       add_test(
         ${TEST}
@@ -90,43 +104,36 @@ if (${CHECKPOINT_BUILD_TESTS})
     endforeach()
 
     if(CHECKPOINT_BUILD_TESTS_WITH_MPI)
-        foreach(TEST_FULL ${PROJECT_TEST_LIST_MPI})
-          GET_FILENAME_COMPONENT(
-            TEST
-            ${TEST_FULL}
-            NAME_WE
-          )
+      foreach(TEST_FULL ${PROJECT_TEST_LIST_MPI})
+        GET_FILENAME_COMPONENT(
+          TEST
+          ${TEST_FULL}
+          NAME_WE
+        )
 
-          add_executable(
-            ${TEST}
-            ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES}
-            ${PROJECT_TEST_MPI_UNIT_DIR}/${TEST}.cc
-          )
+        add_executable(
+          ${TEST}
+          ${TEST_SOURCE_FILES} ${TEST_HEADER_FILES}
+          ${PROJECT_TEST_MPI_UNIT_DIR}/${TEST}.cc
+        )
 
-          target_include_directories(${TEST} PUBLIC ${PROJECT_TEST_UNIT_DIR})
-          target_include_directories(${TEST} PUBLIC ${MPI_INCLUDE_PATH})
-          target_link_libraries(${TEST} PRIVATE GTest::GTest)
-          target_link_libraries(${TEST} PRIVATE GTest::Main)
-          target_link_libraries(${TEST} PUBLIC ${SERDES_LIBRARY})
-          if (${kokkos_DIR_FOUND})
-            target_include_directories(${TEST} SYSTEM PUBLIC ${Kokkos_INCLUDE_DIRS})
-            target_link_libraries(${TEST} PUBLIC ${Kokkos_LIBRARIES})
-          endif()
-          target_link_libraries(${TEST} PUBLIC ${MPI_LIBRARIES})
-          target_compile_definitions(${TEST} PUBLIC HAVE_MPI=1)
+        checkpoint_link_target(${TEST} 1)
 
-          set(CHECKPOINT_TEST_PARAM_MPI ${MPI_NUMPROC_FLAG} ${CHECK_POINT_MPI_PROC} "${CMAKE_CURRENT_BINARY_DIR}/${TEST}")
-          add_test(
-            NAME ${TEST}
-            COMMAND ${MPI_RUN_COMMAND} ${CHECKPOINT_TEST_PARAM_MPI}
-          )
+        set(
+          CHECKPOINT_TEST_PARAM_MPI ${MPI_NUMPROC_FLAG}
+          ${CHECK_POINT_MPI_PROC} "${CMAKE_CURRENT_BINARY_DIR}/${TEST}"
+        )
+        add_test(
+          NAME ${TEST}
+          COMMAND ${MPI_RUN_COMMAND} ${CHECKPOINT_TEST_PARAM_MPI}
+        )
 
-          set_tests_properties(
-            ${TEST}
-            PROPERTIES TIMEOUT 60
-            FAIL_REGULAR_EXPRESSION "FAILED;should be deleted but never is;WARNING"
-            PASS_REGULAR_EXPRESSION "PASSED"
-          )
+        set_tests_properties(
+          ${TEST}
+          PROPERTIES TIMEOUT 60
+          FAIL_REGULAR_EXPRESSION "FAILED;should be deleted but never is;WARNING"
+          PASS_REGULAR_EXPRESSION "PASSED"
+        )
 
         endforeach()
     endif()
