@@ -18,6 +18,7 @@ option(
 # MPI package
 if(CHECKPOINT_BUILD_TESTS_WITH_MPI)
  include(cmake/load_mpi_package.cmake)
+ set(CHECK_POINT_MPI_PROC 2 CACHE STRING "Set number of proc used by MPI for the tests. 2 by default")
 endif()
 
 message (STATUS "Checkpoint build tests: ${CHECKPOINT_BUILD_TESTS}")

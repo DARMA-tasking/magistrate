@@ -115,9 +115,10 @@ if (${CHECKPOINT_BUILD_TESTS})
           target_link_libraries(${TEST} PUBLIC ${MPI_LIBRARIES})
           target_compile_definitions(${TEST} PUBLIC HAVE_MPI=1)
 
+          set(CHECKPOINT_TEST_PARAM_MPI ${MPI_NUMPROC_FLAG} ${CHECK_POINT_MPI_PROC} "${CMAKE_CURRENT_BINARY_DIR}/${TEST}")
           add_test(
-            ${TEST}
-            ${CMAKE_CURRENT_BINARY_DIR}/${TEST}
+            NAME ${TEST}
+            COMMAND ${MPI_RUN_COMMAND} ${CHECKPOINT_TEST_PARAM_MPI}
           )
 
           set_tests_properties(
