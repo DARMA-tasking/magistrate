@@ -3,7 +3,7 @@ set(PROJECT_TEST_UNIT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/unit)
 set(PROJECT_TEST_MPI_UNIT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/unit/tests_mpi)
 
 if(CHECKPOINT_BUILD_TESTS_WITH_MPI)
-  message("Building test using MPI")
+  message(STATUS "Building unit tests with MPI")
   file(
       GLOB
       PROJECT_TEST_LIST_MPI
