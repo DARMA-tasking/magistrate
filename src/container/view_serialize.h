@@ -298,7 +298,7 @@ template <typename SerializerT, typename T, typename... Args>
 inline void serialize_const(SerializerT& s, Kokkos::View<T,Args...>& view) {
   using ViewType = Kokkos::View<T,Args...>;
   using T_non_const = typename ViewType::traits::non_const_data_type;
-  Kokkos::View<T_non_const,Args...> tmp_non_const;
+  Kokkos::View<T_non_const,Args...> tmp_non_const(view.label(), view.layout());
   if (s.isPacking() || s.isSizing()) {
     Kokkos::deep_copy(tmp_non_const, view);
   }
