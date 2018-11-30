@@ -54,8 +54,6 @@ if (${CHECKPOINT_BUILD_TESTS})
       ${PROJECT_TEST_UNIT_DIR}/main.cc
     )
 
-    include_directories(${PROJECT_TEST_UNIT_DIR})
-
     foreach(TEST_FULL ${PROJECT_TEST_LIST})
       GET_FILENAME_COMPONENT(
         TEST
@@ -69,6 +67,7 @@ if (${CHECKPOINT_BUILD_TESTS})
         ${PROJECT_TEST_UNIT_DIR}/${TEST}.cc
       )
 
+      target_include_directories(${TEST} PUBLIC ${PROJECT_TEST_UNIT_DIR})
       target_link_libraries(${TEST} PRIVATE GTest::GTest)
       target_link_libraries(${TEST} PRIVATE GTest::Main)
       target_link_libraries(${TEST} PUBLIC ${SERDES_LIBRARY})
@@ -104,6 +103,7 @@ if (${CHECKPOINT_BUILD_TESTS})
             ${PROJECT_TEST_MPI_UNIT_DIR}/${TEST}.cc
           )
 
+          target_include_directories(${TEST} PUBLIC ${PROJECT_TEST_UNIT_DIR})
           target_include_directories(${TEST} PUBLIC ${MPI_INCLUDE_PATH})
           target_link_libraries(${TEST} PRIVATE GTest::GTest)
           target_link_libraries(${TEST} PRIVATE GTest::Main)
