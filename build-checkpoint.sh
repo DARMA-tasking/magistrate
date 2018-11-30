@@ -50,6 +50,7 @@ cmake ../checkpoint                                                    \
       -Ddetector_DIR=${detector_path}                                  \
       -DCHECKPOINT_BUILD_TESTS:bool=${build_tests}                     \
       -DCHECKPOINT_BUILD_EXAMPLES:bool=${build_tests}                  \
+      -DCHECKPOINT_BUILD_TESTS_WITH_MPI:bool=${build_tests}            \
       -Dgtest_DIR=${gtest_directory}                                   \
       -DGTEST_ROOT=${gtest_directory}                                  \
       -DCMAKE_BUILD_TYPE=${build_mode}                                 \
