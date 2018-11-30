@@ -26,11 +26,11 @@ if (${CHECKPOINT_BUILD_EXAMPLES})
       NAME_WE
     )
 
-    include_directories(${EXAMPLE} ${CMAKE_SOURCE_DIR}/src)
     add_executable(
       ${EXAMPLE}
       ${PROJECT_EXAMPLE_DIR}/${EXAMPLE}.cc
     )
+    target_include_directories(${EXAMPLE} PUBLIC ${CMAKE_SOURCE_DIR}/src)
 
     add_test_for_example_checkpoint(
       ${EXAMPLE}
