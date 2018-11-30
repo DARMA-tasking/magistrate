@@ -11,7 +11,7 @@
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
 #if HAVE_MPI
-  ::testing::AddGlobalTestEnvironment(new MPIEnvironment);
+  ::testing::AddGlobalTestEnvironment(new MPIEnvironment(&argc, argv));
 #endif
 
   serdes::tests::unit::TestHarness::store_cmdline_args(argc, argv);
