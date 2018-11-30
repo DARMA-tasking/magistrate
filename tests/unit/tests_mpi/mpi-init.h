@@ -2,17 +2,16 @@
 #define MPIINIT_H
 
 #include <gtest/gtest.h>
-
+#include <test_harness.h>
 #include <mpi.h>
 
 class MPIEnvironment : public ::testing::Environment
 {
 public:
+  MPIEnvironment (int *argc, char **argv) :argc_(argc), argv_(argv) {}
   virtual void SetUp() override{
-    char** argv;
-    int argc = 0;
     // Initialize the MPI environment
-    MPI_Init(NULL, NULL);
+    MPI_Init(argc_, &argv_);
 
     // Get the number of processes
     int world_size;
@@ -45,6 +44,11 @@ public:
 
     return rank < world_size;
   }
+
+
+private:
+  int *argc_;
+  char **argv_;
 
 };
 
