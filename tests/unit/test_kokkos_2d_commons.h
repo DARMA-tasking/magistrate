@@ -62,14 +62,29 @@ inline Kokkos::LayoutStride layout2d(lsType d1,lsType d2) {
 ///////////////////////////////////////////////////////////////////////////////
 
 using Test2DTypes = std::tuple<
-  int      **, int      *[1], int      *[4],
-  double   **, double   *[1], double   *[4],
-  float    **, float    *[1], float    *[4],
-  int32_t  **, int32_t  *[1], int32_t  *[4],
-  int64_t  **, int64_t  *[1], int64_t  *[4],
-  unsigned **, unsigned *[1], unsigned *[4],
-  long     **, long     *[1], long     *[4],
-  long long**, long long*[1], long long*[4]
+  int               **, int               *[1], int              *[4],
+  double            **, double            *[1], double           *[4],
+  float             **, float             *[1], float            *[4],
+  int32_t           **, int32_t           *[1], int32_t          *[4],
+  int64_t           **, int64_t           *[1], int64_t          *[4],
+  unsigned          **, unsigned          *[1], unsigned         *[4],
+  long              **, long              *[1], long             *[4],
+  long long         **, long long         *[1], long long        *[4],
+  char              **, char              *[1], char             *[4],
+  signed char       **, signed char       *[1], signed char      *[4]
+>;
+
+using Test2DConstTypes = std::tuple<
+ int          const **, int          const *[1], int         const *[4],
+ double       const **, double       const *[1], double      const *[4],
+ float        const **, float        const *[1], float       const *[4],
+ int32_t      const **, int32_t      const *[1], int32_t     const *[4],
+ int64_t      const **, int64_t      const *[1], int64_t     const *[4],
+ unsigned     const **, unsigned     const *[1], unsigned    const *[4],
+ long         const **, long         const *[1], long        const *[4],
+ long long    const **, long long    const *[1], long long   const *[4],
+ char         const **, char         const *[1], char        const *[4],
+ signed char  const **, signed char  const *[1], signed char const *[4]
 >;
 
 using Test2DTypesLeft =
@@ -77,6 +92,13 @@ using Test2DTypesLeft =
 using Test2DTypesRight =
   typename TestFactory<Test2DTypes,Kokkos::LayoutRight>::ResultType;
 using Test2DTypesStride =
+  typename TestFactory<Test2DTypes,Kokkos::LayoutStride>::ResultType;
+
+using Test2DConstTypesLeft =
+  typename TestFactory<Test2DTypes,Kokkos::LayoutLeft>::ResultType;
+using Test2DConstTypesRight =
+  typename TestFactory<Test2DTypes,Kokkos::LayoutRight>::ResultType;
+using Test2DConstTypesStride =
   typename TestFactory<Test2DTypes,Kokkos::LayoutStride>::ResultType;
 
 #endif
