@@ -24,28 +24,12 @@ TYPED_TEST_P(KokkosViewTest0D, test_0d_any) {
 
   if(std::is_same<NonConstViewType, ViewType>::value)
   {
-    auto ret = serialize<NonConstViewType>(in_view);
-    auto out_view = deserialize<NonConstViewType>(ret->getBuffer(), ret->getSize());
-    auto const& out_view_ref = *out_view;
-    #if SERDES_USE_ND_COMPARE
-      compareND(in_view, out_view_ref);
-    #else
-      compare0d(in_view, out_view_ref);
-    #endif
+    serialiseDeserializeBasic<NonConstViewType>(in_view, &compare0d<NonConstViewType>);
   }
   else
   {
     ConstViewType const_in_view = in_view;
-    auto ret = serialize<ConstViewType>(const_in_view);
-    auto out_view = deserialize<ConstViewType>(ret->getBuffer(), ret->getSize());
-    auto const& out_view_ref = *out_view;
-
-      // Uncomment to make the test failed
-    #if SERDES_USE_ND_COMPARE
-     compareND(const_in_view, out_view_ref);
-    #else
-     compare0d(const_in_view, out_view_ref);
-    #endif
+    serialiseDeserializeBasic<ConstViewType>(const_in_view, &compare0d<ConstViewType>);
   }
 }
 
