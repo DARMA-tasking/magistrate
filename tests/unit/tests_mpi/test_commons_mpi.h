@@ -9,7 +9,7 @@
 
 namespace  {
 template <typename T>
-void serialiseDeserializeBasic(T & in_view, std::function<void(T const&,T const&)> compare)
+void serialiseDeserializeBasicMPI(T & in_view, std::function<void(T const&,T const&)> compare)
 {
   using namespace serialization::interface;
 
