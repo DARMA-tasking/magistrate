@@ -13,23 +13,43 @@ TYPED_TEST_P(KokkosViewTest1D, test_1d_any) {
   using LayoutType = typename std::tuple_element<0,TypeParam>::type;
   using DataType   = typename std::tuple_element<1,TypeParam>::type;
   using ViewType   = Kokkos::View<DataType, LayoutType>;
+  using NonConstT         = typename ViewType::traits::non_const_data_type;
+  using NonConstViewType  = Kokkos::View<NonConstT, LayoutType>;
+  using ConstT         = typename ViewType::traits::const_data_type;
+  using ConstViewType  = Kokkos::View<ConstT, LayoutType>;
 
   static constexpr size_t const N = 241;
 
   LayoutType layout = layout1d<LayoutType>(N);
-  ViewType in_view("test", layout);
+  NonConstViewType in_view("test", layout);
 
   init1d(in_view);
 
-  auto ret = serialize<ViewType>(in_view);
-  auto out_view = deserialize<ViewType>(ret->getBuffer(), ret->getSize());
-  auto const& out_view_ref = *out_view;
+  if(std::is_same<NonConstViewType, ViewType>::value)
+  {
+    auto ret = serialize<NonConstViewType>(in_view);
+    auto out_view = deserialize<NonConstViewType>(ret->getBuffer(), ret->getSize());
+    auto const& out_view_ref = *out_view;
+    #if SERDES_USE_ND_COMPARE
+      compareND(in_view, out_view_ref);
+    #else
+      compare1d(in_view, out_view_ref);
+    #endif
+  }
+  else
+  {
+    ConstViewType const_in_view = in_view;
+    auto ret = serialize<ConstViewType>(const_in_view);
+    auto out_view = deserialize<ConstViewType>(ret->getBuffer(), ret->getSize());
+    auto const& out_view_ref = *out_view;
 
-#if SERDES_USE_ND_COMPARE
-  compareND(in_view, out_view_ref);
-#else
-  compare1d(in_view, out_view_ref);
-#endif
+      // Uncomment to make the test failed
+    #if SERDES_USE_ND_COMPARE
+     compareND(const_in_view, out_view_ref);
+    #else
+     compare1d(const_in_view, out_view_ref);
+    #endif
+  }
 }
 
 
@@ -40,6 +60,9 @@ REGISTER_TYPED_TEST_CASE_P(KokkosViewTest1D, test_1d_any);
 INSTANTIATE_TYPED_TEST_CASE_P(test_1d_L, KokkosViewTest1D, Test1DTypesLeft);
 INSTANTIATE_TYPED_TEST_CASE_P(test_1d_R, KokkosViewTest1D, Test1DTypesRight);
 INSTANTIATE_TYPED_TEST_CASE_P(test_1d_S, KokkosViewTest1D, Test1DTypesStride);
+INSTANTIATE_TYPED_TEST_CASE_P(test_1d_L_C, KokkosViewTest1D, Test1DConstTypesLeft);
+INSTANTIATE_TYPED_TEST_CASE_P(test_1d_R_C, KokkosViewTest1D, Test1DConstTypesRight);
+INSTANTIATE_TYPED_TEST_CASE_P(test_1d_S_C, KokkosViewTest1D, Test1DConstTypesStride);
 
 #endif
 
