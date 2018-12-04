@@ -15,6 +15,12 @@ option(
   CHECKPOINT_BUILD_EXAMPLES "Option for turning on checkpoint examples" OFF
 )
 
+# Try to find ccache to speed up compilation
+find_program(ccache_binary ccache)
+if (ccache_binary)
+  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${ccache_binary}")
+endif()
+
 # MPI package
 if(CHECKPOINT_BUILD_TESTS_WITH_MPI)
  include(cmake/load_mpi_package.cmake)
