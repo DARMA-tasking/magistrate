@@ -27,28 +27,12 @@ TYPED_TEST_P(KokkosViewTest1D, test_1d_any) {
 
   if(std::is_same<NonConstViewType, ViewType>::value)
   {
-    auto ret = serialize<NonConstViewType>(in_view);
-    auto out_view = deserialize<NonConstViewType>(ret->getBuffer(), ret->getSize());
-    auto const& out_view_ref = *out_view;
-    #if SERDES_USE_ND_COMPARE
-      compareND(in_view, out_view_ref);
-    #else
-      compare1d(in_view, out_view_ref);
-    #endif
+    serialiseDeserializeBasic<NonConstViewType>(in_view, &compare1d<NonConstViewType>);
   }
   else
   {
     ConstViewType const_in_view = in_view;
-    auto ret = serialize<ConstViewType>(const_in_view);
-    auto out_view = deserialize<ConstViewType>(ret->getBuffer(), ret->getSize());
-    auto const& out_view_ref = *out_view;
-
-      // Uncomment to make the test failed
-    #if SERDES_USE_ND_COMPARE
-     compareND(const_in_view, out_view_ref);
-    #else
-     compare1d(const_in_view, out_view_ref);
-    #endif
+    serialiseDeserializeBasic<ConstViewType>(const_in_view, &compare1d<ConstViewType>);
   }
 }
 
@@ -88,28 +72,9 @@ TYPED_TEST_P(KokkosDynamicViewTest, test_dynamic_1d) {
   ViewType in_view("my-dynamic-view", min_chunk, max_extent);
   in_view.resize_serial(N);
 
-  // std::cout << "INIT size=" << in_view.size() << std::endl;
-
   init1d(in_view);
 
-  auto ret = serialize<ViewType>(in_view);
-  auto out_view = deserialize<ViewType>(ret->getBuffer(), ret->getSize());
-  auto const& out_view_ref = *out_view;
-
-  /*
-   *  Uncomment these lines (one or both) to test the failure mode: ensure the
-   *  view equality test code is operating correctly.
-   *
-   *   out_view_ref(3) = 10;
-   *   out_view->resize_serial(N-1);
-   *
-   */
-
-#if SERDES_USE_ND_COMPARE
-  compareND(in_view, out_view_ref);
-#else
-  compare1d(in_view, out_view_ref);
-#endif
+  serialiseDeserializeBasic<ViewType>(in_view, &compare1d<ViewType>);
 }
 
 REGISTER_TYPED_TEST_CASE_P(KokkosDynamicViewTest, test_dynamic_1d);

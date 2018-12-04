@@ -120,4 +120,23 @@ struct TestFactory {
     typename ConvertTupleType<ResultTupleType,testing::Types>::ResultType;
 };
 
+
+namespace  {
+template <typename T>
+void serialiseDeserializeBasic(T & in_view, std::function<void(T const&,T const&)> compare)
+{
+  using namespace serialization::interface;
+
+  auto ret = serialize<T>(in_view);
+  auto out_view = deserialize<T>(ret->getBuffer(), ret->getSize());
+  auto const& out_view_ref = *out_view;
+  #if SERDES_USE_ND_COMPARE
+    compareND(in_view, out_view_ref);
+  #else
+    compare(in_view, out_view_ref);
+  #endif
+  }
+}
+
+
 #endif // TEST_COMMONS_H
