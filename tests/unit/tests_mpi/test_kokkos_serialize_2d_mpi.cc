@@ -20,8 +20,6 @@ TYPED_TEST_P(KokkosViewTest2DMPI, test_2d_any) {
   static constexpr size_t const N = 23;
   static constexpr size_t const M = 32;
 
-  constexpr auto dyn = serdes::CountDims<ViewType,DataType>::dynamic;
-
   LayoutType layout = layout2d<LayoutType>(N,M);
   NonConstViewType in_view("test-2D-some-string", layout);
 

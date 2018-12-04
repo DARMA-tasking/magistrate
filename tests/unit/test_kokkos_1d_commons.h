@@ -74,12 +74,30 @@ using Test1DTypes = std::tuple<
   long long*, long long[1], long long[4]
 >;
 
+using Test1DConstTypes = std::tuple<
+  int       const *, int       const [1], int       const [3],
+  double    const *, double    const [1], double    const [4],
+  float     const *, float     const [1], float     const [4],
+  int32_t   const *, int32_t   const [1], int32_t   const [4],
+  int64_t   const *, int64_t   const [1], int64_t   const [4],
+  unsigned  const *, unsigned  const [1], unsigned  const [4],
+  long      const *, long      const [1], long      const [4],
+  long long const *, long long const [1], long long const [4]
+>;
+
 using Test1DTypesLeft =
   typename TestFactory<Test1DTypes,Kokkos::LayoutLeft>::ResultType;
 using Test1DTypesRight =
   typename TestFactory<Test1DTypes,Kokkos::LayoutRight>::ResultType;
 using Test1DTypesStride =
   typename TestFactory<Test1DTypes,Kokkos::LayoutStride>::ResultType;
+
+using Test1DConstTypesLeft =
+  typename TestFactory<Test1DConstTypes,Kokkos::LayoutLeft>::ResultType;
+using Test1DConstTypesRight =
+  typename TestFactory<Test1DConstTypes,Kokkos::LayoutRight>::ResultType;
+using Test1DConstTypesStride =
+  typename TestFactory<Test1DConstTypes,Kokkos::LayoutStride>::ResultType;
 
 using DynamicTestTypes = testing::Types<
   int      *,

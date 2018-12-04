@@ -80,12 +80,30 @@ using Test3DTypes = std::tuple<
   long long***, long long**[1], long long**[9]
 >;
 
+using Test3DConstTypes = std::tuple<
+  int       const ***, int       const **[1], int       const **[9],
+  double    const ***, double    const **[1], double    const **[9],
+  float     const ***, float     const **[1], float     const **[9],
+  int32_t   const ***, int32_t   const **[1], int32_t   const **[9],
+  int64_t   const ***, int64_t   const **[1], int64_t   const **[9],
+  unsigned  const ***, unsigned  const **[1], unsigned  const **[9],
+  long      const ***, long      const **[1], long      const **[9],
+  long long const ***, long long const **[1], long long const **[9]
+>;
+
 using Test3DTypesLeft =
   typename TestFactory<Test3DTypes,Kokkos::LayoutLeft>::ResultType;
 using Test3DTypesRight =
   typename TestFactory<Test3DTypes,Kokkos::LayoutRight>::ResultType;
 using Test3DTypesStride =
   typename TestFactory<Test3DTypes,Kokkos::LayoutStride>::ResultType;
+
+using Test3DConstTypesLeft =
+  typename TestFactory<Test3DConstTypes,Kokkos::LayoutLeft>::ResultType;
+using Test3DConstTypesRight =
+  typename TestFactory<Test3DConstTypes,Kokkos::LayoutRight>::ResultType;
+using Test3DConstTypesStride =
+  typename TestFactory<Test3DConstTypes,Kokkos::LayoutStride>::ResultType;
 
 #endif
 

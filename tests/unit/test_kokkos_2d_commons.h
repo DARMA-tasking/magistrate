@@ -95,11 +95,11 @@ using Test2DTypesStride =
   typename TestFactory<Test2DTypes,Kokkos::LayoutStride>::ResultType;
 
 using Test2DConstTypesLeft =
-  typename TestFactory<Test2DTypes,Kokkos::LayoutLeft>::ResultType;
+  typename TestFactory<Test2DConstTypes,Kokkos::LayoutLeft>::ResultType;
 using Test2DConstTypesRight =
-  typename TestFactory<Test2DTypes,Kokkos::LayoutRight>::ResultType;
+  typename TestFactory<Test2DConstTypes,Kokkos::LayoutRight>::ResultType;
 using Test2DConstTypesStride =
-  typename TestFactory<Test2DTypes,Kokkos::LayoutStride>::ResultType;
+  typename TestFactory<Test2DConstTypes,Kokkos::LayoutStride>::ResultType;
 
 #endif
 

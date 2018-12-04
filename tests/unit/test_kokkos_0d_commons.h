@@ -22,14 +22,14 @@ static inline void init0d(Kokkos::View<T,Args...> const& v) {
 ///////////////////////////////////////////////////////////////////////////////
 
 using Test0DTypes = testing::Types<
-  int      ,
-  double   ,
-  float    ,
-  int32_t  ,
-  int64_t  ,
-  unsigned ,
-  long     ,
-  long long
+  int      , const int      ,
+  double   , const double   ,
+  float    , const float    ,
+  int32_t  , const int32_t  ,
+  int64_t  , const int64_t  ,
+  unsigned , const unsigned ,
+  long     , const long     ,
+  long long, const long long
 >;
 
 #endif
