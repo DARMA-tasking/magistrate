@@ -25,14 +25,11 @@ TYPED_TEST_P(KokkosViewTest1D, test_1d_any) {
 
   init1d(in_view);
 
-  if(std::is_same<NonConstViewType, ViewType>::value)
-  {
-    serialiseDeserializeBasic<NonConstViewType>(in_view, &compare1d<NonConstViewType>);
-  }
-  else
-  {
+  if (std::is_same<NonConstViewType, ViewType>::value) {
+    serializeAny<NonConstViewType>(in_view, &compare1d<NonConstViewType>);
+  } else {
     ConstViewType const_in_view = in_view;
-    serialiseDeserializeBasic<ConstViewType>(const_in_view, &compare1d<ConstViewType>);
+    serializeAny<ConstViewType>(const_in_view, &compare1d<ConstViewType>);
   }
 }
 
@@ -74,7 +71,7 @@ TYPED_TEST_P(KokkosDynamicViewTest, test_dynamic_1d) {
 
   init1d(in_view);
 
-  serialiseDeserializeBasic<ViewType>(in_view, &compare1d<ViewType>);
+  serializeAny<ViewType>(in_view, &compare1d<ViewType>);
 }
 
 REGISTER_TYPED_TEST_CASE_P(KokkosDynamicViewTest, test_dynamic_1d);

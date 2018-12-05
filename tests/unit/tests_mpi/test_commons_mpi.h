@@ -5,12 +5,13 @@
 #include "test_kokkos_0d_commons.h"
 #include "tests_mpi/mpi-init.h"
 
+#include <functional>
+
 #include <mpi.h>
 
 namespace  {
 template <typename T>
-void serialiseDeserializeBasicMPI(T & in_view, std::function<void(T const&,T const&)> compare)
-{
+void serializeAnyMPI(T& view, std::function<void(T const&,T const&)> compare) {
   using namespace serialization::interface;
 
   // Test the respect of the max rank needed for the test'
@@ -20,7 +21,7 @@ void serialiseDeserializeBasicMPI(T & in_view, std::function<void(T const&,T con
   MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
   if (world_rank == 0) {
-    auto ret = serialize<T>(in_view);
+    auto ret = serialize<T>(view);
     int viewSize = ret->getSize();
     MPI_Send( &viewSize, 1, MPI_INT, 1, 0, MPI_COMM_WORLD );
     char * viewBuffer = ret->getBuffer();
@@ -37,12 +38,12 @@ void serialiseDeserializeBasicMPI(T & in_view, std::function<void(T const&,T con
     auto const& out_view_ref = *out_view;
 
 #if SERDES_USE_ND_COMPARE
-    compareND(in_view, out_view_ref);
+    compareND(view, out_view_ref);
 #else
-    compare(in_view, out_view_ref);
+    compare(view, out_view_ref);
 #endif
   }
 }
+} // end namespace
 
-}
 #endif // TEST_COMMONS_MPI_H

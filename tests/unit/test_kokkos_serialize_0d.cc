@@ -22,14 +22,11 @@ TYPED_TEST_P(KokkosViewTest0D, test_0d_any) {
 
   init0d(in_view);
 
-  if(std::is_same<NonConstViewType, ViewType>::value)
-  {
-    serialiseDeserializeBasic<NonConstViewType>(in_view, &compare0d<NonConstViewType>);
-  }
-  else
-  {
+  if (std::is_same<NonConstViewType, ViewType>::value) {
+    serializeAny<NonConstViewType>(in_view, &compare0d<NonConstViewType>);
+  } else {
     ConstViewType const_in_view = in_view;
-    serialiseDeserializeBasic<ConstViewType>(const_in_view, &compare0d<ConstViewType>);
+    serializeAny<ConstViewType>(const_in_view, &compare0d<ConstViewType>);
   }
 }
 
