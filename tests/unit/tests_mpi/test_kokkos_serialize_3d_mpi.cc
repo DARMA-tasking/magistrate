@@ -27,14 +27,11 @@ TYPED_TEST_P(KokkosViewTest3DMPI, test_3d_any) {
 
   init3d(in_view);
 
-  if(std::is_same<NonConstViewType, ViewType>::value)
-  {
-    serialiseDeserializeBasicMPI<NonConstViewType>(in_view, &compare3d<NonConstViewType>);
-  }
-  else
-  {
+  if (std::is_same<NonConstViewType, ViewType>::value) {
+    serializeAnyMPI<NonConstViewType>(in_view, &compare3d<NonConstViewType>);
+  } else {
     ConstViewType const_in_view = in_view;
-    serialiseDeserializeBasicMPI<ConstViewType>(const_in_view, &compare3d<ConstViewType>);
+    serializeAnyMPI<ConstViewType>(const_in_view, &compare3d<ConstViewType>);
   }}
 
 REGISTER_TYPED_TEST_CASE_P(KokkosViewTest3DMPI, test_3d_any);

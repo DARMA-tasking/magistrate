@@ -17,6 +17,8 @@
 #include <Kokkos_DynamicView.hpp>
 #include <Kokkos_Serial.hpp>
 
+#include <functional>
+
 /*
  * Compiling all the unit tests for Kokkos::View takes a long time, thus a
  * compile-time option to disable the unit tests if needed
@@ -123,20 +125,18 @@ struct TestFactory {
 
 namespace  {
 template <typename T>
-void serialiseDeserializeBasic(T & in_view, std::function<void(T const&,T const&)> compare)
-{
+void serializeAny(T& view, std::function<void(T const&,T const&)> compare) {
   using namespace serialization::interface;
 
-  auto ret = serialize<T>(in_view);
+  auto ret = serialize<T>(view);
   auto out_view = deserialize<T>(ret->getBuffer(), ret->getSize());
   auto const& out_view_ref = *out_view;
   #if SERDES_USE_ND_COMPARE
-    compareND(in_view, out_view_ref);
+    compareND(view, out_view_ref);
   #else
-    compare(in_view, out_view_ref);
+    compare(view, out_view_ref);
   #endif
-  }
 }
-
+} //end namespace
 
 #endif // TEST_COMMONS_H

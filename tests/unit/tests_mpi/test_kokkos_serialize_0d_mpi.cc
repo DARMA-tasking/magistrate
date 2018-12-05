@@ -22,14 +22,12 @@ TYPED_TEST_P(KokkosViewTest0DMPI, test_0d_any) {
 
   init0d(in_view);
 
-  if(std::is_same<NonConstViewType, ViewType>::value)
-  {
-    serialiseDeserializeBasicMPI<NonConstViewType>(in_view, &compare0d<NonConstViewType>);
+  if (std::is_same<NonConstViewType, ViewType>::value) {
+    serializeAnyMPI<NonConstViewType>(in_view, &compare0d<NonConstViewType>);
   }
-  else
-  {
+  else {
     ConstViewType const_in_view = in_view;
-    serialiseDeserializeBasicMPI<ConstViewType>(const_in_view, &compare0d<ConstViewType>);
+    serializeAnyMPI<ConstViewType>(const_in_view, &compare0d<ConstViewType>);
   }
 }
 

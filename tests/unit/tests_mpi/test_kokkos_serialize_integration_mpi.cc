@@ -55,7 +55,7 @@ TEST_F(KokkosNullTestMPI, test_null_1) {
   // Default construct
   ViewType test_data = {};
 
-  serialiseDeserializeBasicMPI<ViewType>(test_data, &compare1d<ViewType>);
+  serializeAnyMPI<ViewType>(test_data, &compare1d<ViewType>);
 }
 
 #endif
