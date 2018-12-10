@@ -85,18 +85,18 @@ TEST_F(KokkosViewOfVIewTest, test_view_of_view_uninit_fix) {
 
   // Default construct
   ViewType test_data;
-  bool canCanLabel = test_data.use_count() > 0;
-  EXPECT_EQ(canCanLabel, false);
+  bool canUseLabel = test_data.use_count() > 0;
+  EXPECT_EQ(canUseLabel, false);
 
   ViewType test_data_initialized("");
-  canCanLabel = test_data_initialized.use_count() > 0;
-  EXPECT_EQ(canCanLabel, true);
+  canUseLabel = test_data_initialized.use_count() > 0;
+  EXPECT_EQ(canUseLabel, true);
   test_data_initialized(0).label();
 
   test_data_initialized(0) = Kokkos::View<double*>();
-  canCanLabel = test_data_initialized.use_count() > 0;
+  canUseLabel = test_data_initialized.use_count() > 0;
   test_data_initialized(0).label();
-  EXPECT_EQ(canCanLabel, true);
+  EXPECT_EQ(canUseLabel, true);
 }
 
 #endif
