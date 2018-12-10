@@ -39,4 +39,35 @@ TEST_F(KokkosNullTest, test_null_1) {
   deserialize<ViewType>(std::move(ret));
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// Kokkos::View unit test with view of view
+/////////////////////// ////////////////////////////////////////////////////////
+
+struct KokkosViewOfVIewTest : KokkosBaseTest { };
+
+TEST_F(KokkosViewOfVIewTest, test_view_of_view_init_1) {
+  using namespace serialization::interface;
+  using ViewType = Kokkos::View<Kokkos::View<double*>[3]>;
+
+  // Default construct
+  ViewType test_data = Kokkos::View<Kokkos::View<double*>[3]>("test");
+  test_data(0) = Kokkos::View<double*>();
+  test_data(1) = Kokkos::View<double*>();
+  test_data(2) = Kokkos::View<double*>();
+
+  auto ret = serialize<ViewType>(test_data);
+  auto out = deserialize<ViewType>(std::move(ret));
+}
+
+TEST_F(KokkosViewOfVIewTest, test_view_of_view_uninit_1) {
+  using namespace serialization::interface;
+  using ViewType = Kokkos::View<Kokkos::View<double*>[3]>;
+
+  // Default construct
+  ViewType test_data;
+
+  auto ret = serialize<ViewType>(test_data);
+  auto out = deserialize<ViewType>(std::move(ret));
+}
+
 #endif
