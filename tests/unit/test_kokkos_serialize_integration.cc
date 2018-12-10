@@ -79,4 +79,24 @@ TEST_F(KokkosViewOfVIewTest, test_view_of_view_uninit_1) {
   test_data(0).label();
 }
 
+TEST_F(KokkosViewOfVIewTest, test_view_of_view_uninit_fix) {
+  using namespace serialization::interface;
+  using ViewType = Kokkos::View<Kokkos::View<double*>[3]>;
+
+  // Default construct
+  ViewType test_data;
+  bool canCanLabel = test_data.use_count() > 0;
+  EXPECT_EQ(canCanLabel, false);
+
+  ViewType test_data_initialized("");
+  canCanLabel = test_data_initialized.use_count() > 0;
+  EXPECT_EQ(canCanLabel, true);
+  test_data_initialized(0).label();
+
+  test_data_initialized(0) = Kokkos::View<double*>();
+  canCanLabel = test_data_initialized.use_count() > 0;
+  test_data_initialized(0).label();
+  EXPECT_EQ(canCanLabel, true);
+}
+
 #endif
