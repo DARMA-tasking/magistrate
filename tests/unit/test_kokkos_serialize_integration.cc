@@ -76,9 +76,8 @@ TEST_F(KokkosViewOfVIewTest, test_view_of_view_uninit_1) {
 
   // Default construct
   ViewType test_data;
-
-  auto ret = serialize<ViewType>(test_data);
-  auto out = deserialize<ViewType>(std::move(ret));
+  test_data(0) = Kokkos::View<double*>();
+  test_data(0).label();
 }
 
 #endif
