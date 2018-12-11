@@ -272,26 +272,38 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
     label.c_str(), is_contig ? "true" : "false", num_elms, rt_dim
   );
 
-  // Serialize the actual data owned by the Kokkos::View
-  if (is_contig) {
-    // Serialize the data directly out of the data buffer
-    serializeArray(s, view.data(), num_elms);
-  } else {
-    // Serialize manually traversing the data with Kokkos::View::operator()(...)
+  bool isInitialized = true;
+  if (!s.isUnpacking()) {
+     isInitialized = view.use_count() > 0;
+  }
+  s | isInitialized;
+
+  if(isInitialized)
+  {
+    // Serialize the actual data owned by the Kokkos::View
+    if (is_contig) {
+      // Serialize the data directly out of the data buffer
+      if(view.use_count() > 0)
+      {
+        serializeArray(s, view.data(), num_elms);
+      }
+    } else {
+      // Serialize manually traversing the data with Kokkos::View::operator()(...)
 
 #if CHECKPOINT_KOKKOS_NDIM_TRAVERSE
-    using CountDimType = CountDims<ViewType>;
-    using BaseType = typename CountDimType::BaseT;
+      using CountDimType = CountDims<ViewType>;
+      using BaseType = typename CountDimType::BaseT;
 
-    constexpr auto dims = CountDimType::dynamic;
-    auto fn = [&s](BaseType& elm){
-      s | elm;
-    };
+      constexpr auto dims = CountDimType::dynamic;
+      auto fn = [&s](BaseType& elm){
+        s | elm;
+      };
 
-    TraverseRecursive<ViewType,T,dims,decltype(fn)>::apply(view,fn);
+      TraverseRecursive<ViewType,T,dims,decltype(fn)>::apply(view,fn);
 #else
-    TraverseManual<SerializerT,ViewType,rank_val>::apply(s,view);
+      TraverseManual<SerializerT,ViewType,rank_val>::apply(s,view);
 #endif
+    }
   }
 }
 
