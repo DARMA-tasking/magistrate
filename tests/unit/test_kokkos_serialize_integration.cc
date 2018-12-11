@@ -76,7 +76,9 @@ TEST_F(KokkosViewOfVIewTest, test_view_of_view_uninit_1) {
 
   // Default construct
   ViewType test_data;
-  test_data(0).label();
+
+  auto ret = serialize<ViewType>(test_data);
+  auto out = deserialize<ViewType>(ret->getBuffer(), ret->getSize());
 }
 
 TEST_F(KokkosViewOfVIewTest, test_view_of_view_uninit_fix) {
