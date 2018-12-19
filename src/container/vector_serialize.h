@@ -9,28 +9,28 @@
 
 namespace serdes {
 
-template <typename Serializer, typename T>
-void serializeVectorMeta(Serializer& s, std::vector<T>& vec) {
+template <typename Serializer, typename T, typename VectorAllocator>
+void serializeVectorMeta(Serializer& s, std::vector<T, VectorAllocator>& vec) {
   SizeType vec_size = vec.size();
   s | vec_size;
   vec.resize(vec_size);
 }
 
-template <typename Serializer, typename T>
-void serialize(Serializer& s, std::vector<T>& vec) {
+template <typename Serializer, typename T, typename VectorAllocator>
+void serialize(Serializer& s, std::vector<T, VectorAllocator>& vec) {
   serializeVectorMeta(s, vec);
   serializeArray(s, &vec[0], vec.size());
 }
 
-template <typename Serializer, typename T>
-void parserdesVectorMeta(Serializer& s, std::vector<T>& vec) {
+template <typename Serializer, typename T, typename VectorAllocator>
+void parserdesVectorMeta(Serializer& s, std::vector<T, VectorAllocator>& vec) {
   SizeType vec_size = vec.size();
   s & vec_size;
   vec.resize(vec_size);
 }
 
-template <typename Serializer, typename T>
-void parserdes(Serializer& s, std::vector<T>& vec) {
+template <typename Serializer, typename T, typename VectorAllocator>
+void parserdes(Serializer& s, std::vector<T, VectorAllocator>& vec) {
   parserdesVectorMeta(s, vec);
   parserdesArray(s, &vec[0], vec.size());
 }
