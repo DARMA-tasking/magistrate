@@ -64,6 +64,33 @@ else()
   set(CHECKPOINT_HAS_GTEST FALSE)
 endif()
 
+option(USE_OPENMP "whether to force use of OpenMP for threading" ON)
+
+function(config_for_openmp)
+  message(
+    STATUS
+    "OpenMP has been found: "
+    "Linker=\"${OpenMP_EXE_LINKER_FLAGS}\", "
+    "CC FLAGS=\"${OpenMP_C_FLAGS}\", "
+    "CXX FLAGS=\"${OpenMP_CXX_FLAGS}\""
+  )
+endfunction(config_for_openmp)
+
+find_package(OpenMP)
+
+# OpenMP support
+if(USE_OPENMP)
+  if (OpenMP_FOUND)
+    config_for_openmp()
+  else()
+    message(
+      FATAL_ERROR
+      "requested OpenMP with -DUSE_OPENMP=On, but cannot find "
+      "valid OpenMP in compiler"
+    )
+  endif()
+endif()
+
 set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(PROJECT_EXAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/examples)
 set(PROJECT_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tests)
