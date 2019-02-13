@@ -86,7 +86,7 @@ target_include_directories(
 
 target_include_directories(
   ${SERDES_LIBRARY} PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:include>
 )
 

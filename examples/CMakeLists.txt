@@ -30,7 +30,7 @@ if (${CHECKPOINT_BUILD_EXAMPLES})
       ${EXAMPLE}
       ${PROJECT_EXAMPLE_DIR}/${EXAMPLE}.cc
     )
-    target_include_directories(${EXAMPLE} PUBLIC ${CMAKE_SOURCE_DIR}/src)
+    target_include_directories(${EXAMPLE} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../src)
 
     add_test_for_example_checkpoint(
       ${EXAMPLE}
