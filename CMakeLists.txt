@@ -35,8 +35,8 @@ message (STATUS "Checkpoint build examples: ${CHECKPOINT_BUILD_EXAMPLES}")
 
 include(cmake/load_package.cmake)
 
-set(SERDES_LIBRARY checkpoint)
-set(SERDES_LIBRARY_NS vt::lib::checkpoint)
+set(SERDES_LIBRARY checkpoint CACHE INTERNAL "" FORCE )
+set(SERDES_LIBRARY_NS vt::lib::checkpoint "" CACHE INTERNAL "" FORCE )
 
 # require directories for these packages
 require_pkg_directory(detector "VT detector library")
