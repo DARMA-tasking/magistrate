@@ -47,7 +47,7 @@ require_pkg_directory(detector "VT detector library")
 find_package_local(detector "${detector_DIR}" detector)
 
 # optional packages
-optional_pkg_directory(kokkos "Kokkos library")
+optional_pkg_directory(kokkos "Kokkos library" 1)
 
 if (${kokkos_DIR_FOUND})
   find_package_local(
