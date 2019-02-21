@@ -14,6 +14,9 @@ option(
 option(
   CHECKPOINT_BUILD_EXAMPLES "Option for turning on checkpoint examples" OFF
 )
+option(
+  CHECKPOINT_FIND_DETECTOR "Use find_package_local to find detector" ON
+)
 
 # Try to find ccache to speed up compilation
 find_program(ccache_binary ccache)
@@ -41,7 +44,9 @@ set(SERDES_LIBRARY_NS vt::lib::checkpoint "" CACHE INTERNAL "" FORCE )
 # require directories for these packages
 require_pkg_directory(detector "VT detector library")
 # find these required packages locally
-#find_package_local(detector "${detector_DIR}" detector)
+if (CHECKPOINT_FIND_DETECTOR)
+  find_package_local(detector "${detector_DIR}" detector)
+endif()
 
 # optional packages
 optional_pkg_directory(kokkos "Kokkos library")
