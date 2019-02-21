@@ -1,22 +1,33 @@
 
 macro(require_pkg_directory pkg_name pkg_user_name)
-  #message(STATUS "require_directory: name=${pkg_name}")
-  option(${pkg_name}_DIR "Root folder for ${pkg_user_name} installation" OFF)
-  if (NOT ${pkg_name}_DIR)
-    message(
-      FATAL_ERROR "Please specify ${pkg_user_name} library installation root"
-      " with -D${pkg_name}_DIR="
-    )
+  get_directory_property(hasParent PARENT_DIRECTORY)
+  if(hasParent)
+    # Skip this logic when this macro was not invoked from the
+    # top-level CMakeLists.txt file under the assumption that this
+    # package was dropped into another build system using add_subdirectory().
+    # Note that this will also skip if you call this macro from
+    # a subdirectory in your own package, so just don't do it!
+
+    #message(STATUS "skipping find_package for ${pkg_name}")
+  else()
+    #message(STATUS "require_directory: name=${pkg_name}")
+    option(${pkg_name}_DIR "Root folder for ${pkg_user_name} installation" OFF)
+    if (NOT ${pkg_name}_DIR)
+      message(
+        FATAL_ERROR "Please specify ${pkg_user_name} library installation root"
+        " with -D${pkg_name}_DIR="
+      )
+    endif()
   endif()
 endmacro(require_pkg_directory)
 
 macro(find_package_local pkg_name pkg_directory pkg_other_name)
   get_directory_property(hasParent PARENT_DIRECTORY)
   if(hasParent)
-    # Skip calling find_package when this macro was not invoked from the
+    # Skip this logic when this macro was not invoked from the
     # top-level CMakeLists.txt file under the assumption that this
     # package was dropped into another build system using add_subdirectory().
-    # Note that this logic will also trigger if you call this macro from
+    # Note that this will also skip if you call this macro from
     # a subdirectory in your own package, so just don't do it!
 
     #message(STATUS "skipping find_package for ${pkg_name}")
