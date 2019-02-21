@@ -11,63 +11,74 @@ macro(require_pkg_directory pkg_name pkg_user_name)
 endmacro(require_pkg_directory)
 
 macro(find_package_local pkg_name pkg_directory pkg_other_name)
-  message(
-    STATUS "find_package_local: pkg name=\"${pkg_name}\", "
-           "directory=\"${pkg_directory}\""
-  )
+  get_directory_property(hasParent PARENT_DIRECTORY)
+  if(hasParent)
+    # Skip calling find_package when this macro was not invoked from the
+    # top-level CMakeLists.txt file under the assumption that this
+    # package was dropped into another build system using add_subdirectory().
+    # Note that this logic will also trigger if you call this macro from
+    # a subdirectory in your own package, so just don't do it!
 
-  # Rest of the arguments are potential relative search paths wrt the
-  # ${pkg_directory}
-  set(prefix_args ${ARGN})
+    #message(STATUS "skipping find_package for ${pkg_name}")
+  else()
+    message(
+      STATUS "find_package_local: pkg name=\"${pkg_name}\", "
+             "directory=\"${pkg_directory}\""
+    )
 
-  # Default search paths: root, /cmake and /CMake subdirectories
-  list(APPEND prefix_args "/" "/cmake" "/CMake")
+    # Rest of the arguments are potential relative search paths wrt the
+    # ${pkg_directory}
+    set(prefix_args ${ARGN})
 
-  # Whether we loaded the package in the following loop with find_package()
-  set(${pkg_name}_PACKAGE_LOADED 0)
+    # Default search paths: root, /cmake and /CMake subdirectories
+    list(APPEND prefix_args "/" "/cmake" "/CMake")
 
-  foreach(prefix ${prefix_args})
-    set(potential_path ${pkg_directory}/${prefix})
-    set(${pkg_name}_DIR ${potential_path})
-    # message("prefix: ${potential_path}")
-    if (EXISTS "${${pkg_name}_DIR}${pkg_prefix}")
-      # message(STATUS "find_package_local: trying path: ${potential_path}")
-
-      # Search locally only for package based on the user's supplied path; if
-      # this fails try to next one. Even if the directory exists (tested above)
-      # this might fail if a directory does not have the config file
-      find_package(
-        ${pkg_name}
-        PATHS ${potential_path}
-        NAMES ${pkg_name} ${pkg_other_name}
-        NO_CMAKE_PACKAGE_REGISTRY
-        NO_CMAKE_BUILDS_PATH
-        NO_CMAKE_SYSTEM_PATH
-        NO_CMAKE_SYSTEM_PACKAGE_REGISTRY
-        QUIET
-      )
-
-      # Break out of the search loop now that we have found the path
-      if (${${pkg_name}_FOUND})
-        message(STATUS "find_package_local: found with prefix: ${prefix}")
-        set(${pkg_name}_PACKAGE_LOADED 1)
-        break()
-      endif()
-    endif()
-  endforeach()
-
-  if (NOT ${${pkg_name}_PACKAGE_LOADED})
-    message(STATUS "find_package_local: can not find package: ${pkg_name}")
+    # Whether we loaded the package in the following loop with find_package()
+    set(${pkg_name}_PACKAGE_LOADED 0)
 
     foreach(prefix ${prefix_args})
-      set(path ${${pkg_name}_DIR}/${prefix})
-      message(STATUS "find_package_local: searched: ${path}")
+      set(potential_path ${pkg_directory}/${prefix})
+      set(${pkg_name}_DIR ${potential_path})
+      # message("prefix: ${potential_path}")
+      if (EXISTS "${${pkg_name}_DIR}${pkg_prefix}")
+        # message(STATUS "find_package_local: trying path: ${potential_path}")
+
+        # Search locally only for package based on the user's supplied path; if
+        # this fails try to next one. Even if the directory exists (tested above)
+        # this might fail if a directory does not have the config file
+        find_package(
+          ${pkg_name}
+          PATHS ${potential_path}
+          NAMES ${pkg_name} ${pkg_other_name}
+          NO_CMAKE_PACKAGE_REGISTRY
+          NO_CMAKE_BUILDS_PATH
+          NO_CMAKE_SYSTEM_PATH
+          NO_CMAKE_SYSTEM_PACKAGE_REGISTRY
+          QUIET
+        )
+
+        # Break out of the search loop now that we have found the path
+        if (${${pkg_name}_FOUND})
+          message(STATUS "find_package_local: found with prefix: ${prefix}")
+          set(${pkg_name}_PACKAGE_LOADED 1)
+          break()
+        endif()
+      endif()
     endforeach()
 
-    message(
-      FATAL_ERROR "find_package_local: can not find package: ${pkg_name}"
-      " tried to find_package(..) with above search paths"
-    )
+    if (NOT ${${pkg_name}_PACKAGE_LOADED})
+      message(STATUS "find_package_local: can not find package: ${pkg_name}")
+
+      foreach(prefix ${prefix_args})
+        set(path ${${pkg_name}_DIR}/${prefix})
+        message(STATUS "find_package_local: searched: ${path}")
+      endforeach()
+
+      message(
+        FATAL_ERROR "find_package_local: can not find package: ${pkg_name}"
+        " tried to find_package(..) with above search paths"
+      )
+    endif()
   endif()
 endmacro(find_package_local)
 
