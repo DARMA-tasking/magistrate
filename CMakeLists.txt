@@ -44,9 +44,7 @@ set(SERDES_LIBRARY_NS vt::lib::checkpoint "" CACHE INTERNAL "" FORCE )
 # require directories for these packages
 require_pkg_directory(detector "VT detector library")
 # find these required packages locally
-if (CHECKPOINT_FIND_DETECTOR)
-  find_package_local(detector "${detector_DIR}" detector)
-endif()
+find_package_local(detector "${detector_DIR}" detector)
 
 # optional packages
 optional_pkg_directory(kokkos "Kokkos library")
