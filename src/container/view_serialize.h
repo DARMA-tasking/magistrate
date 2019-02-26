@@ -33,14 +33,14 @@
 #define CHECKPOINT_KOKKOS_NDIM_TRAVERSE 0
 
 #if SERDES_DEBUG_ENABLED
-  #define DEBUG_PRINT_SERDES(ser, str, args...) do {                 \
+  #define DEBUG_PRINT_SERDES(ser, str, ...) do {                     \
       auto state = ser.isUnpacking() ? "Unpacking" : (               \
         ser.isSizing()               ? "Sizing"    : (               \
         ser.isPacking()              ? "Packing"   : "Invalid"));    \
-        printf("mode=%s: " str, state, args);                        \
+        printf("mode=%s: " str, state,  __VA_ARGS__);                \
     } while (0);
 #else
-  #define DEBUG_PRINT_SERDES(str, args...)
+  #define DEBUG_PRINT_SERDES(str, ...)
 #endif
 
 namespace serdes {
