@@ -190,7 +190,6 @@ inline void serialize(
 template <typename SerializerT, typename T, typename... Args>
 inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
   using ViewType = Kokkos::View<T,Args...>;
-  using ViewTraitsType = Kokkos::ViewTraits<T,Args...>;
   using ArrayLayoutType = typename ViewType::traits::array_layout;
 
   static constexpr auto const rank_val = ViewType::Rank;
