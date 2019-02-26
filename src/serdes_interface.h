@@ -31,6 +31,9 @@ T* deserialize(SerialByteType* buf, SizeType size, T* user_buf = nullptr);
 template <typename T>
 T* deserialize(SerializedReturnType&& in);
 
+template <typename T>
+std::size_t getSize(T& target);
+
 }} /* end namespace serialization::interface */
 
 #endif /*INCLUDED_SERDES_INTERFACE*/

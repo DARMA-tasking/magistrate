@@ -72,6 +72,9 @@ T* deserializeTypePartial(
   SerialByteType* data, SerialSizeType const& size, T* allocBuf = nullptr
 );
 
+template <typename T>
+std::size_t sizeType(T& t);
+
 } /* end namespace serdes */
 
 #include "dispatch.impl.h"

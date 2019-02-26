@@ -46,6 +46,11 @@ T* deserializePartial(SerialByteType* buf, SizeType size, T* user_buf) {
   return ::serdes::deserializeTypePartial<T>(buf, size, user_buf);
 }
 
+template <typename T>
+std::size_t getSize(T& target) {
+  return ::serdes::sizeType<T>(target);
+}
+
 }} /* end namespace serialization::interface */
 
 #endif /*INCLUDED_SERIALIZE_INTERFACE_IMPL*/

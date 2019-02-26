@@ -213,6 +213,11 @@ T* deserializeTypePartial(
   return &t;
 }
 
+template <typename T>
+std::size_t sizeType(T& target) {
+  return Dispatch<T>::sizeType(target);
+}
+
 } /* end namespace serdes */
 
 #endif /*INCLUDED_SERDES_DISPATCH_IMPL*/
