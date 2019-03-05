@@ -3,7 +3,6 @@
 #define INCLUDED_SERDES_TEST_HARNESS
 
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
 
 #include <vector>
 #include <string>

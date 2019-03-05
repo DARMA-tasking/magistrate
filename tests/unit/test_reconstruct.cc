@@ -5,7 +5,6 @@
 #include <serialization_library_headers.h>
 
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
 
 #include <vector>
 #include <cstdio>
