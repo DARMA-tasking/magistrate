@@ -78,9 +78,6 @@ struct TraverseManual;
 template <typename SerializerT, typename ViewType>
 struct TraverseManual<SerializerT,ViewType,0> {
   static void apply(SerializerT& s, ViewType const& v) {
-    using BaseType = typename CountDims<ViewType>::BaseT;
-    using MemoryTraitsType = typename ViewType::traits::memory_traits;
-
     SerializeMemory<ViewType>::apply(s,v);
 
     //
