@@ -33,7 +33,7 @@ if (${CHECKPOINT_BUILD_EXAMPLES})
     target_include_directories(${EXAMPLE} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../src)
 
     add_test_for_example_checkpoint(
-      ${EXAMPLE}
+      checkpoint:${EXAMPLE}
       ${CMAKE_CURRENT_BINARY_DIR}/${EXAMPLE}
     )
 
