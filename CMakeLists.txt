@@ -14,9 +14,6 @@ option(
 option(
   CHECKPOINT_BUILD_EXAMPLES "Option for turning on checkpoint examples" OFF
 )
-option(
-  CHECKPOINT_FIND_DETECTOR "Use find_package_local to find detector" ON
-)
 
 # Try to find ccache to speed up compilation
 find_program(ccache_binary ccache)
