@@ -193,9 +193,11 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
   using ArrayLayoutType = typename ViewType::traits::array_layout;
 
   static constexpr auto const rank_val = ViewType::Rank;
-  static constexpr auto const is_managed = ViewType::traits::is_managed;
 
-  assert(is_managed && "Serialization not implemented for unmanaged views");
+  assert(
+    ViewType::traits::is_managed &&
+    "Serialization not implemented for unmanaged views"
+  );
 
   // Serialize the label for the view which is used to construct a new view with
   // the same label. Labels may not be unique and are for debugging Kokkos::View
