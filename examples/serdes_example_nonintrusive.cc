@@ -33,7 +33,7 @@ int main(int, char**) {
   auto const& buf = std::get<0>(serialized);
   auto const& buf_size = std::get<1>(serialized);
 
-  printf("ptr=%p, size=%ld\n", buf->getBuffer(), buf_size);
+  printf("ptr=%p, size=%ld\n", static_cast<void*>(buf->getBuffer()), buf_size);
 
   auto tptr = serdes::deserializeType<MyTest3>(buf->getBuffer(), buf_size);
   auto& t = *tptr;
