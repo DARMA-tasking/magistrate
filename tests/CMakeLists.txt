@@ -92,12 +92,12 @@ if (${CHECKPOINT_BUILD_TESTS})
       checkpoint_link_target(${TEST} 0)
 
       add_test(
-        ${TEST}
+        checkpoint:${TEST}
         ${CMAKE_CURRENT_BINARY_DIR}/${TEST}
       )
 
       set_tests_properties(
-        ${TEST}
+        checkpoint:${TEST}
         PROPERTIES TIMEOUT 60
         FAIL_REGULAR_EXPRESSION "FAILED;should be deleted but never is;WARNING"
         PASS_REGULAR_EXPRESSION "PASSED"
@@ -125,12 +125,12 @@ if (${CHECKPOINT_BUILD_TESTS})
           ${CHECK_POINT_MPI_PROC} "${CMAKE_CURRENT_BINARY_DIR}/${TEST}"
         )
         add_test(
-          NAME ${TEST}
+          NAME checkpoint:${TEST}
           COMMAND ${MPI_RUN_COMMAND} ${CHECKPOINT_TEST_PARAM_MPI}
         )
 
         set_tests_properties(
-          ${TEST}
+          checkpoint:${TEST}
           PROPERTIES TIMEOUT 60
           FAIL_REGULAR_EXPRESSION "FAILED;should be deleted but never is;WARNING"
           PASS_REGULAR_EXPRESSION "PASSED"
