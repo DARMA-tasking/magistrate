@@ -32,7 +32,7 @@ public:
   }
 
   virtual void TearDown() override{
-    int mpiError = MPI_Finalize();
+    MPI_Finalize();
   }
   virtual ~MPIEnvironment() {}
 
