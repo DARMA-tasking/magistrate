@@ -16,11 +16,7 @@ struct TestReconstruct : TestHarness { };
 
 TYPED_TEST_CASE_P(TestReconstruct);
 
-static constexpr int const x_val = 29;
-static constexpr int const y_val = 31;
-static constexpr int const z_val = 37;
 static constexpr int const u_val = 43;
-static constexpr int const vec_val = 41;
 
 /*
  * Unit test with `UserObjectA` with a default constructor for deserialization

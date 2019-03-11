@@ -36,9 +36,10 @@ TEST_F(TestByteCopyTrait, test_bytecopy_trait) {
   auto tptr = serialization::interface::deserialize<TestType>(
     ret->getBuffer(), ret->getSize()
   );
-  auto& dest = *tptr;
+  (void)tptr;
 
   #if TEST_BYTE_DEBUG_PRINT
+    auto& dest = *tptr;
     printf("ByteCopyStruct {%d,%d}\n", dest.x, dest.y);
   #endif
 }

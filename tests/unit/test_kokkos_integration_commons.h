@@ -33,7 +33,7 @@ struct Data : BaseData {
   Data() = default;
 
   explicit Data(DataConsTagType)
-    : val1(gold_val1), val2(gold_val2), vec({gold_val3,gold_val3+1,gold_val3+2})
+    : vec({gold_val3,gold_val3+1,gold_val3+2}), val1(gold_val1), val2(gold_val2)
   {
     Kokkos_ViewType0 v0_tmp("v0_tmp");
     Kokkos_ViewType1 v1_tmp("v1_tmp",d1_a);

@@ -167,11 +167,13 @@ SerializedReturnType serializeType(T& to_serialize, BufferObtainFnType fn) {
   debug_serdes("serializeType: size=%ld\n", size);
   SerialByteType* user_buf = fn ? fn(size) : nullptr;
   auto managed = Dispatch<T>::packType(to_serialize, size, user_buf);
-  auto const& buf = managed->getBuffer();
-  debug_serdes(
-    "serializeType: buf=%p, size=%ld: val=%d\n",
-    buf, size, *reinterpret_cast<int*>(buf)
-  );
+  #if DEBUG_SERDES
+    auto const& buf = managed->getBuffer();
+    debug_serdes(
+      "serializeType: buf=%p, size=%ld: val=%d\n",
+      buf, size, *reinterpret_cast<int*>(buf)
+    );
+  #endif
   return std::make_tuple(std::move(managed), size);
 }
 

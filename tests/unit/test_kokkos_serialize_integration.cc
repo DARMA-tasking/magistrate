@@ -36,7 +36,7 @@ TEST_F(KokkosNullTest, test_null_1) {
   ViewType test_data = {};
 
   auto ret = serialize<ViewType>(test_data);
-  auto out = deserialize<ViewType>(std::move(ret));
+  deserialize<ViewType>(std::move(ret));
 }
 
 #endif

@@ -16,8 +16,6 @@ TYPED_TEST_P(KokkosViewTest0DMPI, test_0d_any) {
   using ConstT         = typename ViewType::traits::const_data_type;
   using ConstViewType  = Kokkos::View<ConstT>;
 
-  static constexpr size_t const N = 241;
-
   NonConstViewType in_view("test");
 
   init0d(in_view);
