@@ -1,3 +1,5 @@
+#if KOKKOS_ENABLED_SERDES
+
 #include "test_harness.h"
 #include "test_commons.h"
 #include "test_kokkos_0d_commons.h"
@@ -33,5 +35,7 @@ REGISTER_TYPED_TEST_CASE_P(KokkosViewTest0D, test_0d_any);
 #if DO_UNIT_TESTS_FOR_VIEW
 
 INSTANTIATE_TYPED_TEST_CASE_P(test_0d, KokkosViewTest0D, Test0DTypes);
+
+#endif
 
 #endif
