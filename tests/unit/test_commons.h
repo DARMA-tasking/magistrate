@@ -12,6 +12,8 @@
 #include <container/tuple_serialize.h>
 #include <container/view_equality.h>
 
+#if KOKKOS_ENABLED_SERDES
+
 #include <Kokkos_Core.hpp>
 #include <Kokkos_View.hpp>
 #include <Kokkos_DynamicView.hpp>
@@ -24,6 +26,8 @@
  * compile-time option to disable the unit tests if needed
  */
 #define DO_UNIT_TESTS_FOR_VIEW 1
+
+#endif
 
 // By default, using manual compare...should I switch this?
 #define SERDES_USE_ND_COMPARE 0
@@ -49,6 +53,7 @@ static void compareBasic(ViewT const& k1, ViewT const& k2) {
   EqualityType::template compareMeta<GTestEquality>(k1,k2);
 }
 
+#if KOKKOS_ENABLED_SERDES
 template <typename ParamT>
 struct KokkosViewTest : ::testing::TestWithParam<ParamT> {
   virtual void SetUp() override {
@@ -58,6 +63,7 @@ struct KokkosViewTest : ::testing::TestWithParam<ParamT> {
     Kokkos::finalize();
   }
 };
+#endif
 
 using lsType = std::size_t;
 
