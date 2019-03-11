@@ -14,9 +14,6 @@ option(
 option(
   CHECKPOINT_BUILD_EXAMPLES "Option for turning on checkpoint examples" OFF
 )
-option(
-  CHECKPOINT_FIND_DETECTOR "Use find_package_local to find detector" ON
-)
 
 # Try to find ccache to speed up compilation
 find_program(ccache_binary ccache)
@@ -62,7 +59,12 @@ endif()
 # If checkpoint build tests require the GTest package
 if (${CHECKPOINT_BUILD_TESTS})
   set(CHECKPOINT_HAS_GTEST TRUE)
-  find_package(GTest REQUIRED)
+  get_directory_property(hasParent PARENT_DIRECTORY)
+  if(NOT hasParent)
+    find_package(GTest REQUIRED)
+  else()
+    set(GTEST_BOTH_LIBRARIES gtest gtest_main)
+  endif()
 else()
   set(CHECKPOINT_HAS_GTEST FALSE)
 endif()
