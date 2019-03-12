@@ -98,7 +98,7 @@ if (${CHECKPOINT_BUILD_TESTS})
       set_tests_properties(
         checkpoint:${TEST}
         PROPERTIES TIMEOUT 60
-        FAIL_REGULAR_EXPRESSION "FAILED;should be deleted but never is;WARNING"
+        FAIL_REGULAR_EXPRESSION "FAILED;should be deleted but never is"
         PASS_REGULAR_EXPRESSION "PASSED"
       )
     endforeach()
@@ -131,7 +131,7 @@ if (${CHECKPOINT_BUILD_TESTS})
         set_tests_properties(
           checkpoint:${TEST}
           PROPERTIES TIMEOUT 60
-          FAIL_REGULAR_EXPRESSION "FAILED;should be deleted but never is;WARNING"
+          FAIL_REGULAR_EXPRESSION "FAILED;should be deleted but never is"
           PASS_REGULAR_EXPRESSION "PASSED"
         )
 
