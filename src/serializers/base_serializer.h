@@ -28,12 +28,12 @@ struct Serializer {
   bool isUnpacking() const { return cur_mode_ == ModeType::Unpacking; }
 
   template <typename SerializerT, typename T>
-  static void contiguousTyped(SerializerT& serdes, T* ptr, SizeType num_elms) {
+  static void contiguousTyped(SerializerT& serdes, T* ptr, SerialSizeType num_elms) {
     serdes.contiguousBytes(static_cast<void*>(ptr), sizeof(T), num_elms);
   }
 
   SerialByteType* getBuffer() const { return nullptr; }
-  SerialByteType* getSpotIncrement(SizeType const inc) { return nullptr; }
+  SerialByteType* getSpotIncrement(SerialSizeType const inc) { return nullptr; }
 
 protected:
   ModeType cur_mode_ = ModeType::Invalid;

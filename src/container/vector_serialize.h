@@ -11,7 +11,7 @@ namespace serdes {
 
 template <typename Serializer, typename T, typename VectorAllocator>
 void serializeVectorMeta(Serializer& s, std::vector<T, VectorAllocator>& vec) {
-  SizeType vec_size = vec.size();
+  SerialSizeType vec_size = vec.size();
   s | vec_size;
   vec.resize(vec_size);
 }
@@ -24,7 +24,7 @@ void serialize(Serializer& s, std::vector<T, VectorAllocator>& vec) {
 
 template <typename Serializer, typename T, typename VectorAllocator>
 void parserdesVectorMeta(Serializer& s, std::vector<T, VectorAllocator>& vec) {
-  SizeType vec_size = vec.size();
+  SerialSizeType vec_size = vec.size();
   s & vec_size;
   vec.resize(vec_size);
 }

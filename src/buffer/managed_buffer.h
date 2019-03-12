@@ -12,7 +12,7 @@ namespace serdes {
 struct ManagedBuffer : Buffer {
   using ByteType = SerialByteType[];
 
-  ManagedBuffer(SizeType const& size)
+  ManagedBuffer(SerialSizeType const& size)
     : size_(size), buffer_(std::make_unique<ByteType>(size))
   { }
 
@@ -20,12 +20,12 @@ struct ManagedBuffer : Buffer {
     return buffer_.get();
   }
 
-  virtual SizeType getSize() const override {
+  virtual SerialSizeType getSize() const override {
     return size_;
   }
 
 private:
-  SizeType size_ = 0;
+  SerialSizeType size_ = 0;
 
   std::unique_ptr<ByteType> buffer_ = nullptr;
 };

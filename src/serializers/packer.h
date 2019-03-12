@@ -13,17 +13,17 @@ namespace serdes {
 template <typename BufferT>
 struct PackerBuffer : MemorySerializer {
   using BufferTPtrType = std::unique_ptr<BufferT>;
-  using PackerReturnType = std::tuple<BufferTPtrType, SizeType>;
+  using PackerReturnType = std::tuple<BufferTPtrType, SerialSizeType>;
 
-  PackerBuffer(SizeType const& in_size);
-  PackerBuffer(SizeType const& in_size, BufferTPtrType buf_ptr);
+  PackerBuffer(SerialSizeType const& in_size);
+  PackerBuffer(SerialSizeType const& in_size, BufferTPtrType buf_ptr);
 
-  void contiguousBytes(void* ptr, SizeType size, SizeType num_elms);
+  void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms);
   BufferTPtrType extractPackedBuffer();
 
 private:
   // Size of the buffer we are packing (Sizer should have run already)
-  SizeType const size_;
+  SerialSizeType const size_;
 
   // The abstract buffer that may manage the memory in various ways
   BufferTPtrType buffer_ = nullptr;

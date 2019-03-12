@@ -8,9 +8,9 @@
 namespace serdes {
 
 struct Unpacker : MemorySerializer {
-  Unpacker(SerialByteType* buf, SizeType const& size);
+  Unpacker(SerialByteType* buf, SerialSizeType const& size);
 
-  void contiguousBytes(void* ptr, SizeType size, SizeType num_elms);
+  void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms);
 };
 
 } /* end namespace serdes */

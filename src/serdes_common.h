@@ -20,10 +20,10 @@
 
 namespace serdes {
 
-using SizeType = size_t;
+using SerialSizeType = size_t;
 using SerialByteType = char;
 
-using BufferObtainFnType = std::function<SerialByteType*(SizeType size)>;
+using BufferObtainFnType = std::function<SerialByteType*(SerialSizeType size)>;
 
 } /* end namespace serdes */
 

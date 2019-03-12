@@ -13,13 +13,13 @@ using SerializedInfo = ::serialization::interface::SerializedInfo;
 
 struct Buffer : SerializedInfo {
   virtual SerialByteType* getBuffer() const = 0;
-  virtual SizeType getSize() const = 0;
+  virtual SerialSizeType getSize() const = 0;
   virtual ~Buffer() { }
 };
 
-using SerializedType = std::tuple<SerialByteType*, SizeType>;
+using SerializedType = std::tuple<SerialByteType*, SerialSizeType>;
 using BufferPtrType = std::unique_ptr<Buffer>;
-using SerializedReturnType = std::tuple<BufferPtrType, SizeType>;
+using SerializedReturnType = std::tuple<BufferPtrType, SerialSizeType>;
 
 } /* end namespace serdes */
 
