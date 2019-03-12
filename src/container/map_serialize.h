@@ -18,6 +18,7 @@ inline void deserializeEmplaceElems(
   Serializer& s, ContainerT& cont, typename ContainerT::size_type size
 ) {
   for (typename ContainerT::size_type i = 0; i < size; i++) {
+    #pragma GCC diagnostic ignored "-Wunknown-pragmas"
     #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
     ElmT elm;
     s | elm;
