@@ -49,6 +49,7 @@ void PackerBuffer<BufferT>::contiguousBytes(
 
   SizeType const len = size * num_elms;
   SerialByteType* spot = this->getSpotIncrement(len);
+  #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
   std::memcpy(spot, ptr, len);
 }
 
