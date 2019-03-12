@@ -110,6 +110,7 @@ struct TraverseManual<SerializerT,ViewType,1> {
     using SizeType = typename ViewType::size_type;
     for (SizeType i = 0; i < v.extent(0); i++) {
       if (s.isUnpacking()) {
+        #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
         BaseType val;
         s | val;
         v.operator()(i) = val;
@@ -129,6 +130,7 @@ struct TraverseManual<SerializerT,ViewType,2> {
     for (SizeType i = 0; i < v.extent(0); i++) {
       for (SizeType j = 0; j < v.extent(1); j++) {
         if (s.isUnpacking()) {
+          #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
           BaseType val;
           s | val;
           v.operator()(i,j) = val;
@@ -150,6 +152,7 @@ struct TraverseManual<SerializerT,ViewType,3> {
       for (SizeType j = 0; j < v.extent(1); j++) {
         for (SizeType k = 0; k < v.extent(2); k++) {
           if (s.isUnpacking()) {
+            #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
             BaseType val;
             s | val;
             v.operator()(i,j,k) = val;
