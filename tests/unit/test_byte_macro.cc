@@ -27,7 +27,7 @@ struct UserObject1 {
 
 } // end namespace userTest
 
-SERDES_BYTES(::userTest::UserObject1);
+SERDES_BYTES(::userTest::UserObject1)
 
 namespace serdes { namespace tests { namespace unit {
 
