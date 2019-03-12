@@ -90,11 +90,11 @@ struct Data : BaseData {
   static void checkIsGolden(Data const& in) {
     EXPECT_EQ(in.val1,gold_val1);
     EXPECT_EQ(in.val2,gold_val2);
-    EXPECT_EQ(in.vec.size(),3);
+    EXPECT_EQ(in.vec.size(),3UL);
     EXPECT_EQ(in.vec[0],gold_val3+0);
     EXPECT_EQ(in.vec[1],gold_val3+1);
     EXPECT_EQ(in.vec[2],gold_val3+2);
-    EXPECT_EQ(in.v0.size(),1);
+    EXPECT_EQ(in.v0.size(),1UL);
     EXPECT_EQ(in.v1.size(),d1_a);
     EXPECT_EQ(in.v2.size(),d2_a*d2_b);
     EXPECT_EQ(in.v3.size(),d3_a*d3_b*d3_c);

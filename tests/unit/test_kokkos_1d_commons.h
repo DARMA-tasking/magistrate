@@ -21,7 +21,7 @@ static void compare1d(ViewT const& k1, ViewT const& k2) {
 // 1-D initialization
 template <typename T, typename... Args>
 static inline void init1d(Kokkos::View<T*,Args...> const& v) {
-  for (auto i = 0; i < v.extent(0); i++) {
+  for (auto i = 0UL; i < v.extent(0); i++) {
     v.operator()(i) = i;
   }
 }
@@ -29,7 +29,7 @@ static inline void init1d(Kokkos::View<T*,Args...> const& v) {
 template <typename T, unsigned N, typename... Args>
 static inline void init1d(Kokkos::View<T[N],Args...> const& v) {
   EXPECT_EQ(N, v.extent(0));
-  for (auto i = 0; i < v.extent(0); i++) {
+  for (auto i = 0UL; i < v.extent(0); i++) {
     v.operator()(i) = i;
   }
 }
@@ -38,7 +38,7 @@ template <typename T, typename... Args>
 static inline void init1d(
   Kokkos::Experimental::DynamicView<T*,Args...> const& v
 ) {
-  for (auto i = 0; i < v.extent(0); i++) {
+  for (auto i = 0UL; i < v.extent(0); i++) {
     v.operator()(i) = i;
   }
 }

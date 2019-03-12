@@ -30,9 +30,9 @@ static void compare3d(ViewT const& k1, ViewT const& k2) {
 // 3-D initialization
 template <typename T, typename... Args>
 static inline void init3d(Kokkos::View<T***,Args...> const& v) {
-  for (auto i = 0; i < v.extent(0); i++) {
-    for (auto j = 0; j < v.extent(1); j++) {
-      for (auto k = 0; k < v.extent(2); k++) {
+  for (auto i = 0UL; i < v.extent(0); i++) {
+    for (auto j = 0UL; j < v.extent(1); j++) {
+      for (auto k = 0UL; k < v.extent(2); k++) {
         v.operator()(i,j,k) = (i*v.extent(0)*v.extent(1))+(j*v.extent(0))+k;
       }
     }
@@ -41,9 +41,9 @@ static inline void init3d(Kokkos::View<T***,Args...> const& v) {
 
 template <typename T, unsigned N, typename... Args>
 static inline void init3d(Kokkos::View<T**[N],Args...> const& v) {
-  for (auto i = 0; i < v.extent(0); i++) {
-    for (auto j = 0; j < v.extent(1); j++) {
-      for (auto k = 0; k < N; k++) {
+  for (auto i = 0UL; i < v.extent(0); i++) {
+    for (auto j = 0UL; j < v.extent(1); j++) {
+      for (auto k = 0U; k < N; k++) {
         v.operator()(i,j,k) = (i*v.extent(0)*v.extent(1))+(j*v.extent(0))+k;
       }
     }
