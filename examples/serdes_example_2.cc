@@ -34,7 +34,7 @@ struct MyTest {
 int main(int, char**) {
   using namespace serdes::examples;
 
-  MyTest my_test_inst{10};
+  MyTest my_test_inst(10);
 
   my_test_inst.print();
 

@@ -44,7 +44,8 @@ struct MyTest {
 int main(int, char**) {
   using namespace serdes::examples;
 
-  MyTest my_test_inst{10};
+  MyTest my_test_inst;
+  my_test_inst.a = 10;
   my_test_inst.print();
 
   auto serialized = serdes::serializeType<MyTest>(my_test_inst);
