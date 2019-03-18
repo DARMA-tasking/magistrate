@@ -49,7 +49,7 @@ struct hasParserdes {
 template <typename SerializerT, typename T>
 struct SerializerDispatchNonByteParserdes {
   template <typename U = T>
-  void partial(SerializerT& s, T* val, SizeType num) {
+  void partial(SerializerT& s, T* val, SerialSizeType num) {
     return applyPartial(s, val, num);
   }
 
@@ -79,11 +79,11 @@ struct SerializerDispatchNonByteParserdes {
 
   template <typename U = T>
   void applyPartial(
-    SerializerT& s, T* val, SizeType num,
+    SerializerT& s, T* val, SerialSizeType num,
     hasInParserdes<U>* __attribute__((unused)) x = nullptr
   ) {
     debug_serdes("SerializerDispatch: intrusive parserdes: val=%p\n", &val);
-    for (SizeType i = 0; i < num; i++) {
+    for (SerialSizeType i = 0; i < num; i++) {
       val[i].template parserdes<SerializerT>(s);
     }
   }
@@ -91,11 +91,11 @@ struct SerializerDispatchNonByteParserdes {
   #if HAS_DETECTION_COMPONENT
   template <typename U = T>
   void applyPartial(
-    SerializerT& s, T* val, SizeType num,
+    SerializerT& s, T* val, SerialSizeType num,
     hasNonInParserdes<U>* __attribute__((unused)) x = nullptr
   ) {
     debug_serdes("SerializerDispatch: intrusive parserdes: val=%p\n", &val);
-    for (SizeType i = 0; i < num; i++) {
+    for (SerialSizeType i = 0; i < num; i++) {
       parserdes(s, val[i]);
     }
   }
@@ -103,7 +103,7 @@ struct SerializerDispatchNonByteParserdes {
 
   template <typename U = T>
   void applyPartial(
-    SerializerT& s, T* val, SizeType num,
+    SerializerT& s, T* val, SerialSizeType num,
     hasNoParserdes<U>* __attribute__((unused)) x = nullptr
   ) {
     // do nothing, it can be skipped
@@ -114,7 +114,7 @@ template <typename SerializerT, typename T>
 struct SerializerDispatchNonByte {
 
   template <typename U = T>
-  void operator()(SerializerT& s, T* val, SizeType num) {
+  void operator()(SerializerT& s, T* val, SerialSizeType num) {
     return apply(s, val, num);
   }
 
@@ -163,11 +163,11 @@ struct SerializerDispatchNonByte {
 
   template <typename U = T>
   void apply(
-    SerializerT& s, T* val, SizeType num,
+    SerializerT& s, T* val, SerialSizeType num,
     hasInSerialize<U>* __attribute__((unused)) x = nullptr
   ) {
     debug_serdes("SerializerDispatch: intrusive serialize: val=%p\n", &val);
-    for (SizeType i = 0; i < num; i++) {
+    for (SerialSizeType i = 0; i < num; i++) {
       val[i].template serialize<SerializerT>(s);
       applyElm(s, val+i);
     }
@@ -175,11 +175,11 @@ struct SerializerDispatchNonByte {
 
   template <typename U = T>
   void apply(
-    SerializerT& s, T* val, SizeType num,
+    SerializerT& s, T* val, SerialSizeType num,
     hasNoninSerialize<U>* __attribute__((unused)) x = nullptr
   ) {
     debug_serdes("SerializerDispatch: non-intrusive serialize: val=%p\n", &val);
-    for (SizeType i = 0; i < num; i++) {
+    for (SerialSizeType i = 0; i < num; i++) {
       serialize(s, val[i]);
     }
   }

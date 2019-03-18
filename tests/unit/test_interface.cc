@@ -45,7 +45,7 @@ TEST_F(TestInterface, test_serialize) {
   #endif
 
   EXPECT_EQ(des_vec.size(), vec.size());
-  for (auto i = 0; i < des_vec.size(); i++) {
+  for (size_t i = 0; i < des_vec.size(); i++) {
     EXPECT_EQ(des_vec[i], vec[i]);
   }
 }

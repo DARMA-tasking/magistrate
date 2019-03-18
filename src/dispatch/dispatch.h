@@ -15,28 +15,28 @@ namespace serdes {
 
 template <typename T>
 struct Dispatch {
-  static SizeType sizeType(T& to_size);
+  static SerialSizeType sizeType(T& to_size);
   static BufferPtrType packType(
-    T& to_pack, SizeType const& size, SerialByteType* buf
+    T& to_pack, SerialSizeType const& size, SerialByteType* buf
   );
   template <typename PackerT>
   static BufferPtrType packTypeWithPacker(
-    PackerT& packer, T& to_pack, SizeType const& size
+    PackerT& packer, T& to_pack, SerialSizeType const& size
   );
   static T& unpackType(
-    SerialByteType* buf, SerialByteType* data, SizeType const& size
+    SerialByteType* buf, SerialByteType* data, SerialSizeType const& size
   );
 
-  static SizeType sizeTypePartial(T& to_size);
+  static SerialSizeType sizeTypePartial(T& to_size);
   static BufferPtrType packTypePartial(
-    T& to_pack, SizeType const& size, SerialByteType* buf
+    T& to_pack, SerialSizeType const& size, SerialByteType* buf
   );
   template <typename PackerT>
   static BufferPtrType packTypeWithPackerPartial(
-    PackerT& packer, T& to_pack, SizeType const& size
+    PackerT& packer, T& to_pack, SerialSizeType const& size
   );
   static T& unpackTypePartial(
-    SerialByteType* buf, SerialByteType* data, SizeType const& size
+    SerialByteType* buf, SerialByteType* data, SerialSizeType const& size
   );
 };
 
@@ -47,10 +47,10 @@ template <typename Serializer, typename T>
 inline Serializer& operator&(Serializer& s, T& target);
 
 template <typename Serializer, typename T>
-inline void serializeArray(Serializer& s, T* array, SizeType const num_elms);
+inline void serializeArray(Serializer& s, T* array, SerialSizeType const num_elms);
 
 template <typename Serializer, typename T>
-inline void parserdesArray(Serializer& s, T* array, SizeType const num_elms);
+inline void parserdesArray(Serializer& s, T* array, SerialSizeType const num_elms);
 
 template <typename T>
 SerializedReturnType serializeType(
@@ -59,7 +59,7 @@ SerializedReturnType serializeType(
 
 template <typename T>
 T* deserializeType(
-  SerialByteType* data, SizeType const& size, T* allocBuf = nullptr
+  SerialByteType* data, SerialSizeType const& size, T* allocBuf = nullptr
 );
 
 template <typename T>
@@ -69,7 +69,7 @@ SerializedReturnType serializeTypePartial(
 
 template <typename T>
 T* deserializeTypePartial(
-  SerialByteType* data, SizeType const& size, T* allocBuf = nullptr
+  SerialByteType* data, SerialSizeType const& size, T* allocBuf = nullptr
 );
 
 } /* end namespace serdes */

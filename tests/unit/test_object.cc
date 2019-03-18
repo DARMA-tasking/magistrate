@@ -55,7 +55,7 @@ struct UserObject2 {
   void check() {
     EXPECT_EQ(x, x_val);
     EXPECT_EQ(y, y_val);
-    EXPECT_EQ(vec.size(), 1);
+    EXPECT_EQ(vec.size(), 1UL);
     EXPECT_EQ(vec[0], vec_val);
     obj.init();
   }

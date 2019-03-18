@@ -24,7 +24,7 @@ struct MemorySerializer : Serializer {
     start_ = cur_ = ptr;
   }
 
-  SerialByteType* getSpotIncrement(SizeType const inc) {
+  SerialByteType* getSpotIncrement(SerialSizeType const inc) {
     SerialByteType* spot = cur_;
     cur_ += inc;
     return spot;

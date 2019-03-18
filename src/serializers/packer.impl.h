@@ -8,7 +8,7 @@
 namespace serdes {
 
 template <typename BufferT>
-PackerBuffer<BufferT>::PackerBuffer(SizeType const& in_size)
+PackerBuffer<BufferT>::PackerBuffer(SerialSizeType const& in_size)
    : MemorySerializer(ModeType::Packing), size_(in_size),
      buffer_(std::make_unique<BufferT>(size_))
 {
@@ -20,7 +20,7 @@ PackerBuffer<BufferT>::PackerBuffer(SizeType const& in_size)
 
 template <typename BufferT>
 PackerBuffer<BufferT>::PackerBuffer(
-  SizeType const& in_size, BufferTPtrType buf_ptr
+  SerialSizeType const& in_size, BufferTPtrType buf_ptr
 ) : MemorySerializer(ModeType::Packing), size_(in_size),
     buffer_(std::move(buf_ptr))
 {
@@ -40,15 +40,17 @@ PackerBuffer<BufferT>::extractPackedBuffer() {
 
 template <typename BufferT>
 void PackerBuffer<BufferT>::contiguousBytes(
-  void* ptr, SizeType size, SizeType num_elms
+  void* ptr, SerialSizeType size, SerialSizeType num_elms
 ) {
   debug_serdes(
     "PackerBuffer: offset=%ld, size=%ld, num_elms=%ld, ptr=%p, cur_=%p, val=%d\n",
     cur_ - start_, size_, num_elms, ptr, cur_, *reinterpret_cast<int*>(ptr)
   );
 
-  SizeType const len = size * num_elms;
+  SerialSizeType const len = size * num_elms;
   SerialByteType* spot = this->getSpotIncrement(len);
+  #pragma GCC diagnostic ignored "-Wunknown-pragmas"
+  #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
   std::memcpy(spot, ptr, len);
 }
 

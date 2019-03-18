@@ -266,9 +266,6 @@ struct ViewEquality {
   static bool compareData(ViewT const& v1, ViewU const& v2, EqT eq) {
     using serdes::TraverseRecursive;
 
-    using DataType      = typename serdes::ViewGetType<ViewT>::DataType;
-    using CountDimType  = serdes::CountDims<ViewT>;
-    using BaseType      = typename CountDimType::BaseT;
     using TupleType     = std::tuple<ViewT,ViewT>;
 
     constexpr auto dims = CountDimType::dynamic;

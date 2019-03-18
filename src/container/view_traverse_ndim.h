@@ -209,7 +209,7 @@ struct TraverseRecurImpl {
 
 struct DefaultRecurOP {
   template <typename T, typename U>
-  bool operator()(U, T, T) const { assert(0); }
+  bool operator()(U, T, T) const { assert(0); return false; /* to avoid warning */ }
 };
 
 }} /* end namespace serdes::detail */

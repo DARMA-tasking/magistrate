@@ -11,7 +11,7 @@ namespace serdes {
 
 template <typename Serializer>
 void serializeStringMeta(Serializer& s, std::string& str) {
-  SizeType str_size = str.size();
+  SerialSizeType str_size = str.size();
   s | str_size;
   str.resize(str_size);
 }
@@ -24,7 +24,7 @@ void serialize(Serializer& s, std::string& str) {
 
 template <typename Serializer>
 void parserdesStringMeta(Serializer& s, std::string& str) {
-  SizeType str_size = str.size();
+  SerialSizeType str_size = str.size();
   s & str_size;
   str.resize(str_size);
 }

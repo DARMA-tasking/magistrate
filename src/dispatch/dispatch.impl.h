@@ -8,7 +8,7 @@
 namespace serdes {
 
 template <typename T>
-SizeType Dispatch<T>::sizeType(T& to_size) {
+SerialSizeType Dispatch<T>::sizeType(T& to_size) {
   using DispatchT = DispatchCommon<T>;
   using CleanT = typename DispatchT::CleanT;
   auto val = DispatchT::clean(&to_size);
@@ -22,7 +22,7 @@ SizeType Dispatch<T>::sizeType(T& to_size) {
 template <typename T>
 template <typename PackerT>
 BufferPtrType Dispatch<T>::packTypeWithPacker(
-  PackerT& packer, T& to_pack, SizeType const& size
+  PackerT& packer, T& to_pack, SerialSizeType const& size
 ) {
   using DispatchT = DispatchCommon<T>;
   using CleanT = typename DispatchT::CleanT;
@@ -35,7 +35,7 @@ BufferPtrType Dispatch<T>::packTypeWithPacker(
 
 template <typename T>
 BufferPtrType Dispatch<T>::packType(
-  T& to_pack, SizeType const& size, SerialByteType* buf
+  T& to_pack, SerialSizeType const& size, SerialByteType* buf
 ) {
   if (buf == nullptr) {
     Packer packer(size);
@@ -48,7 +48,7 @@ BufferPtrType Dispatch<T>::packType(
 
 template <typename T>
 T& Dispatch<T>::unpackType(
-  SerialByteType* buf, SerialByteType* data, SizeType const& size
+  SerialByteType* buf, SerialByteType* data, SerialSizeType const& size
 ) {
   using DispatchT = DispatchCommon<T>;
   using CleanT = typename DispatchT::CleanT;
@@ -63,7 +63,7 @@ T& Dispatch<T>::unpackType(
 
 /* begin partial */
 template <typename T>
-SizeType Dispatch<T>::sizeTypePartial(T& to_size) {
+SerialSizeType Dispatch<T>::sizeTypePartial(T& to_size) {
   using DispatchT = DispatchCommon<T>;
   using CleanT = typename DispatchT::CleanT;
   auto val = DispatchT::clean(&to_size);
@@ -76,7 +76,7 @@ SizeType Dispatch<T>::sizeTypePartial(T& to_size) {
 template <typename T>
 template <typename PackerT>
 BufferPtrType Dispatch<T>::packTypeWithPackerPartial(
-  PackerT& packer, T& to_pack, SizeType const& size
+  PackerT& packer, T& to_pack, SerialSizeType const& size
 ) {
   using DispatchT = DispatchCommon<T>;
   using CleanT = typename DispatchT::CleanT;
@@ -88,7 +88,7 @@ BufferPtrType Dispatch<T>::packTypeWithPackerPartial(
 
 template <typename T>
 BufferPtrType Dispatch<T>::packTypePartial(
-  T& to_pack, SizeType const& size, SerialByteType* buf
+  T& to_pack, SerialSizeType const& size, SerialByteType* buf
 ) {
   if (buf == nullptr) {
     Packer packer(size);
@@ -101,7 +101,7 @@ BufferPtrType Dispatch<T>::packTypePartial(
 
 template <typename T>
 T& Dispatch<T>::unpackTypePartial(
-  SerialByteType* buf, SerialByteType* data, SizeType const& size
+  SerialByteType* buf, SerialByteType* data, SerialSizeType const& size
 ) {
   using DispatchT = DispatchCommon<T>;
   using CleanT = typename DispatchT::CleanT;
@@ -142,7 +142,7 @@ inline Serializer& operator&(Serializer& s, T& target) {
 }
 
 template <typename Serializer, typename T>
-inline void serializeArray(Serializer& s, T* array, SizeType const num_elms) {
+inline void serializeArray(Serializer& s, T* array, SerialSizeType const num_elms) {
   using DispatchT = DispatchCommon<T>;
   using CleanT = typename DispatchT::CleanT;
   auto val = DispatchT::clean(array);
@@ -152,7 +152,7 @@ inline void serializeArray(Serializer& s, T* array, SizeType const num_elms) {
 }
 
 template <typename Serializer, typename T>
-inline void parserdesArray(Serializer& s, T* array, SizeType const num_elms) {
+inline void parserdesArray(Serializer& s, T* array, SerialSizeType const num_elms) {
   using DispatchT = DispatchCommon<T>;
   using CleanT = typename DispatchT::CleanT;
   auto val = DispatchT::clean(array);
@@ -163,7 +163,7 @@ inline void parserdesArray(Serializer& s, T* array, SizeType const num_elms) {
 
 template <typename T>
 SerializedReturnType serializeType(T& to_serialize, BufferObtainFnType fn) {
-  SizeType size = Dispatch<T>::sizeType(to_serialize);
+  SerialSizeType size = Dispatch<T>::sizeType(to_serialize);
   debug_serdes("serializeType: size=%ld\n", size);
   SerialByteType* user_buf = fn ? fn(size) : nullptr;
   auto managed = Dispatch<T>::packType(to_serialize, size, user_buf);
@@ -181,7 +181,7 @@ template <typename T>
 SerializedReturnType serializeTypePartial(
   T& to_serialize, BufferObtainFnType fn
 ) {
-  SizeType size = Dispatch<T>::sizeTypePartial(to_serialize);
+  SerialSizeType size = Dispatch<T>::sizeTypePartial(to_serialize);
   debug_serdes("serializeTypePartial: size=%ld\n", size);
   SerialByteType* user_buf = fn ? fn(size) : nullptr;
   auto managed = Dispatch<T>::packTypePartial(to_serialize, size, user_buf);
@@ -195,7 +195,7 @@ SerializedReturnType serializeTypePartial(
 
 template <typename T>
 T* deserializeType(
-  SerialByteType* data, SizeType const& size, T* allocBuf
+  SerialByteType* data, SerialSizeType const& size, T* allocBuf
 ) {
   SerialByteType* mem = allocBuf ?
     reinterpret_cast<SerialByteType*>(allocBuf) : new SerialByteType[sizeof(T)];
@@ -205,7 +205,7 @@ T* deserializeType(
 
 template <typename T>
 T* deserializeTypePartial(
-  SerialByteType* data, SizeType const& size, T* allocBuf
+  SerialByteType* data, SerialSizeType const& size, T* allocBuf
 ) {
   SerialByteType* mem = allocBuf ?
     reinterpret_cast<SerialByteType*>(allocBuf) : new SerialByteType[sizeof(T)];

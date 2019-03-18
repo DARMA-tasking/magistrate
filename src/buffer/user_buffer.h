@@ -8,7 +8,7 @@
 namespace serdes {
 
 struct UserBuffer : Buffer {
-  UserBuffer(SerialByteType* ptr, SizeType const& size)
+  UserBuffer(SerialByteType* ptr, SerialSizeType const& size)
     : size_(size), buffer_(ptr)
   { }
 
@@ -16,12 +16,12 @@ struct UserBuffer : Buffer {
     return buffer_;
   }
 
-  virtual SizeType getSize() const override {
+  virtual SerialSizeType getSize() const override {
     return size_;
   }
 
 private:
-  SizeType size_ = 0;
+  SerialSizeType size_ = 0;
 
   SerialByteType* buffer_ = nullptr;
 };

@@ -10,11 +10,11 @@ namespace serdes {
 struct Sizer : Serializer {
   Sizer();
 
-  SizeType getSize() const;
-  void contiguousBytes(void*, SizeType size, SizeType num_elms);
+  SerialSizeType getSize() const;
+  void contiguousBytes(void*, SerialSizeType size, SerialSizeType num_elms);
 
 private:
-  SizeType num_bytes_ = 0;
+  SerialSizeType num_bytes_ = 0;
 };
 
 } /* end namespace serdes */

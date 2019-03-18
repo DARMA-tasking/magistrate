@@ -7,11 +7,11 @@ namespace serdes {
 
 Sizer::Sizer() : Serializer(ModeType::Sizing) { }
 
-SizeType Sizer::getSize() const {
+SerialSizeType Sizer::getSize() const {
   return num_bytes_;
 }
 
-void Sizer::contiguousBytes(void*, SizeType size, SizeType num_elms) {
+void Sizer::contiguousBytes(void*, SerialSizeType size, SerialSizeType num_elms) {
   num_bytes_ += size * num_elms;
 }
 

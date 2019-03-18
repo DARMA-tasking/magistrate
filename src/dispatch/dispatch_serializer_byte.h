@@ -52,14 +52,14 @@ struct SerializerDispatchByte {
 
   template <typename U = T>
   void operator()(
-    SerializerT& s, T* val, SizeType num, isByteCopyType<U>* x = nullptr
+    SerializerT& s, T* val, SerialSizeType num, isByteCopyType<U>* x = nullptr
   ) {
     SerializerT::contiguousTyped(s, val, num);
   }
 
   template <typename U = T>
   void operator()(
-    SerializerT& s, T* val, SizeType num, isNotByteCopyType<U>* x = nullptr
+    SerializerT& s, T* val, SerialSizeType num, isNotByteCopyType<U>* x = nullptr
   ) {
     SerializerDispatchNonByte<SerializerT, T> dispatch;
     dispatch(s, val, num);
@@ -67,14 +67,14 @@ struct SerializerDispatchByte {
 
   template <typename U = T>
   void partial(
-    SerializerT& s, T* val, SizeType num, isByteCopyType<U>* x = nullptr
+    SerializerT& s, T* val, SerialSizeType num, isByteCopyType<U>* x = nullptr
   ) {
     SerializerT::contiguousTyped(s, val, num);
   }
 
   template <typename U = T>
   void partial(
-    SerializerT& s, T* val, SizeType num, isNotByteCopyType<U>* x = nullptr
+    SerializerT& s, T* val, SerialSizeType num, isNotByteCopyType<U>* x = nullptr
   ) {
     SerializerDispatchNonByteParserdes<SerializerT, T> dispatch;
     dispatch.partial(s, val, num);

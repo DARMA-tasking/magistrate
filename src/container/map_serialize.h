@@ -17,7 +17,9 @@ template <typename Serializer, typename ContainerT, typename ElmT>
 inline void deserializeEmplaceElems(
   Serializer& s, ContainerT& cont, typename ContainerT::size_type size
 ) {
-  for (auto i = 0; i < size; i++) {
+  for (typename ContainerT::size_type i = 0; i < size; i++) {
+    #pragma GCC diagnostic ignored "-Wunknown-pragmas"
+    #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
     ElmT elm;
     s | elm;
     cont.emplace(elm);
