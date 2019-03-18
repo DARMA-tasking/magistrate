@@ -27,6 +27,7 @@ file(
 #
 macro(checkpoint_link_target target has_mpi)
   target_include_directories(${target} PUBLIC ${PROJECT_TEST_UNIT_DIR})
+  target_include_directories(${target} PRIVATE ${GTEST_INCLUDE_DIRS})
   target_link_libraries(${target} PRIVATE ${GTEST_BOTH_LIBRARIES})
   target_link_libraries(${target} PUBLIC ${SERDES_LIBRARY})
   target_link_libraries(${target} PUBLIC OpenMP::OpenMP_CXX)
