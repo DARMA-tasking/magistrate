@@ -76,7 +76,6 @@ endif()
 
 target_link_libraries(${SERDES_LIBRARY} PUBLIC vt::lib::detector)
 target_link_libraries(${SERDES_LIBRARY} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries(${SERDES_LIBRARY} PUBLIC OpenMP::OpenMP_CXX)
 
 target_include_directories(
   ${SERDES_LIBRARY} PUBLIC
