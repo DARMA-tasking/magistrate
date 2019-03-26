@@ -272,21 +272,17 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
     label.c_str(), is_contig ? "true" : "false", num_elms, rt_dim
   );
 
-  bool isInitialized = true;
+  bool init = false;
   if (!s.isUnpacking()) {
-     isInitialized = view.use_count() > 0;
+     init = view.use_count() > 0;
   }
-  s | isInitialized;
+  s | init;
 
-  if(isInitialized)
-  {
+  if (init) {
     // Serialize the actual data owned by the Kokkos::View
     if (is_contig) {
       // Serialize the data directly out of the data buffer
-      if(view.use_count() > 0)
-      {
-        serializeArray(s, view.data(), num_elms);
-      }
+      serializeArray(s, view.data(), num_elms);
     } else {
       // Serialize manually traversing the data with Kokkos::View::operator()(...)
 
