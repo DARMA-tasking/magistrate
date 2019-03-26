@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.8)
 project(serdes)
 
+include(cmake/turn_on_warnings.cmake)
+
 include (CTest)
 enable_testing()
 
