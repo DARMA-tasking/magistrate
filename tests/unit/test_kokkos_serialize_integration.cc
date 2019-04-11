@@ -56,7 +56,7 @@ TEST_F(KokkosViewOfVIewTest, test_view_of_view_init_1) {
   test_data(2) = Kokkos::View<double*>();
 
   auto ret = serialize<ViewType>(test_data);
-  auto out = deserialize<ViewType>(std::move(ret));
+  deserialize<ViewType>(std::move(ret));
 }
 
 TEST_F(KokkosViewOfVIewTest, test_view_of_view_init_2) {
@@ -67,7 +67,7 @@ TEST_F(KokkosViewOfVIewTest, test_view_of_view_init_2) {
   ViewType test_data = Kokkos::View<Kokkos::View<double*>[3]>("test");
 
   auto ret = serialize<ViewType>(test_data);
-  auto out = deserialize<ViewType>(std::move(ret));
+  deserialize<ViewType>(std::move(ret));
 }
 
 TEST_F(KokkosViewOfVIewTest, test_view_of_view_uninit_1) {
@@ -78,7 +78,7 @@ TEST_F(KokkosViewOfVIewTest, test_view_of_view_uninit_1) {
   ViewType test_data;
 
   auto ret = serialize<ViewType>(test_data);
-  auto out = deserialize<ViewType>(ret->getBuffer(), ret->getSize());
+  deserialize<ViewType>(ret->getBuffer(), ret->getSize());
 }
 
 TEST_F(KokkosViewOfVIewTest, test_view_of_view_uninit_fix) {
