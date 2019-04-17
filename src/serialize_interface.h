@@ -29,6 +29,9 @@ template <typename T>
 T* deserialize(SerialByteType* buf, SizeType size, T* user_buf = nullptr);
 
 template <typename T>
+void deserializeInPlace(SerialByteType* buf, SizeType size, T* t);
+
+template <typename T>
 T* deserialize(SerializedReturnType&& in);
 
 template <typename T>

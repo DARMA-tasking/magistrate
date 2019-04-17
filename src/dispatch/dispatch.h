@@ -13,6 +13,8 @@
 
 namespace serdes {
 
+struct InPlaceTag { };
+
 template <typename T>
 struct Dispatch {
   static SerialSizeType sizeType(T& to_size);
@@ -24,7 +26,8 @@ struct Dispatch {
     PackerT& packer, T& to_pack, SerialSizeType const& size
   );
   static T& unpackType(
-    SerialByteType* buf, SerialByteType* data, SerialSizeType const& size
+    SerialByteType* buf, SerialByteType* data, SerialSizeType const& size,
+    bool in_place = false
   );
 
   static SerialSizeType sizeTypePartial(T& to_size);
@@ -61,6 +64,9 @@ template <typename T>
 T* deserializeType(
   SerialByteType* data, SerialSizeType const& size, T* allocBuf = nullptr
 );
+
+template <typename T>
+void deserializeType(InPlaceTag, SerialByteType* data, SerialSizeType sz, T* t);
 
 template <typename T>
 SerializedReturnType serializeTypePartial(

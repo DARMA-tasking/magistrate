@@ -32,6 +32,11 @@ T* deserialize(SerializedReturnType&& in) {
 }
 
 template <typename T>
+void deserializeInPlace(SerialByteType* buf, SizeType size, T* t) {
+  return ::serdes::deserializeType<T>(::serdes::InPlaceTag{}, buf, size, t);
+}
+
+template <typename T>
 SerializedReturnType serializePartial(T& target, BufferCallbackType fn) {
   auto ret = ::serdes::serializeTypePartial<T>(target, fn);
   auto& buf = std::get<0>(ret);
