@@ -8,7 +8,14 @@
 // Kokkos::View Integration Tests with other elements
 ///////////////////////////////////////////////////////////////////////////////
 
-struct BaseData { int a = 10; };
+struct BaseData {
+  int a = 10;
+
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    s | a;
+  }
+};
 
 static struct DataConsTagType { } DataConsTag { };
 
@@ -123,7 +130,12 @@ struct Data : BaseData {
   }
 
   template <typename SerializerT>
-  friend void serdes::serialize(SerializerT& s, Data& data);
+  void serialize(SerializerT& s) {
+    BaseData::serialize<SerializerT>(s);
+    s | vec;
+    s | val1 | val2;
+    s | v0 | v1 | v2 | v3 | v4;
+  }
 
 public:
   std::vector<int> vec = {};
@@ -134,24 +146,6 @@ public:
   Kokkos_ViewType3 v3;
   Kokkos_ViewType4 v4;
 };
-
-namespace serdes {
-
-template <typename SerializerT>
-void serialize(SerializerT& s, BaseData& base) {
-  s | base.a;
-}
-
-template <typename SerializerT>
-void serialize(SerializerT& s, Data& data) {
-  BaseData& base_cls = static_cast<BaseData&>(data);
-  s | base_cls;
-  s | data.vec;
-  s | data.val1 | data.val2;
-  s | data.v0 | data.v1 | data.v2 | data.v3 | data.v4;
-}
-
-} /* end namespace serdes */
 
 struct KokkosBaseTest : virtual testing::Test {
   virtual void SetUp() override {
