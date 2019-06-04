@@ -147,13 +147,6 @@ public:
   Kokkos_ViewType4 v4;
 };
 
-struct KokkosBaseTest : virtual testing::Test {
-  virtual void SetUp() override {
-    Kokkos::initialize();
-  }
-  virtual void TearDown() override {
-    Kokkos::finalize();
-  }
-};
+struct KokkosBaseTest : virtual testing::Test { };
 
 #endif // TEST_KOKKOS_INTEGRATION_COMMONS_H
