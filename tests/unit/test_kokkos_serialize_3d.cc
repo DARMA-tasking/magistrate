@@ -11,8 +11,8 @@ TYPED_TEST_CASE_P(KokkosViewTest3D);
 TYPED_TEST_P(KokkosViewTest3D, test_3d_any) {
   using namespace serialization::interface;
 
-  using LayoutType = typename std::tuple_element<0,TypeParam>::type;
-  using DataType   = typename std::tuple_element<1,TypeParam>::type;
+  using LayoutType = typename std::tuple_element<1,TypeParam>::type;
+  using DataType   = typename std::tuple_element<0,TypeParam>::type;
   using ViewType          = Kokkos::View<DataType, LayoutType>;
   using NonConstT         = typename ViewType::traits::non_const_data_type;
   using NonConstViewType  = Kokkos::View<NonConstT, LayoutType>;
