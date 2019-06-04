@@ -55,14 +55,7 @@ static void compareBasic(ViewT const& k1, ViewT const& k2) {
 
 #if KOKKOS_ENABLED_SERDES
 template <typename ParamT>
-struct KokkosViewTest : ::testing::TestWithParam<ParamT> {
-  virtual void SetUp() override {
-    Kokkos::initialize();
-  }
-  virtual void TearDown() override {
-    Kokkos::finalize();
-  }
-};
+struct KokkosViewTest : ::testing::TestWithParam<ParamT> { };
 #endif
 
 using lsType = std::size_t;
