@@ -75,7 +75,7 @@ struct SpliceTypeMeta {
     std::tuple_cat(
       std::declval<
         std::tuple<
-          std::tuple<ValueT,typename std::tuple_element<N-1,TypeList>::type>
+          std::tuple<typename std::tuple_element<N-1,TypeList>::type,ValueT>
         >
       >(),
       std::declval<typename SpliceTypeMeta<N-1,ValueT,TypeList>::ResultType>()
