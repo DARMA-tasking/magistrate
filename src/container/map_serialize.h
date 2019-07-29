@@ -62,8 +62,11 @@ inline void deserializeEmplaceElems(
 ) {
   for (typename ContainerT::size_type i = 0; i < size; i++) {
     #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#if !defined(__has_warning)
     #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#elif __has_warning("-Wmaybe-uninitialized")
+    #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
     ElmT elm;
     s | elm;
     cont.emplace(elm);

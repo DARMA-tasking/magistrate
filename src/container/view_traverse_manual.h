@@ -154,8 +154,11 @@ struct TraverseManual<SerializerT,ViewType,1> {
     for (SizeType i = 0; i < v.extent(0); i++) {
       if (s.isUnpacking()) {
         #pragma GCC diagnostic push
-        #pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#if !defined(__has_warning)
         #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#elif __has_warning("-Wmaybe-uninitialized")
+        #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
         BaseType val;
         s | val;
         v.operator()(i) = val;
@@ -177,8 +180,11 @@ struct TraverseManual<SerializerT,ViewType,2> {
       for (SizeType j = 0; j < v.extent(1); j++) {
         if (s.isUnpacking()) {
           #pragma GCC diagnostic push
-          #pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#if !defined(__has_warning)
           #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#elif __has_warning("-Wmaybe-uninitialized")
+          #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
           BaseType val;
           s | val;
           v.operator()(i,j) = val;
@@ -202,8 +208,11 @@ struct TraverseManual<SerializerT,ViewType,3> {
         for (SizeType k = 0; k < v.extent(2); k++) {
           if (s.isUnpacking()) {
             #pragma GCC diagnostic push
-            #pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#if !defined(__has_warning)
             #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#elif __has_warning("-Wmaybe-uninitialized")
+            #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
             BaseType val;
             s | val;
             v.operator()(i,j,k) = val;
