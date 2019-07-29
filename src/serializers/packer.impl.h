@@ -50,8 +50,11 @@ void PackerBuffer<BufferT>::contiguousBytes(
   SerialSizeType const len = size * num_elms;
   SerialByteType* spot = this->getSpotIncrement(len);
   #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#if !defined(__has_warning)
   #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#elif __has_warning("-Wmaybe-uninitialized")
+  #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
   std::memcpy(spot, ptr, len);
   #pragma GCC diagnostic pop
 }
