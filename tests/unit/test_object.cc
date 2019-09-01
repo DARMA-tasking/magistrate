@@ -33,16 +33,23 @@ struct UserObject3 {
   }
 };
 
+enum Enum8  : std::uint8_t  { a, b, c, d };
+enum Enum64 : std::uint64_t { e, f, g };
+enum Enum0                  { h, i, j };
+
 struct UserObject2 {
   using isByteCopyable = std::false_type;
 
   int x, y;
   std::vector<int> vec;
   UserObject3 obj;
+  Enum8 e8;
+  Enum64 e64;
+  Enum0 e0;
 
   template <typename Serializer>
   void serialize(Serializer& s) {
-    s | x | y | vec | obj;
+    s | x | y | vec | obj | e8 | e64 | e0;
   }
 
   void init() {
