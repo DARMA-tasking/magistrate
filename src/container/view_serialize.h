@@ -398,7 +398,26 @@ inline void serialize(SerializerT& s, Kokkos::View<T,Args...>& view) {
   SerializeConst<ViewType>::apply(s,view);
 }
 
+template< typename SerializerT, typename T, typename... Ts >
+void serializeExtentOnly(SerializerT& s, Kokkos::View<T*,Ts...>& v, std::string label ) {
+  // Pass label explicitly to reduce network transfer bytes
+  auto view_extent_0 = v.extent(0);
+  s | view_extent_0;
+  if (s.isUnpacking()) {
+    v = Kokkos::View<T*>(label, view_extent_0);
+  }
+}
 
+template< typename SerializerT, typename T, typename... Ts >
+void serializeExtentOnly(SerializerT& s, Kokkos::View<T**,Ts...>& v, std::string label ) {
+  // Pass label explicitly to reduce network transfer bytes
+  auto view_extent_0 = v.extent(0);
+  auto view_extent_1 = v.extent(1);
+  s | view_extent_0 | view_extent_1;
+  if (s.isUnpacking()) {
+    v = Kokkos::View<T**>(label, view_extent_0, view_extent_1);
+  }
+}
 
 } /* end namespace serdes */
 
