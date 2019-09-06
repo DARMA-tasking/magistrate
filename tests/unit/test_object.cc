@@ -113,7 +113,7 @@ struct UserObject2 {
     EXPECT_EQ(y, y_val);
     EXPECT_EQ(vec.size(), 1UL);
     EXPECT_EQ(vec[0], vec_val);
-    obj.init();
+    obj.check();
     EXPECT_EQ(e8, e8_val);
     EXPECT_EQ(e64, e64_val);
     EXPECT_EQ(e0, e0_val);
