@@ -56,11 +56,18 @@ namespace serdes { namespace tests { namespace unit {
 
 struct TestObject : TestHarness { };
 
+enum Enum8  : std::uint8_t  { a, b, c, d };
+enum Enum64 : std::uint64_t { e, f, g };
+enum Enum0                  { h, i, j };
+
 static constexpr int const x_val = 29;
 static constexpr int const y_val = 31;
 static constexpr int const z_val = 37;
 static constexpr int const u_val = 43;
 static constexpr int const vec_val = 41;
+static constexpr Enum8 const e8_val = c;
+static constexpr Enum64 const e64_val = g;
+static constexpr Enum0 const e0_val = j;
 
 struct UserObject3 {
   using isByteCopyable = std::true_type;
@@ -82,10 +89,13 @@ struct UserObject2 {
   int x, y;
   std::vector<int> vec;
   UserObject3 obj;
+  Enum8 e8;
+  Enum64 e64;
+  Enum0 e0;
 
   template <typename Serializer>
   void serialize(Serializer& s) {
-    s | x | y | vec | obj;
+    s | x | y | vec | obj | e8 | e64 | e0;
   }
 
   void init() {
@@ -93,6 +103,9 @@ struct UserObject2 {
     y = y_val;
     vec.push_back(vec_val);
     obj.init();
+    e8 = e8_val;
+    e64 = e64_val;
+    e0 = e0_val;
   }
 
   void check() {
@@ -101,6 +114,9 @@ struct UserObject2 {
     EXPECT_EQ(vec.size(), 1UL);
     EXPECT_EQ(vec[0], vec_val);
     obj.init();
+    EXPECT_EQ(e8, e8_val);
+    EXPECT_EQ(e64, e64_val);
+    EXPECT_EQ(e0, e0_val);
   }
 };
 

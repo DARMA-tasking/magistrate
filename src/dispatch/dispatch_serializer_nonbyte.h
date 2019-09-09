@@ -170,7 +170,7 @@ struct SerializerDispatchNonByte {
 
     template <typename U>
     using hasNotSplitSerialize =
-    typename std::enable_if<!SerializableTraits<U>::has_split_serialize, T>::type;
+    typename std::enable_if<!SerializableTraits<U>::has_split_serialize && !std::is_enum<U>::value, T>::type;
 
     template <typename U>
     using hasInSerialize =
@@ -179,6 +179,10 @@ struct SerializerDispatchNonByte {
     template <typename U>
     using hasNoninSerialize =
     typename std::enable_if<SerializableTraits<U>::has_serialize_noninstrusive, T>::type;
+
+    template <typename U>
+    using isEnum =
+    typename std::enable_if<std::is_enum<U>::value, T>::type;
   #else
     template <typename U>
     using hasInSerialize =
@@ -205,6 +209,14 @@ struct SerializerDispatchNonByte {
   ) { }
 
   template <typename U = T>
+  void applyElm(
+    SerializerT& s, T* val,
+    isEnum<U>* __attribute__((unused)) x = nullptr
+  ) {
+    serializeEnum(s, *val);
+  }
+
+  template <typename U = T>
   void apply(
     SerializerT& s, T* val, SerialSizeType num,
     hasInSerialize<U>* __attribute__((unused)) x = nullptr
@@ -224,6 +236,17 @@ struct SerializerDispatchNonByte {
     debug_serdes("SerializerDispatch: non-intrusive serialize: val=%p\n", &val);
     for (SerialSizeType i = 0; i < num; i++) {
       serialize(s, val[i]);
+    }
+  }
+
+  template <typename U = T>
+  void apply(
+    SerializerT& s, T* val, SerialSizeType num,
+    isEnum<U>* __attribute__((unused)) x = nullptr
+  ) {
+    debug_serdes("SerializerDispatch: enum serialize: val=%p\n", &val);
+    for (SerialSizeType i = 0; i < num; i++) {
+      applyElm(s, val+i);
     }
   }
 };
