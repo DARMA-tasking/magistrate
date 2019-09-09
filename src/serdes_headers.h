@@ -50,6 +50,7 @@
 #include "traits/serializable_traits.h"
 
 #include "container/array_serialize.h"
+#include "container/enum_serialize.h"
 #include "container/list_serialize.h"
 #include "container/map_serialize.h"
 #include "container/string_serialize.h"
