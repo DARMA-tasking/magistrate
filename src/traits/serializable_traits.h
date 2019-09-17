@@ -137,7 +137,7 @@ struct SerializableTraits {
   static constexpr auto const has_parserdes =
     has_nonint_parserdes or has_int_parserdes;
 
-  // This defines what it means to be reconstructible
+  // This defines what it means to be byte copyable
   static constexpr auto const is_bytecopyable =
     has_byteCopyTraitTrue::value or has_isArith<T>::value;
 
