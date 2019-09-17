@@ -71,6 +71,51 @@ struct SerdesByteCopy {
   using isByteCopyable = std::true_type;
 };
 
+
+/*
+ * Base class from which any user-defined type wishing to define a
+ * serialize() member must inherit
+ *
+ * It must pass itself as the template argument, following CRTP. This
+ * enables proper detection and error reporting
+ */
+template <typename T>
+struct Base {
+  using this_t = Base<T>;
+  static_assert(std::is_base_of<this_t, T>::value, "Must follow CRTP in serdes::Base usage");
+
+  template <typename SerializerT>
+  void _serdes_internal_serialize(SerializerT &s) {
+    /*
+     * Call the in-class serialize method as expected
+     */
+    reinterpret_cast<T>(this)->serialize(s);
+  }
+};
+
+template <typename DerivedT, typename BaseT>
+struct Inherit : BaseT {
+  using this_t = Inherit<DerivedT, BaseT>;
+  static_assert(std::is_base_of<this_t, DerivedT>::value, "Must follow CRTP in serdes::Inherit usage");
+
+  template <typename SerializerT>
+  void _serdes_internal_serialize(SerializerT &s) {
+    /*
+     * Recursively serialize up the inheritance hierarchy
+     *
+     * Go through the full dispatch logic because we may base out to
+     * something that doesn't have an in-class serialize method, or
+     * may be byte-serialized
+     */
+    s | static_cast<BaseT&>(*this);
+
+    /*
+     * Call the in-class serialize method as expected
+     */
+    reinterpret_cast<DerivedT>(this)->serialize(s);
+  }
+};
+
 template <typename T>
 struct SerializableTraits {
   template <typename U>

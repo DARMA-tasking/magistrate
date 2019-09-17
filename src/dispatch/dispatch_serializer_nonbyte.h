@@ -200,7 +200,7 @@ struct SerializerDispatchNonByte {
   ) {
     debug_serdes("SerializerDispatch: intrusive serialize: val=%p\n", &val);
     for (SerialSizeType i = 0; i < num; i++) {
-      val[i].template serialize<SerializerT>(s);
+      val[i].template _serdes_internal_serialize<SerializerT>(s);
     }
   }
 
