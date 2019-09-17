@@ -200,7 +200,7 @@ struct SerializerDispatchNonByte {
   ) {
     debug_serdes("SerializerDispatch: intrusive serialize: val=%p\n", &val);
     for (SerialSizeType i = 0; i < num; i++) {
-      val[i].template _serdes_internal_serialize<SerializerT>(s);
+      val[i].template _serdes_internal_serialize<SerializerT, T>(s); // Instantiation error here? Inherit from serdes::base or through serdes::inherit
     }
   }
 

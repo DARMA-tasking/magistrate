@@ -84,8 +84,10 @@ struct Base {
   using this_t = Base<T>;
   static_assert(std::is_base_of<this_t, T>::value, "Must follow CRTP in serdes::Base usage");
 
-  template <typename SerializerT>
+  template <typename SerializerT, typename Tcalled>
   void _serdes_internal_serialize(SerializerT &s) {
+    static_assert(std::is_same<T, Tcalled>::value, "Looks like a base class serializer is being called on a derived class instance - missing use of serdes::Inherit?");
+
     /*
      * Call the in-class serialize method as expected
      */
@@ -98,8 +100,10 @@ struct Inherit : BaseT {
   using this_t = Inherit<DerivedT, BaseT>;
   static_assert(std::is_base_of<this_t, DerivedT>::value, "Must follow CRTP in serdes::Inherit usage");
 
-  template <typename SerializerT>
+  template <typename SerializerT, typename Tcalled>
   void _serdes_internal_serialize(SerializerT &s) {
+    static_assert(std::is_same<DerivedT, Tcalled>::value, "Looks like an intermediate base class serializer is being called on a derived class instance - missing use of serdes::Inherit?");
+
     /*
      * Recursively serialize up the inheritance hierarchy
      *
