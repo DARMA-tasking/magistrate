@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                              vector_serialize.h
+//                         test_vector_bool_serialize.cc
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,51 +42,41 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERDES_VECTOR_SERIALIZE
-#define INCLUDED_SERDES_VECTOR_SERIALIZE
+#include <gtest/gtest.h>
+#include "test_harness.h"
+#include "serialization_library_headers.h"
 
-#include "serdes_common.h"
-#include "serializers/serializers_headers.h"
+namespace serdes { namespace tests { namespace unit {
 
-#include <vector>
+struct BoolVectorTest : TestHarness { };
 
-namespace serdes {
+TEST_F(BoolVectorTest, test_bool_vector) {
+  std::vector<bool> boolVector;
+  boolVector.push_back(false);
+  boolVector.push_back(true);
+  boolVector.push_back(false);
+  boolVector.push_back(false);
+  boolVector.push_back(true);
 
-template <typename Serializer, typename T, typename VectorAllocator>
-void serializeVectorMeta(Serializer& s, std::vector<T, VectorAllocator>& vec) {
-  SerialSizeType vec_size = vec.size();
-  s | vec_size;
-  vec.resize(vec_size);
+  auto ret = serialization::interface::serialize<std::vector<bool>>(boolVector);
+
+  #if TEST_BYTE_DEBUG_PRINT
+    printf("buffer=%p, size=%ld\n", ret->getBuffer(), ret->getSize());
+  #endif
+
+  auto tptr = serialization::interface::deserialize<std::vector<bool>>(
+   ret->getBuffer(), ret->getSize()
+  );
+
+   auto& dest = *tptr;
+   for (auto it = dest.cbegin(); it != dest.cend(); ++it) {
+    std::cout << *it << std::endl;
+   }
+
+#if TEST_BYTE_DEBUG_PRINT
+  auto& dest = *tptr;
+  printf("ByteCopyStruct {%d,%d}\n", dest.x, dest.y);
+#endif
 }
 
-template <typename Serializer, typename T, typename VectorAllocator>
-void serialize(Serializer& s, std::vector<T, VectorAllocator>& vec) {
-  serializeVectorMeta(s, vec);
-  serializeArray(s, &vec[0], vec.size());
-}
-
-template <typename Serializer, typename VectorAllocator>
-void serialize(Serializer& s, std::vector<bool, VectorAllocator>& vec) {
-  serializeVectorMeta(s, vec);
-
-  for (bool elt : vec) {
-    s | elt;
-  }
-}
-
-template <typename Serializer, typename T, typename VectorAllocator>
-void parserdesVectorMeta(Serializer& s, std::vector<T, VectorAllocator>& vec) {
-  SerialSizeType vec_size = vec.size();
-  s & vec_size;
-  vec.resize(vec_size);
-}
-
-template <typename Serializer, typename T, typename VectorAllocator>
-void parserdes(Serializer& s, std::vector<T, VectorAllocator>& vec) {
-  parserdesVectorMeta(s, vec);
-  parserdesArray(s, &vec[0], vec.size());
-}
-
-} /* end namespace serdes */
-
-#endif /*INCLUDED_SERDES_VECTOR_SERIALIZE*/
+}}} // end namespace serdes::tests::unit
