@@ -91,7 +91,7 @@ struct Base {
     /*
      * Call the in-class serialize method as expected
      */
-    reinterpret_cast<T>(this)->serialize(s);
+    reinterpret_cast<T*>(this)->serialize(s);
   }
 };
 
@@ -116,7 +116,7 @@ struct Inherit : BaseT {
     /*
      * Call the in-class serialize method as expected
      */
-    reinterpret_cast<DerivedT>(this)->serialize(s);
+    reinterpret_cast<DerivedT*>(this)->serialize(s);
   }
 };
 
