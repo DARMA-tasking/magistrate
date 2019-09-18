@@ -71,6 +71,27 @@ struct SerdesByteCopy {
   using isByteCopyable = std::true_type;
 };
 
+enum SerializeKind { EmptySerialize, HasSerialize };
+
+template <typename SerializerT, typename T, SerializeKind SK>
+struct call_serialize_if_present;
+
+template <typename SerializerT, typename T>
+struct call_serialize_if_present<SerializerT, T, EmptySerialize> {
+  call_serialize_if_present(SerializerT &s, T *t)
+  {
+    // Its serialize method would be empty, so just do nothing
+  }
+};
+
+template <typename SerializerT, typename T>
+struct call_serialize_if_present<SerializerT, T, HasSerialize> {
+  call_serialize_if_present(SerializerT &s, T *t)
+  {
+    // Call the in-class serialize method as expected
+    t->serialize(s);
+  }
+};
 
 /*
  * Base class from which any user-defined type wishing to define a
@@ -79,29 +100,29 @@ struct SerdesByteCopy {
  * It must pass itself as the template argument, following CRTP. This
  * enables proper detection and error reporting
  */
-template <typename T>
+template <typename T, SerializeKind SK = HasSerialize>
 struct Base {
-  using this_t = Base<T>;
+  using _serdes_this_t = Base<T, SK>;
 
   template <typename SerializerT, typename Tcalled>
   void _serdes_internal_serialize(SerializerT &s) {
-    static_assert(std::is_base_of<this_t, T>::value, "Must follow CRTP in serdes::Base usage");
+    static_assert(std::is_base_of<_serdes_this_t, T>::value, "Must follow CRTP in serdes::Base usage");
     static_assert(std::is_same<T, Tcalled>::value, "Looks like a base class serializer is being called on a derived class instance - missing use of serdes::Inherit?");
 
-    /*
-     * Call the in-class serialize method as expected
-     */
-    reinterpret_cast<T*>(this)->serialize(s);
+    call_serialize_if_present<SerializerT, T, SK>(s, reinterpret_cast<T*>(this));
   }
 };
 
-template <typename DerivedT, typename BaseT>
+template <typename DerivedT, typename BaseT, SerializeKind SK = HasSerialize>
 struct Inherit : BaseT {
-  using this_t = Inherit<DerivedT, BaseT>;
+  using _serdes_this_t = Inherit<DerivedT, BaseT, SK>;
+
+  // Pass through constructors
+  using BaseT::BaseT;
 
   template <typename SerializerT, typename Tcalled>
   void _serdes_internal_serialize(SerializerT &s) {
-    static_assert(std::is_base_of<this_t, DerivedT>::value, "Must follow CRTP in serdes::Inherit usage");
+    static_assert(std::is_base_of<_serdes_this_t, DerivedT>::value, "Must follow CRTP in serdes::Inherit usage");
     static_assert(std::is_same<DerivedT, Tcalled>::value, "Looks like an intermediate base class serializer is being called on a derived class instance - missing use of serdes::Inherit?");
 
     /*
@@ -113,10 +134,7 @@ struct Inherit : BaseT {
      */
     s | static_cast<BaseT&>(*this);
 
-    /*
-     * Call the in-class serialize method as expected
-     */
-    reinterpret_cast<DerivedT*>(this)->serialize(s);
+    call_serialize_if_present<SerializerT, DerivedT, SK>(s, reinterpret_cast<DerivedT*>(this));
   }
 };
 
@@ -124,7 +142,7 @@ template <typename T>
 struct SerializableTraits {
   template <typename U>
   using serialize_t = decltype(
-    std::declval<U>().serialize(std::declval<Serializer&>())
+    std::declval<U>().template _serdes_internal_serialize<Serializer, U>(std::declval<Serializer&>())
   );
   using has_serialize = detection::is_detected<serialize_t, T>;
 
@@ -204,14 +222,14 @@ struct SerializableTraits {
   static constexpr auto const is_default_constructible =
     has_default_constructor::value;
 
-  static constexpr auto const has_serialize_instrusive =
+  static constexpr auto const has_serialize_intrusive =
     has_serialize::value;
-  static constexpr auto const has_serialize_noninstrusive =
+  static constexpr auto const has_serialize_nonintrusive =
     has_nonintrustive_serialize::value;
 
   // This defines what it means to have a serialize function
   static constexpr auto const has_serialize_function =
-    has_serialize_instrusive or has_serialize_noninstrusive;
+    has_serialize_intrusive or has_serialize_nonintrusive;
 
   // This defines what it means to be serializable
   static constexpr auto const is_serializable =

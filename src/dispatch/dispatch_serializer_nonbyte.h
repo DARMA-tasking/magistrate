@@ -166,11 +166,11 @@ struct SerializerDispatchNonByte {
   #if HAS_DETECTION_COMPONENT
     template <typename U>
     using hasInSerialize =
-    typename std::enable_if<SerializableTraits<U>::has_serialize_instrusive, T>::type;
+    typename std::enable_if<SerializableTraits<U>::has_serialize_intrusive, T>::type;
 
     template <typename U>
     using hasNoninSerialize =
-    typename std::enable_if<SerializableTraits<U>::has_serialize_noninstrusive, T>::type;
+    typename std::enable_if<SerializableTraits<U>::has_serialize_nonintrusive, T>::type;
 
     template <typename U>
     using isEnum =
