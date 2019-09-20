@@ -69,8 +69,16 @@ template <typename Serializer, typename VectorAllocator>
 void serialize(Serializer& s, std::vector<bool, VectorAllocator>& vec) {
   serializeVectorMeta(s, vec);
 
-  for (bool elt : vec) {
-    s | elt;
+  if (!s.isUnpacking()) {
+    for (bool elt : vec) {
+      s | elt;
+    }
+  } else {
+    for (auto i = 0; i < vec.size(); ++i) {
+      bool elt;
+      s | elt;
+      vec[i] = elt;
+    }
   }
 }
 
