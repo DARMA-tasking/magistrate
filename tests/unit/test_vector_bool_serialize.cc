@@ -50,33 +50,42 @@ namespace serdes { namespace tests { namespace unit {
 
 struct BoolVectorTest : TestHarness { };
 
-TEST_F(BoolVectorTest, test_bool_vector) {
-  std::vector<bool> boolVector;
-  boolVector.push_back(false);
-  boolVector.push_back(true);
-  boolVector.push_back(false);
-  boolVector.push_back(false);
-  boolVector.push_back(true);
-
-  auto ret = serialization::interface::serialize<std::vector<bool>>(boolVector);
+static void serializationVectorBoolTest(std::vector<bool> &boolVectorIn) {
+  auto ret = serialization::interface::serialize<std::vector<bool>>(boolVectorIn);
 
   #if TEST_BYTE_DEBUG_PRINT
     printf("buffer=%p, size=%ld\n", ret->getBuffer(), ret->getSize());
   #endif
 
-  auto tptr = serialization::interface::deserialize<std::vector<bool>>(
+  auto boolVectorOut = serialization::interface::deserialize<std::vector<bool>>(
    ret->getBuffer(), ret->getSize()
   );
 
-   auto& dest = *tptr;
-   for (auto it = dest.cbegin(); it != dest.cend(); ++it) {
-    std::cout << *it << std::endl;
-   }
+   EXPECT_TRUE(boolVectorIn == *boolVectorOut);
 
 #if TEST_BYTE_DEBUG_PRINT
+  auto& dest = *boolVectorOut;
   auto& dest = *tptr;
   printf("ByteCopyStruct {%d,%d}\n", dest.x, dest.y);
 #endif
+}
+
+TEST_F(BoolVectorTest, test_bool_vector) {
+
+  auto boolVectorVector = std::vector<std::vector<bool>> {
+    std::vector<bool>{},
+    std::vector<bool>{false},
+    std::vector<bool>{true},
+    std::vector<bool>{false, false},
+    std::vector<bool>{false, true},
+    std::vector<bool>{true, false},
+    std::vector<bool>{true, true},
+    std::vector<bool>{false, true, false, false, true}
+  };
+
+  for (auto & vec : boolVectorVector) {
+    serializationVectorBoolTest(vec);
+  }
 }
 
 }}} // end namespace serdes::tests::unit
