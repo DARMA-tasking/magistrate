@@ -66,7 +66,7 @@ target_compile_options(${SERDES_LIBRARY} PUBLIC "-fPIC")
 target_compile_options(${SERDES_LIBRARY} PUBLIC ${CXX_STANDARD_FLAGS})
 
 target_compile_definitions(${SERDES_LIBRARY} PUBLIC HAS_DETECTION_COMPONENT=1)
-
+target_compile_options(${SERDES_LIBRARY} PUBLIC "-fopenmp" )
 if (${kokkos_DIR_FOUND})
   target_compile_definitions(${SERDES_LIBRARY} PUBLIC KOKKOS_ENABLED_SERDES=1)
   # This should not have to be done, missing include configuration from kokkos

@@ -26,6 +26,7 @@ file(
 # the libraries to link, include directories, definitions
 #
 macro(checkpoint_link_target target has_mpi)
+  target_compile_options(${target} PUBLIC "-fopenmp" )  
   target_include_directories(${target} PUBLIC ${PROJECT_TEST_UNIT_DIR})
   target_include_directories(${target} PRIVATE ${GTEST_INCLUDE_DIRS})
   target_link_libraries(${target} PRIVATE ${GTEST_BOTH_LIBRARIES})
@@ -40,6 +41,8 @@ macro(checkpoint_link_target target has_mpi)
     target_compile_definitions(${target} PUBLIC HAVE_MPI=1)
     target_include_directories(${target} PUBLIC ${MPI_INCLUDE_PATH})
   endif()
+
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fopenmp" )
 endmacro()
 
 if (${CHECKPOINT_BUILD_TESTS})
