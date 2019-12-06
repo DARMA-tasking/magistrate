@@ -57,6 +57,8 @@
 #include <Kokkos_View.hpp>
 #include <Kokkos_DynamicView.hpp>
 #include <Kokkos_Serial.hpp>
+#include <Kokkos_StaticCrsGraph.hpp>
+#include <KokkosSparse_CrsMatrix.hpp>
 
 #include <array>
 #include <cassert>
@@ -417,6 +419,16 @@ void serializeExtentOnly(SerializerT& s, Kokkos::View<T**,Ts...>& v, std::string
   if (s.isUnpacking()) {
     v = Kokkos::View<T**>(label, view_extent_0, view_extent_1);
   }
+}
+
+template< typename Serializer, typename T, typename... Ts >
+inline void serialize( Serializer &s, Kokkos::StaticCrsGraph<T, Ts...> &graph ) {
+  s | graph.entries | graph.row_map | graph.row_block_offsets;
+}
+
+template< typename Serializer, typename T, typename... Ts >
+inline void serialize( Serializer &s, KokkosSparse::CrsMatrix<T, Ts...> &matrix ) {
+  s | matrix.graph | matrix.values;
 }
 
 } /* end namespace serdes */
