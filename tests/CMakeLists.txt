@@ -33,6 +33,11 @@ macro(checkpoint_link_target target has_mpi)
   if (${kokkos_DIR_FOUND})
     target_include_directories(${target} SYSTEM PUBLIC ${Kokkos_INCLUDE_DIRS})
     target_link_libraries(${target} PUBLIC ${Kokkos_LIBRARIES})
+
+      find_package(OpenMP)
+      if(OpenMP_CXX_FOUND)
+        target_link_libraries(${target} PUBLIC OpenMP::OpenMP_CXX)
+      endif()
   endif()
 
   if (${has_mpi})
