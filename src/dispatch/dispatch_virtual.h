@@ -56,7 +56,7 @@ namespace serdes {
 
   struct SERIALIZE_CONSTRUCT_TAG {};
 
-  template <typename T, typename SerializerT>
+  template <typename T>
   using RegistryType = std::vector<
     std::tuple<
       int,
@@ -64,40 +64,39 @@ namespace serdes {
       >
     >;
 
-  template <typename T, typename SerializerT>
-  inline RegistryType<T, SerializerT>& getRegistry();
+  template <typename T>
+  inline RegistryType<T>& getRegistry();
 
-  template <typename ObjT, typename SerializerT>
+  template <typename ObjT>
   struct Registrar {
     Registrar();
     AutoHandlerType index;
   };
 
-  template <typename ObjT, typename SerializerT>
+  template <typename ObjT>
   struct Type {
     static AutoHandlerType const idx;
   };
 
   inline AutoHandlerType getObjIdx(AutoHandlerType han);
 
-  template <typename ObjT, typename SerializerT>
+  template <typename ObjT>
   inline AutoHandlerType makeObjIdx();
 
-
-  template <typename T, typename SerializerT>
-  inline RegistryType<T,SerializerT>& getRegistry() {
-    static RegistryType<T,SerializerT> reg;
+  template <typename T>
+  inline RegistryType<T>& getRegistry() {
+    static RegistryType<T> reg;
     return reg;
   }
 
-  template <typename ObjT, typename SerializerT>
-  Registrar<ObjT, SerializerT>::Registrar() {
+  template <typename ObjT>
+  Registrar<ObjT>::Registrar() {
     using BaseType = typename ObjT::SerDerBaseType;
 
-    auto& reg = getRegistry<BaseType, SerializerT>();
+    auto& reg = getRegistry<BaseType>();
     index = reg.size();
 
-    debug_serdes("registrar: %ld, %s %s\n", reg.size(), typeid(ObjT).name(), typeid(SerializerT).name());
+    debug_serdes("registrar: %ld, %s\n", reg.size(), typeid(ObjT).name());
 
     reg.emplace_back(
 		     std::make_tuple(
@@ -107,18 +106,18 @@ namespace serdes {
 		     );
   }
 
-  template <typename ObjT, typename SerializerT>
-  AutoHandlerType const Type<ObjT, SerializerT>::idx = Registrar<ObjT, SerializerT>().index;
+  template <typename ObjT>
+  AutoHandlerType const Type<ObjT>::idx = Registrar<ObjT>().index;
 
-  template <typename T, typename SerializerT>
+  template <typename T>
   inline auto getObjIdx(AutoHandlerType han) {
-    debug_serdes("getObjIdx: han=%d, size=%ld\n", han, getRegistry<T, SerializerT>().size());
-    return getRegistry<T, SerializerT>().at(han);
+    debug_serdes("getObjIdx: han=%d, size=%ld\n", han, getRegistry<T>().size());
+    return getRegistry<T>().at(han);
   }
 
-  template <typename ObjT, typename SerializerT>
+  template <typename ObjT>
   inline AutoHandlerType makeObjIdx() {
-    return Type<ObjT, SerializerT>::idx;
+    return Type<ObjT>::idx;
   }
 
   template <typename DerivedT, typename BaseT>
@@ -144,21 +143,21 @@ namespace serdes {
     }
 
     void doSerialize(serdes::Serializer* s) override {
-      AutoHandlerType entry = makeObjIdx<DerivedT, serdes::Unpacker>();
+      AutoHandlerType entry = makeObjIdx<DerivedT>();
 
       if (s->isSizing()) {
-        auto& ss = *static_cast<serdes::Sizer*>(s);
-        ss | entry;
-        ss | *this;
-        ss | (*static_cast<DerivedT*>(this));
+	auto& ss = *static_cast<serdes::Sizer*>(s);
+	ss | entry;
+	ss | *this;
+	ss | (*static_cast<DerivedT*>(this));
       } else if (s->isPacking()) {
-        auto& sp = *static_cast<serdes::Packer*>(s);
-        sp | entry;
-        sp | *this;
+	auto& sp = *static_cast<serdes::Packer*>(s);
+	sp | entry;
+	sp | *this;
         sp | (*static_cast<DerivedT*>(this));
       } else if (s->isUnpacking()) {
-        auto& su = *static_cast<serdes::Unpacker*>(s);
-        // entry was read out in virtualSerialize to reconstruct the object
+	auto& su = *static_cast<serdes::Unpacker*>(s);
+	// entry was read out in virtualSerialize to reconstruct the object
         su | *this;
         su | (*static_cast<DerivedT*>(this));
       }
@@ -182,7 +181,7 @@ namespace serdes {
       // Peek to see the type of the next element, get the right constructor
       s | entry;
       debug_serdes("entry=%d\n", entry);
-      auto lam = getObjIdx<BaseT, serdes::Unpacker>(entry);
+      auto lam = getObjIdx<BaseT>(entry);
       auto ptr = std::get<1>(lam)();
       base = ptr;
     }
