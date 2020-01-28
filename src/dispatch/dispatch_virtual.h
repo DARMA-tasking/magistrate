@@ -64,9 +64,6 @@ namespace serdes {
       >
     >;
 
-  template <typename T>
-  inline RegistryType<T>& getRegistry();
-
   template <typename ObjT>
   struct Registrar {
     Registrar();
@@ -77,11 +74,6 @@ namespace serdes {
   struct Type {
     static AutoHandlerType const idx;
   };
-
-  inline AutoHandlerType getObjIdx(AutoHandlerType han);
-
-  template <typename ObjT>
-  inline AutoHandlerType makeObjIdx();
 
   template <typename T>
   inline RegistryType<T>& getRegistry() {
