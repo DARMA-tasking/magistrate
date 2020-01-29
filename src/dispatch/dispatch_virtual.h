@@ -112,6 +112,15 @@ namespace serdes {
     return Type<ObjT>::idx;
   }
 
+  /**
+   * \brief A derived class of an inheritance hierarchy should inherit from this
+   *
+   * \param DerivedT the derived class, following CRTP
+   * \param BaseT the base class to inherit from and identify the relevant hierarchy
+   *
+   * The serialize() method of such derived classes need not call any
+   * base class serialize() explicitly
+   */
   template <typename DerivedT, typename BaseT>
   struct SerializableDerived : BaseT {
     using SerDerBaseType = BaseT;
@@ -152,11 +161,26 @@ namespace serdes {
     }
   };
 
+  /**
+   * \brief A class at the base of an inheritance hierarchy should inherit from this
+   *
+   * \param BaseT the base class itself, following CRTP, to provide a
+   * common identifier of the whole hierarchy
+   */
   template <typename BaseT>
   struct SerializableBase {
     virtual void doSerialize(serdes::Serializer*)  = 0;
   };
 
+  /**
+   * \brief A function to handle serialization of objects of a mix of
+   * types in a virtual inheritance hierarchy
+   *
+   * This will automatically record the exact derived type at
+   * serialization, and reconstruct objects accordingly at
+   * deserialization. The constructor will be passed an argument of
+   * type SERIALIZE_CONSTRUCT_TAG.
+   */
   template <typename BaseT, typename SerializerT>
   void virtualSerialize(BaseT*& base, SerializerT& s) {
     if (s.isUnpacking()) {
