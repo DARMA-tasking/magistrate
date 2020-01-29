@@ -57,8 +57,8 @@ namespace serdes {
 
       template <typename S>
       void serialize(S& s) {
-	s | val_;
-	printf("MyBase: serialize val %d\n", val_);
+        s | val_;
+        printf("MyBase: serialize val %d\n", val_);
       }
 
       virtual void test() = 0;
@@ -70,12 +70,12 @@ namespace serdes {
 
       template <typename SerializerT>
       void serialize(SerializerT& s) {
-	printf("MyObj: serialize\n");
+        printf("MyObj: serialize\n");
       }
 
       void test() override {
-	printf("test MyObj 10 == %d ?\n", val_);
-	assert(val_ == 10);
+        printf("test MyObj 10 == %d ?\n", val_);
+        assert(val_ == 10);
       }
     };
 
@@ -85,11 +85,11 @@ namespace serdes {
 
       template <typename SerializerT>
       void serialize(SerializerT& s) {
-	printf("MyObj2: serialize\n");
+        printf("MyObj2: serialize\n");
       }
       void test() override {
-	printf("test MyObj2 20 == %d ?\n", val_);
-	assert(val_ == 20);
+        printf("test MyObj2 20 == %d ?\n", val_);
+        assert(val_ == 20);
       }
     };
 
@@ -100,15 +100,15 @@ namespace serdes {
 
       template <typename SerializerT>
       void serialize(SerializerT& s) {
-	s|a|b|c;
-	printf("MyObj3: serialize a b c %d %d %d\n", a, b, c);
+        s|a|b|c;
+        printf("MyObj3: serialize a b c %d %d %d\n", a, b, c);
       }
       void test() override {
-	printf("val_ 30  a 10 b 20 c 100 = %d %d %d %d\n", val_, a, b, c);
-	assert(val_ == 30);
-	assert(a==10);
-	assert(b==20);
-	assert(c==100);
+        printf("val_ 30  a 10 b 20 c 100 = %d %d %d %d\n", val_, a, b, c);
+        assert(val_ == 30);
+        assert(a==10);
+        assert(b==20);
+        assert(c==100);
       }
     };
 
@@ -121,13 +121,13 @@ namespace serdes {
 
       template <typename SerializerT>
       void serialize(SerializerT& s) {
-	std::size_t size = vec.size();
-	s | size;
-	vec.resize(size);
+        std::size_t size = vec.size();
+        s | size;
+        vec.resize(size);
 
-	for (auto& elm : vec) {
-	  serdes::virtualSerialize(elm, s);
-	}
+        for (auto& elm : vec) {
+          serdes::virtualSerialize(elm, s);
+        }
       }
 
       std::vector<MyBase*> vec;
@@ -151,7 +151,7 @@ namespace serdes {
       auto& t = *tptr;
 
       for (auto elm : t.vec)
-	elm->test();
+        elm->test();
     }
 
   }} // end namespace serdes::examples

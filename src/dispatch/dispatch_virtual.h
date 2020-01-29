@@ -91,11 +91,11 @@ namespace serdes {
     debug_serdes("registrar: %ld, %s\n", reg.size(), typeid(ObjT).name());
 
     reg.emplace_back(
-		     std::make_tuple(
-				     index,
-				     []() -> BaseType* { return new ObjT(SERIALIZE_CONSTRUCT_TAG{}); }
-				     )
-		     );
+                     std::make_tuple(
+                                     index,
+                                     []() -> BaseType* { return new ObjT(SERIALIZE_CONSTRUCT_TAG{}); }
+                                     )
+                     );
   }
 
   template <typename ObjT>
@@ -124,7 +124,7 @@ namespace serdes {
     SerializableDerived() {
       // Must pretend to call this as so so it gets instantiated
       if (false) {
-	neverRun();
+        neverRun();
       }
     }
 
@@ -138,18 +138,18 @@ namespace serdes {
       AutoHandlerType entry = makeObjIdx<DerivedT>();
 
       if (s->isSizing()) {
-	auto& ss = *static_cast<serdes::Sizer*>(s);
-	ss | entry;
-	ss | *this;
-	ss | (*static_cast<DerivedT*>(this));
+        auto& ss = *static_cast<serdes::Sizer*>(s);
+        ss | entry;
+        ss | *this;
+        ss | (*static_cast<DerivedT*>(this));
       } else if (s->isPacking()) {
-	auto& sp = *static_cast<serdes::Packer*>(s);
-	sp | entry;
-	sp | *this;
+        auto& sp = *static_cast<serdes::Packer*>(s);
+        sp | entry;
+        sp | *this;
         sp | (*static_cast<DerivedT*>(this));
       } else if (s->isUnpacking()) {
-	auto& su = *static_cast<serdes::Unpacker*>(s);
-	// entry was read out in virtualSerialize to reconstruct the object
+        auto& su = *static_cast<serdes::Unpacker*>(s);
+        // entry was read out in virtualSerialize to reconstruct the object
         su | *this;
         su | (*static_cast<DerivedT*>(this));
       }
