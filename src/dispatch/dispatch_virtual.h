@@ -122,10 +122,6 @@ namespace serdes {
     { }
 
     SerializableDerived() {
-      // Must pretend to call this as so so it gets instantiated
-      if (false) {
-        neverRun();
-      }
     }
 
     template <typename SerializerT>
@@ -153,11 +149,6 @@ namespace serdes {
         su | *this;
         su | (*static_cast<DerivedT*>(this));
       }
-    }
-
-    void neverRun() {
-      assert(0);
-      DerivedT mo{SERIALIZE_CONSTRUCT_TAG{}};
     }
   };
 
