@@ -18,17 +18,27 @@ COPY . /usr/src/checkpoint/
 
 WORKDIR /usr/src
 
+ARG KOKKOS_ENABLED
+
 RUN \
  dpkg -L zlib1g && \
  export CC=mpicc && \
  export CXX=mpicxx && \
  if [ -d "googletest" ]; then rm -Rf googletest; fi && \
  if [ -d "detector" ]; then rm -Rf detector; fi && \
+ if [ -d "kokkos" ]; then rm -Rf kokkos; fi && \
  git clone -b release-1.8.1 --depth 1 https://github.com/google/googletest.git && \
  export GTEST=$PWD/googletest && \
  export GTEST_BUILD=/usr/build/googletest && \
  export CHECKPOINT=$PWD/checkpoint && \
  export CHECKPOINT_BUILD=/usr/build/checkpoint && \
+ export kokkos_cmake_str="" && \
+ if test $KOKKOS_ENABLED -eq 1; then \
+   export KOKKOS=$PWD/kokkos && \
+   export KOKKOS_BUILD=/usr/build/kokkos && \
+   mkdir -p $KOKKOS_BUILD && \
+   git clone --branch 2.9.00 --depth 1 https://github.com/kokkos/kokkos.git; \
+ fi && \
  git clone -b master --depth 1 https://github.com/DARMA-tasking/detector.git && \
  export DETECTOR=$PWD/detector && \
  export DETECTOR_BUILD=/usr/build/detector && \
@@ -48,13 +58,22 @@ RUN \
  cmake -DCMAKE_INSTALL_PREFIX=$DETECTOR_BUILD/install -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_C_COMPILER=$CC  $DETECTOR && \
  make && \
  make install && \
+ if test $KOKKOS_ENABLED -eq 1; then \
+   cd $KOKKOS_BUILD && \
+   mkdir build && \
+   cd build && \
+   cmake -DCMAKE_INSTALL_PREFIX=$KOKKOS_BUILD/install -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_C_COMPILER=$CC  $KOKKOS && \
+   make && \
+   make install && \
+   export kokkos_cmake_str="-DKOKKOS_KERNELS_ENABLED=0 -Dkokkos_ENABLE=1 -Dkokkos_DIR=$KOKKOS_BUILD/install/lib"; \
+ fi && \
  cd $CHECKPOINT_BUILD && \
  mkdir build && \
  cd build && \
- cmake -Dgtest_DIR=$GTEST_BUILD/install -DGTEST_ROOT=$GTEST_BUILD/install -DCHECKPOINT_BUILD_TESTS:BOOL=1 -DCMAKE_INSTALL_PREFIX=$CHECKPOINT_BUILD/install -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_C_COMPILER=$CC -Ddetector_DIR=$DETECTOR_BUILD/install  $CHECKPOINT && \
- make && \
- make install && \
- make test
+ cmake -GNinja $kokkos_cmake_str -Dgtest_DIR=$GTEST_BUILD/install -DGTEST_ROOT=$GTEST_BUILD/install -DCHECKPOINT_BUILD_TESTS:BOOL=1 -DCMAKE_INSTALL_PREFIX=$CHECKPOINT_BUILD/install -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_C_COMPILER=$CC -Ddetector_DIR=$DETECTOR_BUILD/install  $CHECKPOINT && \
+ ninja && \
+ ninja install && \
+ ninja test
 
 COPY $DETECTOR_BUILD/ $DETECTOR_BUILD
 COPY $CHECKPOINT_BUILD/ $CHECKPOINT_BUILD

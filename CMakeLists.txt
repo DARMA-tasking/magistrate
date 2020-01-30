@@ -17,6 +17,10 @@ option(
   CHECKPOINT_BUILD_EXAMPLES "Option for turning on checkpoint examples" OFF
 )
 
+option(
+  KOKKOS_KERNELS_ENABLED "Option for enabling kokkos kernels serializer" ON
+)
+
 # Try to find ccache to speed up compilation
 find_program(ccache_binary ccache)
 if (ccache_binary)

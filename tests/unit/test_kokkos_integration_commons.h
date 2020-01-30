@@ -78,7 +78,9 @@ struct Data : BaseData {
   using Kokkos_ViewType2 = ::Kokkos::View<double**, Kokkos::LayoutRight>;
   using Kokkos_ViewType3 = ::Kokkos::View<float***, AtomicTrait>;
   using Kokkos_ViewType4 = ::Kokkos::View<int*[2]>;
+  #if KOKKOS_KERNELS_ENABLED
   using Kokkos_CrsType = ::Kokkos::StaticCrsGraph<double, Kokkos::DefaultExecutionSpace>;
+  #endif
   using DimType          = typename Kokkos_ViewType1::size_type;
 
   Data() = default;
@@ -119,6 +121,7 @@ struct Data : BaseData {
     v3 = v3_tmp;
     v4 = v4_tmp;
 
+    #if KOKKOS_KERNELS_ENABLED
     std::vector< std::vector< int > > graph( d1_a );
 
     for ( size_t i = 0 ; i < d1_a; ++i ) {
@@ -129,6 +132,7 @@ struct Data : BaseData {
     }
 
     crs = Kokkos::create_staticcrsgraph<Kokkos_CrsType>( "crs_type" , graph );
+    #endif
   }
 
   /* Generators for creating expected data values */
@@ -182,6 +186,8 @@ struct Data : BaseData {
       EXPECT_EQ(in.v4.operator()(i,0), v4val(i,0));
       EXPECT_EQ(in.v4.operator()(i,1), v4val(i,1));
     }
+
+    #if KOKKOS_KERNELS_ENABLED
     std::vector< std::vector< int > > graph( d1_a );
 
     for ( size_t i = 0 ; i < d1_a; ++i ) {
@@ -199,6 +205,7 @@ struct Data : BaseData {
         EXPECT_EQ( (int) in.crs.entries( j + begin ) , graph[i][j] );
       }
     }
+    #endif
   }
 
   template <typename SerializerT>
@@ -207,7 +214,9 @@ struct Data : BaseData {
     s | vec;
     s | val1 | val2;
     s | v0 | v1 | v2 | v3 | v4;
+    #if KOKKOS_KERNELS_ENABLED
     s | crs;
+    #endif
   }
 
 public:
@@ -218,7 +227,9 @@ public:
   Kokkos_ViewType2 v2;
   Kokkos_ViewType3 v3;
   Kokkos_ViewType4 v4;
+  #if KOKKOS_KERNELS_ENABLED
   Kokkos_CrsType crs;
+  #endif
 };
 
 struct KokkosBaseTest : virtual testing::Test { };
