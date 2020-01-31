@@ -74,7 +74,7 @@ void serialize(Serializer& s, std::vector<bool, VectorAllocator>& vec) {
       s | elt;
     }
   } else {
-    for (auto i = 0; i < vec.size(); ++i) {
+    for (size_t i = 0; i < vec.size(); ++i) {
       bool elt;
       s | elt;
       vec[i] = elt;
