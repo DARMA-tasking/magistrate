@@ -162,13 +162,20 @@ namespace serdes {
   };
 
   /**
+   * \brief A non-templated base class usable as a tag type to check inheritance
+   *
+   * Used via std::is_base_of<SerializableBaseBase, T>
+   */
+  struct SerializableBaseBase {};
+
+  /**
    * \brief A class at the base of an inheritance hierarchy should inherit from this
    *
    * \param BaseT the base class itself, following CRTP, to provide a
    * common identifier of the whole hierarchy
    */
   template <typename BaseT>
-  struct SerializableBase {
+  struct SerializableBase : SerializableBaseBase {
     virtual void doSerialize(serdes::Serializer*)  = 0;
   };
 
