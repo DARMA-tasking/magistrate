@@ -95,7 +95,7 @@ endmacro(find_package_local)
 
 macro(optional_pkg_directory pkg_name pkg_user_name assume_found_if_hasparent)
   get_directory_property(hasParent PARENT_DIRECTORY)
-  if(hasParent)
+  if(hasParent AND NOT (${CMAKE_PROJECT_NAME} STREQUAL "vt"))
     # Skip MOST of this logic when this macro was not invoked from the
     # top-level CMakeLists.txt file under the assumption that this
     # package was dropped into another build system using add_subdirectory().
