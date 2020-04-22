@@ -71,6 +71,18 @@ struct SerdesByteCopy {
   using isByteCopyable = std::true_type;
 };
 
+namespace detail {
+template <typename T>
+struct isByteCopyableImpl {
+  template <typename U>
+  using byteCopyTrait_t = typename U::isByteCopyable;
+  using has_byteCopyTraitTrue = detection::is_detected_convertible<std::true_type, byteCopyTrait_t, T>;
+};
+}
+
+template <typename T>
+struct isByteCopyable : detail::isByteCopyableImpl< T >::has_byteCopyTraitTrue {};
+
 template <typename T>
 struct SerializableTraits {
   template <typename U>
@@ -101,10 +113,7 @@ struct SerializableTraits {
   using has_nonintrustive_parserdes =
     detection::is_detected<nonintrustive_parserdes_t, T>;
 
-  template <typename U>
-  using byteCopyTrait_t = typename U::isByteCopyable;
-  using has_byteCopyTraitTrue =
-    detection::is_detected_convertible<std::true_type, byteCopyTrait_t, T>;
+  using has_byteCopyTraitTrue = isByteCopyable< T >;
 
   template <typename U>
   using has_isArith = std::is_arithmetic<U>;
