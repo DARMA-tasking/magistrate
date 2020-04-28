@@ -110,6 +110,9 @@ int main(int argc, char** argv) {
   std::string name = "";
   if (argc == 2) {
     name = argv[1];
+  } else {
+    fprintf(stderr, "Requires one argument as file to write");
+    return 1;
   }
 
   printf("filename name=%s\n", name.c_str());
