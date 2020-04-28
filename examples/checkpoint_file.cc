@@ -111,7 +111,7 @@ int main(int argc, char** argv) {
   if (argc == 2) {
     name = argv[1];
   } else {
-    fprintf(stderr, "Requires one argument as file to write");
+    fprintf(stderr, "Requires one argument as file to read/write");
     return 1;
   }
 
@@ -138,6 +138,7 @@ int main(int argc, char** argv) {
     t->print();
 
     delete t;
+    free(buffer);
 
   } else {
     printf("File %s does not exist, serializing into file\n", name.c_str());
