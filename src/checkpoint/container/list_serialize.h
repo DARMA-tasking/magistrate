@@ -42,10 +42,10 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERDES_LIST_SERIALIZE
-#define INCLUDED_SERDES_LIST_SERIALIZE
+#if !defined INCLUDED_CHECKPOINT_CONTAINER_LIST_SERIALIZE_H
+#define INCLUDED_CHECKPOINT_CONTAINER_LIST_SERIALIZE_H
 
-#include "checkpoint/serdes_common.h"
+#include "checkpoint/common.h"
 #include "checkpoint/serializers/serializers_headers.h"
 #include "checkpoint/container/container_serialize.h"
 
@@ -133,4 +133,4 @@ inline void parserdes(Serializer& s, std::deque<T>& lst) {
 
 } /* end namespace serdes */
 
-#endif /*INCLUDED_SERDES_LIST_SERIALIZE*/
+#endif /*INCLUDED_CHECKPOINT_CONTAINER_LIST_SERIALIZE_H*/

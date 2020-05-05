@@ -42,10 +42,10 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERDES_STRING_SERIALIZE
-#define INCLUDED_SERDES_STRING_SERIALIZE
+#if !defined INCLUDED_CHECKPOINT_CONTAINER_STRING_SERIALIZE_H
+#define INCLUDED_CHECKPOINT_CONTAINER_STRING_SERIALIZE_H
 
-#include "checkpoint/serdes_common.h"
+#include "checkpoint/common.h"
 #include "checkpoint/serializers/serializers_headers.h"
 
 #include <string>
@@ -80,4 +80,4 @@ void parserdes(Serializer& s, std::string& str) {
 
 } /* end namespace serdes */
 
-#endif /*INCLUDED_SERDES_STRING_SERIALIZE*/
+#endif /*INCLUDED_CHECKPOINT_CONTAINER_STRING_SERIALIZE_H*/

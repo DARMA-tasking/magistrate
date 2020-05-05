@@ -42,10 +42,10 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERDES_MAP_SERIALIZE
-#define INCLUDED_SERDES_MAP_SERIALIZE
+#if !defined INCLUDED_CHECKPOINT_CONTAINER_MAP_SERIALIZE_H
+#define INCLUDED_CHECKPOINT_CONTAINER_MAP_SERIALIZE_H
 
-#include "checkpoint/serdes_common.h"
+#include "checkpoint/common.h"
 #include "checkpoint/serializers/serializers_headers.h"
 #include "checkpoint/container/container_serialize.h"
 
@@ -195,4 +195,4 @@ inline void parserdes(Serializer& s, std::unordered_multiset<T, Hash, Eq>& set) 
 
 } /* end namespace serdes */
 
-#endif /*INCLUDED_SERDES_MAP_SERIALIZE*/
+#endif /*INCLUDED_CHECKPOINT_CONTAINER_MAP_SERIALIZE_H*/

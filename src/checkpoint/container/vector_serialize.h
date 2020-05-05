@@ -42,10 +42,10 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERDES_VECTOR_SERIALIZE
-#define INCLUDED_SERDES_VECTOR_SERIALIZE
+#if !defined INCLUDED_CHECKPOINT_CONTAINER_VECTOR_SERIALIZE_H
+#define INCLUDED_CHECKPOINT_CONTAINER_VECTOR_SERIALIZE_H
 
-#include "checkpoint/serdes_common.h"
+#include "checkpoint/common.h"
 #include "checkpoint/serializers/serializers_headers.h"
 
 #include <vector>
@@ -97,4 +97,4 @@ void parserdes(Serializer& s, std::vector<T, VectorAllocator>& vec) {
 
 } /* end namespace serdes */
 
-#endif /*INCLUDED_SERDES_VECTOR_SERIALIZE*/
+#endif /*INCLUDED_CHECKPOINT_CONTAINER_VECTOR_SERIALIZE_H*/

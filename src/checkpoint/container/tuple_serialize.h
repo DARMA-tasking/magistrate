@@ -42,10 +42,10 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERDES_TUPLE_SERIALIZE
-#define INCLUDED_SERDES_TUPLE_SERIALIZE
+#if !defined INCLUDED_CHECKPOINT_CONTAINER_TUPLE_SERIALIZE_H
+#define INCLUDED_CHECKPOINT_CONTAINER_TUPLE_SERIALIZE_H
 
-#include "checkpoint/serdes_common.h"
+#include "checkpoint/common.h"
 #include "checkpoint/serializers/serializers_headers.h"
 
 #include <tuple>
@@ -95,4 +95,4 @@ void parserdes(Serializer& s, std::pair<T, U>& pair) {
 
 } /* end namespace serdes */
 
-#endif /*INCLUDED_SERDES_TUPLE_SERIALIZE*/
+#endif /*INCLUDED_CHECKPOINT_CONTAINER_TUPLE_SERIALIZE_H*/

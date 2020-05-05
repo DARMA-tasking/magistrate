@@ -42,11 +42,11 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERDES_BUFFER
-#define INCLUDED_SERDES_BUFFER
+#if !defined INCLUDED_CHECKPOINT_BUFFER_BUFFER_H
+#define INCLUDED_CHECKPOINT_BUFFER_BUFFER_H
 
-#include "checkpoint/serdes_common.h"
-#include "checkpoint/serialize_interface.h"
+#include "checkpoint/common.h"
+#include "checkpoint/checkpoint_api.h"
 
 #include <memory>
 
@@ -66,4 +66,4 @@ using SerializedReturnType = std::tuple<BufferPtrType, SerialSizeType>;
 
 } /* end namespace serdes */
 
-#endif /*INCLUDED_SERDES_BUFFER*/
+#endif /*INCLUDED_CHECKPOINT_BUFFER_BUFFER_H*/

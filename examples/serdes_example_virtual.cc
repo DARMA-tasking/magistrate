@@ -42,7 +42,7 @@
 //@HEADER
 */
 
-#include "checkpoint/serdes_headers.h"
+#include <checkpoint/checkpoint.h>
 #include "checkpoint/dispatch/dispatch_virtual.h"
 
 namespace serdes {

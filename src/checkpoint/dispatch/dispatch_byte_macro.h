@@ -42,10 +42,10 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERDES_DISPATCH_BYTES_MACRO
-#define INCLUDED_SERDES_DISPATCH_BYTES_MACRO
+#if !defined INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_BYTE_MACRO_H
+#define INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_BYTE_MACRO_H
 
-#include "checkpoint/serdes_common.h"
+#include "checkpoint/common.h"
 
 #define SERDES_BYTES(TYPE)                                \
   namespace serdes {                                      \
@@ -55,4 +55,4 @@
     }                                                     \
   }
 
-#endif /*INCLUDED_SERDES_DISPATCH_BYTES_MACRO*/
+#endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_BYTE_MACRO_H*/

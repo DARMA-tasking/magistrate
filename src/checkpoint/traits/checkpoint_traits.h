@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                          serialize_interface.impl.h
+//                             checkpoint_traits.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,63 +42,49 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERIALIZE_INTERFACE_IMPL
-#define INCLUDED_SERIALIZE_INTERFACE_IMPL
+#if !defined INCLUDED_CHECKPOINT_TRAITS_CHECKPOINT_TRAITS_H
+#define INCLUDED_CHECKPOINT_TRAITS_CHECKPOINT_TRAITS_H
 
-#include "serdes_common.h"
-#include "serdes_headers.h"
-#include "serialize_interface.h"
-#include "buffer/buffer.h"
+#include <cstdint>
 
-#include <memory>
+#include "checkpoint/common.h"
 
-namespace serialization { namespace interface {
+#if HAS_DETECTION_COMPONENT
+#include "detector_headers.h"
+#endif  /*HAS_DETECTION_COMPONENT*/
 
-template <typename T>
-SerializedReturnType serialize(T& target, BufferCallbackType fn) {
-  auto ret = ::serdes::serializeType<T>(target, fn);
-  auto& buf = std::get<0>(ret);
-  std::unique_ptr<SerializedInfo> base_ptr(
-    static_cast<SerializedInfo*>(buf.release())
-  );
-  return base_ptr;
-}
+#if HAS_DETECTION_COMPONENT
+
+namespace serdes {
 
 template <typename T>
-T* deserialize(SerialByteType* buf, SizeType size, T* user_buf) {
-  return ::serdes::deserializeType<T>(buf, size, user_buf);
-}
+struct SerializerTraits {
+  template <typename U>
+  using contiguousBytes_t = decltype(std::declval<U>().contiguousBytes(
+    std::declval<void*>(), std::declval<SizeType>(), std::declval<SizeType>()
+  ));
+  using has_contiguousBytes = detection::is_detected<contiguousBytes_t, T>;
 
-template <typename T>
-T* deserialize(SerializedReturnType&& in) {
-  return ::serdes::deserializeType<T>(in->getBuffer(), in->getSize());
-}
+  template <typename U>
+  using isSizing_t = decltype(std::declval<U>().isSizing());
+  using has_isSizing = detection::is_detected_convertible<bool, isSizing_t, T>;
 
-template <typename T>
-void deserializeInPlace(SerialByteType* buf, SizeType size, T* t) {
-  return ::serdes::deserializeType<T>(::serdes::InPlaceTag{}, buf, size, t);
-}
+  template <typename U>
+  using isPacking_t = decltype(std::declval<U>().isPacking());
+  using has_isPacking = detection::is_detected_convertible<bool, isPacking_t, T>;
 
-template <typename T>
-SerializedReturnType serializePartial(T& target, BufferCallbackType fn) {
-  auto ret = ::serdes::serializeTypePartial<T>(target, fn);
-  auto& buf = std::get<0>(ret);
-  std::unique_ptr<SerializedInfo> base_ptr(
-    static_cast<SerializedInfo*>(buf.release())
-  );
-  return base_ptr;
-}
+  template <typename U>
+  using isUnpacking_t = decltype(std::declval<U>().isUnpacking());
+  using has_isUnpacking = detection::is_detected_convertible<bool, isUnpacking_t, T>;
 
-template <typename T>
-T* deserializePartial(SerialByteType* buf, SizeType size, T* user_buf) {
-  return ::serdes::deserializeTypePartial<T>(buf, size, user_buf);
-}
+  // This defines what it means to be reconstructible
+  static constexpr auto const is_valid_serializer =
+    has_contiguousBytes::value and has_isSizing::value
+    and has_isPacking::value and has_isUnpacking::value;
+};
 
-template <typename T>
-std::size_t getSize(T& target) {
-  return ::serdes::sizeType<T>(target);
-}
+}  // end namespace serdes
 
-}} /* end namespace serialization::interface */
+#endif  /*HAS_DETECTION_COMPONENT*/
 
-#endif /*INCLUDED_SERIALIZE_INTERFACE_IMPL*/
+#endif /*INCLUDED_CHECKPOINT_TRAITS_CHECKPOINT_TRAITS_H*/

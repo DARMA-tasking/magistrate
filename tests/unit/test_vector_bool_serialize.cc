@@ -44,7 +44,7 @@
 
 #include <gtest/gtest.h>
 #include "test_harness.h"
-#include "checkpoint/serialization_library_headers.h"
+#include <checkpoint/checkpoint.h>
 
 namespace serdes { namespace tests { namespace unit {
 

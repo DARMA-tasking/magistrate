@@ -42,10 +42,10 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERDES_UNPACKER
-#define INCLUDED_SERDES_UNPACKER
+#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_UNPACKER_H
+#define INCLUDED_CHECKPOINT_SERIALIZERS_UNPACKER_H
 
-#include "checkpoint/serdes_common.h"
+#include "checkpoint/common.h"
 #include "checkpoint/serializers/memory_serializer.h"
 
 namespace serdes {
@@ -58,4 +58,4 @@ struct Unpacker : MemorySerializer {
 
 } /* end namespace serdes */
 
-#endif /*INCLUDED_SERDES_UNPACKER*/
+#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_UNPACKER_H*/

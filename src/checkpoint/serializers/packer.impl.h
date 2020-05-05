@@ -42,7 +42,10 @@
 //@HEADER
 */
 
-#include "checkpoint/serdes_common.h"
+#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_PACKER_IMPL_H
+#define INCLUDED_CHECKPOINT_SERIALIZERS_PACKER_IMPL_H
+
+#include "checkpoint/common.h"
 #include "checkpoint/serializers/memory_serializer.h"
 #include "checkpoint/buffer/buffer.h"
 
@@ -103,3 +106,5 @@ void PackerBuffer<BufferT>::contiguousBytes(
 }
 
 } /* end namespace serdes */
+
+#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_PACKER_IMPL_H*/

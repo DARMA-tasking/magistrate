@@ -46,7 +46,7 @@
 
 #include "test_harness.h"
 
-#include "checkpoint/serdes_headers.h"
+#include <checkpoint/checkpoint.h>
 
 namespace serdes { namespace tests { namespace unit {
 

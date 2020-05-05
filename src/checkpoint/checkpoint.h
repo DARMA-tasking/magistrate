@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                              serdes_interface.h
+//                                 checkpoint.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,41 +42,23 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERDES_INTERFACE
-#define INCLUDED_SERDES_INTERFACE
+#if !defined INCLUDED_CHECKPOINT_CHECKPOINT_H
+#define INCLUDED_CHECKPOINT_CHECKPOINT_H
 
-#include <cstdlib>
-#include <functional>
-#include <memory>
+#include "checkpoint/serializers/serializers_headers.h"
+#include "checkpoint/dispatch/dispatch.h"
+#include "checkpoint/traits/serializable_traits.h"
 
-namespace serialization { namespace interface {
+#include "checkpoint/container/array_serialize.h"
+#include "checkpoint/container/enum_serialize.h"
+#include "checkpoint/container/list_serialize.h"
+#include "checkpoint/container/map_serialize.h"
+#include "checkpoint/container/string_serialize.h"
+#include "checkpoint/container/tuple_serialize.h"
+#include "checkpoint/container/vector_serialize.h"
+#include "checkpoint/container/view_serialize.h"
 
-using SizeType = size_t;
-using SerialByteType = char;
+#include "checkpoint/checkpoint_api.h"
+#include "checkpoint/checkpoint_api.impl.h"
 
-using BufferCallbackType = std::function<SerialByteType*(SizeType size)>;
-
-struct SerializedInfo {
-  virtual SizeType getSize() const = 0;
-  virtual SerialByteType* getBuffer() const = 0;
-  virtual ~SerializedInfo() { }
-};
-
-using SerializedInfoPtrType = std::unique_ptr<SerializedInfo>;
-using SerializedReturnType = SerializedInfoPtrType;
-
-template <typename T>
-SerializedReturnType serialize(T& target, BufferCallbackType fn = nullptr);
-
-template <typename T>
-T* deserialize(SerialByteType* buf, SizeType size, T* user_buf = nullptr);
-
-template <typename T>
-T* deserialize(SerializedReturnType&& in);
-
-template <typename T>
-std::size_t getSize(T& target);
-
-}} /* end namespace serialization::interface */
-
-#endif /*INCLUDED_SERDES_INTERFACE*/
+#endif /*INCLUDED_CHECKPOINT_CHECKPOINT_H*/

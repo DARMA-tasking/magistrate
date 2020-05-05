@@ -42,10 +42,10 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERDES_DISPATCH
-#define INCLUDED_SERDES_DISPATCH
+#if !defined INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_H
+#define INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_H
 
-#include "checkpoint/serdes_common.h"
+#include "checkpoint/common.h"
 #include "checkpoint/buffer/buffer.h"
 #include "checkpoint/dispatch/dispatch_common.h"
 #include "checkpoint/dispatch/dispatch_serializer.h"
@@ -128,4 +128,4 @@ std::size_t sizeType(T& t);
 
 #include "dispatch.impl.h"
 
-#endif /*INCLUDED_SERDES_DISPATCH*/
+#endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_H*/

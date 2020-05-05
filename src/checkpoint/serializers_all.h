@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                 serdes_all.h
+//                              serializers_all.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,10 +42,10 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERDES_ALL
-#define INCLUDED_SERDES_ALL
+#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_ALL_H
+#define INCLUDED_CHECKPOINT_SERIALIZERS_ALL_H
 
-#include "checkpoint/serdes_common.h"
+#include "checkpoint/common.h"
 #include "checkpoint/serializers/serializers_headers.h"
 
-#endif /*INCLUDED_SERDES_ALL*/
+#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_ALL_H*/

@@ -42,10 +42,10 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERDES_CONTAINER_VIEW_SERIALIZE_H
-#define INCLUDED_SERDES_CONTAINER_VIEW_SERIALIZE_H
+#if !defined INCLUDED_CHECKPOINT_CONTAINER_VIEW_SERIALIZE_H
+#define INCLUDED_CHECKPOINT_CONTAINER_VIEW_SERIALIZE_H
 
-#include "checkpoint/serdes_common.h"
+#include "checkpoint/common.h"
 #include "checkpoint/serializers/serializers_headers.h"
 #include "checkpoint/container/view_traits_extract.h"
 #include "checkpoint/container/view_traverse_manual.h"
@@ -440,4 +440,4 @@ inline void serialize( Serializer &s, KokkosSparse::CrsMatrix<T, Ts...> &matrix 
 
 #endif /*KOKKOS_ENABLED_SERDES*/
 
-#endif /*INCLUDED_SERDES_CONTAINER_VIEW_SERIALIZE_H*/
+#endif /*INCLUDED_CHECKPOINT_CONTAINER_VIEW_SERIALIZE_H*/

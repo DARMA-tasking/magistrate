@@ -42,10 +42,10 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERDES_BASE_SERIALIZER
-#define INCLUDED_SERDES_BASE_SERIALIZER
+#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H
+#define INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H
 
-#include "checkpoint/serdes_common.h"
+#include "checkpoint/common.h"
 
 #include <type_traits>
 #include <cstdlib>
@@ -84,4 +84,4 @@ protected:
 
 } /* end namespace serdes */
 
-#endif /*INCLUDED_SERDES_BASE_SERIALIZER*/
+#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H*/

@@ -42,10 +42,10 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERDES_MANAGED_BUFFER
-#define INCLUDED_SERDES_MANAGED_BUFFER
+#if !defined INCLUDED_CHECKPOINT_BUFFER_MANAGED_BUFFER_H
+#define INCLUDED_CHECKPOINT_BUFFER_MANAGED_BUFFER_H
 
-#include "checkpoint/serdes_common.h"
+#include "checkpoint/common.h"
 #include "checkpoint/buffer/buffer.h"
 
 #include <memory>
@@ -75,4 +75,4 @@ private:
 
 } /* end namespace serdes */
 
-#endif /*INCLUDED_SERDES_MANAGED_BUFFER*/
+#endif /*INCLUDED_CHECKPOINT_BUFFER_MANAGED_BUFFER_H*/

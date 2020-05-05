@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                               serdes_common.h
+//                               checkpoint_api.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,32 +42,50 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERDES_COMMON
-#define INCLUDED_SERDES_COMMON
-
-#define DEBUG_SERDES 0
-
-#if DEBUG_SERDES
-#define debug_serdes(...)            \
-  do {                                          \
-    printf(__VA_ARGS__);             \
-  } while (0);
-#include <cstdio>
-#else
-#define debug_serdes(...)
-#endif
+#if !defined INCLUDED_CHECKPOINT_CHECKPOINT_API_H
+#define INCLUDED_CHECKPOINT_CHECKPOINT_API_H
 
 #include <cstdlib>
-#include <cstdint>
 #include <functional>
+#include <memory>
 
-namespace serdes {
+namespace serialization { namespace interface {
 
-using SerialSizeType = size_t;
+using SizeType = size_t;
 using SerialByteType = char;
 
-using BufferObtainFnType = std::function<SerialByteType*(SerialSizeType size)>;
+using BufferCallbackType = std::function<SerialByteType*(SizeType size)>;
 
-} /* end namespace serdes */
+struct SerializedInfo {
+  virtual SizeType getSize() const = 0;
+  virtual SerialByteType* getBuffer() const = 0;
+  virtual ~SerializedInfo() { }
+};
 
-#endif /*INCLUDED_SERDES_COMMON*/
+using SerializedInfoPtrType = std::unique_ptr<SerializedInfo>;
+using SerializedReturnType = SerializedInfoPtrType;
+
+template <typename T>
+SerializedReturnType serialize(T& target, BufferCallbackType fn = nullptr);
+
+template <typename T>
+T* deserialize(SerialByteType* buf, SizeType size, T* user_buf = nullptr);
+
+template <typename T>
+void deserializeInPlace(SerialByteType* buf, SizeType size, T* t);
+
+template <typename T>
+T* deserialize(SerializedReturnType&& in);
+
+template <typename T>
+SerializedReturnType serializePartial(T& target, BufferCallbackType fn = nullptr);
+
+template <typename T>
+T* deserializePartial(SerialByteType* buf, SizeType size, T* user_buf = nullptr);
+
+template <typename T>
+std::size_t getSize(T& target);
+
+}} /* end namespace serialization::interface */
+
+#endif /*INCLUDED_CHECKPOINT_CHECKPOINT_API_H*/

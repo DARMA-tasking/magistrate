@@ -46,8 +46,8 @@
 
 #include "test_harness.h"
 
-#include "checkpoint/serdes_headers.h"
-#include "checkpoint/serialization_library_headers.h"
+#include <checkpoint/checkpoint.h>
+#include <checkpoint/checkpoint.h>
 
 #include <vector>
 #include <cstdio>

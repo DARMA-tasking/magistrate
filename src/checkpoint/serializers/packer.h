@@ -42,10 +42,10 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERDES_PACKER
-#define INCLUDED_SERDES_PACKER
+#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_PACKER_H
+#define INCLUDED_CHECKPOINT_SERIALIZERS_PACKER_H
 
-#include "checkpoint/serdes_common.h"
+#include "checkpoint/common.h"
 #include "checkpoint/serializers/memory_serializer.h"
 #include "checkpoint/buffer/buffer.h"
 #include "checkpoint/buffer/managed_buffer.h"
@@ -77,6 +77,6 @@ using PackerUserBuf = PackerBuffer<UserBuffer>;
 
 } /* end namespace serdes */
 
-#include "packer.impl.h"
+#include "checkpoint/serializers/packer.impl.h"
 
-#endif /*INCLUDED_SERDES_PACKER*/
+#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_PACKER_H*/

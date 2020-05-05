@@ -42,10 +42,10 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERDES_DISPATCH_IMPL
-#define INCLUDED_SERDES_DISPATCH_IMPL
+#if !defined INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_IMPL_H
+#define INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_IMPL_H
 
-#include "checkpoint/serdes_common.h"
+#include "checkpoint/common.h"
 #include "checkpoint/dispatch/dispatch.h"
 
 namespace serdes {
@@ -277,4 +277,4 @@ std::size_t sizeType(T& target) {
 
 } /* end namespace serdes */
 
-#endif /*INCLUDED_SERDES_DISPATCH_IMPL*/
+#endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_IMPL_H*/

@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                             dispatch_virtual.h
+//                              dispatch_virtual.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,8 +42,8 @@
 //@HEADER
 */
 
-#if !defined(CHECKPOINT_DISPATCH_VIRTUAL_H)
-#define CHECKPOINT_DISPATCH_VIRTUAL_H
+#if !defined INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_VIRTUAL_H
+#define INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_VIRTUAL_H
 
 #include "checkpoint/dispatch/dispatch.h"
 
@@ -204,4 +204,4 @@ namespace serdes {
 
 } // namespace serdes
 
-#endif
+#endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_VIRTUAL_H*/

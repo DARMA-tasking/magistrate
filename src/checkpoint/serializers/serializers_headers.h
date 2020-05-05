@@ -42,13 +42,13 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERDES_SERIALIZERS_HEADERS
-#define INCLUDED_SERDES_SERIALIZERS_HEADERS
+#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_SERIALIZERS_HEADERS_H
+#define INCLUDED_CHECKPOINT_SERIALIZERS_SERIALIZERS_HEADERS_H
 
-#include "checkpoint/serdes_common.h"
+#include "checkpoint/common.h"
 #include "checkpoint/serializers/base_serializer.h"
 #include "checkpoint/serializers/sizer.h"
 #include "checkpoint/serializers/packer.h"
 #include "checkpoint/serializers/unpacker.h"
 
-#endif /*INCLUDED_SERDES_SERIALIZERS_HEADERS*/
+#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_SERIALIZERS_HEADERS_H*/

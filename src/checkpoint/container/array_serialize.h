@@ -42,10 +42,10 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERDES_ARRAY_SERIALIZE
-#define INCLUDED_SERDES_ARRAY_SERIALIZE
+#if !defined INCLUDED_CHECKPOINT_CONTAINER_ARRAY_SERIALIZE_H
+#define INCLUDED_CHECKPOINT_CONTAINER_ARRAY_SERIALIZE_H
 
-#include "checkpoint/serdes_common.h"
+#include "checkpoint/common.h"
 #include "checkpoint/serializers/serializers_headers.h"
 
 #include <array>
@@ -59,4 +59,4 @@ void serialize(Serializer& s, std::array<T, N>& array) {
 
 } /* end namespace serdes */
 
-#endif /*INCLUDED_SERDES_ARRAY_SERIALIZE*/
+#endif /*INCLUDED_CHECKPOINT_CONTAINER_ARRAY_SERIALIZE_H*/

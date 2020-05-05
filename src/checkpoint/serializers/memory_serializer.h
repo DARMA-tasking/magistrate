@@ -42,10 +42,10 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERDES_MEMORY_SERDES
-#define INCLUDED_SERDES_MEMORY_SERDES
+#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_MEMORY_SERIALIZER_H
+#define INCLUDED_CHECKPOINT_SERIALIZERS_MEMORY_SERIALIZER_H
 
-#include "checkpoint/serdes_common.h"
+#include "checkpoint/common.h"
 #include "checkpoint/serializers/base_serializer.h"
 
 namespace serdes {
@@ -83,4 +83,4 @@ protected:
 
 } /* end namespace serdes */
 
-#endif /*INCLUDED_SERDES_MEMORY_SERDES*/
+#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_MEMORY_SERIALIZER_H*/

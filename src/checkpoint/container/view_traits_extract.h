@@ -42,10 +42,10 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CONTAINER_VIEW_TRAITS_EXTRACT_H
-#define INCLUDED_CONTAINER_VIEW_TRAITS_EXTRACT_H
+#if !defined INCLUDED_CHECKPOINT_CONTAINER_VIEW_TRAITS_EXTRACT_H
+#define INCLUDED_CHECKPOINT_CONTAINER_VIEW_TRAITS_EXTRACT_H
 
-#include "checkpoint/serdes_common.h"
+#include "checkpoint/common.h"
 #include "checkpoint/serializers/serializers_headers.h"
 
 #if KOKKOS_ENABLED_SERDES
@@ -116,4 +116,4 @@ struct CountDims<ViewType, T[N]> {
 
 #endif /*KOKKOS_ENABLED_SERDES*/
 
-#endif /*INCLUDED_CONTAINER_VIEW_TRAITS_EXTRACT_H*/
+#endif /*INCLUDED_CHECKPOINT_CONTAINER_VIEW_TRAITS_EXTRACT_H*/

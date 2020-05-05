@@ -42,10 +42,10 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CONTAINER_VIEW_EQUALITY_H
-#define INCLUDED_CONTAINER_VIEW_EQUALITY_H
+#if !defined INCLUDED_CHECKPOINT_CONTAINER_VIEW_EQUALITY_H
+#define INCLUDED_CHECKPOINT_CONTAINER_VIEW_EQUALITY_H
 
-#include "checkpoint/serdes_common.h"
+#include "checkpoint/common.h"
 #include "checkpoint/serializers/serializers_headers.h"
 #include "checkpoint/container/view_traits_extract.h"
 #include "checkpoint/container/view_traverse_manual.h"
@@ -342,4 +342,4 @@ struct ViewEquality {
 
 #endif /*KOKKOS_ENABLED_SERDES*/
 
-#endif /*INCLUDED_CONTAINER_VIEW_EQUALITY_H*/
+#endif /*INCLUDED_CHECKPOINT_CONTAINER_VIEW_EQUALITY_H*/

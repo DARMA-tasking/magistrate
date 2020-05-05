@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                       serialization_library_headers.h
+//                            checkpoint_api.impl.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,11 +42,63 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERDES_LIBRARY_HEADERS
-#define INCLUDED_SERDES_LIBRARY_HEADERS
+#if !defined INCLUDED_CHECKPOINT_CHECKPOINT_API_IMPL_H
+#define INCLUDED_CHECKPOINT_CHECKPOINT_API_IMPL_H
 
-#include "serdes_headers.h"
-#include "serialize_interface.h"
-#include "serialize_interface.impl.h"
+#include "checkpoint/common.h"
+#include <checkpoint/checkpoint.h>
+#include "checkpoint/checkpoint_api.h"
+#include "buffer/buffer.h"
 
-#endif /*INCLUDED_SERDES_LIBRARY_HEADERS*/
+#include <memory>
+
+namespace serialization { namespace interface {
+
+template <typename T>
+SerializedReturnType serialize(T& target, BufferCallbackType fn) {
+  auto ret = ::serdes::serializeType<T>(target, fn);
+  auto& buf = std::get<0>(ret);
+  std::unique_ptr<SerializedInfo> base_ptr(
+    static_cast<SerializedInfo*>(buf.release())
+  );
+  return base_ptr;
+}
+
+template <typename T>
+T* deserialize(SerialByteType* buf, SizeType size, T* user_buf) {
+  return ::serdes::deserializeType<T>(buf, size, user_buf);
+}
+
+template <typename T>
+T* deserialize(SerializedReturnType&& in) {
+  return ::serdes::deserializeType<T>(in->getBuffer(), in->getSize());
+}
+
+template <typename T>
+void deserializeInPlace(SerialByteType* buf, SizeType size, T* t) {
+  return ::serdes::deserializeType<T>(::serdes::InPlaceTag{}, buf, size, t);
+}
+
+template <typename T>
+SerializedReturnType serializePartial(T& target, BufferCallbackType fn) {
+  auto ret = ::serdes::serializeTypePartial<T>(target, fn);
+  auto& buf = std::get<0>(ret);
+  std::unique_ptr<SerializedInfo> base_ptr(
+    static_cast<SerializedInfo*>(buf.release())
+  );
+  return base_ptr;
+}
+
+template <typename T>
+T* deserializePartial(SerialByteType* buf, SizeType size, T* user_buf) {
+  return ::serdes::deserializeTypePartial<T>(buf, size, user_buf);
+}
+
+template <typename T>
+std::size_t getSize(T& target) {
+  return ::serdes::sizeType<T>(target);
+}
+
+}} /* end namespace serialization::interface */
+
+#endif /*INCLUDED_CHECKPOINT_CHECKPOINT_API_IMPL_H*/

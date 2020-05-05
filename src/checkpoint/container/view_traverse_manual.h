@@ -42,10 +42,10 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CONTAINER_VIEW_TRAVERSE_MANUAL_H
-#define INCLUDED_CONTAINER_VIEW_TRAVERSE_MANUAL_H
+#if !defined INCLUDED_CHECKPOINT_CONTAINER_VIEW_TRAVERSE_MANUAL_H
+#define INCLUDED_CHECKPOINT_CONTAINER_VIEW_TRAVERSE_MANUAL_H
 
-#include "checkpoint/serdes_common.h"
+#include "checkpoint/common.h"
 #include "checkpoint/serializers/serializers_headers.h"
 #include "checkpoint/container/view_traits_extract.h"
 
@@ -255,4 +255,4 @@ struct TraverseManual<SerializerT,ViewType,4> {
 
 #endif /*KOKKOS_ENABLED_SERDES*/
 
-#endif /*INCLUDED_CONTAINER_VIEW_TRAVERSE_MANUAL_H*/
+#endif /*INCLUDED_CHECKPOINT_CONTAINER_VIEW_TRAVERSE_MANUAL_H*/

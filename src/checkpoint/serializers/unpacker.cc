@@ -42,7 +42,7 @@
 //@HEADER
 */
 
-#include "checkpoint/serdes_common.h"
+#include "checkpoint/common.h"
 #include "checkpoint/serializers/memory_serializer.h"
 #include "checkpoint/serializers/unpacker.h"
 
@@ -64,4 +64,3 @@ void Unpacker::contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType nu
 }
 
 } /* end namespace serdes */
-

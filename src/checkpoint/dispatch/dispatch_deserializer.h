@@ -42,11 +42,10 @@
 //@HEADER
 */
 
-#if ! defined INCLUDED_SERDES_DISPATCH_DESERIALIZER
-#define INCLUDED_SERDES_DISPATCH_DESERIALIZER
+#if !defined INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_DESERIALIZER_H
+#define INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_DESERIALIZER_H
 
-#include "checkpoint/serdes_common.h"
-#include "checkpoint/serdes_all.h"
+#include "checkpoint/common.h"
 #include "checkpoint/traits/serializable_traits.h"
 
 #include <type_traits>
@@ -118,4 +117,4 @@ struct DeserializerDispatch {
 
 } //end namespace serdes
 
-#endif /*INCLUDED_SERDES_DISPATCH_DESERIALIZER*/
+#endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_DESERIALIZER_H*/

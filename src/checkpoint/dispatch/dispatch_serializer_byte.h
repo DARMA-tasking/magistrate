@@ -42,11 +42,10 @@
 //@HEADER
 */
 
-#if ! defined INCLUDED_SERDES_DISPATCH_SERIALIZER_BYTE
-#define INCLUDED_SERDES_DISPATCH_SERIALIZER_BYTE
+#if !defined INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_SERIALIZER_BYTE_H
+#define INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_SERIALIZER_BYTE_H
 
-#include "checkpoint/serdes_common.h"
-#include "checkpoint/serdes_all.h"
+#include "checkpoint/common.h"
 #include "checkpoint/traits/serializable_traits.h"
 #include "checkpoint/dispatch/dispatch_serializer_nonbyte.h"
 
@@ -126,4 +125,4 @@ struct SerializerDispatchByte {
 
 } //end namespace serdes
 
-#endif /*INCLUDED_SERDES_DISPATCH_SERIALIZER_BYTE*/
+#endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_SERIALIZER_BYTE_H*/

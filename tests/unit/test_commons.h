@@ -46,8 +46,8 @@
 
 #include "test_harness.h"
 
-#include <serdes_headers.h>
-#include <serialization_library_headers.h>
+#include <checkpoint/checkpoint.h>
+#include <checkpoint/checkpoint.h>
 #include <container/array_serialize.h>
 #include <container/view_serialize.h>
 #include <container/string_serialize.h>
