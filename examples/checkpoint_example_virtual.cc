@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                         serdes_example_virtual.cc
+//                        checkpoint_example_virtual.cc
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //

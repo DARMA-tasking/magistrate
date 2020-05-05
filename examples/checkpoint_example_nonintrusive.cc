@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                             serdes_example_2.cc
+//                      checkpoint_example_nonintrusive.cc
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -48,47 +48,37 @@
 
 namespace serdes { namespace examples {
 
-struct MyTest {
-  int a = 29, b = 31;
-
-  MyTest(int const) { }
-  MyTest() = delete;
-
-  static MyTest& reconstruct(void* buf) {
-    printf("MyTest reconstruct\n");
-    MyTest* a = new (buf) MyTest(100);
-    return *a;
-  }
+struct MyTest3 {
+  int a = 1, b = 2 , c = 3;
 
   void print() {
-    printf("MyTest: a=%d, b=%d\n", a, b);
-  }
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    printf("MyTest serialize\n");
-    s | a;
-    s | b;
+    printf("MyTest3: a=%d, b=%d, c=%d\n", a, b, c);
   }
 };
+
+template <typename Serializer>
+void serialize(Serializer& s, MyTest3& my_test3) {
+  s | my_test3.a;
+  s | my_test3.b;
+  s | my_test3.c;
+}
 
 }} // end namespace serdes::examples
 
 int main(int, char**) {
   using namespace serdes::examples;
 
-  MyTest my_test_inst(10);
+  MyTest3 my_test3;
+  my_test3.print();
 
-  my_test_inst.print();
-
-  auto serialized = serdes::serializeType<MyTest>(my_test_inst);
+  auto serialized = serdes::serializeType<MyTest3>(my_test3);
 
   auto const& buf = std::get<0>(serialized);
   auto const& buf_size = std::get<1>(serialized);
 
   printf("ptr=%p, size=%ld\n", static_cast<void*>(buf->getBuffer()), buf_size);
 
-  auto tptr = serdes::deserializeType<MyTest>(buf->getBuffer(), buf_size);
+  auto tptr = serdes::deserializeType<MyTest3>(buf->getBuffer(), buf_size);
   auto& t = *tptr;
 
   t.print();

@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                             serdes_example_1.cc
+//                           checkpoint_example_2.cc
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -48,29 +48,20 @@
 
 namespace serdes { namespace examples {
 
-struct MyTest2 {
-  int c = 41;
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    printf("MyTest2 serialize\n");
-    s | c;
-  }
-
-  void print() {
-    printf("\t MyTest2: c=%d\n", c);
-  }
-};
-
 struct MyTest {
   int a = 29, b = 31;
-  MyTest2 my_test_2;
 
-  MyTest() = default;
+  MyTest(int const) { }
+  MyTest() = delete;
+
+  static MyTest& reconstruct(void* buf) {
+    printf("MyTest reconstruct\n");
+    MyTest* a = new (buf) MyTest(100);
+    return *a;
+  }
 
   void print() {
     printf("MyTest: a=%d, b=%d\n", a, b);
-    my_test_2.print();
   }
 
   template <typename Serializer>
@@ -78,7 +69,6 @@ struct MyTest {
     printf("MyTest serialize\n");
     s | a;
     s | b;
-    s | my_test_2;
   }
 };
 
@@ -87,8 +77,8 @@ struct MyTest {
 int main(int, char**) {
   using namespace serdes::examples;
 
-  MyTest my_test_inst;
-  my_test_inst.a = 10;
+  MyTest my_test_inst(10);
+
   my_test_inst.print();
 
   auto serialized = serdes::serializeType<MyTest>(my_test_inst);

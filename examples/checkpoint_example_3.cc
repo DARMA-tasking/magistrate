@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                        serdes_example_nonintrusive.cc
+//                           checkpoint_example_3.cc
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -48,42 +48,80 @@
 
 namespace serdes { namespace examples {
 
-struct MyTest3 {
-  int a = 1, b = 2 , c = 3;
+struct TestReconstruct {
+  int a = 29;
 
-  void print() {
-    printf("MyTest3: a=%d, b=%d, c=%d\n", a, b, c);
+  TestReconstruct(int const) { }
+  TestReconstruct() = delete;
+
+  static TestReconstruct& reconstruct(void* buf) {
+    auto a = new (buf) TestReconstruct(100);
+    return *a;
+  }
+
+  template <typename Serializer>
+  void serialize(Serializer& s) {
+    s | a;
   }
 };
 
-template <typename Serializer>
-void serialize(Serializer& s, MyTest3& my_test3) {
-  s | my_test3.a;
-  s | my_test3.b;
-  s | my_test3.c;
-}
+struct TestShouldFailReconstruct {
+  int a = 29;
+
+  TestShouldFailReconstruct(int const) { }
+  TestShouldFailReconstruct() = delete;
+
+  template <typename Serializer>
+  void serialize(Serializer& s) {
+    s | a;
+  }
+};
+
+struct TestDefaultCons {
+  int a = 29;
+
+  TestDefaultCons() = default;
+
+  template <typename Serializer>
+  void serialize(Serializer& s) {
+    s | a;
+  }
+};
+
+struct TestNoSerialize {
+  int a = 29;
+};
 
 }} // end namespace serdes::examples
 
+#if HAS_DETECTION_COMPONENT
+  #include "checkpoint/traits/serializable_traits.h"
+
+  namespace serdes {
+
+  using namespace examples;
+
+  static_assert(
+    SerializableTraits<TestReconstruct>::is_serializable,
+    "Should be serializable"
+  );
+  static_assert(
+    ! SerializableTraits<TestShouldFailReconstruct>::is_serializable,
+    "Should not be serializable"
+  );
+  static_assert(
+    SerializableTraits<TestDefaultCons>::is_serializable,
+    "Should be serializable"
+  );
+  static_assert(
+    ! SerializableTraits<TestNoSerialize>::is_serializable,
+    "Should not be serializable"
+  );
+
+  } // end namespace serdes
+#endif
+
 int main(int, char**) {
-  using namespace serdes::examples;
-
-  MyTest3 my_test3;
-  my_test3.print();
-
-  auto serialized = serdes::serializeType<MyTest3>(my_test3);
-
-  auto const& buf = std::get<0>(serialized);
-  auto const& buf_size = std::get<1>(serialized);
-
-  printf("ptr=%p, size=%ld\n", static_cast<void*>(buf->getBuffer()), buf_size);
-
-  auto tptr = serdes::deserializeType<MyTest3>(buf->getBuffer(), buf_size);
-  auto& t = *tptr;
-
-  t.print();
-
-  delete tptr;
-
+  // Example is a compile-time test of serializability traits
   return 0;
 }
