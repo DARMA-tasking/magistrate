@@ -50,7 +50,7 @@
 
 #include <type_traits>
 
-namespace serdes {
+namespace checkpoint {
 
 template <
   typename Serializer,
@@ -63,6 +63,6 @@ void serializeEnum(Serializer& s, Enum& e) {
     e = static_cast<Enum>(u);
 }
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_ENUM_SERIALIZE_H*/

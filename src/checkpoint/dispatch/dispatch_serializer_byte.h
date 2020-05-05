@@ -53,7 +53,7 @@
 #include <tuple>
 #include <cstdlib>
 
-namespace serdes {
+namespace checkpoint {
 
 #if !HAS_DETECTION_COMPONENT
 template <typename T>
@@ -123,6 +123,6 @@ struct SerializerDispatchByte {
   }
 };
 
-} //end namespace serdes
+} //end namespace checkpoint
 
 #endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_SERIALIZER_BYTE_H*/

@@ -46,7 +46,7 @@
 #include "test_harness.h"
 #include <checkpoint/checkpoint.h>
 
-namespace serdes { namespace tests { namespace unit {
+namespace checkpoint { namespace tests { namespace unit {
 
 struct BoolVectorTest : TestHarness { };
 
@@ -88,4 +88,4 @@ TEST_F(BoolVectorTest, test_bool_vector) {
   }
 }
 
-}}} // end namespace serdes::tests::unit
+}}} // end namespace checkpoint::tests::unit

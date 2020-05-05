@@ -54,7 +54,7 @@
 
 #define TEST_INTERFACE_DEBUG_PRINT 0
 
-namespace serdes { namespace tests { namespace unit {
+namespace checkpoint { namespace tests { namespace unit {
 
 struct TestInterface : TestHarness { };
 
@@ -93,4 +93,4 @@ TEST_F(TestInterface, test_serialize) {
   }
 }
 
-}}} // end namespace serdes::tests::unit
+}}} // end namespace checkpoint::tests::unit

@@ -48,7 +48,7 @@
 #include "checkpoint/common.h"
 #include "checkpoint/serializers/serializers_headers.h"
 
-namespace serdes {
+namespace checkpoint {
 
 template <typename Serializer, typename ContainerT>
 inline typename ContainerT::size_type
@@ -80,6 +80,6 @@ inline void parserdesContainerElems(Serializer& s, ContainerT& cont) {
   }
 }
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_CONTAINER_SERIALIZE_H*/

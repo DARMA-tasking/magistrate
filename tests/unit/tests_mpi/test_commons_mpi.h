@@ -80,7 +80,7 @@ void serializeAnyMPI(T& view, std::function<void(T const&,T const&)> compare) {
     auto out_view = deserialize<T>(recv, viewSize);
     auto const& out_view_ref = *out_view;
 
-#if SERDES_USE_ND_COMPARE
+#if CHECKPOINT_USE_ND_COMPARE
     compareND(view, out_view_ref);
 #else
     compare(view, out_view_ref);

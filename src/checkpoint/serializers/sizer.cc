@@ -46,7 +46,7 @@
 #include "checkpoint/serializers/base_serializer.h"
 #include "checkpoint/serializers/sizer.h"
 
-namespace serdes {
+namespace checkpoint {
 
 Sizer::Sizer() : Serializer(ModeType::Sizing) { }
 
@@ -58,4 +58,4 @@ void Sizer::contiguousBytes(void*, SerialSizeType size, SerialSizeType num_elms)
   num_bytes_ += size * num_elms;
 }
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */

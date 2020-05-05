@@ -52,7 +52,7 @@
 #include <list>
 #include <deque>
 
-namespace serdes {
+namespace checkpoint {
 
 template <typename Serializer, typename ContainerT, typename ElmT>
 inline void deserializeOrderedElems(
@@ -131,6 +131,6 @@ inline void parserdes(Serializer& s, std::deque<T>& lst) {
 }
 
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_LIST_SERIALIZE_H*/

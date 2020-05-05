@@ -54,7 +54,7 @@
 
 #include <tuple>
 
-namespace serdes {
+namespace checkpoint {
 
 struct InPlaceTag { };
 
@@ -124,7 +124,7 @@ T* deserializeTypePartial(
 template <typename T>
 std::size_t sizeType(T& t);
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
 #include "dispatch.impl.h"
 

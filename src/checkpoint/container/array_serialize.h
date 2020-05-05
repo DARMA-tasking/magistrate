@@ -50,13 +50,13 @@
 
 #include <array>
 
-namespace serdes {
+namespace checkpoint {
 
 template <typename Serializer, typename T, size_t N>
 void serialize(Serializer& s, std::array<T, N>& array) {
   serializeArray(s, &array[0], array.size());
 }
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_ARRAY_SERIALIZE_H*/

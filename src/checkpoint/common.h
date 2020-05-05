@@ -45,29 +45,29 @@
 #if !defined INCLUDED_CHECKPOINT_COMMON_H
 #define INCLUDED_CHECKPOINT_COMMON_H
 
-#define DEBUG_SERDES 0
+#define DEBUG_CHECKPOINT 0
 
-#if DEBUG_SERDES
-#define debug_serdes(...)            \
+#if DEBUG_CHECKPOINT
+#define debug_checkpoint(...)            \
   do {                                          \
     printf(__VA_ARGS__);             \
   } while (0);
 #include <cstdio>
 #else
-#define debug_serdes(...)
+#define debug_checkpoint(...)
 #endif
 
 #include <cstdlib>
 #include <cstdint>
 #include <functional>
 
-namespace serdes {
+namespace checkpoint {
 
 using SerialSizeType = size_t;
 using SerialByteType = char;
 
 using BufferObtainFnType = std::function<SerialByteType*(SerialSizeType size)>;
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_COMMON_H*/

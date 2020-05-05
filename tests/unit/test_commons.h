@@ -47,15 +47,9 @@
 #include "test_harness.h"
 
 #include <checkpoint/checkpoint.h>
-#include <checkpoint/checkpoint.h>
-#include <container/array_serialize.h>
-#include <container/view_serialize.h>
-#include <container/string_serialize.h>
-#include <container/vector_serialize.h>
-#include <container/tuple_serialize.h>
-#include <container/view_equality.h>
+#include <checkpoint/container/view_equality.h>
 
-#if KOKKOS_ENABLED_SERDES
+#if KOKKOS_ENABLED_CHECKPOINT
 
 #include <Kokkos_Core.hpp>
 #include <Kokkos_View.hpp>
@@ -73,10 +67,10 @@
 #endif
 
 // By default, using manual compare...should I switch this?
-#define SERDES_USE_ND_COMPARE 0
+#define CHECKPOINT_USE_ND_COMPARE 0
 
 /*
- * This manual compare code should be removed once serdes::ViewEquality is fully
+ * This manual compare code should be removed once checkpoint::ViewEquality is fully
  * tested on target platforms
  */
 
@@ -90,13 +84,13 @@ struct GTestEquality {
 
 template <typename ViewT>
 static void compareBasic(ViewT const& k1, ViewT const& k2) {
-  using EqualityType = serdes::ViewEquality<ViewT>;
+  using EqualityType = checkpoint::ViewEquality<ViewT>;
   EqualityType::template compareStaticDim<GTestEquality>(k1);
   EqualityType::template compareStaticDim<GTestEquality>(k2);
   EqualityType::template compareMeta<GTestEquality>(k1,k2);
 }
 
-#if KOKKOS_ENABLED_SERDES
+#if KOKKOS_ENABLED_CHECKPOINT
 template <typename ParamT>
 struct KokkosViewTest : ::testing::TestWithParam<ParamT> { };
 #endif
@@ -173,7 +167,7 @@ void serializeAny(T& view, std::function<void(T const&,T const&)> compare) {
   auto ret = serialize<T>(view);
   auto out_view = deserialize<T>(ret->getBuffer(), ret->getSize());
   auto const& out_view_ref = *out_view;
-  #if SERDES_USE_ND_COMPARE
+  #if CHECKPOINT_USE_ND_COMPARE
     compareND(view, out_view_ref);
   #else
     compare(view, out_view_ref);

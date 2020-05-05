@@ -54,7 +54,7 @@
 #include <set>
 #include <unordered_set>
 
-namespace serdes {
+namespace checkpoint {
 
 template <typename Serializer, typename ContainerT, typename ElmT>
 inline void deserializeEmplaceElems(
@@ -193,6 +193,6 @@ inline void parserdes(Serializer& s, std::unordered_multiset<T, Hash, Eq>& set) 
 }
 
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_MAP_SERIALIZE_H*/

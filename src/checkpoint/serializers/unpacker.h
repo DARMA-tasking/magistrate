@@ -48,7 +48,7 @@
 #include "checkpoint/common.h"
 #include "checkpoint/serializers/memory_serializer.h"
 
-namespace serdes {
+namespace checkpoint {
 
 struct Unpacker : MemorySerializer {
   Unpacker(SerialByteType* buf, SerialSizeType const& size);
@@ -56,6 +56,6 @@ struct Unpacker : MemorySerializer {
   void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms);
 };
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_SERIALIZERS_UNPACKER_H*/

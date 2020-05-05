@@ -49,7 +49,7 @@
 #include "checkpoint/serializers/serializers_headers.h"
 #include "checkpoint/container/view_traits_extract.h"
 
-#if KOKKOS_ENABLED_SERDES
+#if KOKKOS_ENABLED_CHECKPOINT
 
 #include <Kokkos_Core.hpp>
 #include <Kokkos_View.hpp>
@@ -60,7 +60,7 @@
 #include <tuple>
 #include <type_traits>
 
-namespace serdes {
+namespace checkpoint {
 
 
 /*
@@ -251,8 +251,8 @@ struct TraverseManual<SerializerT,ViewType,4> {
   }
 };
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
-#endif /*KOKKOS_ENABLED_SERDES*/
+#endif /*KOKKOS_ENABLED_CHECKPOINT*/
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_VIEW_TRAVERSE_MANUAL_H*/

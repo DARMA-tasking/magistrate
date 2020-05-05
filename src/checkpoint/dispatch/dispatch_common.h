@@ -52,7 +52,7 @@
 
 #include <tuple>
 
-namespace serdes {
+namespace checkpoint {
 
 template <typename T>
 struct DispatchCommon {
@@ -82,6 +82,6 @@ struct DispatchCommon {
   }
 };
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_COMMON_H*/

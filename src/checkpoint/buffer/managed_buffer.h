@@ -50,7 +50,7 @@
 
 #include <memory>
 
-namespace serdes {
+namespace checkpoint {
 
 struct ManagedBuffer : Buffer {
   using ByteType = SerialByteType[];
@@ -73,6 +73,6 @@ private:
   std::unique_ptr<ByteType> buffer_ = nullptr;
 };
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_BUFFER_MANAGED_BUFFER_H*/

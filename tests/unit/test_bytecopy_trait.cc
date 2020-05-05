@@ -54,7 +54,7 @@
 
 #define TEST_BYTE_DEBUG_PRINT 0
 
-namespace serdes { namespace tests { namespace unit {
+namespace checkpoint { namespace tests { namespace unit {
 
 struct TestByteCopyTrait : TestHarness { };
 
@@ -87,4 +87,4 @@ TEST_F(TestByteCopyTrait, test_bytecopy_trait) {
   #endif
 }
 
-}}} // end namespace serdes::tests::unit
+}}} // end namespace checkpoint::tests::unit

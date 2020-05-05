@@ -50,7 +50,7 @@
 
 #include <string>
 
-namespace serdes {
+namespace checkpoint {
 
 template <typename Serializer>
 void serializeStringMeta(Serializer& s, std::string& str) {
@@ -78,6 +78,6 @@ void parserdes(Serializer& s, std::string& str) {
   parserdesArray(s, str.c_str(), str.size());
 }
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_STRING_SERIALIZE_H*/

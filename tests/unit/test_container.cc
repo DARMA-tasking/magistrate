@@ -48,7 +48,7 @@
 
 #include <checkpoint/checkpoint.h>
 
-namespace serdes { namespace tests { namespace unit {
+namespace checkpoint { namespace tests { namespace unit {
 
 template <typename ContainerT>
 struct TestContainer : TestHarness { };
@@ -84,10 +84,10 @@ static void testEqualityContainerUnordered(ContainerT& c1, ContainerT& t1) {
 template <typename ContainerT, typename T>
 static void testContainer(bool is_ordered, std::initializer_list<T> lst) {
   ContainerT c1{lst};
-  auto s1 = serdes::serializeType(c1);
+  auto s1 = checkpoint::serializeType(c1);
   auto const& buf1 = std::get<0>(s1);
 
-  auto tptr = serdes::deserializeType<ContainerT>(
+  auto tptr = checkpoint::deserializeType<ContainerT>(
     buf1->getBuffer(), std::get<1>(s1)
   );
   auto& t1 = *tptr;
@@ -104,7 +104,7 @@ static void testContainer(bool is_ordered, std::initializer_list<T> lst) {
 }
 
 TYPED_TEST_P(TestContainer, test_single_ordered_container) {
-  using namespace serdes;
+  using namespace checkpoint;
 
   using ContainerT = TypeParam;
   using ValueT = typename ContainerT::value_type;
@@ -115,7 +115,7 @@ TYPED_TEST_P(TestContainer, test_single_ordered_container) {
 }
 
 TYPED_TEST_P(TestContainerUnordered, test_single_unordered_container) {
-  using namespace serdes;
+  using namespace checkpoint;
 
   using ContainerT = TypeParam;
   using ValueT = typename ContainerT::value_type;
@@ -170,10 +170,10 @@ TYPED_TEST_CASE_P(TestMultiContainerUnordered);
 template <typename ContainerT, typename Pair>
 static void testMultiContainer(bool is_ordered, std::initializer_list<Pair> lst) {
   ContainerT c1{lst};
-  auto s1 = serdes::serializeType(c1);
+  auto s1 = checkpoint::serializeType(c1);
   auto const& buf1 = std::get<0>(s1);
 
-  auto tptr = serdes::deserializeType<ContainerT>(
+  auto tptr = checkpoint::deserializeType<ContainerT>(
     buf1->getBuffer(), std::get<1>(s1)
   );
   auto& t1 = *tptr;
@@ -190,7 +190,7 @@ static void testMultiContainer(bool is_ordered, std::initializer_list<Pair> lst)
 }
 
 TYPED_TEST_P(TestMultiContainer, test_multi_container) {
-  using namespace serdes;
+  using namespace checkpoint;
 
   using ContainerT = TypeParam;
   using ValueT = typename ContainerT::value_type;
@@ -207,7 +207,7 @@ TYPED_TEST_P(TestMultiContainer, test_multi_container) {
 }
 
 TYPED_TEST_P(TestMultiContainerUnordered, test_multi_container_unordered) {
-  using namespace serdes;
+  using namespace checkpoint;
 
   using ContainerT = TypeParam;
   using ValueT = typename ContainerT::value_type;
@@ -267,4 +267,4 @@ INSTANTIATE_TYPED_TEST_CASE_P(TestMultiDouble_int64_t, TestMultiContainerUnorder
 INSTANTIATE_TYPED_TEST_CASE_P(TestMultiDouble_int16_t, TestMultiContainerUnordered, ContainerMultiTypesUnorderedDouble<int16_t>);
 INSTANTIATE_TYPED_TEST_CASE_P(TestMultiDouble_float, TestMultiContainerUnordered, ContainerMultiTypesUnorderedDouble<float>);
 
-}}} // end namespace serdes::tests::unit
+}}} // end namespace checkpoint::tests::unit

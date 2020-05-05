@@ -55,7 +55,7 @@
 
 #if HAS_DETECTION_COMPONENT
 
-namespace serdes {
+namespace checkpoint {
 
 template <typename T>
 struct SerializerTraits {
@@ -83,7 +83,7 @@ struct SerializerTraits {
     and has_isPacking::value and has_isUnpacking::value;
 };
 
-}  // end namespace serdes
+}  // end namespace checkpoint
 
 #endif  /*HAS_DETECTION_COMPONENT*/
 

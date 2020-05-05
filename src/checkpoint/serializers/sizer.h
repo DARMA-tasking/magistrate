@@ -48,7 +48,7 @@
 #include "checkpoint/common.h"
 #include "checkpoint/serializers/base_serializer.h"
 
-namespace serdes {
+namespace checkpoint {
 
 struct Sizer : Serializer {
   Sizer();
@@ -60,6 +60,6 @@ private:
   SerialSizeType num_bytes_ = 0;
 };
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_SERIALIZERS_SIZER_H*/

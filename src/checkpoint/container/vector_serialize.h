@@ -50,7 +50,7 @@
 
 #include <vector>
 
-namespace serdes {
+namespace checkpoint {
 
 template <typename Serializer, typename T, typename VectorAllocator>
 void serializeVectorMeta(Serializer& s, std::vector<T, VectorAllocator>& vec) {
@@ -95,6 +95,6 @@ void parserdes(Serializer& s, std::vector<T, VectorAllocator>& vec) {
   parserdesArray(s, &vec[0], vec.size());
 }
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_VECTOR_SERIALIZE_H*/

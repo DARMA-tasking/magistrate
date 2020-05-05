@@ -70,9 +70,9 @@ struct UserObject1 {
 
 } // end namespace userTest
 
-SERDES_BYTES(::userTest::UserObject1)
+CHECKPOINT_BYTES(::userTest::UserObject1)
 
-namespace serdes { namespace tests { namespace unit {
+namespace checkpoint { namespace tests { namespace unit {
 
 struct TestByteMacro : TestHarness { };
 
@@ -94,4 +94,4 @@ TEST_F(TestByteMacro, test_bytecopy_trait) {
   t_final.check();
 }
 
-}}} // end namespace serdes::tests::unit
+}}} // end namespace checkpoint::tests::unit

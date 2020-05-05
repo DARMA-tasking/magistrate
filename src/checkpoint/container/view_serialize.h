@@ -51,7 +51,7 @@
 #include "checkpoint/container/view_traverse_manual.h"
 #include "checkpoint/container/view_traverse_ndim.h"
 
-#if KOKKOS_ENABLED_SERDES
+#if KOKKOS_ENABLED_CHECKPOINT
 
 #include <Kokkos_Core.hpp>
 #include <Kokkos_View.hpp>
@@ -72,7 +72,7 @@
 #include <tuple>
 #include <type_traits>
 
-#define SERDES_DEBUG_ENABLED 0
+#define CHECKPOINT_DEBUG_ENABLED 0
 #define CHECKPOINT_KOKKOS_PACK_LAYOUT 1
 
 // I am shutting the n-dim traversal off by default for now, due to the extra
@@ -80,18 +80,18 @@
 // compiler versions
 #define CHECKPOINT_KOKKOS_NDIM_TRAVERSE 0
 
-#if SERDES_DEBUG_ENABLED
-  #define DEBUG_PRINT_SERDES(ser, str, ...) do {                     \
+#if CHECKPOINT_DEBUG_ENABLED
+  #define DEBUG_PRINT_CHECKPOINT(ser, str, ...) do {                     \
       auto state = ser.isUnpacking() ? "Unpacking" : (               \
         ser.isSizing()               ? "Sizing"    : (               \
         ser.isPacking()              ? "Packing"   : "Invalid"));    \
         printf("mode=%s: " str, state,  __VA_ARGS__);                \
     } while (0);
 #else
-  #define DEBUG_PRINT_SERDES(str, ...)
+  #define DEBUG_PRINT_CHECKPOINT(str, ...)
 #endif
 
-namespace serdes {
+namespace checkpoint {
 
 /*
  * Serialization factory re-constructors for views taking a parameter pack for
@@ -165,7 +165,7 @@ inline std::string serializeViewLabel(SerializerT& s, ViewT& view) {
   std::string view_label = view.label();
   s | view_label;
 
-  DEBUG_PRINT_SERDES(s, "serializeViewLabel: label=%s\n", view_label.c_str());
+  DEBUG_PRINT_CHECKPOINT(s, "serializeViewLabel: label=%s\n", view_label.c_str());
 
   return view_label;
 }
@@ -196,7 +196,7 @@ inline void serialize(
   s | max_extent;
   s | view_size;
 
-  DEBUG_PRINT_SERDES(
+  DEBUG_PRINT_CHECKPOINT(
     s, "label=%s: chunk_size=%zu, max_extent=%zu, view_size=%zu\n",
     label.c_str(), chunk_size, max_extent, view_size
   );
@@ -213,7 +213,7 @@ inline void serialize(
     view.resize_serial(view_size);
   }
 
-  DEBUG_PRINT_SERDES(s, "label=%s: size=%zu\n", label.c_str(), view.size());
+  DEBUG_PRINT_CHECKPOINT(s, "label=%s: size=%zu\n", label.c_str(), view.size());
 
   // Serialize the Kokkos::DynamicView data manually by traversing with
   // DynamicView::operator()(...).
@@ -315,7 +315,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
   bool is_contig = view.span_is_contiguous();
   s | is_contig;
 
-  DEBUG_PRINT_SERDES(
+  DEBUG_PRINT_CHECKPOINT(
     s, "label=%s: contig=%s, size=%zu, rt_dim=%d\n",
     label.c_str(), is_contig ? "true" : "false", num_elms, rt_dim
   );
@@ -436,8 +436,8 @@ inline void serialize( Serializer &s, KokkosSparse::CrsMatrix<T, Ts...> &matrix 
 }
 #endif
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
-#endif /*KOKKOS_ENABLED_SERDES*/
+#endif /*KOKKOS_ENABLED_CHECKPOINT*/
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_VIEW_SERIALIZE_H*/

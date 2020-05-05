@@ -48,7 +48,7 @@
 #include "checkpoint/common.h"
 #include "checkpoint/dispatch/dispatch.h"
 
-namespace serdes {
+namespace checkpoint {
 
 template <typename T>
 SerialSizeType Dispatch<T>::sizeType(T& to_size) {
@@ -215,12 +215,12 @@ inline void parserdesArray(Serializer& s, T* array, SerialSizeType const num_elm
 template <typename T>
 SerializedReturnType serializeType(T& to_serialize, BufferObtainFnType fn) {
   SerialSizeType size = Dispatch<T>::sizeType(to_serialize);
-  debug_serdes("serializeType: size=%ld\n", size);
+  debug_checkpoint("serializeType: size=%ld\n", size);
   SerialByteType* user_buf = fn ? fn(size) : nullptr;
   auto managed = Dispatch<T>::packType(to_serialize, size, user_buf);
-  #if DEBUG_SERDES
+  #if DEBUG_CHECKPOINT
     auto const& buf = managed->getBuffer();
-    debug_serdes(
+    debug_checkpoint(
       "serializeType: buf=%p, size=%ld: val=%d\n",
       buf, size, *reinterpret_cast<int*>(buf)
     );
@@ -233,11 +233,11 @@ SerializedReturnType serializeTypePartial(
   T& to_serialize, BufferObtainFnType fn
 ) {
   SerialSizeType size = Dispatch<T>::sizeTypePartial(to_serialize);
-  debug_serdes("serializeTypePartial: size=%ld\n", size);
+  debug_checkpoint("serializeTypePartial: size=%ld\n", size);
   SerialByteType* user_buf = fn ? fn(size) : nullptr;
   auto managed = Dispatch<T>::packTypePartial(to_serialize, size, user_buf);
   auto const& buf = managed->getBuffer();
-  debug_serdes(
+  debug_checkpoint(
     "serializeType (partial): buf=%p, size=%ld: val=%d\n",
     buf, size, *reinterpret_cast<int*>(buf)
   );
@@ -275,6 +275,6 @@ std::size_t sizeType(T& target) {
   return Dispatch<T>::sizeType(target);
 }
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_IMPL_H*/

@@ -49,7 +49,7 @@
 #include "checkpoint/serializers/serializers_headers.h"
 #include "checkpoint/container/view_traits_extract.h"
 
-#if KOKKOS_ENABLED_SERDES
+#if KOKKOS_ENABLED_CHECKPOINT
 
 #include <Kokkos_Core.hpp>
 #include <Kokkos_View.hpp>
@@ -62,7 +62,7 @@
 #include <type_traits>
 #include <cstdlib>
 
-namespace serdes { namespace detail {
+namespace checkpoint { namespace detail {
 
 /*
  * Traversal of data backing a view by recursively traversing each dimension and
@@ -255,9 +255,9 @@ struct DefaultRecurOP {
   bool operator()(U, T, T) const { assert(0); return false; /* to avoid warning */ }
 };
 
-}} /* end namespace serdes::detail */
+}} /* end namespace checkpoint::detail */
 
-namespace serdes {
+namespace checkpoint {
 
 template <
   typename ViewT, typename T, unsigned nd,
@@ -272,8 +272,8 @@ struct TraverseRecursive {
   }
 };
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
-#endif /*KOKKOS_ENABLED_SERDES*/
+#endif /*KOKKOS_ENABLED_CHECKPOINT*/
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_VIEW_TRAVERSE_NDIM_H*/

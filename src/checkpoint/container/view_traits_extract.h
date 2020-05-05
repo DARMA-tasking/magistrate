@@ -48,7 +48,7 @@
 #include "checkpoint/common.h"
 #include "checkpoint/serializers/serializers_headers.h"
 
-#if KOKKOS_ENABLED_SERDES
+#if KOKKOS_ENABLED_CHECKPOINT
 
 #include <Kokkos_Core.hpp>
 #include <Kokkos_View.hpp>
@@ -59,7 +59,7 @@
 #include <tuple>
 #include <type_traits>
 
-namespace serdes {
+namespace checkpoint {
 
 /*
  * Serialization helper classes to count the number of runtime and static
@@ -112,8 +112,8 @@ struct CountDims<ViewType, T[N]> {
   }
 };
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
-#endif /*KOKKOS_ENABLED_SERDES*/
+#endif /*KOKKOS_ENABLED_CHECKPOINT*/
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_VIEW_TRAITS_EXTRACT_H*/

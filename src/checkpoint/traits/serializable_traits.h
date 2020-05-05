@@ -62,7 +62,7 @@
  * serialization
  */
 
-namespace serdes {
+namespace checkpoint {
 
 template <typename T>
 void reconstruct(T) { assert(0); }
@@ -201,7 +201,7 @@ struct SerializableTraits {
     has_parserdes and not has_serialize_function;
 };
 
-}  // end namespace serdes
+}  // end namespace checkpoint
 
 #endif  /*HAS_DETECTION_COMPONENT*/
 

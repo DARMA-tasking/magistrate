@@ -51,7 +51,7 @@
 #include "checkpoint/container/view_traverse_manual.h"
 #include "checkpoint/container/view_traverse_ndim.h"
 
-#if KOKKOS_ENABLED_SERDES
+#if KOKKOS_ENABLED_CHECKPOINT
 
 #include <Kokkos_Core.hpp>
 #include <Kokkos_View.hpp>
@@ -73,7 +73,7 @@
  * then return false if the eq operator returns false. This enables ViewEquality
  * to terminate when it find inequality deep in the stack.
  */
-#define SERDES_APPLY_OP(eq, opA, opB, reveal)                           \
+#define CHECKPOINT_APPLY_OP(eq, opA, opB, reveal)                           \
   do {                                                                  \
     if (!eq(opA,opB)) {                                                 \
       std::cout << "Failure on equal op: "                              \
@@ -113,7 +113,7 @@ std::basic_ostream<Ch, Tr>& operator<<(
 
 } /* end namespace std */
 
-namespace serdes { namespace detail {
+namespace checkpoint { namespace detail {
 
 /*
  * Impl class in detail for comparing static to dynamic extents on a single view
@@ -126,37 +126,37 @@ struct ViewEqualityStatic {
   template <typename T, unsigned N, unsigned M, typename... Args>
   bool operator()(Kokkos::View<T*[N][M],Args...> const& v, Callable eq) {
     using ExtentType = decltype(v.extent(1));
-    SERDES_APPLY_OP(eq, v.extent(1), static_cast<ExtentType>(N), N);
-    SERDES_APPLY_OP(eq, v.extent(2), static_cast<ExtentType>(M), M);
+    CHECKPOINT_APPLY_OP(eq, v.extent(1), static_cast<ExtentType>(N), N);
+    CHECKPOINT_APPLY_OP(eq, v.extent(2), static_cast<ExtentType>(M), M);
     return true;
   }
 
   template <typename T, unsigned N, unsigned M, typename... Args>
   bool operator()(Kokkos::View<T[N][M],Args...> const& v, Callable eq) {
     using ExtentType = decltype(v.extent(1));
-    SERDES_APPLY_OP(eq, v.extent(0), static_cast<ExtentType>(N), N);
-    SERDES_APPLY_OP(eq, v.extent(1), static_cast<ExtentType>(M), M);
+    CHECKPOINT_APPLY_OP(eq, v.extent(0), static_cast<ExtentType>(N), N);
+    CHECKPOINT_APPLY_OP(eq, v.extent(1), static_cast<ExtentType>(M), M);
     return true;
   }
 
   template <typename T, unsigned N, typename... Args>
   bool operator()(Kokkos::View<T**[N],Args...> const& v, Callable eq) {
     using ExtentType = decltype(v.extent(1));
-    SERDES_APPLY_OP(eq, v.extent(2), static_cast<ExtentType>(N), N);
+    CHECKPOINT_APPLY_OP(eq, v.extent(2), static_cast<ExtentType>(N), N);
     return true;
   }
 
   template <typename T, unsigned N, typename... Args>
   bool operator()(Kokkos::View<T*[N],Args...> const& v, Callable eq) {
     using ExtentType = decltype(v.extent(1));
-    SERDES_APPLY_OP(eq, v.extent(1), static_cast<ExtentType>(N), N);
+    CHECKPOINT_APPLY_OP(eq, v.extent(1), static_cast<ExtentType>(N), N);
     return true;
   }
 
   template <typename T, unsigned N, typename... Args>
   bool operator()(Kokkos::View<T[N],Args...> const& v, Callable eq) {
     using ExtentType = decltype(v.extent(1));
-    SERDES_APPLY_OP(eq, v.extent(0), static_cast<ExtentType>(N), N);
+    CHECKPOINT_APPLY_OP(eq, v.extent(0), static_cast<ExtentType>(N), N);
     return true;
   }
 
@@ -183,9 +183,9 @@ struct DefaultEQ {
   }
 };
 
-}} /* end namespace serdes::detail */
+}} /* end namespace checkpoint::detail */
 
-namespace serdes {
+namespace checkpoint {
 
 /*
  *==============================================================================
@@ -195,7 +195,7 @@ namespace serdes {
  *
  *   ========== Example w/default equality operator: =================
  *
- *     serdes::ViewEquality<ViewT>::compare(view1,view2);
+ *     checkpoint::ViewEquality<ViewT>::compare(view1,view2);
  *
  *   ========== Example w/user-specified equality operator: ==========
  *
@@ -206,7 +206,7 @@ namespace serdes {
  *       }
  *     };
  *
- *     serdes::ViewEquality<ViewT>::template compare<EqFunctor>(view1,view2);
+ *     checkpoint::ViewEquality<ViewT>::template compare<EqFunctor>(view1,view2);
  *
  *  Note: if you specify your own equality functor, it needs to handle l-values
  *  and r-values based on how ViewEquality uses it (so use a universal reference
@@ -222,8 +222,8 @@ namespace serdes {
 
 template <typename ViewT, typename ViewU = ViewT>
 struct ViewEquality {
-  using DataType     = typename serdes::ViewGetType<ViewT>::DataType;
-  using CountDimType = serdes::CountDims<ViewT>;
+  using DataType     = typename checkpoint::ViewGetType<ViewT>::DataType;
+  using CountDimType = checkpoint::CountDims<ViewT>;
   using BaseType     = typename CountDimType::BaseT;
 
   /*
@@ -280,9 +280,9 @@ struct ViewEquality {
   static bool compareExtents(ViewT const& v1, ViewU const& v2, EqT eq = {}) {
     auto const ndims_v1 = CountDims<ViewT>::numDims(v1);
     auto const ndims_v2 = CountDims<ViewU>::numDims(v2);
-    SERDES_APPLY_OP(eq, ndims_v1, ndims_v2, "num dims equal");
+    CHECKPOINT_APPLY_OP(eq, ndims_v1, ndims_v2, "num dims equal");
     for (auto i = 0; i < ndims_v1; i++) {
-      SERDES_APPLY_OP(eq, v1.extent(i), v2.extent(i), i);
+      CHECKPOINT_APPLY_OP(eq, v1.extent(i), v2.extent(i), i);
     }
     return true;
   }
@@ -292,10 +292,10 @@ struct ViewEquality {
    */
   template <typename EqT = detail::DefaultEQ>
   static bool compareMeta(ViewT const& v1, ViewU const& v2, EqT eq = {}) {
-    SERDES_APPLY_OP(eq, v1.label(),              v2.label(), "label");
-    SERDES_APPLY_OP(eq, v1.size(),               v2.size(), "size");
-    SERDES_APPLY_OP(eq, v1.span_is_contiguous(), v2.span_is_contiguous(), "contig");
-    SERDES_APPLY_OP(eq, v1.span(),               v2.span(), "span");
+    CHECKPOINT_APPLY_OP(eq, v1.label(),              v2.label(), "label");
+    CHECKPOINT_APPLY_OP(eq, v1.size(),               v2.size(), "size");
+    CHECKPOINT_APPLY_OP(eq, v1.span_is_contiguous(), v2.span_is_contiguous(), "contig");
+    CHECKPOINT_APPLY_OP(eq, v1.span(),               v2.span(), "span");
     return true;
   }
 
@@ -307,7 +307,7 @@ struct ViewEquality {
    */
   template <typename EqT = detail::DefaultEQ>
   static bool compareData(ViewT const& v1, ViewU const& v2, EqT eq) {
-    using serdes::TraverseRecursive;
+    using checkpoint::TraverseRecursive;
 
     using TupleType     = std::tuple<ViewT,ViewT>;
 
@@ -322,7 +322,7 @@ struct ViewEquality {
     auto fn = [eq](IndexType index, BaseType& elm1, BaseType& elm2){
       auto const is_equal = eq(elm1,elm2);
       if (!is_equal) {
-        SERDES_APPLY_OP(eq, elm1, elm2, index);
+        CHECKPOINT_APPLY_OP(eq, elm1, elm2, index);
       }
       return is_equal;
     };
@@ -338,8 +338,8 @@ struct ViewEquality {
 
 };
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
-#endif /*KOKKOS_ENABLED_SERDES*/
+#endif /*KOKKOS_ENABLED_CHECKPOINT*/
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_VIEW_EQUALITY_H*/

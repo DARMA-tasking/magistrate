@@ -52,7 +52,7 @@
 #include <tuple>
 #include <cstdlib>
 
-namespace serdes {
+namespace checkpoint {
 
 template <typename SerializerT, typename T>
 struct DeserializerDispatch {
@@ -86,7 +86,7 @@ struct DeserializerDispatch {
     SerializerT& s, void* buf,
     isDefaultConsType<U>* __attribute__((unused)) x = nullptr
   ) {
-    debug_serdes("DeserializerDispatch: default constructor: buf=%p\n", buf);
+    debug_checkpoint("DeserializerDispatch: default constructor: buf=%p\n", buf);
     T* t_ptr = new (buf) T{};
     auto& t = *t_ptr;
     return t;
@@ -98,7 +98,7 @@ struct DeserializerDispatch {
     SerializerT& s, void* buf,
     isReconstructibleType<U>*  __attribute__((unused)) x = nullptr
   ) {
-    debug_serdes("DeserializerDispatch: T::reconstruct(): buf=%p\n", buf);
+    debug_checkpoint("DeserializerDispatch: T::reconstruct(): buf=%p\n", buf);
     return T::reconstruct(buf);
   }
   #endif
@@ -108,13 +108,13 @@ struct DeserializerDispatch {
     SerializerT& s, void* buf,
     isNonIntReconstructibleType<U>*  __attribute__((unused)) x = nullptr
   ) {
-    debug_serdes("DeserializerDispatch: non-int reconstruct(): buf=%p\n", buf);
+    debug_checkpoint("DeserializerDispatch: non-int reconstruct(): buf=%p\n", buf);
     T* t = nullptr;
     reconstruct(s,t,buf);
     return *t;
   }
 };
 
-} //end namespace serdes
+} //end namespace checkpoint
 
 #endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_DESERIALIZER_H*/

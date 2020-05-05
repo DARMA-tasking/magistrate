@@ -51,7 +51,7 @@
 #include <tuple>
 #include <utility>
 
-namespace serdes {
+namespace checkpoint {
 
 template <typename Serializer, typename... T, size_t... Idxs>
 void tuple_helper(Serializer& s, std::tuple<T...>& tup, std::index_sequence<Idxs...>) {
@@ -93,6 +93,6 @@ void parserdes(Serializer& s, std::pair<T, U>& pair) {
 }
 
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_TUPLE_SERIALIZE_H*/

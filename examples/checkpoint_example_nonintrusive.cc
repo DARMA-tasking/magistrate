@@ -46,7 +46,7 @@
 
 #include <cstdio>
 
-namespace serdes { namespace examples {
+namespace checkpoint { namespace examples {
 
 struct MyTest3 {
   int a = 1, b = 2 , c = 3;
@@ -63,22 +63,22 @@ void serialize(Serializer& s, MyTest3& my_test3) {
   s | my_test3.c;
 }
 
-}} // end namespace serdes::examples
+}} // end namespace checkpoint::examples
 
 int main(int, char**) {
-  using namespace serdes::examples;
+  using namespace checkpoint::examples;
 
   MyTest3 my_test3;
   my_test3.print();
 
-  auto serialized = serdes::serializeType<MyTest3>(my_test3);
+  auto serialized = checkpoint::serializeType<MyTest3>(my_test3);
 
   auto const& buf = std::get<0>(serialized);
   auto const& buf_size = std::get<1>(serialized);
 
   printf("ptr=%p, size=%ld\n", static_cast<void*>(buf->getBuffer()), buf_size);
 
-  auto tptr = serdes::deserializeType<MyTest3>(buf->getBuffer(), buf_size);
+  auto tptr = checkpoint::deserializeType<MyTest3>(buf->getBuffer(), buf_size);
   auto& t = *tptr;
 
   t.print();

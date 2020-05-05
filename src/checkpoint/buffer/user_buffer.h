@@ -48,7 +48,7 @@
 #include "checkpoint/common.h"
 #include "checkpoint/buffer/buffer.h"
 
-namespace serdes {
+namespace checkpoint {
 
 struct UserBuffer : Buffer {
   UserBuffer(SerialByteType* ptr, SerialSizeType const& size)
@@ -69,6 +69,6 @@ private:
   SerialByteType* buffer_ = nullptr;
 };
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_BUFFER_USER_BUFFER_H*/

@@ -45,11 +45,11 @@
 #include <checkpoint/checkpoint.h>
 #include "checkpoint/dispatch/dispatch_virtual.h"
 
-namespace serdes {
+namespace checkpoint {
 
   namespace examples {
 
-    struct MyBase : serdes::SerializableBase<MyBase> {
+    struct MyBase : checkpoint::SerializableBase<MyBase> {
       MyBase() { printf("MyBase cons\n"); }
       explicit MyBase(SERIALIZE_CONSTRUCT_TAG) { printf("MyBase recons\n"); }
 
@@ -64,7 +64,7 @@ namespace serdes {
       virtual void test() = 0;
     };
 
-    struct MyObj : serdes::SerializableDerived<MyObj, MyBase> {
+    struct MyObj : checkpoint::SerializableDerived<MyObj, MyBase> {
       explicit MyObj(int val) { printf("MyObj cons\n"); val_ = val;}
       explicit MyObj(SERIALIZE_CONSTRUCT_TAG){}
 
@@ -79,7 +79,7 @@ namespace serdes {
       }
     };
 
-    struct MyObj2 : serdes::SerializableDerived<MyObj2, MyBase> {
+    struct MyObj2 : checkpoint::SerializableDerived<MyObj2, MyBase> {
       explicit MyObj2(int val) { printf("MyObj2 cons\n"); val_=val; }
       explicit MyObj2(SERIALIZE_CONSTRUCT_TAG) {}
 
@@ -93,7 +93,7 @@ namespace serdes {
       }
     };
 
-    struct MyObj3 : serdes::SerializableDerived<MyObj3, MyBase> {
+    struct MyObj3 : checkpoint::SerializableDerived<MyObj3, MyBase> {
       int a=0, b=0, c=0;
       explicit MyObj3(int val) { printf("MyObj3 cons\n"); a= 10; b=20; c=100; val_=val;}
       explicit MyObj3(SERIALIZE_CONSTRUCT_TAG) {}
@@ -114,7 +114,7 @@ namespace serdes {
 
     /*
      * Example vector that holds virtual elements. User calls
-     * `serdes::virtualSerialize(elm, s)` instead of `s | elm`
+     * `checkpoint::virtualSerialize(elm, s)` instead of `s | elm`
      */
 
     struct ExampleVector {
@@ -126,7 +126,7 @@ namespace serdes {
         vec.resize(size);
 
         for (auto& elm : vec) {
-          serdes::virtualSerialize(elm, s);
+          checkpoint::virtualSerialize(elm, s);
         }
       }
 
@@ -140,24 +140,24 @@ namespace serdes {
       v.vec.push_back(new MyObj2(20));
       v.vec.push_back(new MyObj(10));
 
-      auto ret = serdes::serializeType<ExampleVector>(v);
+      auto ret = checkpoint::serializeType<ExampleVector>(v);
 
       auto const& buf = std::get<0>(ret);
       auto const& buf_size = std::get<1>(ret);
 
       printf("ptr=%p, size=%ld\n*****\n\n", static_cast<void*>(buf->getBuffer()), buf_size);
 
-      auto tptr = serdes::deserializeType<ExampleVector>(buf->getBuffer(), buf_size);
+      auto tptr = checkpoint::deserializeType<ExampleVector>(buf->getBuffer(), buf_size);
       auto& t = *tptr;
 
       for (auto elm : t.vec)
         elm->test();
     }
 
-  }} // end namespace serdes::examples
+  }} // end namespace checkpoint::examples
 
 int main(int, char**) {
-  using namespace serdes::examples;
+  using namespace checkpoint::examples;
 
   test();
 

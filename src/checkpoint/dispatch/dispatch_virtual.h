@@ -51,7 +51,7 @@
 #include <tuple>
 #include <functional>
 
-namespace serdes {
+namespace checkpoint {
   using AutoHandlerType = int;
 
   struct SERIALIZE_CONSTRUCT_TAG {};
@@ -88,7 +88,7 @@ namespace serdes {
     auto& reg = getRegistry<BaseType>();
     index = reg.size();
 
-    debug_serdes("registrar: %ld, %s\n", reg.size(), typeid(ObjT).name());
+    debug_checkpoint("registrar: %ld, %s\n", reg.size(), typeid(ObjT).name());
 
     reg.emplace_back(
                      std::make_tuple(
@@ -103,7 +103,7 @@ namespace serdes {
 
   template <typename T>
   inline auto getObjIdx(AutoHandlerType han) {
-    debug_serdes("getObjIdx: han=%d, size=%ld\n", han, getRegistry<T>().size());
+    debug_checkpoint("getObjIdx: han=%d, size=%ld\n", han, getRegistry<T>().size());
     return getRegistry<T>().at(han);
   }
 
@@ -135,25 +135,25 @@ namespace serdes {
 
     template <typename SerializerT>
     void serialize(SerializerT& s) {
-      debug_serdes("SerializableDerived:: serialize\n");
+      debug_checkpoint("SerializableDerived:: serialize\n");
       BaseT::serialize(s);
     }
 
-    void doSerialize(serdes::Serializer* s) override {
+    void doSerialize(checkpoint::Serializer* s) override {
       AutoHandlerType entry = makeObjIdx<DerivedT>();
 
       if (s->isSizing()) {
-        auto& ss = *static_cast<serdes::Sizer*>(s);
+        auto& ss = *static_cast<checkpoint::Sizer*>(s);
         ss | entry;
         ss | *this;
         ss | (*static_cast<DerivedT*>(this));
       } else if (s->isPacking()) {
-        auto& sp = *static_cast<serdes::Packer*>(s);
+        auto& sp = *static_cast<checkpoint::Packer*>(s);
         sp | entry;
         sp | *this;
         sp | (*static_cast<DerivedT*>(this));
       } else if (s->isUnpacking()) {
-        auto& su = *static_cast<serdes::Unpacker*>(s);
+        auto& su = *static_cast<checkpoint::Unpacker*>(s);
         // entry was read out in virtualSerialize to reconstruct the object
         su | *this;
         su | (*static_cast<DerivedT*>(this));
@@ -176,7 +176,7 @@ namespace serdes {
    */
   template <typename BaseT>
   struct SerializableBase : SerializableBaseBase {
-    virtual void doSerialize(serdes::Serializer*)  = 0;
+    virtual void doSerialize(checkpoint::Serializer*)  = 0;
   };
 
   /**
@@ -194,7 +194,7 @@ namespace serdes {
       AutoHandlerType entry = -1;
       // Peek to see the type of the next element, get the right constructor
       s | entry;
-      debug_serdes("entry=%d\n", entry);
+      debug_checkpoint("entry=%d\n", entry);
       auto lam = getObjIdx<BaseT>(entry);
       auto ptr = std::get<1>(lam)();
       base = ptr;
@@ -202,6 +202,6 @@ namespace serdes {
     base->doSerialize(&s);
   }
 
-} // namespace serdes
+} // namespace checkpoint
 
 #endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_VIRTUAL_H*/

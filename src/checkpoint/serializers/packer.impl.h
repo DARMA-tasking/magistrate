@@ -51,7 +51,7 @@
 
 #include <cstring>
 
-namespace serdes {
+namespace checkpoint {
 
 template <typename BufferT>
 PackerBuffer<BufferT>::PackerBuffer(SerialSizeType const& in_size)
@@ -59,7 +59,7 @@ PackerBuffer<BufferT>::PackerBuffer(SerialSizeType const& in_size)
      buffer_(std::make_unique<BufferT>(size_))
 {
   MemorySerializer::initializeBuffer(buffer_->getBuffer());
-  debug_serdes(
+  debug_checkpoint(
     "PackerBuffer: size=%ld, start_=%p, cur_=%p\n", size_, start_, cur_
   );
 }
@@ -71,7 +71,7 @@ PackerBuffer<BufferT>::PackerBuffer(
     buffer_(std::move(buf_ptr))
 {
   MemorySerializer::initializeBuffer(buffer_->getBuffer());
-  debug_serdes(
+  debug_checkpoint(
     "PackerBuffer: size=%ld, start_=%p, cur_=%p\n", size_, start_, cur_
   );
 }
@@ -88,7 +88,7 @@ template <typename BufferT>
 void PackerBuffer<BufferT>::contiguousBytes(
   void* ptr, SerialSizeType size, SerialSizeType num_elms
 ) {
-  debug_serdes(
+  debug_checkpoint(
     "PackerBuffer: offset=%ld, size=%ld, num_elms=%ld, ptr=%p, cur_=%p, val=%d\n",
     cur_ - start_, size_, num_elms, ptr, cur_, *reinterpret_cast<int*>(ptr)
   );
@@ -105,6 +105,6 @@ void PackerBuffer<BufferT>::contiguousBytes(
   #pragma GCC diagnostic pop
 }
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_SERIALIZERS_PACKER_IMPL_H*/

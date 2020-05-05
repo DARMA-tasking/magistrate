@@ -50,7 +50,7 @@
 
 #include <memory>
 
-namespace serdes {
+namespace checkpoint {
 
 using SerializedInfo = ::serialization::interface::SerializedInfo;
 
@@ -64,6 +64,6 @@ using SerializedType = std::tuple<SerialByteType*, SerialSizeType>;
 using BufferPtrType = std::unique_ptr<Buffer>;
 using SerializedReturnType = std::tuple<BufferPtrType, SerialSizeType>;
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_BUFFER_BUFFER_H*/

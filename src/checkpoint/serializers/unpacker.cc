@@ -49,12 +49,12 @@
 #include <cstdlib>
 #include <cstring>
 
-namespace serdes {
+namespace checkpoint {
 
 Unpacker::Unpacker(SerialByteType* buf, SerialSizeType const& size)
   : MemorySerializer(ModeType::Unpacking, buf)
 {
-  debug_serdes("Unpacker: size=%ld, start_=%p, cur_=%p\n", size, start_, cur_);
+  debug_checkpoint("Unpacker: size=%ld, start_=%p, cur_=%p\n", size, start_, cur_);
 }
 
 void Unpacker::contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms) {
@@ -63,4 +63,4 @@ void Unpacker::contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType nu
   std::memcpy(ptr, spot, len);
 }
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */

@@ -46,7 +46,7 @@
 
 #include <cstdio>
 
-namespace serdes { namespace examples {
+namespace checkpoint { namespace examples {
 
 struct TestReconstruct {
   int a = 29;
@@ -92,12 +92,12 @@ struct TestNoSerialize {
   int a = 29;
 };
 
-}} // end namespace serdes::examples
+}} // end namespace checkpoint::examples
 
 #if HAS_DETECTION_COMPONENT
   #include "checkpoint/traits/serializable_traits.h"
 
-  namespace serdes {
+  namespace checkpoint {
 
   using namespace examples;
 
@@ -118,7 +118,7 @@ struct TestNoSerialize {
     "Should not be serializable"
   );
 
-  } // end namespace serdes
+  } // end namespace checkpoint
 #endif
 
 int main(int, char**) {

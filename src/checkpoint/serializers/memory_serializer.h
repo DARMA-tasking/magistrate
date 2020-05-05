@@ -48,7 +48,7 @@
 #include "checkpoint/common.h"
 #include "checkpoint/serializers/base_serializer.h"
 
-namespace serdes {
+namespace checkpoint {
 
 struct MemorySerializer : Serializer {
   MemorySerializer(ModeType const& in_mode, SerialByteType* in_start)
@@ -81,6 +81,6 @@ protected:
   SerialByteType* cur_ = nullptr;
 };
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_SERIALIZERS_MEMORY_SERIALIZER_H*/

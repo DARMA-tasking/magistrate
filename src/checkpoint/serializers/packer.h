@@ -51,7 +51,7 @@
 #include "checkpoint/buffer/managed_buffer.h"
 #include "checkpoint/buffer/user_buffer.h"
 
-namespace serdes {
+namespace checkpoint {
 
 template <typename BufferT>
 struct PackerBuffer : MemorySerializer {
@@ -75,7 +75,7 @@ private:
 using Packer = PackerBuffer<ManagedBuffer>;
 using PackerUserBuf = PackerBuffer<UserBuffer>;
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
 #include "checkpoint/serializers/packer.impl.h"
 

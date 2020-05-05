@@ -50,7 +50,7 @@
 #include <type_traits>
 #include <cstdlib>
 
-namespace serdes {
+namespace checkpoint {
 
 enum struct eSerializationMode : int8_t {
   None = 0,
@@ -82,6 +82,6 @@ protected:
   ModeType cur_mode_ = ModeType::Invalid;
 };
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H*/

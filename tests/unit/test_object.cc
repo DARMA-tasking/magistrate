@@ -52,7 +52,7 @@
 #include <vector>
 #include <cstdio>
 
-namespace serdes { namespace tests { namespace unit {
+namespace checkpoint { namespace tests { namespace unit {
 
 struct TestObject : TestHarness { };
 
@@ -160,4 +160,4 @@ TEST_F(TestObject, test_bytecopy_trait) {
   t_final.check();
 }
 
-}}} // end namespace serdes::tests::unit
+}}} // end namespace checkpoint::tests::unit
