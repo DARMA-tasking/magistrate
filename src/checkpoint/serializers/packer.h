@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                             serdes_example_3.cc
+//                                   packer.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,86 +42,41 @@
 //@HEADER
 */
 
-#include "checkpoint/serdes_headers.h"
+#if !defined INCLUDED_SERDES_PACKER
+#define INCLUDED_SERDES_PACKER
 
-#include <cstdio>
+#include "checkpoint/serdes_common.h"
+#include "checkpoint/serializers/memory_serializer.h"
+#include "checkpoint/buffer/buffer.h"
+#include "checkpoint/buffer/managed_buffer.h"
+#include "checkpoint/buffer/user_buffer.h"
 
-namespace serdes { namespace examples {
+namespace serdes {
 
-struct TestReconstruct {
-  int a = 29;
+template <typename BufferT>
+struct PackerBuffer : MemorySerializer {
+  using BufferTPtrType = std::unique_ptr<BufferT>;
+  using PackerReturnType = std::tuple<BufferTPtrType, SerialSizeType>;
 
-  TestReconstruct(int const) { }
-  TestReconstruct() = delete;
+  PackerBuffer(SerialSizeType const& in_size);
+  PackerBuffer(SerialSizeType const& in_size, BufferTPtrType buf_ptr);
 
-  static TestReconstruct& reconstruct(void* buf) {
-    auto a = new (buf) TestReconstruct(100);
-    return *a;
-  }
+  void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms);
+  BufferTPtrType extractPackedBuffer();
 
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
+private:
+  // Size of the buffer we are packing (Sizer should have run already)
+  SerialSizeType const size_;
+
+  // The abstract buffer that may manage the memory in various ways
+  BufferTPtrType buffer_ = nullptr;
 };
 
-struct TestShouldFailReconstruct {
-  int a = 29;
+using Packer = PackerBuffer<ManagedBuffer>;
+using PackerUserBuf = PackerBuffer<UserBuffer>;
 
-  TestShouldFailReconstruct(int const) { }
-  TestShouldFailReconstruct() = delete;
+} /* end namespace serdes */
 
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
-};
+#include "packer.impl.h"
 
-struct TestDefaultCons {
-  int a = 29;
-
-  TestDefaultCons() = default;
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
-};
-
-struct TestNoSerialize {
-  int a = 29;
-};
-
-}} // end namespace serdes::examples
-
-#if HAS_DETECTION_COMPONENT
-  #include "checkpoint/traits/serializable_traits.h"
-
-  namespace serdes {
-
-  using namespace examples;
-
-  static_assert(
-    SerializableTraits<TestReconstruct>::is_serializable,
-    "Should be serializable"
-  );
-  static_assert(
-    ! SerializableTraits<TestShouldFailReconstruct>::is_serializable,
-    "Should not be serializable"
-  );
-  static_assert(
-    SerializableTraits<TestDefaultCons>::is_serializable,
-    "Should be serializable"
-  );
-  static_assert(
-    ! SerializableTraits<TestNoSerialize>::is_serializable,
-    "Should not be serializable"
-  );
-
-  } // end namespace serdes
-#endif
-
-int main(int, char**) {
-  // Example is a compile-time test of serializability traits
-  return 0;
-}
+#endif /*INCLUDED_SERDES_PACKER*/

@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                             serdes_example_3.cc
+//                                 unpacker.cc
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,86 +42,26 @@
 //@HEADER
 */
 
-#include "checkpoint/serdes_headers.h"
+#include "checkpoint/serdes_common.h"
+#include "checkpoint/serializers/memory_serializer.h"
+#include "checkpoint/serializers/unpacker.h"
 
-#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
-namespace serdes { namespace examples {
+namespace serdes {
 
-struct TestReconstruct {
-  int a = 29;
-
-  TestReconstruct(int const) { }
-  TestReconstruct() = delete;
-
-  static TestReconstruct& reconstruct(void* buf) {
-    auto a = new (buf) TestReconstruct(100);
-    return *a;
-  }
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
-};
-
-struct TestShouldFailReconstruct {
-  int a = 29;
-
-  TestShouldFailReconstruct(int const) { }
-  TestShouldFailReconstruct() = delete;
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
-};
-
-struct TestDefaultCons {
-  int a = 29;
-
-  TestDefaultCons() = default;
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
-};
-
-struct TestNoSerialize {
-  int a = 29;
-};
-
-}} // end namespace serdes::examples
-
-#if HAS_DETECTION_COMPONENT
-  #include "checkpoint/traits/serializable_traits.h"
-
-  namespace serdes {
-
-  using namespace examples;
-
-  static_assert(
-    SerializableTraits<TestReconstruct>::is_serializable,
-    "Should be serializable"
-  );
-  static_assert(
-    ! SerializableTraits<TestShouldFailReconstruct>::is_serializable,
-    "Should not be serializable"
-  );
-  static_assert(
-    SerializableTraits<TestDefaultCons>::is_serializable,
-    "Should be serializable"
-  );
-  static_assert(
-    ! SerializableTraits<TestNoSerialize>::is_serializable,
-    "Should not be serializable"
-  );
-
-  } // end namespace serdes
-#endif
-
-int main(int, char**) {
-  // Example is a compile-time test of serializability traits
-  return 0;
+Unpacker::Unpacker(SerialByteType* buf, SerialSizeType const& size)
+  : MemorySerializer(ModeType::Unpacking, buf)
+{
+  debug_serdes("Unpacker: size=%ld, start_=%p, cur_=%p\n", size, start_, cur_);
 }
+
+void Unpacker::contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms) {
+  SerialSizeType const len = size * num_elms;
+  SerialByteType* spot = this->getSpotIncrement(len);
+  std::memcpy(ptr, spot, len);
+}
+
+} /* end namespace serdes */
+

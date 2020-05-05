@@ -42,7 +42,7 @@
 //@HEADER
 */
 
-#include "serdes_headers.h"
+#include "checkpoint/serdes_headers.h"
 
 #include <cstdio>
 

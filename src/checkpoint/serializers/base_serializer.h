@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                             serdes_example_3.cc
+//                              base_serializer.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,86 +42,46 @@
 //@HEADER
 */
 
-#include "checkpoint/serdes_headers.h"
+#if !defined INCLUDED_SERDES_BASE_SERIALIZER
+#define INCLUDED_SERDES_BASE_SERIALIZER
 
-#include <cstdio>
+#include "checkpoint/serdes_common.h"
 
-namespace serdes { namespace examples {
+#include <type_traits>
+#include <cstdlib>
 
-struct TestReconstruct {
-  int a = 29;
+namespace serdes {
 
-  TestReconstruct(int const) { }
-  TestReconstruct() = delete;
-
-  static TestReconstruct& reconstruct(void* buf) {
-    auto a = new (buf) TestReconstruct(100);
-    return *a;
-  }
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
+enum struct eSerializationMode : int8_t {
+  None = 0,
+  Unpacking = 1,
+  Packing = 2,
+  Sizing = 3,
+  Invalid = -1
 };
 
-struct TestShouldFailReconstruct {
-  int a = 29;
+struct Serializer {
+  using ModeType = eSerializationMode;
 
-  TestShouldFailReconstruct(int const) { }
-  TestShouldFailReconstruct() = delete;
+  explicit Serializer(ModeType const& in_mode) : cur_mode_(in_mode) {}
 
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
+  ModeType getMode() const { return cur_mode_; }
+  bool isSizing() const { return cur_mode_ == ModeType::Sizing; }
+  bool isPacking() const { return cur_mode_ == ModeType::Packing; }
+  bool isUnpacking() const { return cur_mode_ == ModeType::Unpacking; }
+
+  template <typename SerializerT, typename T>
+  static void contiguousTyped(SerializerT& serdes, T* ptr, SerialSizeType num_elms) {
+    serdes.contiguousBytes(static_cast<void*>(ptr), sizeof(T), num_elms);
   }
+
+  SerialByteType* getBuffer() const { return nullptr; }
+  SerialByteType* getSpotIncrement(SerialSizeType const inc) { return nullptr; }
+
+protected:
+  ModeType cur_mode_ = ModeType::Invalid;
 };
 
-struct TestDefaultCons {
-  int a = 29;
+} /* end namespace serdes */
 
-  TestDefaultCons() = default;
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
-};
-
-struct TestNoSerialize {
-  int a = 29;
-};
-
-}} // end namespace serdes::examples
-
-#if HAS_DETECTION_COMPONENT
-  #include "checkpoint/traits/serializable_traits.h"
-
-  namespace serdes {
-
-  using namespace examples;
-
-  static_assert(
-    SerializableTraits<TestReconstruct>::is_serializable,
-    "Should be serializable"
-  );
-  static_assert(
-    ! SerializableTraits<TestShouldFailReconstruct>::is_serializable,
-    "Should not be serializable"
-  );
-  static_assert(
-    SerializableTraits<TestDefaultCons>::is_serializable,
-    "Should be serializable"
-  );
-  static_assert(
-    ! SerializableTraits<TestNoSerialize>::is_serializable,
-    "Should not be serializable"
-  );
-
-  } // end namespace serdes
-#endif
-
-int main(int, char**) {
-  // Example is a compile-time test of serializability traits
-  return 0;
-}
+#endif /*INCLUDED_SERDES_BASE_SERIALIZER*/

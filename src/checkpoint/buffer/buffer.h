@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                             serdes_example_3.cc
+//                                   buffer.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,86 +42,28 @@
 //@HEADER
 */
 
-#include "checkpoint/serdes_headers.h"
+#if !defined INCLUDED_SERDES_BUFFER
+#define INCLUDED_SERDES_BUFFER
 
-#include <cstdio>
+#include "checkpoint/serdes_common.h"
+#include "checkpoint/serialize_interface.h"
 
-namespace serdes { namespace examples {
+#include <memory>
 
-struct TestReconstruct {
-  int a = 29;
+namespace serdes {
 
-  TestReconstruct(int const) { }
-  TestReconstruct() = delete;
+using SerializedInfo = ::serialization::interface::SerializedInfo;
 
-  static TestReconstruct& reconstruct(void* buf) {
-    auto a = new (buf) TestReconstruct(100);
-    return *a;
-  }
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
+struct Buffer : SerializedInfo {
+  virtual SerialByteType* getBuffer() const = 0;
+  virtual SerialSizeType getSize() const = 0;
+  virtual ~Buffer() { }
 };
 
-struct TestShouldFailReconstruct {
-  int a = 29;
+using SerializedType = std::tuple<SerialByteType*, SerialSizeType>;
+using BufferPtrType = std::unique_ptr<Buffer>;
+using SerializedReturnType = std::tuple<BufferPtrType, SerialSizeType>;
 
-  TestShouldFailReconstruct(int const) { }
-  TestShouldFailReconstruct() = delete;
+} /* end namespace serdes */
 
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
-};
-
-struct TestDefaultCons {
-  int a = 29;
-
-  TestDefaultCons() = default;
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
-};
-
-struct TestNoSerialize {
-  int a = 29;
-};
-
-}} // end namespace serdes::examples
-
-#if HAS_DETECTION_COMPONENT
-  #include "checkpoint/traits/serializable_traits.h"
-
-  namespace serdes {
-
-  using namespace examples;
-
-  static_assert(
-    SerializableTraits<TestReconstruct>::is_serializable,
-    "Should be serializable"
-  );
-  static_assert(
-    ! SerializableTraits<TestShouldFailReconstruct>::is_serializable,
-    "Should not be serializable"
-  );
-  static_assert(
-    SerializableTraits<TestDefaultCons>::is_serializable,
-    "Should be serializable"
-  );
-  static_assert(
-    ! SerializableTraits<TestNoSerialize>::is_serializable,
-    "Should not be serializable"
-  );
-
-  } // end namespace serdes
-#endif
-
-int main(int, char**) {
-  // Example is a compile-time test of serializability traits
-  return 0;
-}
+#endif /*INCLUDED_SERDES_BUFFER*/

@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                             serdes_example_3.cc
+//                              vector_serialize.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,86 +42,59 @@
 //@HEADER
 */
 
-#include "checkpoint/serdes_headers.h"
+#if !defined INCLUDED_SERDES_VECTOR_SERIALIZE
+#define INCLUDED_SERDES_VECTOR_SERIALIZE
 
-#include <cstdio>
+#include "checkpoint/serdes_common.h"
+#include "checkpoint/serializers/serializers_headers.h"
 
-namespace serdes { namespace examples {
+#include <vector>
 
-struct TestReconstruct {
-  int a = 29;
+namespace serdes {
 
-  TestReconstruct(int const) { }
-  TestReconstruct() = delete;
-
-  static TestReconstruct& reconstruct(void* buf) {
-    auto a = new (buf) TestReconstruct(100);
-    return *a;
-  }
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
-};
-
-struct TestShouldFailReconstruct {
-  int a = 29;
-
-  TestShouldFailReconstruct(int const) { }
-  TestShouldFailReconstruct() = delete;
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
-};
-
-struct TestDefaultCons {
-  int a = 29;
-
-  TestDefaultCons() = default;
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
-};
-
-struct TestNoSerialize {
-  int a = 29;
-};
-
-}} // end namespace serdes::examples
-
-#if HAS_DETECTION_COMPONENT
-  #include "checkpoint/traits/serializable_traits.h"
-
-  namespace serdes {
-
-  using namespace examples;
-
-  static_assert(
-    SerializableTraits<TestReconstruct>::is_serializable,
-    "Should be serializable"
-  );
-  static_assert(
-    ! SerializableTraits<TestShouldFailReconstruct>::is_serializable,
-    "Should not be serializable"
-  );
-  static_assert(
-    SerializableTraits<TestDefaultCons>::is_serializable,
-    "Should be serializable"
-  );
-  static_assert(
-    ! SerializableTraits<TestNoSerialize>::is_serializable,
-    "Should not be serializable"
-  );
-
-  } // end namespace serdes
-#endif
-
-int main(int, char**) {
-  // Example is a compile-time test of serializability traits
-  return 0;
+template <typename Serializer, typename T, typename VectorAllocator>
+void serializeVectorMeta(Serializer& s, std::vector<T, VectorAllocator>& vec) {
+  SerialSizeType vec_size = vec.size();
+  s | vec_size;
+  vec.resize(vec_size);
 }
+
+template <typename Serializer, typename T, typename VectorAllocator>
+void serialize(Serializer& s, std::vector<T, VectorAllocator>& vec) {
+  serializeVectorMeta(s, vec);
+  serializeArray(s, &vec[0], vec.size());
+}
+
+template <typename Serializer, typename VectorAllocator>
+void serialize(Serializer& s, std::vector<bool, VectorAllocator>& vec) {
+  serializeVectorMeta(s, vec);
+
+  if (!s.isUnpacking()) {
+    for (bool elt : vec) {
+      s | elt;
+    }
+  } else {
+    for (size_t i = 0; i < vec.size(); ++i) {
+      bool elt;
+      s | elt;
+      vec[i] = elt;
+    }
+  }
+}
+
+template <typename Serializer, typename T, typename VectorAllocator>
+void parserdesVectorMeta(Serializer& s, std::vector<T, VectorAllocator>& vec) {
+  SerialSizeType vec_size = vec.size();
+  s & vec_size;
+  vec.resize(vec_size);
+}
+
+template <typename Serializer, typename T, typename VectorAllocator>
+void parserdes(Serializer& s, std::vector<T, VectorAllocator>& vec) {
+  parserdesVectorMeta(s, vec);
+  parserdesArray(s, &vec[0], vec.size());
+}
+
+} /* end namespace serdes */
+
+#endif /*INCLUDED_SERDES_VECTOR_SERIALIZE*/

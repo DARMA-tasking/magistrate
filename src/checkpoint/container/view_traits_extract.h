@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                             serdes_example_3.cc
+//                            view_traits_extract.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,86 +42,78 @@
 //@HEADER
 */
 
-#include "checkpoint/serdes_headers.h"
+#if !defined INCLUDED_CONTAINER_VIEW_TRAITS_EXTRACT_H
+#define INCLUDED_CONTAINER_VIEW_TRAITS_EXTRACT_H
 
-#include <cstdio>
+#include "checkpoint/serdes_common.h"
+#include "checkpoint/serializers/serializers_headers.h"
 
-namespace serdes { namespace examples {
+#if KOKKOS_ENABLED_SERDES
 
-struct TestReconstruct {
-  int a = 29;
+#include <Kokkos_Core.hpp>
+#include <Kokkos_View.hpp>
+#include <Kokkos_DynamicView.hpp>
+#include <Kokkos_Serial.hpp>
 
-  TestReconstruct(int const) { }
-  TestReconstruct() = delete;
+#include <utility>
+#include <tuple>
+#include <type_traits>
 
-  static TestReconstruct& reconstruct(void* buf) {
-    auto a = new (buf) TestReconstruct(100);
-    return *a;
-  }
+namespace serdes {
 
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
+/*
+ * Serialization helper classes to count the number of runtime and static
+ * dimensions of a Kokkos::View
+ */
+
+// This shouldn't be necessary but I can't find the correct trait to extract in
+// Kokkos::View, so I will manually extract the underlying data type
+template <typename ViewType>
+struct ViewGetType;
+
+template <typename T, typename... Args>
+struct ViewGetType<Kokkos::View<T,Args...>> {
+  using DataType = T;
+};
+
+template <typename T, typename... Args>
+struct ViewGetType<Kokkos::Experimental::DynamicView<T,Args...>> {
+  using DataType = T;
+};
+
+template <
+  typename ViewType,
+  typename T = typename ViewGetType<ViewType>::DataType
+>
+struct CountDims {
+  using BaseT = typename std::decay<T>::type;
+  static constexpr size_t dynamic = 0;
+  static int numDims(ViewType const& view) { return 0; }
+};
+
+template <typename ViewType, typename T>
+struct CountDims<ViewType, T*> {
+  using BaseT = typename CountDims<ViewType,T>::BaseT;
+  static constexpr size_t dynamic = CountDims<ViewType, T>::dynamic + 1;
+
+  static int numDims(ViewType const& view) {
+    auto const val = CountDims<ViewType, T>::numDims(view);
+    return val + 1;
   }
 };
 
-struct TestShouldFailReconstruct {
-  int a = 29;
-
-  TestShouldFailReconstruct(int const) { }
-  TestShouldFailReconstruct() = delete;
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
+template <typename ViewType, typename T, size_t N>
+struct CountDims<ViewType, T[N]> {
+  using BaseT = typename CountDims<ViewType,T>::BaseT;
+  static constexpr size_t dynamic = CountDims<ViewType, T>::dynamic;
+  static int numDims(ViewType const& view) {
+    auto const val = CountDims<ViewType, T>::numDims(view);
+    return val + 1;
   }
 };
 
-struct TestDefaultCons {
-  int a = 29;
+} /* end namespace serdes */
 
-  TestDefaultCons() = default;
+#endif /*KOKKOS_ENABLED_SERDES*/
 
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
-};
-
-struct TestNoSerialize {
-  int a = 29;
-};
-
-}} // end namespace serdes::examples
-
-#if HAS_DETECTION_COMPONENT
-  #include "checkpoint/traits/serializable_traits.h"
-
-  namespace serdes {
-
-  using namespace examples;
-
-  static_assert(
-    SerializableTraits<TestReconstruct>::is_serializable,
-    "Should be serializable"
-  );
-  static_assert(
-    ! SerializableTraits<TestShouldFailReconstruct>::is_serializable,
-    "Should not be serializable"
-  );
-  static_assert(
-    SerializableTraits<TestDefaultCons>::is_serializable,
-    "Should be serializable"
-  );
-  static_assert(
-    ! SerializableTraits<TestNoSerialize>::is_serializable,
-    "Should not be serializable"
-  );
-
-  } // end namespace serdes
-#endif
-
-int main(int, char**) {
-  // Example is a compile-time test of serializability traits
-  return 0;
-}
+#endif /*INCLUDED_CONTAINER_VIEW_TRAITS_EXTRACT_H*/

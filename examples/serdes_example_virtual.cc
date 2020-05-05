@@ -42,8 +42,8 @@
 //@HEADER
 */
 
-#include "serdes_headers.h"
-#include "dispatch/dispatch_virtual.h"
+#include "checkpoint/serdes_headers.h"
+#include "checkpoint/dispatch/dispatch_virtual.h"
 
 namespace serdes {
 

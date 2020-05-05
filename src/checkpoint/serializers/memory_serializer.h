@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                             serdes_example_3.cc
+//                             memory_serializer.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,86 +42,45 @@
 //@HEADER
 */
 
-#include "checkpoint/serdes_headers.h"
+#if !defined INCLUDED_SERDES_MEMORY_SERDES
+#define INCLUDED_SERDES_MEMORY_SERDES
 
-#include <cstdio>
+#include "checkpoint/serdes_common.h"
+#include "checkpoint/serializers/base_serializer.h"
 
-namespace serdes { namespace examples {
+namespace serdes {
 
-struct TestReconstruct {
-  int a = 29;
+struct MemorySerializer : Serializer {
+  MemorySerializer(ModeType const& in_mode, SerialByteType* in_start)
+    : Serializer(in_mode), start_(in_start), cur_(in_start)
+  { }
 
-  TestReconstruct(int const) { }
-  TestReconstruct() = delete;
+  explicit MemorySerializer(ModeType const& in_mode)
+    : Serializer(in_mode)
+  { }
 
-  static TestReconstruct& reconstruct(void* buf) {
-    auto a = new (buf) TestReconstruct(100);
-    return *a;
+  SerialByteType* getBuffer() const {
+    return start_;
   }
 
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
+  void initializeBuffer(SerialByteType* const ptr) {
+    start_ = cur_ = ptr;
   }
-};
 
-struct TestShouldFailReconstruct {
-  int a = 29;
-
-  TestShouldFailReconstruct(int const) { }
-  TestShouldFailReconstruct() = delete;
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
+  SerialByteType* getSpotIncrement(SerialSizeType const inc) {
+    SerialByteType* spot = cur_;
+    cur_ += inc;
+    return spot;
   }
+
+protected:
+  // The start of the memory buffer to serialize into or out of
+  SerialByteType* start_ = nullptr;
+
+  // The current location of the memory buffer for the next call
+  SerialByteType* cur_ = nullptr;
 };
 
-struct TestDefaultCons {
-  int a = 29;
+} /* end namespace serdes */
 
-  TestDefaultCons() = default;
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
-};
-
-struct TestNoSerialize {
-  int a = 29;
-};
-
-}} // end namespace serdes::examples
-
-#if HAS_DETECTION_COMPONENT
-  #include "checkpoint/traits/serializable_traits.h"
-
-  namespace serdes {
-
-  using namespace examples;
-
-  static_assert(
-    SerializableTraits<TestReconstruct>::is_serializable,
-    "Should be serializable"
-  );
-  static_assert(
-    ! SerializableTraits<TestShouldFailReconstruct>::is_serializable,
-    "Should not be serializable"
-  );
-  static_assert(
-    SerializableTraits<TestDefaultCons>::is_serializable,
-    "Should be serializable"
-  );
-  static_assert(
-    ! SerializableTraits<TestNoSerialize>::is_serializable,
-    "Should not be serializable"
-  );
-
-  } // end namespace serdes
-#endif
-
-int main(int, char**) {
-  // Example is a compile-time test of serializability traits
-  return 0;
-}
+#endif /*INCLUDED_SERDES_MEMORY_SERDES*/

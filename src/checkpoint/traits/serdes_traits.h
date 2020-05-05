@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                             serdes_example_3.cc
+//                               serdes_traits.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,86 +42,49 @@
 //@HEADER
 */
 
-#include "checkpoint/serdes_headers.h"
+#if ! defined INCLUDED_SERDES_SERIALIZER_TRAITS
+#define INCLUDED_SERDES_SERIALIZER_TRAITS
 
-#include <cstdio>
+#include <cstdint>
 
-namespace serdes { namespace examples {
-
-struct TestReconstruct {
-  int a = 29;
-
-  TestReconstruct(int const) { }
-  TestReconstruct() = delete;
-
-  static TestReconstruct& reconstruct(void* buf) {
-    auto a = new (buf) TestReconstruct(100);
-    return *a;
-  }
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
-};
-
-struct TestShouldFailReconstruct {
-  int a = 29;
-
-  TestShouldFailReconstruct(int const) { }
-  TestShouldFailReconstruct() = delete;
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
-};
-
-struct TestDefaultCons {
-  int a = 29;
-
-  TestDefaultCons() = default;
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
-};
-
-struct TestNoSerialize {
-  int a = 29;
-};
-
-}} // end namespace serdes::examples
+#include "checkpoint/serdes_common.h"
 
 #if HAS_DETECTION_COMPONENT
-  #include "checkpoint/traits/serializable_traits.h"
+#include "detector_headers.h"
+#endif  /*HAS_DETECTION_COMPONENT*/
 
-  namespace serdes {
+#if HAS_DETECTION_COMPONENT
 
-  using namespace examples;
+namespace serdes {
 
-  static_assert(
-    SerializableTraits<TestReconstruct>::is_serializable,
-    "Should be serializable"
-  );
-  static_assert(
-    ! SerializableTraits<TestShouldFailReconstruct>::is_serializable,
-    "Should not be serializable"
-  );
-  static_assert(
-    SerializableTraits<TestDefaultCons>::is_serializable,
-    "Should be serializable"
-  );
-  static_assert(
-    ! SerializableTraits<TestNoSerialize>::is_serializable,
-    "Should not be serializable"
-  );
+template <typename T>
+struct SerializerTraits {
+  template <typename U>
+  using contiguousBytes_t = decltype(std::declval<U>().contiguousBytes(
+    std::declval<void*>(), std::declval<SizeType>(), std::declval<SizeType>()
+  ));
+  using has_contiguousBytes = detection::is_detected<contiguousBytes_t, T>;
 
-  } // end namespace serdes
-#endif
+  template <typename U>
+  using isSizing_t = decltype(std::declval<U>().isSizing());
+  using has_isSizing = detection::is_detected_convertible<bool, isSizing_t, T>;
 
-int main(int, char**) {
-  // Example is a compile-time test of serializability traits
-  return 0;
-}
+  template <typename U>
+  using isPacking_t = decltype(std::declval<U>().isPacking());
+  using has_isPacking = detection::is_detected_convertible<bool, isPacking_t, T>;
+
+  template <typename U>
+  using isUnpacking_t = decltype(std::declval<U>().isUnpacking());
+  using has_isUnpacking = detection::is_detected_convertible<bool, isUnpacking_t, T>;
+
+  // This defines what it means to be reconstructible
+  static constexpr auto const is_valid_serializer =
+    has_contiguousBytes::value and has_isSizing::value
+    and has_isPacking::value and has_isUnpacking::value;
+};
+
+}  // end namespace serdes
+
+#endif  /*HAS_DETECTION_COMPONENT*/
+
+#endif  /*INCLUDED_SERDES_SERIALIZER_TRAITS*/
