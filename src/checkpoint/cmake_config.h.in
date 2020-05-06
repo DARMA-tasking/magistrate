@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                   common.h
+//                              cmake_config.h.in
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,34 +42,10 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_COMMON_H
-#define INCLUDED_CHECKPOINT_COMMON_H
+#if !defined INCLUDED_CHECKPOINT_CMAKE_CONFIG_H_IN
+#define INCLUDED_CHECKPOINT_CMAKE_CONFIG_H_IN
 
-#include <cmake_config.h>
+#cmakedefine checkpoint_has_fallocate
+#cmakedefine checkpoint_has_mmap64
 
-#define DEBUG_CHECKPOINT 0
-
-#if DEBUG_CHECKPOINT
-#define debug_checkpoint(...)            \
-  do {                                          \
-    printf(__VA_ARGS__);             \
-  } while (0);
-#include <cstdio>
-#else
-#define debug_checkpoint(...)
-#endif
-
-#include <cstdlib>
-#include <cstdint>
-#include <functional>
-
-namespace checkpoint {
-
-using SerialSizeType = size_t;
-using SerialByteType = char;
-
-using BufferObtainFnType = std::function<SerialByteType*(SerialSizeType size)>;
-
-} /* end namespace checkpoint */
-
-#endif /*INCLUDED_CHECKPOINT_COMMON_H*/
+#endif /*INCLUDED_CHECKPOINT_CMAKE_CONFIG_H_IN*/
