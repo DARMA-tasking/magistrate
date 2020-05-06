@@ -65,8 +65,8 @@ SerializedReturnType serialize(T& target, BufferCallbackType fn) {
 }
 
 template <typename T>
-T* deserialize(char* buf, T* user_buf) {
-  return dispatch::deserializeType<T>(buf, user_buf);
+T* deserialize(char* buf, char* object_buf) {
+  return dispatch::deserializeType<T>(buf, object_buf);
 }
 
 template <typename T>

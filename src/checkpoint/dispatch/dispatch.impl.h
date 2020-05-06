@@ -154,10 +154,9 @@ buffer::ImplReturnType serializeType(T& to_serialize, BufferObtainFnType fn) {
 }
 
 template <typename T>
-T* deserializeType(SerialByteType* data, T* allocBuf) {
-  auto mem = allocBuf ?
-    reinterpret_cast<SerialByteType*>(allocBuf) : new SerialByteType[sizeof(T)];
-  auto& t = Dispatch<T>::unpackType(mem, data);
+T* deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
+  auto mem = allocBuf ? allocBuf : new SerialByteType[sizeof(T)];
+  auto& t = Dispatch<T>::unpackType(mem, data, false);
   return &t;
 }
 

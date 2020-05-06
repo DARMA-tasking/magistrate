@@ -95,7 +95,7 @@ SerializedReturnType serialize(T& target, BufferCallbackType fn = nullptr);
  * deallocated with \c delete
  *
  * \param[in] buf the buffer containing the bytes to reify \c T
- * \param[in] user_buf (optional) buffer containing bytes allocated with
+ * \param[in] object_buf (optional) buffer containing bytes allocated with
  * sufficient size for \c T. If this buffer is passed, the caller is responsible
  * for deallocating the buffer. If it is not passed, the system will allocate a
  * buffer that must be de-allocated with \c delete
@@ -103,7 +103,7 @@ SerializedReturnType serialize(T& target, BufferCallbackType fn = nullptr);
  * \return a pointer to the newly reified \c T based on bytes in \c buf
  */
 template <typename T>
-T* deserialize(char* buf, T* user_buf = nullptr);
+T* deserialize(char* buf, char* object_buf = nullptr);
 
 /**
  * \brief De-serialize and reify \c T from a byte buffer and corresponding \c

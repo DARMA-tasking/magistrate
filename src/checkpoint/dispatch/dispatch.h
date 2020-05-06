@@ -85,7 +85,7 @@ buffer::ImplReturnType serializeType(
 );
 
 template <typename T>
-T* deserializeType(SerialByteType* data, T* allocBuf = nullptr);
+T* deserializeType(SerialByteType* data, SerialByteType* allocBuf = nullptr);
 
 template <typename T>
 void deserializeType(InPlaceTag, SerialByteType* data, T* t);
