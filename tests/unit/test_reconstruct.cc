@@ -207,7 +207,7 @@ struct UserObjectD {
  */
 
 TYPED_TEST_P(TestReconstruct, test_reconstruct_multi_type) {
-  namespace ser = serialization::interface;
+  namespace ser = checkpoint;
 
   using TestType = TypeParam;
 

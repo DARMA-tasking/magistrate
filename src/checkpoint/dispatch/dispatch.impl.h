@@ -213,7 +213,7 @@ inline void parserdesArray(Serializer& s, T* array, SerialSizeType const num_elm
 }
 
 template <typename T>
-SerializedReturnType serializeType(T& to_serialize, BufferObtainFnType fn) {
+ImplReturnType serializeType(T& to_serialize, BufferObtainFnType fn) {
   SerialSizeType size = Dispatch<T>::sizeType(to_serialize);
   debug_checkpoint("serializeType: size=%ld\n", size);
   SerialByteType* user_buf = fn ? fn(size) : nullptr;
@@ -229,7 +229,7 @@ SerializedReturnType serializeType(T& to_serialize, BufferObtainFnType fn) {
 }
 
 template <typename T>
-SerializedReturnType serializeTypePartial(
+ImplReturnType serializeTypePartial(
   T& to_serialize, BufferObtainFnType fn
 ) {
   SerialSizeType size = Dispatch<T>::sizeTypePartial(to_serialize);

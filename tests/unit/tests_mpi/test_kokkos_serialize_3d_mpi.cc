@@ -51,7 +51,7 @@ template <typename ParamT> struct KokkosViewTest3DMPI : KokkosViewTest<ParamT> {
 TYPED_TEST_CASE_P(KokkosViewTest3DMPI);
 
 TYPED_TEST_P(KokkosViewTest3DMPI, test_3d_any) {
-  using namespace serialization::interface;
+  using namespace checkpoint;
 
   using LayoutType = typename std::tuple_element<1,TypeParam>::type;
   using DataType   = typename std::tuple_element<0,TypeParam>::type;

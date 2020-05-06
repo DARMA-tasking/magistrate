@@ -52,7 +52,7 @@
 
 #include <memory>
 
-namespace serialization { namespace interface {
+namespace checkpoint {
 
 template <typename T>
 SerializedReturnType serialize(T& target, BufferCallbackType fn) {
@@ -99,6 +99,6 @@ std::size_t getSize(T& target) {
   return ::checkpoint::sizeType<T>(target);
 }
 
-}} /* end namespace serialization::interface */
+} /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CHECKPOINT_API_IMPL_H*/

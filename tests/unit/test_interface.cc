@@ -59,7 +59,7 @@ namespace checkpoint { namespace tests { namespace unit {
 struct TestInterface : TestHarness { };
 
 TEST_F(TestInterface, test_serialize) {
-  using namespace ::serialization::interface;
+  using namespace ::checkpoint;
 
   using TestType = std::vector<int>;
   TestType vec{1,2,3,100,200};
@@ -70,13 +70,13 @@ TEST_F(TestInterface, test_serialize) {
     }
   #endif
 
-  auto ret = serialization::interface::serialize<TestType>(vec);
+  auto ret = checkpoint::serialize<TestType>(vec);
 
   #if TEST_INTERFACE_DEBUG_PRINT
     printf("buffer=%p, size=%ld\n", ret->getBuffer(), ret->getSize());
   #endif
 
-  auto vec_ptr = serialization::interface::deserialize<TestType>(
+  auto vec_ptr = checkpoint::deserialize<TestType>(
     ret->getBuffer(), ret->getSize()
   );
   auto& des_vec = *vec_ptr;

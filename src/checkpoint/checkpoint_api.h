@@ -49,7 +49,7 @@
 #include <functional>
 #include <memory>
 
-namespace serialization { namespace interface {
+namespace checkpoint {
 
 using SizeType = size_t;
 using SerialByteType = char;
@@ -86,6 +86,6 @@ T* deserializePartial(SerialByteType* buf, SizeType size, T* user_buf = nullptr)
 template <typename T>
 std::size_t getSize(T& target);
 
-}} /* end namespace serialization::interface */
+} /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CHECKPOINT_API_H*/

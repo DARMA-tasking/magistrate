@@ -65,18 +65,18 @@ struct ByteCopyStruct {
 };
 
 TEST_F(TestByteCopyTrait, test_bytecopy_trait) {
-  using namespace ::serialization::interface;
+  using namespace ::checkpoint;
 
   using TestType = ByteCopyStruct;
   TestType t{100,200};
 
-  auto ret = serialization::interface::serialize<TestType>(t);
+  auto ret = checkpoint::serialize<TestType>(t);
 
   #if TEST_BYTE_DEBUG_PRINT
     printf("buffer=%p, size=%ld\n", ret->getBuffer(), ret->getSize());
   #endif
 
-  auto tptr = serialization::interface::deserialize<TestType>(
+  auto tptr = checkpoint::deserialize<TestType>(
     ret->getBuffer(), ret->getSize()
   );
   (void)tptr;

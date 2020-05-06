@@ -77,16 +77,16 @@ namespace checkpoint { namespace tests { namespace unit {
 struct TestByteMacro : TestHarness { };
 
 TEST_F(TestByteMacro, test_bytecopy_trait) {
-  using namespace ::serialization::interface;
+  using namespace ::checkpoint;
 
   using TestType = ::userTest::UserObject1;
   TestType t;
   t.init();
   t.check();
 
-  auto ret = serialization::interface::serialize<TestType>(t);
+  auto ret = checkpoint::serialize<TestType>(t);
 
-  auto tptr = serialization::interface::deserialize<TestType>(
+  auto tptr = checkpoint::deserialize<TestType>(
     ret->getBuffer(), ret->getSize()
   );
   auto& t_final = *tptr;

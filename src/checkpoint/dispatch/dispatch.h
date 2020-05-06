@@ -99,7 +99,7 @@ template <typename Serializer, typename T>
 inline void parserdesArray(Serializer& s, T* array, SerialSizeType const num_elms);
 
 template <typename T>
-SerializedReturnType serializeType(
+ImplReturnType serializeType(
   T& to_serialize, BufferObtainFnType fn = nullptr
 );
 
@@ -112,7 +112,7 @@ template <typename T>
 void deserializeType(InPlaceTag, SerialByteType* data, SerialSizeType sz, T* t);
 
 template <typename T>
-SerializedReturnType serializeTypePartial(
+ImplReturnType serializeTypePartial(
   T& to_serialize, BufferObtainFnType fn = nullptr
 );
 

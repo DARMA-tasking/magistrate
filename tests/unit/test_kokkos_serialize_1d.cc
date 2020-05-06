@@ -51,7 +51,7 @@ template <typename ParamT> struct KokkosViewTest1D : KokkosViewTest<ParamT> { };
 TYPED_TEST_CASE_P(KokkosViewTest1D);
 
 TYPED_TEST_P(KokkosViewTest1D, test_1d_any) {
-  using namespace serialization::interface;
+  using namespace checkpoint;
 
   using LayoutType = typename std::tuple_element<1,TypeParam>::type;
   using DataType   = typename std::tuple_element<0,TypeParam>::type;
@@ -100,7 +100,7 @@ struct KokkosDynamicViewTest : KokkosViewTest<ParamT> { };
 TYPED_TEST_CASE_P(KokkosDynamicViewTest);
 
 TYPED_TEST_P(KokkosDynamicViewTest, test_dynamic_1d) {
-  using namespace serialization::interface;
+  using namespace checkpoint;
 
   using DataType = TypeParam;
   using ViewType = Kokkos::Experimental::DynamicView<DataType>;

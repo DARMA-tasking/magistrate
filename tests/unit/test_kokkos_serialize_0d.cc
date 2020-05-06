@@ -52,7 +52,7 @@ template <typename ParamT> struct KokkosViewTest0D : KokkosViewTest<ParamT> { };
 TYPED_TEST_CASE_P(KokkosViewTest0D);
 
 TYPED_TEST_P(KokkosViewTest0D, test_0d_any) {
-  using namespace serialization::interface;
+  using namespace checkpoint;
 
   using DataType          = TypeParam;
   using ViewType          = Kokkos::View<DataType>;

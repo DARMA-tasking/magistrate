@@ -52,7 +52,7 @@
 
 namespace checkpoint {
 
-using SerializedInfo = ::serialization::interface::SerializedInfo;
+using SerializedInfo = ::checkpoint::SerializedInfo;
 
 struct Buffer : SerializedInfo {
   virtual SerialByteType* getBuffer() const = 0;
@@ -62,7 +62,7 @@ struct Buffer : SerializedInfo {
 
 using SerializedType = std::tuple<SerialByteType*, SerialSizeType>;
 using BufferPtrType = std::unique_ptr<Buffer>;
-using SerializedReturnType = std::tuple<BufferPtrType, SerialSizeType>;
+using ImplReturnType = std::tuple<BufferPtrType, SerialSizeType>;
 
 } /* end namespace checkpoint */
 

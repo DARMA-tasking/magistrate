@@ -162,7 +162,7 @@ struct TestFactory {
 namespace  {
 template <typename T>
 void serializeAny(T& view, std::function<void(T const&,T const&)> compare) {
-  using namespace serialization::interface;
+  using namespace checkpoint;
 
   auto ret = serialize<T>(view);
   auto out_view = deserialize<T>(ret->getBuffer(), ret->getSize());

@@ -50,7 +50,7 @@
 struct KokkosIntegrateTestMPI : KokkosBaseTest { };
 
 TEST_F(KokkosIntegrateTestMPI, test_integrate_1) {
-  using namespace serialization::interface;
+  using namespace checkpoint;
   using DataType = Data;
 
   // Init test_data, check for golden status before and after serialization
@@ -92,7 +92,7 @@ TEST_F(KokkosIntegrateTestMPI, test_integrate_1) {
 struct KokkosNullTestMPI : KokkosBaseTest { };
 
 TEST_F(KokkosNullTestMPI, test_null_1) {
-  using namespace serialization::interface;
+  using namespace checkpoint;
   using ViewType = Kokkos::View<int*>;
 
   // Default construct
