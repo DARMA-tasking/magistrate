@@ -72,31 +72,13 @@ struct Dispatch {
     SerialByteType* buf, SerialByteType* data, SerialSizeType const& size,
     bool in_place = false
   );
-
-  static SerialSizeType sizeTypePartial(T& to_size);
-  static BufferPtrType packTypePartial(
-    T& to_pack, SerialSizeType const& size, SerialByteType* buf
-  );
-  template <typename PackerT>
-  static BufferPtrType packTypeWithPackerPartial(
-    PackerT& packer, T& to_pack, SerialSizeType const& size
-  );
-  static T& unpackTypePartial(
-    SerialByteType* buf, SerialByteType* data, SerialSizeType const& size
-  );
 };
 
 template <typename Serializer, typename T>
 inline Serializer& operator|(Serializer& s, T& target);
 
 template <typename Serializer, typename T>
-inline Serializer& operator&(Serializer& s, T& target);
-
-template <typename Serializer, typename T>
 inline void serializeArray(Serializer& s, T* array, SerialSizeType const num_elms);
-
-template <typename Serializer, typename T>
-inline void parserdesArray(Serializer& s, T* array, SerialSizeType const num_elms);
 
 template <typename T>
 ImplReturnType serializeType(
@@ -110,16 +92,6 @@ T* deserializeType(
 
 template <typename T>
 void deserializeType(InPlaceTag, SerialByteType* data, SerialSizeType sz, T* t);
-
-template <typename T>
-ImplReturnType serializeTypePartial(
-  T& to_serialize, BufferObtainFnType fn = nullptr
-);
-
-template <typename T>
-T* deserializeTypePartial(
-  SerialByteType* data, SerialSizeType const& size, T* allocBuf = nullptr
-);
 
 template <typename T>
 std::size_t sizeType(T& t);

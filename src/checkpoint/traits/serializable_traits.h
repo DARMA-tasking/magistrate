@@ -101,18 +101,6 @@ struct SerializableTraits {
     decltype(std::declval<U>().serializeThis(std::declval<Serializer&>()));
   using has_serializeThis = detection::is_detected<serializeThis_t, T>;
 
-  template <typename U>
-  using parserdes_t =
-    decltype(std::declval<U>().parserdes(std::declval<Serializer&>()));
-  using has_intrusive_parserdes = detection::is_detected<parserdes_t, T>;
-
-  template <typename U>
-  using nonintrustive_parserdes_t = decltype(parserdes(
-    std::declval<Serializer&>(), std::declval<U&>()
-  ));
-  using has_nonintrustive_parserdes =
-    detection::is_detected<nonintrustive_parserdes_t, T>;
-
   using has_byteCopyTraitTrue = isByteCopyable< T >;
 
   template <typename U>
@@ -146,15 +134,6 @@ struct SerializableTraits {
 
   using has_nonintrusive_reconstruct =
     detection::is_detected<nonintrustive_reconstruct_t, T>;
-
-  // Partial serializability (intrusive)
-  static constexpr auto const has_int_parserdes = has_intrusive_parserdes::value;
-  // Partial serializability (non-intrusive)
-  static constexpr auto const has_nonint_parserdes =
-    has_nonintrustive_parserdes::value;
-
-  static constexpr auto const has_parserdes =
-    has_nonint_parserdes or has_int_parserdes;
 
   // This defines what it means to have parent serializability
   static constexpr auto const has_parent_serialize = has_serializeParent::value;
@@ -196,9 +175,6 @@ struct SerializableTraits {
   // This defines what it means to be serializable
   static constexpr auto const is_serializable =
     has_serialize_function and (is_default_constructible or is_reconstructible);
-
-  static constexpr auto const is_parserdes =
-    has_parserdes and not has_serialize_function;
 };
 
 }  // end namespace checkpoint

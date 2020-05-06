@@ -112,57 +112,6 @@ T& Dispatch<T>::unpackType(
   }
 }
 
-/* begin partial */
-template <typename T>
-SerialSizeType Dispatch<T>::sizeTypePartial(T& to_size) {
-  using DispatchT = DispatchCommon<T>;
-  using CleanT = typename DispatchT::CleanT;
-  auto val = DispatchT::clean(&to_size);
-  Sizer sizer;
-  SerializerDispatch<Sizer, CleanT> ap;
-  ap.partial(sizer, val, 1);
-  return sizer.getSize();
-}
-
-template <typename T>
-template <typename PackerT>
-BufferPtrType Dispatch<T>::packTypeWithPackerPartial(
-  PackerT& packer, T& to_pack, SerialSizeType const& size
-) {
-  using DispatchT = DispatchCommon<T>;
-  using CleanT = typename DispatchT::CleanT;
-  auto val = DispatchT::clean(&to_pack);
-  SerializerDispatch<PackerT, CleanT> ap;
-  ap.partial(packer, val, 1);
-  return packer.extractPackedBuffer();
-}
-
-template <typename T>
-BufferPtrType Dispatch<T>::packTypePartial(
-  T& to_pack, SerialSizeType const& size, SerialByteType* buf
-) {
-  if (buf == nullptr) {
-    Packer packer(size);
-    return packTypeWithPackerPartial(packer, to_pack, size);
-  } else {
-    PackerUserBuf packer(size, std::make_unique<UserBuffer>(buf, size));
-    return packTypeWithPackerPartial(packer, to_pack, size);
-  }
-}
-
-template <typename T>
-T& Dispatch<T>::unpackTypePartial(
-  SerialByteType* buf, SerialByteType* data, SerialSizeType const& size
-) {
-  using DispatchT = DispatchCommon<T>;
-  using CleanT = typename DispatchT::CleanT;
-  Unpacker unpacker(data, size);
-  SerializerDispatch<Unpacker, CleanT> ap;
-  ap.partial(unpacker, reinterpret_cast<T*>(buf), 1);
-  return *reinterpret_cast<T*>(buf);
-}
-/* end partial */
-
 template <typename Serializer, typename T>
 inline Serializer& operator|(Serializer& s, T& target) {
   using DispatchT = DispatchCommon<T>;
@@ -176,23 +125,6 @@ inline Serializer& operator|(Serializer& s, T& target) {
 }
 
 template <typename Serializer, typename T>
-inline Serializer& operator&(Serializer& s, T& target) {
-  using DispatchT = DispatchCommon<T>;
-  using CleanT = typename DispatchT::CleanT;
-  auto val = DispatchT::clean(&target);
-
-  if (s.isUnpacking()) {
-    auto target_ptr = reinterpret_cast<char*>(val);
-    T* new_target = new (target_ptr) T();
-  }
-
-  SerializerDispatch<Serializer, CleanT> ap;
-  ap.partial(s, val, 1);
-
-  return s;
-}
-
-template <typename Serializer, typename T>
 inline void serializeArray(Serializer& s, T* array, SerialSizeType const num_elms) {
   using DispatchT = DispatchCommon<T>;
   using CleanT = typename DispatchT::CleanT;
@@ -200,16 +132,6 @@ inline void serializeArray(Serializer& s, T* array, SerialSizeType const num_elm
 
   SerializerDispatch<Serializer, CleanT> ap;
   ap(s, val, num_elms);
-}
-
-template <typename Serializer, typename T>
-inline void parserdesArray(Serializer& s, T* array, SerialSizeType const num_elms) {
-  using DispatchT = DispatchCommon<T>;
-  using CleanT = typename DispatchT::CleanT;
-  auto val = DispatchT::clean(array);
-
-  SerializerDispatch<Serializer, CleanT> ap;
-  ap.partial(s, val, num_elms);
 }
 
 template <typename T>
@@ -229,22 +151,6 @@ ImplReturnType serializeType(T& to_serialize, BufferObtainFnType fn) {
 }
 
 template <typename T>
-ImplReturnType serializeTypePartial(
-  T& to_serialize, BufferObtainFnType fn
-) {
-  SerialSizeType size = Dispatch<T>::sizeTypePartial(to_serialize);
-  debug_checkpoint("serializeTypePartial: size=%ld\n", size);
-  SerialByteType* user_buf = fn ? fn(size) : nullptr;
-  auto managed = Dispatch<T>::packTypePartial(to_serialize, size, user_buf);
-  auto const& buf = managed->getBuffer();
-  debug_checkpoint(
-    "serializeType (partial): buf=%p, size=%ld: val=%d\n",
-    buf, size, *reinterpret_cast<int*>(buf)
-  );
-  return std::make_tuple(std::move(managed), size);
-}
-
-template <typename T>
 T* deserializeType(
   SerialByteType* data, SerialSizeType const& size, T* allocBuf
 ) {
@@ -258,16 +164,6 @@ template <typename T>
 void deserializeType(InPlaceTag, SerialByteType* data, SerialSizeType sz, T* t) {
   auto t_place = reinterpret_cast<SerialByteType*>(t);
   Dispatch<T>::unpackType(t_place, data, sz, true);
-}
-
-template <typename T>
-T* deserializeTypePartial(
-  SerialByteType* data, SerialSizeType const& size, T* allocBuf
-) {
-  auto mem = allocBuf ?
-    reinterpret_cast<SerialByteType*>(allocBuf) : new SerialByteType[sizeof(T)];
-  auto& t = Dispatch<T>::unpackTypePartial(mem, data, size);
-  return &t;
 }
 
 template <typename T>

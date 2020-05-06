@@ -65,21 +65,6 @@ inline void serializeContainerElems(Serializer& s, ContainerT& cont) {
   }
 }
 
-template <typename Serializer, typename ContainerT>
-inline typename ContainerT::size_type
-parserdesContainerSize(Serializer& s, ContainerT& cont) {
-  typename ContainerT::size_type cont_size = cont.size();
-  s & cont_size;
-  return cont_size;
-}
-
-template <typename Serializer, typename ContainerT>
-inline void parserdesContainerElems(Serializer& s, ContainerT& cont) {
-  for (auto&& elm : cont) {
-    s & elm;
-  }
-}
-
 } /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_CONTAINER_SERIALIZE_H*/

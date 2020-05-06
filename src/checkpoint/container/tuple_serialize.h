@@ -71,28 +71,6 @@ void serialize(Serializer& s, std::pair<T, U>& pair) {
   s | pair.second;
 }
 
-/* parserdes */
-template <typename Serializer, typename... T, size_t... Idxs>
-void par_tuple_helper(
-  Serializer& s, std::tuple<T...>& tup, std::index_sequence<Idxs...>
-) {
-  std::forward_as_tuple(
-    ((s & std::get<Idxs>(tup)),0)...
-  );
-}
-
-template <typename Serializer, typename... Args>
-void parserdes(Serializer& s, std::tuple<Args...>& tuple) {
-  par_tuple_helper(s, tuple, std::index_sequence_for<Args...>());
-}
-
-template <typename Serializer, typename T, typename U>
-void parserdes(Serializer& s, std::pair<T, U>& pair) {
-  s & pair.first;
-  s & pair.second;
-}
-
-
 } /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_TUPLE_SERIALIZE_H*/

@@ -82,19 +82,6 @@ void serialize(Serializer& s, std::vector<bool, VectorAllocator>& vec) {
   }
 }
 
-template <typename Serializer, typename T, typename VectorAllocator>
-void parserdesVectorMeta(Serializer& s, std::vector<T, VectorAllocator>& vec) {
-  SerialSizeType vec_size = vec.size();
-  s & vec_size;
-  vec.resize(vec_size);
-}
-
-template <typename Serializer, typename T, typename VectorAllocator>
-void parserdes(Serializer& s, std::vector<T, VectorAllocator>& vec) {
-  parserdesVectorMeta(s, vec);
-  parserdesArray(s, &vec[0], vec.size());
-}
-
 } /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_VECTOR_SERIALIZE_H*/

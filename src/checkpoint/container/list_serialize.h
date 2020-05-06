@@ -95,42 +95,6 @@ inline void serialize(Serializer& s, std::deque<T>& lst) {
   serializeOrderedContainer(s, lst);
 }
 
-/* parserdes */
-template <typename Serializer, typename ContainerT, typename ElmT>
-inline void deparserdesOrderedElems(
-  Serializer& s, ContainerT& cont, typename ContainerT::size_type size
-) {
-  for (auto i = 0; i < size; i++) {
-    ElmT elm;
-    s & elm;
-    cont.push_back(elm);
-  }
-}
-
-template <typename Serializer, typename ContainerT>
-inline void parserdesOrderedContainer(Serializer& s, ContainerT& cont) {
-  using ValueT = typename ContainerT::value_type;
-
-  typename ContainerT::size_type size = parserdesContainerSize(s, cont);
-
-  if (s.isUnpacking()) {
-    deparserdesOrderedElems<Serializer, ContainerT, ValueT>(s, cont, size);
-  } else {
-    parserdesContainerElems<Serializer, ContainerT>(s, cont);
-  }
-}
-
-template <typename Serializer, typename T>
-inline void parserdes(Serializer& s, std::list<T>& lst) {
-  parserdesOrderedContainer(s, lst);
-}
-
-template <typename Serializer, typename T>
-inline void parserdes(Serializer& s, std::deque<T>& lst) {
-  parserdesOrderedContainer(s, lst);
-}
-
-
 } /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_LIST_SERIALIZE_H*/

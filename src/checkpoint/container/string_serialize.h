@@ -65,19 +65,6 @@ void serialize(Serializer& s, std::string& str) {
   serializeArray(s, str.c_str(), str.size());
 }
 
-template <typename Serializer>
-void parserdesStringMeta(Serializer& s, std::string& str) {
-  SerialSizeType str_size = str.size();
-  s & str_size;
-  str.resize(str_size);
-}
-
-template <typename Serializer>
-void parserdes(Serializer& s, std::string& str) {
-  parserdesStringMeta(s, str);
-  parserdesArray(s, str.c_str(), str.size());
-}
-
 } /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_STRING_SERIALIZE_H*/

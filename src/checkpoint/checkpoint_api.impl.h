@@ -80,21 +80,6 @@ void deserializeInPlace(SerialByteType* buf, SizeType size, T* t) {
 }
 
 template <typename T>
-SerializedReturnType serializePartial(T& target, BufferCallbackType fn) {
-  auto ret = ::checkpoint::serializeTypePartial<T>(target, fn);
-  auto& buf = std::get<0>(ret);
-  std::unique_ptr<SerializedInfo> base_ptr(
-    static_cast<SerializedInfo*>(buf.release())
-  );
-  return base_ptr;
-}
-
-template <typename T>
-T* deserializePartial(SerialByteType* buf, SizeType size, T* user_buf) {
-  return ::checkpoint::deserializeTypePartial<T>(buf, size, user_buf);
-}
-
-template <typename T>
 std::size_t getSize(T& target) {
   return ::checkpoint::sizeType<T>(target);
 }
