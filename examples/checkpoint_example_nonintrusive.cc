@@ -71,7 +71,7 @@ int main(int, char**) {
   MyTest3 my_test3;
   my_test3.print();
 
-  auto ret = checkpoint::serialize<MyTest3>(my_test3);
+  auto ret = checkpoint::serialize(my_test3);
 
   auto const& buf = ret->getBuffer();
   auto const& buf_size = ret->getSize();

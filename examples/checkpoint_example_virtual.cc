@@ -140,7 +140,7 @@ namespace checkpoint {
       v.vec.push_back(new MyObj2(20));
       v.vec.push_back(new MyObj(10));
 
-      auto ret = checkpoint::serialize<ExampleVector>(v);
+      auto ret = checkpoint::serialize(v);
 
       auto const& buf = ret->getBuffer();
       auto const& buf_size = ret->getSize();
