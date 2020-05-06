@@ -50,7 +50,7 @@
 
 #include <memory>
 
-namespace checkpoint {
+namespace checkpoint { namespace buffer {
 
 using SerializedInfo = ::checkpoint::SerializedInfo;
 
@@ -64,6 +64,6 @@ using SerializedType = std::tuple<SerialByteType*, SerialSizeType>;
 using BufferPtrType = std::unique_ptr<Buffer>;
 using ImplReturnType = std::tuple<BufferPtrType, SerialSizeType>;
 
-} /* end namespace checkpoint */
+}} /* end namespace checkpoint::buffer */
 
 #endif /*INCLUDED_CHECKPOINT_BUFFER_BUFFER_H*/

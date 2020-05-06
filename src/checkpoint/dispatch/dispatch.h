@@ -61,11 +61,11 @@ struct InPlaceTag { };
 template <typename T>
 struct Dispatch {
   static SerialSizeType sizeType(T& to_size);
-  static BufferPtrType packType(
+  static buffer::BufferPtrType packType(
     T& to_pack, SerialSizeType const& size, SerialByteType* buf
   );
   template <typename PackerT>
-  static BufferPtrType packTypeWithPacker(
+  static buffer::BufferPtrType packTypeWithPacker(
     PackerT& packer, T& to_pack, SerialSizeType const& size
   );
   static T& unpackType(
@@ -81,7 +81,7 @@ template <typename Serializer, typename T>
 inline void serializeArray(Serializer& s, T* array, SerialSizeType const num_elms);
 
 template <typename T>
-ImplReturnType serializeType(
+buffer::ImplReturnType serializeType(
   T& to_serialize, BufferObtainFnType fn = nullptr
 );
 

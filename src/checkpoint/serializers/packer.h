@@ -72,8 +72,8 @@ private:
   BufferTPtrType buffer_ = nullptr;
 };
 
-using Packer = PackerBuffer<ManagedBuffer>;
-using PackerUserBuf = PackerBuffer<UserBuffer>;
+using Packer = PackerBuffer<buffer::ManagedBuffer>;
+using PackerUserBuf = PackerBuffer<buffer::UserBuffer>;
 
 } /* end namespace checkpoint */
 

@@ -64,7 +64,7 @@ SerialSizeType Dispatch<T>::sizeType(T& to_size) {
 
 template <typename T>
 template <typename PackerT>
-BufferPtrType Dispatch<T>::packTypeWithPacker(
+buffer::BufferPtrType Dispatch<T>::packTypeWithPacker(
   PackerT& packer, T& to_pack, SerialSizeType const& size
 ) {
   using DispatchT = DispatchCommon<T>;
@@ -77,14 +77,14 @@ BufferPtrType Dispatch<T>::packTypeWithPacker(
 }
 
 template <typename T>
-BufferPtrType Dispatch<T>::packType(
+buffer::BufferPtrType Dispatch<T>::packType(
   T& to_pack, SerialSizeType const& size, SerialByteType* buf
 ) {
   if (buf == nullptr) {
     Packer packer(size);
     return packTypeWithPacker(packer, to_pack, size);
   } else {
-    PackerUserBuf packer(size, std::make_unique<UserBuffer>(buf, size));
+    PackerUserBuf packer(size, std::make_unique<buffer::UserBuffer>(buf, size));
     return packTypeWithPacker(packer, to_pack, size);
   }
 }
@@ -135,7 +135,7 @@ inline void serializeArray(Serializer& s, T* array, SerialSizeType const num_elm
 }
 
 template <typename T>
-ImplReturnType serializeType(T& to_serialize, BufferObtainFnType fn) {
+buffer::ImplReturnType serializeType(T& to_serialize, BufferObtainFnType fn) {
   SerialSizeType size = Dispatch<T>::sizeType(to_serialize);
   debug_checkpoint("serializeType: size=%ld\n", size);
   SerialByteType* user_buf = fn ? fn(size) : nullptr;
