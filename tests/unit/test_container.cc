@@ -84,11 +84,10 @@ static void testEqualityContainerUnordered(ContainerT& c1, ContainerT& t1) {
 template <typename ContainerT, typename T>
 static void testContainer(bool is_ordered, std::initializer_list<T> lst) {
   ContainerT c1{lst};
-  auto s1 = checkpoint::serializeType(c1);
-  auto const& buf1 = std::get<0>(s1);
+  auto ret = checkpoint::serialize(c1);
 
-  auto tptr = checkpoint::deserializeType<ContainerT>(
-    buf1->getBuffer(), std::get<1>(s1)
+  auto tptr = checkpoint::deserialize<ContainerT>(
+    ret->getBuffer(), ret->getSize()
   );
   auto& t1 = *tptr;
 
@@ -170,11 +169,10 @@ TYPED_TEST_CASE_P(TestMultiContainerUnordered);
 template <typename ContainerT, typename Pair>
 static void testMultiContainer(bool is_ordered, std::initializer_list<Pair> lst) {
   ContainerT c1{lst};
-  auto s1 = checkpoint::serializeType(c1);
-  auto const& buf1 = std::get<0>(s1);
+  auto ret = checkpoint::serialize(c1);
 
-  auto tptr = checkpoint::deserializeType<ContainerT>(
-    buf1->getBuffer(), std::get<1>(s1)
+  auto tptr = checkpoint::deserialize<ContainerT>(
+    ret->getBuffer(), ret->getSize()
   );
   auto& t1 = *tptr;
 

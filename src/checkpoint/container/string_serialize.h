@@ -62,7 +62,7 @@ void serializeStringMeta(Serializer& s, std::string& str) {
 template <typename Serializer>
 void serialize(Serializer& s, std::string& str) {
   serializeStringMeta(s, str);
-  serializeArray(s, str.c_str(), str.size());
+  dispatch::serializeArray(s, str.c_str(), str.size());
 }
 
 } /* end namespace checkpoint */

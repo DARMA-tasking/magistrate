@@ -50,6 +50,22 @@
 
 namespace checkpoint {
 
+template <typename Serializer, typename T>
+inline Serializer& operator|(Serializer& s, T& target) {
+  using DispatchT = dispatch::DispatchCommon<T>;
+  using CleanT = typename DispatchT::CleanT;
+  auto val = DispatchT::clean(&target);
+
+  dispatch::SerializerDispatch<Serializer, CleanT> ap;
+  ap(s, val, 1);
+
+  return s;
+}
+
+} /* end namespace checkpoint */
+
+namespace checkpoint { namespace dispatch {
+
 template <typename T>
 SerialSizeType Dispatch<T>::sizeType(T& to_size) {
   using DispatchT = DispatchCommon<T>;
@@ -113,18 +129,6 @@ T& Dispatch<T>::unpackType(
 }
 
 template <typename Serializer, typename T>
-inline Serializer& operator|(Serializer& s, T& target) {
-  using DispatchT = DispatchCommon<T>;
-  using CleanT = typename DispatchT::CleanT;
-  auto val = DispatchT::clean(&target);
-
-  SerializerDispatch<Serializer, CleanT> ap;
-  ap(s, val, 1);
-
-  return s;
-}
-
-template <typename Serializer, typename T>
 inline void serializeArray(Serializer& s, T* array, SerialSizeType const num_elms) {
   using DispatchT = DispatchCommon<T>;
   using CleanT = typename DispatchT::CleanT;
@@ -171,6 +175,6 @@ std::size_t sizeType(T& target) {
   return Dispatch<T>::sizeType(target);
 }
 
-} /* end namespace checkpoint */
+}} /* end namespace checkpoint::dispatch */
 
 #endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_IMPL_H*/

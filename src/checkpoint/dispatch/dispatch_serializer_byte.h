@@ -53,7 +53,7 @@
 #include <tuple>
 #include <cstdlib>
 
-namespace checkpoint {
+namespace checkpoint { namespace dispatch {
 
 #if !HAS_DETECTION_COMPONENT
 template <typename T>
@@ -108,6 +108,6 @@ struct SerializerDispatchByte {
   }
 };
 
-} //end namespace checkpoint
+}} /* end namespace checkpoint::dispatch */
 
 #endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_SERIALIZER_BYTE_H*/

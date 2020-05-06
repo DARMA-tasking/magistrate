@@ -56,7 +56,7 @@ namespace checkpoint {
 
 template <typename T>
 SerializedReturnType serialize(T& target, BufferCallbackType fn) {
-  auto ret = ::checkpoint::serializeType<T>(target, fn);
+  auto ret = dispatch::serializeType<T>(target, fn);
   auto& buf = std::get<0>(ret);
   std::unique_ptr<SerializedInfo> base_ptr(
     static_cast<SerializedInfo*>(buf.release())
@@ -66,22 +66,22 @@ SerializedReturnType serialize(T& target, BufferCallbackType fn) {
 
 template <typename T>
 T* deserialize(char* buf, std::size_t size, T* user_buf) {
-  return ::checkpoint::deserializeType<T>(buf, size, user_buf);
+  return dispatch::deserializeType<T>(buf, size, user_buf);
 }
 
 template <typename T>
 T* deserialize(SerializedReturnType&& in) {
-  return ::checkpoint::deserializeType<T>(in->getBuffer(), in->getSize());
+  return dispatch::deserializeType<T>(in->getBuffer(), in->getSize());
 }
 
 template <typename T>
 void deserializeInPlace(char* buf, std::size_t size, T* t) {
-  return ::checkpoint::deserializeType<T>(::checkpoint::InPlaceTag{}, buf, size, t);
+  return dispatch::deserializeType<T>(dispatch::InPlaceTag{}, buf, size, t);
 }
 
 template <typename T>
 std::size_t getSize(T& target) {
-  return ::checkpoint::sizeType<T>(target);
+  return dispatch::sizeType<T>(target);
 }
 
 } /* end namespace checkpoint */

@@ -54,7 +54,7 @@ namespace checkpoint {
 
 template <typename Serializer, typename T, size_t N>
 void serialize(Serializer& s, std::array<T, N>& array) {
-  serializeArray(s, &array[0], array.size());
+  dispatch::serializeArray(s, &array[0], array.size());
 }
 
 } /* end namespace checkpoint */

@@ -202,6 +202,6 @@ namespace checkpoint {
     base->doSerialize(&s);
   }
 
-} // namespace checkpoint
+} /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_VIRTUAL_H*/

@@ -47,8 +47,8 @@
 
 #include "checkpoint/common.h"
 
-#define CHECKPOINT_BYTES(TYPE)                                \
-  namespace checkpoint {                                      \
+#define CHECKPOINT_BYTES(TYPE)                            \
+  namespace checkpoint {                                  \
     template <typename SerializerT>                       \
     void serialize(SerializerT& s, TYPE& t) {             \
       SerializerT::contiguousTyped(s, &t, 1);             \

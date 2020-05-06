@@ -53,7 +53,7 @@
 #include <cstdlib>
 #include <cassert>
 
-namespace checkpoint {
+namespace checkpoint { namespace dispatch {
 
 // Implement a lightweight simple detection mechanism (when full detector is not
 // present) to detect type of serialize() method: intrusive/non-intrusive
@@ -172,6 +172,6 @@ struct SerializerDispatchNonByte {
   }
 };
 
-} //end namespace checkpoint
+}} /* end namespace checkpoint::dispatch */
 
 #endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_SERIALIZER_NONBYTE_H*/

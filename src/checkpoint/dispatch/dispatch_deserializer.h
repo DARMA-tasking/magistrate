@@ -52,7 +52,7 @@
 #include <tuple>
 #include <cstdlib>
 
-namespace checkpoint {
+namespace checkpoint { namespace dispatch {
 
 template <typename SerializerT, typename T>
 struct DeserializerDispatch {
@@ -115,6 +115,6 @@ struct DeserializerDispatch {
   }
 };
 
-} //end namespace checkpoint
+}} /* end namespace checkpoint::dispatch */
 
 #endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_DESERIALIZER_H*/

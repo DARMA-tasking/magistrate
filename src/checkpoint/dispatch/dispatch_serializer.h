@@ -54,7 +54,7 @@
 #include <tuple>
 #include <cstdlib>
 
-namespace checkpoint {
+namespace checkpoint { namespace dispatch {
 
 // First, try to dispatch to byte variant of the dispatcher, which is more
 // efficient and non-byte version (the non-byte version will call serialize() on
@@ -62,6 +62,6 @@ namespace checkpoint {
 template <typename SerializerT, typename T>
 using SerializerDispatch = SerializerDispatchByte<SerializerT, T>;
 
-} //end namespace checkpoint
+}} /* end namespace checkpoint::dispatch */
 
 #endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_SERIALIZER_H*/

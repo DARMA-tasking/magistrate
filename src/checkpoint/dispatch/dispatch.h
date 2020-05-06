@@ -54,7 +54,7 @@
 
 #include <tuple>
 
-namespace checkpoint {
+namespace checkpoint { namespace dispatch {
 
 struct InPlaceTag { };
 
@@ -96,7 +96,7 @@ void deserializeType(InPlaceTag, SerialByteType* data, SerialSizeType sz, T* t);
 template <typename T>
 std::size_t sizeType(T& t);
 
-} /* end namespace checkpoint */
+}} /* end namespace checkpoint::dispatch */
 
 #include "checkpoint/dispatch/dispatch.impl.h"
 

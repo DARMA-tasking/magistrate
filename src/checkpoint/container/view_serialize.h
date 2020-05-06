@@ -330,7 +330,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
     // Serialize the actual data owned by the Kokkos::View
     if (is_contig) {
       // Serialize the data directly out of the data buffer
-      serializeArray(s, view.data(), num_elms);
+      dispatch::serializeArray(s, view.data(), num_elms);
     } else {
       // Serialize manually traversing the data with Kokkos::View::operator()(...)
 
