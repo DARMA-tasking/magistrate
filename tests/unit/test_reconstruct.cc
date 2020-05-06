@@ -45,7 +45,6 @@
 #include "test_harness.h"
 
 #include <checkpoint/checkpoint.h>
-#include <checkpoint/checkpoint.h>
 
 #include <gtest/gtest.h>
 

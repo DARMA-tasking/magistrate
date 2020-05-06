@@ -98,6 +98,6 @@ std::size_t sizeType(T& t);
 
 } /* end namespace checkpoint */
 
-#include "dispatch.impl.h"
+#include "checkpoint/dispatch/dispatch.impl.h"
 
 #endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_H*/
