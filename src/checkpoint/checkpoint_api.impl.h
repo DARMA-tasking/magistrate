@@ -65,8 +65,8 @@ SerializedReturnType serialize(T& target, BufferCallbackType fn) {
 }
 
 template <typename T>
-T* deserialize(char* buf, std::size_t size, T* user_buf) {
-  return dispatch::deserializeType<T>(buf, size, user_buf);
+T* deserialize(char* buf, std::size_t len, T* user_buf) {
+  return dispatch::deserializeType<T>(buf, len, user_buf);
 }
 
 template <typename T>
@@ -75,8 +75,8 @@ T* deserialize(SerializedReturnType&& in) {
 }
 
 template <typename T>
-void deserializeInPlace(char* buf, std::size_t size, T* t) {
-  return dispatch::deserializeType<T>(dispatch::InPlaceTag{}, buf, size, t);
+void deserializeInPlace(char* buf, std::size_t len, T* t) {
+  return dispatch::deserializeType<T>(dispatch::InPlaceTag{}, buf, len, t);
 }
 
 template <typename T>
