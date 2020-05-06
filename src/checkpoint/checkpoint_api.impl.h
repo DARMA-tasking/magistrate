@@ -90,6 +90,12 @@ std::size_t getSize(T& target) {
   return dispatch::sizeType<T>(target);
 }
 
+template <typename T>
+void serializeToFile(T& target, std::string const& file) {
+  auto len = getSize<T>(target);
+  dispatch::pack<T, buffer::IOBuffer>(target, len, file);
+}
+
 } /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CHECKPOINT_API_IMPL_H*/
