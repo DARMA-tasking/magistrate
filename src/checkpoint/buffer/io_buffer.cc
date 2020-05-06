@@ -58,22 +58,22 @@
 namespace checkpoint { namespace buffer {
 
 void IOBuffer::setupFile() {
-  printf("opening file: %s\n", file_.c_str());
+  debug_checkpoint("IOBuffer: opening file: %s\n", file_.c_str());
 
   fd_ = open(file_.c_str(), O_CREAT | O_RDWR | O_TRUNC, (mode_t)0600);
   assert(fd_ != -1 && "open must be valid");
 
-  //printf("truncating file: %s\n", file_.c_str());
+  debug_checkpoint("IOBuffer: truncating file\n");
 
   int ret = ftruncate(fd_, size_);
   assert(ret == 0 && "ftruncate should not fail");
 
-  //printf("syncing file: %s\n", file_.c_str());
+  debug_checkpoint("IOBuffer: syncing file\n");
 
   ret = fsync(fd_);
   assert(ret == 0 && "fsync should not fail");
 
-  //printf("mmap file: %s, len=%lu\n", file_.c_str(), size_);
+  debug_checkpoint("IOBuffer: mmap file: len=%lu\n", size_);
 
   void* addr = mmap(nullptr, size_, PROT_WRITE, MAP_PRIVATE, fd_, 0);
   assert(addr != MAP_FAILED && "mmap should not fail");
@@ -88,15 +88,15 @@ void IOBuffer::setupFile() {
 /*virtual*/ IOBuffer::~IOBuffer() {
   auto addr = static_cast<void*>(buffer_);
 
-  //printf("msync file: %s, len=%lu\n", file_.c_str(), size_);
+  debug_checkpoint("~IOBuffer: msync: file=%s, len=%lu\n", file_.c_str(), size_);
 
   msync(addr, size_, MS_SYNC);
 
-  //printf("munmap file: %s, len=%lu\n", file_.c_str(), size_);
+  debug_checkpoint("~IOBuffer: munmap\n");
 
   munmap(addr, size_);
 
-  //printf("close file: %s, len=%lu\n", file_.c_str(), size_);
+  debug_checkpoint("~IOBuffer: closing file\n");
 
   close(fd_);
 }
