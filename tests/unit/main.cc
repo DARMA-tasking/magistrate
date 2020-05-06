@@ -51,7 +51,7 @@
 #endif
 #include "test_harness.h"
 
-#if KOKKOS_ENABLED_SERDES
+#if KOKKOS_ENABLED_CHECKPOINT
 #include <Kokkos_Core.hpp>
 #endif
 
@@ -63,14 +63,14 @@ int main(int argc, char **argv) {
 
   int ret = 0;
   {
-#if KOKKOS_ENABLED_SERDES
+#if KOKKOS_ENABLED_CHECKPOINT
     Kokkos::initialize();
 #endif
 
-    serdes::tests::unit::TestHarness::store_cmdline_args(argc, argv);
+    checkpoint::tests::unit::TestHarness::store_cmdline_args(argc, argv);
     ret = RUN_ALL_TESTS();
 
-#if KOKKOS_ENABLED_SERDES
+#if KOKKOS_ENABLED_CHECKPOINT
     Kokkos::finalize();
 #endif
   }

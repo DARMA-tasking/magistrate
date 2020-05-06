@@ -44,21 +44,21 @@
 
 #include <gtest/gtest.h>
 #include "test_harness.h"
-#include "serialization_library_headers.h"
+#include <checkpoint/checkpoint.h>
 
-namespace serdes { namespace tests { namespace unit {
+namespace checkpoint { namespace tests { namespace unit {
 
 struct BoolVectorTest : TestHarness { };
 
 static void serializationVectorBoolTest(std::vector<bool> &boolVectorIn) {
-  auto ret = serialization::interface::serialize<std::vector<bool>>(boolVectorIn);
+  auto ret = checkpoint::serialize<std::vector<bool>>(boolVectorIn);
 
   #if TEST_BYTE_DEBUG_PRINT
     printf("buffer=%p, size=%ld\n", ret->getBuffer(), ret->getSize());
   #endif
 
-  auto boolVectorOut = serialization::interface::deserialize<std::vector<bool>>(
-   ret->getBuffer(), ret->getSize()
+  auto boolVectorOut = checkpoint::deserialize<std::vector<bool>>(
+   ret->getBuffer()
   );
 
    EXPECT_TRUE(boolVectorIn == *boolVectorOut);
@@ -88,4 +88,4 @@ TEST_F(BoolVectorTest, test_bool_vector) {
   }
 }
 
-}}} // end namespace serdes::tests::unit
+}}} // end namespace checkpoint::tests::unit

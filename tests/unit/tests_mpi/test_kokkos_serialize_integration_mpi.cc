@@ -41,7 +41,7 @@
 // *****************************************************************************
 //@HEADER
 */
-#if KOKKOS_ENABLED_SERDES
+#if KOKKOS_ENABLED_CHECKPOINT
 
 #include "test_kokkos_integration_commons.h"
 #include "test_kokkos_1d_commons.h"
@@ -50,7 +50,7 @@
 struct KokkosIntegrateTestMPI : KokkosBaseTest { };
 
 TEST_F(KokkosIntegrateTestMPI, test_integrate_1) {
-  using namespace serialization::interface;
+  using namespace checkpoint;
   using DataType = Data;
 
   // Init test_data, check for golden status before and after serialization
@@ -77,7 +77,7 @@ TEST_F(KokkosIntegrateTestMPI, test_integrate_1) {
 
     MPI_Recv(recv, dataSize, MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-    auto out_data = deserialize<DataType>(recv, dataSize);
+    auto out_data = deserialize<DataType>(recv);
     auto const& out_data_ref = *out_data;
 
     Data::checkIsGolden(out_data_ref);
@@ -92,7 +92,7 @@ TEST_F(KokkosIntegrateTestMPI, test_integrate_1) {
 struct KokkosNullTestMPI : KokkosBaseTest { };
 
 TEST_F(KokkosNullTestMPI, test_null_1) {
-  using namespace serialization::interface;
+  using namespace checkpoint;
   using ViewType = Kokkos::View<int*>;
 
   // Default construct

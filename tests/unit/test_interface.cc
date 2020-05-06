@@ -46,20 +46,19 @@
 
 #include "test_harness.h"
 
-#include "serdes_headers.h"
-#include "serialization_library_headers.h"
+#include <checkpoint/checkpoint.h>
 
 #include <vector>
 #include <cstdio>
 
 #define TEST_INTERFACE_DEBUG_PRINT 0
 
-namespace serdes { namespace tests { namespace unit {
+namespace checkpoint { namespace tests { namespace unit {
 
 struct TestInterface : TestHarness { };
 
 TEST_F(TestInterface, test_serialize) {
-  using namespace ::serialization::interface;
+  using namespace ::checkpoint;
 
   using TestType = std::vector<int>;
   TestType vec{1,2,3,100,200};
@@ -70,15 +69,13 @@ TEST_F(TestInterface, test_serialize) {
     }
   #endif
 
-  auto ret = serialization::interface::serialize<TestType>(vec);
+  auto ret = checkpoint::serialize<TestType>(vec);
 
   #if TEST_INTERFACE_DEBUG_PRINT
     printf("buffer=%p, size=%ld\n", ret->getBuffer(), ret->getSize());
   #endif
 
-  auto vec_ptr = serialization::interface::deserialize<TestType>(
-    ret->getBuffer(), ret->getSize()
-  );
+  auto vec_ptr = checkpoint::deserialize<TestType>(ret->getBuffer());
   auto& des_vec = *vec_ptr;
 
   #if TEST_INTERFACE_DEBUG_PRINT
@@ -93,4 +90,4 @@ TEST_F(TestInterface, test_serialize) {
   }
 }
 
-}}} // end namespace serdes::tests::unit
+}}} // end namespace checkpoint::tests::unit

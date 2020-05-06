@@ -46,9 +46,9 @@
 
 #include "test_harness.h"
 
-#include "serdes_headers.h"
+#include <checkpoint/checkpoint.h>
 
-namespace serdes { namespace tests { namespace unit {
+namespace checkpoint { namespace tests { namespace unit {
 
 struct TestSizer : TestHarness { };
 
@@ -94,7 +94,7 @@ void serialize(Serializer& s, Test4 t) {
 }
 
 TEST_F(TestSizer, test_sizer_1) {
-  using namespace serdes;
+  using namespace checkpoint::dispatch;
 
   Test1 t;
   auto const& size = Dispatch<Test1>::sizeType(t);
@@ -102,7 +102,7 @@ TEST_F(TestSizer, test_sizer_1) {
 }
 
 TEST_F(TestSizer, test_sizer_2) {
-  using namespace serdes;
+  using namespace checkpoint::dispatch;
 
   Test2 t;
   auto const& size = Dispatch<Test2>::sizeType(t);
@@ -110,7 +110,7 @@ TEST_F(TestSizer, test_sizer_2) {
 }
 
 TEST_F(TestSizer, test_sizer_3) {
-  using namespace serdes;
+  using namespace checkpoint::dispatch;
 
   Test3 t;
   auto const& size = Dispatch<Test3>::sizeType(t);
@@ -118,11 +118,11 @@ TEST_F(TestSizer, test_sizer_3) {
 }
 
 TEST_F(TestSizer, test_sizer_4) {
-  using namespace serdes;
+  using namespace checkpoint::dispatch;
 
   Test4 t;
   auto const& size = Dispatch<Test4>::sizeType(t);
   EXPECT_EQ(size, sizeof(int)*3);
 }
 
-}}} // end namespace serdes::tests::unit
+}}} // end namespace checkpoint::tests::unit

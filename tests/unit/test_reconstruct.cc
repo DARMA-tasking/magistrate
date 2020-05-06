@@ -44,15 +44,14 @@
 
 #include "test_harness.h"
 
-#include <serdes_headers.h>
-#include <serialization_library_headers.h>
+#include <checkpoint/checkpoint.h>
 
 #include <gtest/gtest.h>
 
 #include <vector>
 #include <cstdio>
 
-namespace serdes { namespace tests { namespace unit {
+namespace checkpoint { namespace tests { namespace unit {
 
 template <typename T>
 struct TestReconstruct : TestHarness { };
@@ -107,7 +106,7 @@ void reconstruct(SerializerT& s, UserObjectB*& obj, void* buf) {
   obj = new (buf) UserObjectB(100);
 }
 
-}}} // end namespace serdes::tests::unit
+}}} // end namespace checkpoint::tests::unit
 
 /*
  * Unit test with `UserObjectC` with non-intrusive reconstruct for
@@ -115,27 +114,27 @@ void reconstruct(SerializerT& s, UserObjectB*& obj, void* buf) {
  */
 
 // Forward-declare UserObjectC
-namespace serdes { namespace tests { namespace unit {
+namespace checkpoint { namespace tests { namespace unit {
 
 struct UserObjectC;
 
-}}} // end namespace serdes::tests::unit
+}}} // end namespace checkpoint::tests::unit
 
 // Forward-declare serialize/reconstruct methods
-namespace serdes {
+namespace checkpoint {
 
 // This using declaration is only used for convenience
-using UserObjType = serdes::tests::unit::UserObjectC;
+using UserObjType = checkpoint::tests::unit::UserObjectC;
 
 template <typename SerializerT>
 void reconstruct(SerializerT& s, UserObjType*& obj, void* buf);
 template <typename SerializerT>
 void serialize(SerializerT& s, UserObjType& x);
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
 // Actually define the UserObjectC
-namespace serdes { namespace tests { namespace unit {
+namespace checkpoint { namespace tests { namespace unit {
 
 struct UserObjectC {
   explicit UserObjectC(int in_u) : u_(std::to_string(in_u)) { }
@@ -146,22 +145,22 @@ public:
   }
 
   template <typename SerializerT>
-  friend void serdes::serialize(SerializerT&, UserObjectC&);
+  friend void checkpoint::serialize(SerializerT&, UserObjectC&);
 
   template <typename SerializerT>
-  friend void serdes::reconstruct(SerializerT&, UserObjectC*&, void*);
+  friend void checkpoint::reconstruct(SerializerT&, UserObjectC*&, void*);
 
 private:
   std::string u_ = {};
 };
 
-}}} // end namespace serdes::tests::unit
+}}} // end namespace checkpoint::tests::unit
 
-// Implement the serialize and reconstruct in `serdes` namespace
-namespace serdes {
+// Implement the serialize and reconstruct in `checkpoint` namespace
+namespace checkpoint {
 
 // This using declaration is only used for convenience
-using UserObjType = serdes::tests::unit::UserObjectC;
+using UserObjType = checkpoint::tests::unit::UserObjectC;
 
 template <typename SerializerT>
 void reconstruct(SerializerT& s, UserObjType*& obj, void* buf) {
@@ -173,9 +172,9 @@ void serialize(SerializerT& s, UserObjType& x) {
   s | x.u_;
 }
 
-} /* end namespace serdes */
+} /* end namespace checkpoint */
 
-namespace serdes { namespace tests { namespace unit {
+namespace checkpoint { namespace tests { namespace unit {
 
 /*
  * Unit test with `UserObjectD` with intrusive reconstruct for deserialization
@@ -207,7 +206,7 @@ struct UserObjectD {
  */
 
 TYPED_TEST_P(TestReconstruct, test_reconstruct_multi_type) {
-  namespace ser = serialization::interface;
+  namespace ser = checkpoint;
 
   using TestType = TypeParam;
 
@@ -230,4 +229,4 @@ using ConstructTypes = ::testing::Types<
 REGISTER_TYPED_TEST_CASE_P(TestReconstruct, test_reconstruct_multi_type);
 INSTANTIATE_TYPED_TEST_CASE_P(Test_reconstruct, TestReconstruct, ConstructTypes);
 
-}}} // end namespace serdes::tests::unit
+}}} // end namespace checkpoint::tests::unit

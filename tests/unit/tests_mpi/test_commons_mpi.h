@@ -55,7 +55,7 @@
 namespace  {
 template <typename T>
 void serializeAnyMPI(T& view, std::function<void(T const&,T const&)> compare) {
-  using namespace serialization::interface;
+  using namespace checkpoint;
 
   // Test the respect of the max rank needed for the test'
   EXPECT_EQ(MPIEnvironment::isRankValid(1), true);
@@ -77,10 +77,10 @@ void serializeAnyMPI(T& view, std::function<void(T const&,T const&)> compare) {
 
     MPI_Recv(recv, viewSize, MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-    auto out_view = deserialize<T>(recv, viewSize);
+    auto out_view = deserialize<T>(recv);
     auto const& out_view_ref = *out_view;
 
-#if SERDES_USE_ND_COMPARE
+#if CHECKPOINT_USE_ND_COMPARE
     compareND(view, out_view_ref);
 #else
     compare(view, out_view_ref);

@@ -41,7 +41,7 @@
 // *****************************************************************************
 //@HEADER
 */
-#if KOKKOS_ENABLED_SERDES
+#if KOKKOS_ENABLED_CHECKPOINT
 
 #include "test_harness.h"
 #include "test_commons.h"
@@ -52,7 +52,7 @@ template <typename ParamT> struct KokkosViewTest0D : KokkosViewTest<ParamT> { };
 TYPED_TEST_CASE_P(KokkosViewTest0D);
 
 TYPED_TEST_P(KokkosViewTest0D, test_0d_any) {
-  using namespace serialization::interface;
+  using namespace checkpoint;
 
   using DataType          = TypeParam;
   using ViewType          = Kokkos::View<DataType>;

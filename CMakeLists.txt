@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
-project(serdes)
+project(checkpoint)
+
+set(CMAKE_CXX_STANDARD 14)
 
 include(cmake/turn_on_warnings.cmake)
 
@@ -41,8 +43,8 @@ message (STATUS "Checkpoint build examples: ${CHECKPOINT_BUILD_EXAMPLES}")
 
 include(cmake/load_package.cmake)
 
-set(SERDES_LIBRARY checkpoint CACHE INTERNAL "" FORCE )
-set(SERDES_LIBRARY_NS vt::lib::checkpoint "" CACHE INTERNAL "" FORCE )
+set(CHECKPOINT_LIBRARY checkpoint CACHE INTERNAL "" FORCE )
+set(CHECKPOINT_LIBRARY_NS vt::lib::checkpoint "" CACHE INTERNAL "" FORCE )
 
 # require directories for these packages
 require_pkg_directory(detector "VT detector library")

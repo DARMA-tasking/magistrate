@@ -3,39 +3,51 @@ set(
   traits container serializers traits buffer dispatch
 )
 
+set(CHECKPOINT_INSTALL_DESTINATION "include/checkpoint")
+set(CHECKPOINT_EXTERNAL_DESTINATION "include")
+
 foreach(DIR ${TOP_LEVEL_SUBDIRS})
   install(
-    DIRECTORY ${DIR} DESTINATION include
+    DIRECTORY "checkpoint/${DIR}"
+    DESTINATION ${CHECKPOINT_INSTALL_DESTINATION}
     FILES_MATCHING PATTERN "*.h"
   )
 endforeach()
 
-file(GLOB TOP_HEADERS *.h)
-install(FILES ${TOP_HEADERS} DESTINATION include)
+file(GLOB TOP_HEADERS "checkpoint/*.h")
+
+install(
+  FILES ${TOP_HEADERS}
+  DESTINATION ${CHECKPOINT_INSTALL_DESTINATION}
+)
 
 file(
   GLOB
   HEADER_FILES
-  ${CMAKE_CURRENT_SOURCE_DIR}/*.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/checkpoint/*.h
 )
 
 file(
   GLOB
   SOURCE_FILES
-  ${CMAKE_CURRENT_SOURCE_DIR}/*.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/checkpoint/*.cc
 )
 
 foreach(SUB_DIR ${TOP_LEVEL_SUBDIRS})
   file(
     GLOB
     "${SUB_DIR}_HEADER_FILES"
-    ${PROJECT_SOURCE_DIR}/${SUB_DIR}/*.h
+    RELATIVE
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/checkpoint/${SUB_DIR}/*.h"
   )
 
   file(
     GLOB
     "${SUB_DIR}_SOURCE_FILES"
-    ${PROJECT_SOURCE_DIR}/${SUB_DIR}/*.cc
+    RELATIVE
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/checkpoint/${SUB_DIR}/*.cc"
   )
 
   #message("headers=${${SUB_DIR}_HEADER_FILES}")
@@ -55,17 +67,17 @@ foreach(SUB_DIR ${TOP_LEVEL_SUBDIRS})
 endforeach()
 
 add_library(
-  ${SERDES_LIBRARY}
+  ${CHECKPOINT_LIBRARY}
   STATIC
   ${HEADER_FILES} ${SOURCE_FILES}
 )
 
-add_library(${SERDES_LIBRARY_NS} ALIAS ${SERDES_LIBRARY})
+add_library(${CHECKPOINT_LIBRARY_NS} ALIAS ${CHECKPOINT_LIBRARY})
 
-target_compile_options(${SERDES_LIBRARY} PUBLIC "-fPIC")
-target_compile_options(${SERDES_LIBRARY} PUBLIC ${CXX_STANDARD_FLAGS})
+target_compile_options(${CHECKPOINT_LIBRARY} PUBLIC "-fPIC")
+target_compile_options(${CHECKPOINT_LIBRARY} PUBLIC ${CXX_STANDARD_FLAGS})
 
-target_compile_definitions(${SERDES_LIBRARY} PUBLIC HAS_DETECTION_COMPONENT=1)
+target_compile_definitions(${CHECKPOINT_LIBRARY} PUBLIC HAS_DETECTION_COMPONENT=1)
 
 if (${kokkos_DIR_FOUND})
   if (${KOKKOS_KERNELS_ENABLED})
@@ -74,38 +86,41 @@ if (${kokkos_DIR_FOUND})
   else()
     set(KERNELS 0)
   endif()
-  target_compile_definitions(${SERDES_LIBRARY} PUBLIC KOKKOS_ENABLED_SERDES=1 KOKKOS_KERNELS_ENABLED=${KERNELS})
+  target_compile_definitions(
+    ${CHECKPOINT_LIBRARY} PUBLIC
+    KOKKOS_ENABLED_CHECKPOINT=1 KOKKOS_KERNELS_ENABLED=${KERNELS}
+  )
   # This should not have to be done, missing include configuration from kokkos
-  target_include_directories(${SERDES_LIBRARY} SYSTEM PUBLIC ${Kokkos_INCLUDE_DIRS})
-  target_link_libraries(${SERDES_LIBRARY} PUBLIC ${Kokkos_LIBRARIES})
+  target_include_directories(${CHECKPOINT_LIBRARY} SYSTEM PUBLIC ${Kokkos_INCLUDE_DIRS})
+  target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC ${Kokkos_LIBRARIES})
 endif()
 
-target_link_libraries(${SERDES_LIBRARY} PUBLIC vt::lib::detector)
-target_link_libraries(${SERDES_LIBRARY} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC vt::lib::detector)
+target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 
 target_include_directories(
-  ${SERDES_LIBRARY} PUBLIC
+  ${CHECKPOINT_LIBRARY} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>
   $<INSTALL_INTERFACE:include>
 )
 
 target_include_directories(
-  ${SERDES_LIBRARY} PUBLIC
+  ${CHECKPOINT_LIBRARY} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:include>
 )
 
 install(
-  TARGETS                   ${SERDES_LIBRARY}
-  EXPORT                    ${SERDES_LIBRARY}
+  TARGETS                   ${CHECKPOINT_LIBRARY}
+  EXPORT                    ${CHECKPOINT_LIBRARY}
   LIBRARY DESTINATION       lib
   ARCHIVE DESTINATION       lib
   RUNTIME DESTINATION       bin
-  INCLUDES DESTINATION      include
+  INCLUDES DESTINATION      ${CHECKPOINT_EXTERNAL_DESTINATION}
 )
 
 install(
-  EXPORT                    ${SERDES_LIBRARY}
+  EXPORT                    ${CHECKPOINT_LIBRARY}
   DESTINATION               cmake
   FILE                      "checkpointTargets.cmake"
   NAMESPACE                 vt::lib::
@@ -113,7 +128,7 @@ install(
 )
 
 export(
-  TARGETS                   ${SERDES_LIBRARY}
+  TARGETS                   ${CHECKPOINT_LIBRARY}
   FILE                      "darma_checkpointTargets.cmake"
   NAMESPACE                 darma::backend::
 )

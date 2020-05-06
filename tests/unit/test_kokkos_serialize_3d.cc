@@ -41,7 +41,7 @@
 // *****************************************************************************
 //@HEADER
 */
-#if KOKKOS_ENABLED_SERDES
+#if KOKKOS_ENABLED_CHECKPOINT
 
 #include "test_harness.h"
 #include "test_commons.h"
@@ -52,7 +52,7 @@ template <typename ParamT> struct KokkosViewTest3D : KokkosViewTest<ParamT> { };
 TYPED_TEST_CASE_P(KokkosViewTest3D);
 
 TYPED_TEST_P(KokkosViewTest3D, test_3d_any) {
-  using namespace serialization::interface;
+  using namespace checkpoint;
 
   using LayoutType = typename std::tuple_element<1,TypeParam>::type;
   using DataType   = typename std::tuple_element<0,TypeParam>::type;

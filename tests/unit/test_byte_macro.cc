@@ -46,8 +46,7 @@
 
 #include "test_harness.h"
 
-#include "serdes_headers.h"
-#include "serialization_library_headers.h"
+#include <checkpoint/checkpoint.h>
 
 #include <vector>
 #include <cstdio>
@@ -70,28 +69,24 @@ struct UserObject1 {
 
 } // end namespace userTest
 
-SERDES_BYTES(::userTest::UserObject1)
+CHECKPOINT_BYTES(::userTest::UserObject1)
 
-namespace serdes { namespace tests { namespace unit {
+namespace checkpoint { namespace tests { namespace unit {
 
 struct TestByteMacro : TestHarness { };
 
 TEST_F(TestByteMacro, test_bytecopy_trait) {
-  using namespace ::serialization::interface;
+  using namespace ::checkpoint;
 
   using TestType = ::userTest::UserObject1;
   TestType t;
   t.init();
   t.check();
 
-  auto ret = serialization::interface::serialize<TestType>(t);
+  auto ret = checkpoint::serialize<TestType>(t);
 
-  auto tptr = serialization::interface::deserialize<TestType>(
-    ret->getBuffer(), ret->getSize()
-  );
-  auto& t_final = *tptr;
-
-  t_final.check();
+  auto t1 = checkpoint::deserialize<TestType>(ret->getBuffer());
+  t1->check();
 }
 
-}}} // end namespace serdes::tests::unit
+}}} // end namespace checkpoint::tests::unit

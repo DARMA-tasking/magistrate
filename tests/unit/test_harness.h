@@ -42,15 +42,15 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SERDES_TEST_HARNESS
-#define INCLUDED_SERDES_TEST_HARNESS
+#if !defined INCLUDED_CHECKPOINT_TEST_HARNESS
+#define INCLUDED_CHECKPOINT_TEST_HARNESS
 
 #include <gtest/gtest.h>
 
 #include <vector>
 #include <string>
 
-namespace serdes { namespace tests { namespace unit {
+namespace checkpoint { namespace tests { namespace unit {
 
 template <typename TestBase>
 struct TestHarnessAny : TestBase {
@@ -88,6 +88,6 @@ std::vector<std::string> TestHarnessAny<TestBase>::orig_args_;
 
 using TestHarness = TestHarnessAny<testing::Test>;
 
-}}} // end namespace serdes::tests::unit
+}}} // end namespace checkpoint::tests::unit
 
-#endif /*INCLUDED_SERDES_TEST_HARNESS*/
+#endif /*INCLUDED_CHECKPOINT_TEST_HARNESS*/

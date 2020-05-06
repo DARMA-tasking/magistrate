@@ -41,7 +41,7 @@
 // *****************************************************************************
 //@HEADER
 */
-#if KOKKOS_ENABLED_SERDES
+#if KOKKOS_ENABLED_CHECKPOINT
 
 #include "test_kokkos_2d_commons.h"
 #include "tests_mpi/test_commons_mpi.h"
@@ -51,7 +51,7 @@ template <typename ParamT> struct KokkosViewTest2DMPI : KokkosViewTest<ParamT> {
 TYPED_TEST_CASE_P(KokkosViewTest2DMPI);
 
 TYPED_TEST_P(KokkosViewTest2DMPI, test_2d_any) {
-  using namespace serialization::interface;
+  using namespace checkpoint;
 
   using LayoutType        = typename std::tuple_element<1,TypeParam>::type;
   using DataType          = typename std::tuple_element<0,TypeParam>::type;

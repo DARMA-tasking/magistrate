@@ -41,7 +41,7 @@
 // *****************************************************************************
 //@HEADER
 */
-#if KOKKOS_ENABLED_SERDES
+#if KOKKOS_ENABLED_CHECKPOINT
 
 #include "test_harness.h"
 #include "test_commons.h"
@@ -49,7 +49,7 @@
 // N-D dimension comparison
 template <typename ViewT>
 static void compareND(ViewT const& k1, ViewT const& k2) {
-  serdes::ViewEquality<ViewT>::template compare<GTestEquality>(k1,k2);
+  checkpoint::ViewEquality<ViewT>::template compare<GTestEquality>(k1,k2);
 }
 
 template <typename LayoutT>

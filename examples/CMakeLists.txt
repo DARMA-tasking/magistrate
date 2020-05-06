@@ -40,7 +40,7 @@ if (${CHECKPOINT_BUILD_EXAMPLES})
     target_link_libraries(
       ${EXAMPLE}
       PUBLIC
-      ${SERDES_LIBRARY_NS}
+      ${CHECKPOINT_LIBRARY_NS}
     )
 
   if (${kokkos_DIR_FOUND})

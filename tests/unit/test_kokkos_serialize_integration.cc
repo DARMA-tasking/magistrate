@@ -41,7 +41,7 @@
 // *****************************************************************************
 //@HEADER
 */
-#if KOKKOS_ENABLED_SERDES
+#if KOKKOS_ENABLED_CHECKPOINT
 
 #include "test_harness.h"
 #include "test_commons.h"
@@ -51,7 +51,7 @@
 struct KokkosIntegrateTest : KokkosBaseTest { };
 
 TEST_F(KokkosIntegrateTest, test_integrate_1) {
-  using namespace serialization::interface;
+  using namespace checkpoint;
   using DataType = Data;
 
   // Init test_data, check for golden status before and after serialization
@@ -72,7 +72,7 @@ TEST_F(KokkosIntegrateTest, test_integrate_1) {
 struct KokkosNullTest : KokkosBaseTest { };
 
 TEST_F(KokkosNullTest, test_null_1) {
-  using namespace serialization::interface;
+  using namespace checkpoint;
   using ViewType = Kokkos::View<int*>;
 
   // Default construct
@@ -89,7 +89,7 @@ TEST_F(KokkosNullTest, test_null_1) {
 struct KokkosViewOfVIewTest : KokkosBaseTest { };
 
 TEST_F(KokkosViewOfVIewTest, test_view_of_view_init_1) {
-  using namespace serialization::interface;
+  using namespace checkpoint;
   using ViewType = Kokkos::View<Kokkos::View<double*>[3]>;
 
   // Default construct
@@ -103,7 +103,7 @@ TEST_F(KokkosViewOfVIewTest, test_view_of_view_init_1) {
 }
 
 TEST_F(KokkosViewOfVIewTest, test_view_of_view_init_2) {
-  using namespace serialization::interface;
+  using namespace checkpoint;
   using ViewType = Kokkos::View<Kokkos::View<double*>[3]>;
 
   // Default construct
@@ -114,18 +114,18 @@ TEST_F(KokkosViewOfVIewTest, test_view_of_view_init_2) {
 }
 
 TEST_F(KokkosViewOfVIewTest, test_view_of_view_uninit_1) {
-  using namespace serialization::interface;
+  using namespace checkpoint;
   using ViewType = Kokkos::View<Kokkos::View<double*>[3]>;
 
   // Default construct
   ViewType test_data;
 
   auto ret = serialize<ViewType>(test_data);
-  deserialize<ViewType>(ret->getBuffer(), ret->getSize());
+  deserialize<ViewType>(ret->getBuffer());
 }
 
 TEST_F(KokkosViewOfVIewTest, test_view_of_view_uninit_fix) {
-  using namespace serialization::interface;
+  using namespace checkpoint;
   using ViewType = Kokkos::View<Kokkos::View<double*>[3]>;
 
   // Default construct
