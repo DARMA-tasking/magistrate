@@ -59,8 +59,12 @@ PackerBuffer<BufferT>::PackerBuffer(SerialSizeType const& in_size)
      buffer_(std::make_unique<BufferT>(size_))
 {
   MemorySerializer::initializeBuffer(buffer_->getBuffer());
+
   debug_checkpoint(
-    "PackerBuffer: size=%ld, start_=%p, cur_=%p\n", size_, start_, cur_
+    "PackerBuffer: size=%ld, start_=%p, cur_=%p\n",
+    size_,
+    static_cast<void*>(start_),
+    static_cast<void*>(cur_)
   );
 }
 
@@ -71,8 +75,12 @@ PackerBuffer<BufferT>::PackerBuffer(
     buffer_(std::move(buf_ptr))
 {
   MemorySerializer::initializeBuffer(buffer_->getBuffer());
+
   debug_checkpoint(
-    "PackerBuffer: size=%ld, start_=%p, cur_=%p\n", size_, start_, cur_
+    "PackerBuffer: size=%ld, start_=%p, cur_=%p\n",
+    size_,
+    static_cast<void*>(start_),
+    static_cast<void*>(cur_)
   );
 }
 
@@ -85,8 +93,12 @@ PackerBuffer<BufferT>::PackerBuffer(
     buffer_(std::make_unique<BufferT>(size_, std::forward<Args>(args)...))
 {
   MemorySerializer::initializeBuffer(buffer_->getBuffer());
+
   debug_checkpoint(
-    "PackerBuffer: size=%ld, start_=%p, cur_=%p\n", size_, start_, cur_
+    "PackerBuffer: size=%ld, start_=%p, cur_=%p\n",
+    size_,
+    static_cast<void*>(start_),
+    static_cast<void*>(cur_)
   );
 }
 
@@ -104,7 +116,8 @@ void PackerBuffer<BufferT>::contiguousBytes(
 ) {
   debug_checkpoint(
     "PackerBuffer: offset=%ld, size=%ld, num_elms=%ld, ptr=%p, cur_=%p, val=%d\n",
-    cur_ - start_, size_, num_elms, ptr, cur_, *reinterpret_cast<int*>(ptr)
+    cur_ - start_, size_, num_elms, ptr, static_cast<void*>(cur_),
+    *reinterpret_cast<int*>(ptr)
   );
 
   SerialSizeType const len = size * num_elms;

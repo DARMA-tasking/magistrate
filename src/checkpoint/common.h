@@ -50,8 +50,8 @@
 #define DEBUG_CHECKPOINT 0
 
 #if DEBUG_CHECKPOINT
-#define debug_checkpoint(...)            \
-  do {                                          \
+#define debug_checkpoint(...)        \
+  do {                               \
     printf(__VA_ARGS__);             \
   } while (0);
 #include <cstdio>
