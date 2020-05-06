@@ -160,7 +160,10 @@ std::size_t getSize(T& target);
 /**
  * \brief Serialize \c T to file with filename \c file
  *
- * Byte-serializes \c T to file, truncating \c file if it already exists.
+ * Byte-serializes \c T to file, truncating \c file if it already exists. If any
+ * error occurs while opening/closing/mapping the file, \c std::runtime_error
+ * will be thrown with an appropriate error message containing the corresponding
+ * errno.
  *
  * \param[in] target the \c T to serialize
  * \param[in] file name of the file to create
