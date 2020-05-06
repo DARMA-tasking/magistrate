@@ -51,29 +51,93 @@
 
 namespace checkpoint {
 
+/// Callback for user to allocate bytes during serialization
 using BufferCallbackType = std::function<char*(std::size_t size)>;
 
+/// Return of serialize that contains the buffer and size serialized
 struct SerializedInfo {
   virtual std::size_t getSize() const = 0;
   virtual char* getBuffer() const = 0;
   virtual ~SerializedInfo() { }
 };
 
-using SerializedInfoPtrType = std::unique_ptr<SerializedInfo>;
-using SerializedReturnType = SerializedInfoPtrType;
+/// Convenience typedef for \c std::unique_ptr<SerializedInfo>
+using SerializedReturnType = std::unique_ptr<SerializedInfo>;
 
+/**
+ * \brief Serialize \c T into a byte buffer
+ *
+ * Serializes an object recursively by invoking the \c serialize
+ * functions/methods recursively.
+ *
+ * \param[in] target the \c T to serialie
+ * \param[in] fn (optional) callback to supply buffer for to allow user
+ * allocation of the produced byte buffer. The callback will pass the number of
+ * bytes required and return a char* will at least that many bytes.
+ *
+ * \return a \c std::unique_ptr to a \c SerializedInfo containing the buffer
+ * with serialized data and the size of the buffer
+ */
 template <typename T>
 SerializedReturnType serialize(T& target, BufferCallbackType fn = nullptr);
 
+/**
+ * \brief De-serialize and reify \c T from a byte buffer and corresponding \c
+ * size
+ *
+ * De-serializes an object recursively by first invoking the reconstruction
+ * strategy and then \c serialize functions/methods recursively to rebuild the
+ * state of the object as serialized. During reconstruction, based on trait
+ * detection, \c T will either be default constructed on \c user_buf (or a
+ * system allocated buffer) or reconstructed based on a user-defined reconstruct
+ * method. If \c user_buf is not passed, the returned object point must be
+ * deallocated with \c delete
+ *
+ * \param[in] buf the buffer containing the bytes to reify \c T
+ * \param[in] len the number of bytes in \c buf
+ * \param[in] user_buf (optional) buffer containing bytes allocated with
+ * sufficient size for \c T. If this buffer is passed, the caller is responsible
+ * for deallocating the buffer. If it is not passed, the system will allocate a
+ * buffer that must be de-allocated with \c delete
+ *
+ * \return a pointer to the newly reified \c T based on bytes in \c buf
+ */
 template <typename T>
-T* deserialize(char* buf, std::size_t size, T* user_buf = nullptr);
+T* deserialize(char* buf, std::size_t len, T* user_buf = nullptr);
 
+/**
+ * \brief De-serialize and reify \c T from a byte buffer and corresponding \c
+ * size in-place on the user-provided \c t
+ *
+ * Note: the other form of \c deserialize will either reconstruct to default
+ * construct \c T in-place. This overload will not allocate or construct \c T
+ *
+ * \param[in] buf the buffer containing the bytes to reify \c T
+ * \param[in] len the number of bytes in \c buf
+ * \param[in] t a valid pointer to a \c T that has been user-allocated and
+ * constructed
+ */
 template <typename T>
-void deserializeInPlace(char* buf, std::size_t size, T* t);
+void deserializeInPlace(char* buf, std::size_t len, T* t);
 
+/**
+ * \brief Convenience function for de-serializing and reify \c T directly from \c
+ * in the return value from \c serialize
+ *
+ * \param[in] in the buffer and size combo returned from \c serialize
+ *
+ * \return a pointer to \c T that must be deallocated
+ */
 template <typename T>
 T* deserialize(SerializedReturnType&& in);
 
+/**
+ * \brief Get the number of bytes that \c target requires for serialization.
+ *
+ * \param[in] target reference to \c T to size
+ *
+ * \return number of bytes for the \c target
+ */
 template <typename T>
 std::size_t getSize(T& target);
 
