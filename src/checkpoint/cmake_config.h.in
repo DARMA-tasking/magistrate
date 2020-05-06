@@ -47,5 +47,7 @@
 
 #cmakedefine checkpoint_has_fallocate
 #cmakedefine checkpoint_has_mmap64
+#cmakedefine checkpoint_has_msync64
+#cmakedefine checkpoint_has_munmap64
 
 #endif /*INCLUDED_CHECKPOINT_CMAKE_CONFIG_H_IN*/
