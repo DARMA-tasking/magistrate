@@ -61,8 +61,9 @@ struct IOBuffer : Buffer {
   }
 
   void setupFile();
+  void closeFile();
 
-  virtual ~IOBuffer();
+  virtual ~IOBuffer() { closeFile(); }
 
   virtual SerialByteType* getBuffer() const override {
     return buffer_;
@@ -76,7 +77,7 @@ private:
   std::string file_ = "";
   SerialSizeType size_ = 0;
   SerialByteType* buffer_ = nullptr;
-  int fd_ = 0;
+  int fd_ = -1;
 };
 
 }} /* end namespace checkpoint::buffer */

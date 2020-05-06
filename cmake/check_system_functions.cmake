@@ -9,6 +9,7 @@ check_include_files(sys/stat.h  checkpoint_has_sys_stat)
 check_include_files(fcntl.h     checkpoint_has_fcntl)
 check_include_files(sys/mman.h  checkpoint_has_sys_mman)
 check_include_files(unistd.h    checkpoint_has_unistd)
+check_include_files(errno.h     checkpoint_has_errno)
 
 if (NOT checkpoint_has_sys_types)
   message(FATAL_ERROR "Could not find sys/types.h, required for IO")
@@ -28,6 +29,10 @@ endif()
 
 if (NOT checkpoint_has_unistd)
   message(FATAL_ERROR "Could not find unistd.h, required for IO")
+endif()
+
+if (NOT checkpoint_has_errno)
+  message(FATAL_ERROR "Could not find errno.h, required for IO")
 endif()
 
 set(CMAKE_REQUIRED_INCLUDES "sys/types.h;sys/stat.h;fcntl.h")

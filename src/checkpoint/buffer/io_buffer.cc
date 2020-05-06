@@ -48,12 +48,14 @@
 #include "checkpoint/common.h"
 #include "checkpoint/buffer/io_buffer.h"
 
+#include <string>
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
-#include <assert.h>
+#include <errno.h>
 
 namespace checkpoint { namespace buffer {
 
@@ -64,10 +66,10 @@ void IOBuffer::setupFile() {
    * Start by opening the file, create/read-write/truncate mode
    */
   fd_ = open(file_.c_str(), O_CREAT | O_RDWR | O_TRUNC, (mode_t)0600);
-  assert(fd_ != -1 && "open must return a valid file descriptor");
-
   if (fd_ == -1) {
-    throw new std::runtime_error("Failed to open file");
+    auto err = std::string("Failed to open file=") + file_ + ": errno=" +
+               std::to_string(errno);
+    throw std::runtime_error(err);
   }
 
   int ret = 0;
@@ -82,7 +84,7 @@ void IOBuffer::setupFile() {
   ret = fallocate(fd_, 0, 0, size_);
 
   if (ret != 0) {
-    throw new std::runtime_error("fallocate failed on file");
+    throw std::runtime_error("fallocate failed on file");
   }
 # endif
 
@@ -92,10 +94,11 @@ void IOBuffer::setupFile() {
   debug_checkpoint("IOBuffer: truncating file\n");
 
   ret = ftruncate(fd_, size_);
-  assert(ret == 0 && "ftruncate should not fail");
 
   if (ret != 0) {
-    throw new std::runtime_error("ftruncate failed on file");
+    auto err = std::string("ftruncate failed on file: errno=") +
+               std::to_string(errno);
+    throw std::runtime_error(err);
   }
 
   /*
@@ -104,10 +107,11 @@ void IOBuffer::setupFile() {
   debug_checkpoint("IOBuffer: syncing file\n");
 
   ret = fsync(fd_);
-  assert(ret == 0 && "fsync should not fail");
 
   if (ret != 0) {
-    throw new std::runtime_error("fsync failed on file");
+    auto err = std::string("fsync failed on file: errno=") +
+               std::to_string(errno);
+    throw std::runtime_error(err);
   }
 
   debug_checkpoint("IOBuffer: mmap file: len=%lu\n", size_);
@@ -119,17 +123,19 @@ void IOBuffer::setupFile() {
 
 # if defined(checkpoint_has_mmap64)
   addr = mmap64(nullptr, size_, PROT_WRITE, MAP_PRIVATE, fd_, 0);
-  assert(addr != MAP_FAILED && "mmap64 should not fail");
 
   if (addr == MAP_FAILED) {
-    throw new std::runtime_error("mmap64 failed on file");
+    auto err = std::string("mmap64 failed for writing file: errno=") +
+               std::to_string(errno);
+    throw std::runtime_error(err);
   }
 # else
   addr = mmap(nullptr, size_, PROT_WRITE, MAP_PRIVATE, fd_, 0);
-  assert(addr != MAP_FAILED && "mmap should not fail");
 
   if (addr == MAP_FAILED) {
-    throw new std::runtime_error("mmap failed on file");
+    auto err = std::string("mmap failed for writing file: errno=") +
+               std::to_string(errno);
+    throw std::runtime_error(err);
   }
 # endif
 
@@ -140,7 +146,14 @@ void IOBuffer::setupFile() {
   buffer_ = static_cast<SerialByteType*>(addr);
 }
 
-/*virtual*/ IOBuffer::~IOBuffer() {
+void IOBuffer::closeFile() {
+  /*
+   * If fd_ is not set, then we should not have anything open or mapped
+   */
+  if (fd_ == -1) {
+    return;
+  }
+
   auto addr = static_cast<void*>(buffer_);
 
   debug_checkpoint("~IOBuffer: msync: file=%s, len=%lu\n", file_.c_str(), size_);
@@ -152,18 +165,20 @@ void IOBuffer::setupFile() {
    */
 # if defined(checkpoint_has_msync64)
   ret = msync64(addr, size_, MS_SYNC);
-  assert(ret == 0 && "msync64 should not fail");
 
   if (ret != 0) {
-    throw new std::runtime_error("msync64 failed on file after write");
+    auto err = std::string("msync64 failed on file after write: errno=") +
+               std::to_string(errno);
+    throw std::runtime_error(err);
   }
 
 # else
   ret = msync(addr, size_, MS_SYNC);
-  assert(ret == 0 && "msync should not fail");
 
   if (ret != 0) {
-    throw new std::runtime_error("msync failed on file after write");
+    auto err = std::string("msync failed on file after write: errno=") +
+               std::to_string(errno);
+    throw std::runtime_error(err);
   }
 # endif
 
@@ -174,18 +189,20 @@ void IOBuffer::setupFile() {
 
 # if defined(checkpoint_has_munmap64)
   ret = munmap64(addr, size_);
-  assert(ret == 0 && "munmap64 should not fail");
 
   if (ret != 0) {
-    throw new std::runtime_error("munmap64 failed on file after write");
+    auto err = std::string("munmap64 failed on after write: errno=") +
+               std::to_string(errno);
+    throw std::runtime_error(err);
   }
 
 # else
   ret = munmap(addr, size_);
-  assert(ret == 0 && "munmap should not fail");
 
   if (ret != 0) {
-    throw new std::runtime_error("munmap failed on file after write");
+    auto err = std::string("munmap failed on file after write: errno=") +
+               std::to_string(errno);
+    throw std::runtime_error(err);
   }
 # endif
 
@@ -195,11 +212,14 @@ void IOBuffer::setupFile() {
   debug_checkpoint("~IOBuffer: closing file\n");
 
   ret = close(fd_);
-  assert(ret == 0 && "close should not fail");
 
   if (ret != 0) {
-    throw new std::runtime_error("close on file descriptor failed");
+    auto err = std::string("close on file descriptor failed: errno=") +
+               std::to_string(errno);
+    throw std::runtime_error(err);
   }
+
+  fd_ = -1;
 }
 
 }} /* end namespace checkpoint::buffer */
