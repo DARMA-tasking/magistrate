@@ -77,6 +77,20 @@ PackerBuffer<BufferT>::PackerBuffer(
 }
 
 template <typename BufferT>
+template <typename... Args>
+PackerBuffer<BufferT>::PackerBuffer(
+  SerialSizeType const& in_size, Args&&... args
+) : MemorySerializer(ModeType::Packing),
+    size_(in_size),
+    buffer_(std::make_unique<BufferT>(size_, std::forward<Args>(args)...))
+{
+  MemorySerializer::initializeBuffer(buffer_->getBuffer());
+  debug_checkpoint(
+    "PackerBuffer: size=%ld, start_=%p, cur_=%p\n", size_, start_, cur_
+  );
+}
+
+template <typename BufferT>
 typename PackerBuffer<BufferT>::BufferTPtrType
 PackerBuffer<BufferT>::extractPackedBuffer() {
   auto ret = std::move(buffer_);

@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                   packer.h
+//                                 io_buffer.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,46 +42,43 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_PACKER_H
-#define INCLUDED_CHECKPOINT_SERIALIZERS_PACKER_H
+#if !defined INCLUDED_CHECKPOINT_BUFFER_IO_BUFFER_H
+#define INCLUDED_CHECKPOINT_BUFFER_IO_BUFFER_H
 
 #include "checkpoint/common.h"
-#include "checkpoint/serializers/memory_serializer.h"
 #include "checkpoint/buffer/buffer.h"
-#include "checkpoint/buffer/managed_buffer.h"
-#include "checkpoint/buffer/user_buffer.h"
-#include "checkpoint/buffer/io_buffer.h"
 
-namespace checkpoint {
+#include <string>
 
-template <typename BufferT>
-struct PackerBuffer : MemorySerializer {
-  using BufferTPtrType = std::unique_ptr<BufferT>;
-  using PackerReturnType = std::tuple<BufferTPtrType, SerialSizeType>;
+namespace checkpoint { namespace buffer {
 
-  PackerBuffer(SerialSizeType const& in_size);
-  PackerBuffer(SerialSizeType const& in_size, BufferTPtrType buf_ptr);
+struct IOBuffer : Buffer {
 
-  template <typename... Args>
-  PackerBuffer(SerialSizeType const& in_size, Args&&... args);
+  IOBuffer(SerialSizeType const& in_size, std::string const& in_file)
+    : file_(in_file), size_(in_size)
+  {
+    setupFile();
+  }
 
-  void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms);
-  BufferTPtrType extractPackedBuffer();
+  void setupFile();
+
+  virtual ~IOBuffer();
+
+  virtual SerialByteType* getBuffer() const override {
+    return buffer_;
+  }
+
+  virtual SerialSizeType getSize() const override {
+    return size_;
+  }
 
 private:
-  // Size of the buffer we are packing (Sizer should have run already)
-  SerialSizeType const size_;
-
-  // The abstract buffer that may manage the memory in various ways
-  BufferTPtrType buffer_ = nullptr;
+  std::string file_ = "";
+  SerialSizeType size_ = 0;
+  SerialByteType* buffer_ = nullptr;
+  int fd_ = 0;
 };
 
-using Packer = PackerBuffer<buffer::ManagedBuffer>;
-using PackerUserBuf = PackerBuffer<buffer::UserBuffer>;
-using PackerIO = PackerBuffer<buffer::IOBuffer>;
+}} /* end namespace checkpoint::buffer */
 
-} /* end namespace checkpoint */
-
-#include "checkpoint/serializers/packer.impl.h"
-
-#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_PACKER_H*/
+#endif /*INCLUDED_CHECKPOINT_BUFFER_IO_BUFFER_H*/

@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                   packer.h
+//                                 io_buffer.cc
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,46 +42,65 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_PACKER_H
-#define INCLUDED_CHECKPOINT_SERIALIZERS_PACKER_H
+#if !defined INCLUDED_CHECKPOINT_BUFFER_IO_BUFFER_CC
+#define INCLUDED_CHECKPOINT_BUFFER_IO_BUFFER_CC
 
 #include "checkpoint/common.h"
-#include "checkpoint/serializers/memory_serializer.h"
-#include "checkpoint/buffer/buffer.h"
-#include "checkpoint/buffer/managed_buffer.h"
-#include "checkpoint/buffer/user_buffer.h"
 #include "checkpoint/buffer/io_buffer.h"
 
-namespace checkpoint {
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <assert.h>
 
-template <typename BufferT>
-struct PackerBuffer : MemorySerializer {
-  using BufferTPtrType = std::unique_ptr<BufferT>;
-  using PackerReturnType = std::tuple<BufferTPtrType, SerialSizeType>;
+namespace checkpoint { namespace buffer {
 
-  PackerBuffer(SerialSizeType const& in_size);
-  PackerBuffer(SerialSizeType const& in_size, BufferTPtrType buf_ptr);
+void IOBuffer::setupFile() {
+  printf("opening file: %s\n", file_.c_str());
 
-  template <typename... Args>
-  PackerBuffer(SerialSizeType const& in_size, Args&&... args);
+  fd_ = open(file_.c_str(), O_CREAT | O_RDWR | O_TRUNC, (mode_t)0600);
+  assert(fd_ != -1 && "open must be valid");
 
-  void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms);
-  BufferTPtrType extractPackedBuffer();
+  //printf("truncating file: %s\n", file_.c_str());
 
-private:
-  // Size of the buffer we are packing (Sizer should have run already)
-  SerialSizeType const size_;
+  int ret = ftruncate(fd_, size_);
+  assert(ret == 0 && "ftruncate should not fail");
 
-  // The abstract buffer that may manage the memory in various ways
-  BufferTPtrType buffer_ = nullptr;
-};
+  //printf("syncing file: %s\n", file_.c_str());
 
-using Packer = PackerBuffer<buffer::ManagedBuffer>;
-using PackerUserBuf = PackerBuffer<buffer::UserBuffer>;
-using PackerIO = PackerBuffer<buffer::IOBuffer>;
+  ret = fsync(fd_);
+  assert(ret == 0 && "fsync should not fail");
 
-} /* end namespace checkpoint */
+  //printf("mmap file: %s, len=%lu\n", file_.c_str(), size_);
 
-#include "checkpoint/serializers/packer.impl.h"
+  void* addr = mmap(nullptr, size_, PROT_WRITE, MAP_PRIVATE, fd_, 0);
+  assert(addr != MAP_FAILED && "mmap should not fail");
 
-#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_PACKER_H*/
+  // fallocate does not exist on darwin
+
+  //posix_fallocate(fd, 0, size_);
+
+  buffer_ = static_cast<SerialByteType*>(addr);
+}
+
+/*virtual*/ IOBuffer::~IOBuffer() {
+  auto addr = static_cast<void*>(buffer_);
+
+  //printf("msync file: %s, len=%lu\n", file_.c_str(), size_);
+
+  msync(addr, size_, MS_SYNC);
+
+  //printf("munmap file: %s, len=%lu\n", file_.c_str(), size_);
+
+  munmap(addr, size_);
+
+  //printf("close file: %s, len=%lu\n", file_.c_str(), size_);
+
+  close(fd_);
+}
+
+}} /* end namespace checkpoint::buffer */
+
+#endif /*INCLUDED_CHECKPOINT_BUFFER_IO_BUFFER_CC*/
