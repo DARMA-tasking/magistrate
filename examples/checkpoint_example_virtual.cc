@@ -147,10 +147,9 @@ namespace checkpoint {
 
       printf("ptr=%p, size=%ld\n*****\n\n", static_cast<void*>(buf), buf_size);
 
-      auto tptr = checkpoint::deserialize<ExampleVector>(buf);
-      auto& t = *tptr;
+      auto t = checkpoint::deserialize<ExampleVector>(buf);
 
-      for (auto elm : t.vec)
+      for (auto elm : t->vec)
         elm->test();
     }
 

@@ -96,14 +96,31 @@ SerializedReturnType serialize(T& target, BufferCallbackType fn = nullptr);
  *
  * \param[in] buf the buffer containing the bytes to reify \c T
  * \param[in] object_buf (optional) buffer containing bytes allocated with
- * sufficient size for \c T. If this buffer is passed, the caller is responsible
+ * sufficient size for \c T. If this buffer != null, the caller is responsible
  * for deallocating the buffer. If it is not passed, the system will allocate a
  * buffer that must be de-allocated with \c delete
  *
  * \return a pointer to the newly reified \c T based on bytes in \c buf
  */
 template <typename T>
-T* deserialize(char* buf, char* object_buf = nullptr);
+T* deserialize(char* buf, char* object_buf);
+
+/**
+ * \brief De-serialize and reify \c T from a byte buffer and corresponding \c
+ * size
+ *
+ * De-serializes an object recursively by first invoking the reconstruction
+ * strategy and then \c serialize functions/methods recursively to rebuild the
+ * state of the object as serialized. During reconstruction, based on trait
+ * detection, \c T will either be default constructed or reconstructed based on
+ * a user-defined reconstruct method.
+ *
+ * \param[in] buf the buffer containing the bytes to reify \c T
+ *
+ * \return a unique pointer to the newly reified \c T based on bytes in \c buf
+ */
+template <typename T>
+std::unique_ptr<T> deserialize(char* buf);
 
 /**
  * \brief De-serialize and reify \c T from a byte buffer and corresponding \c

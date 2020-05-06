@@ -86,18 +86,15 @@ static void testContainer(bool is_ordered, std::initializer_list<T> lst) {
   ContainerT c1{lst};
   auto ret = checkpoint::serialize(c1);
 
-  auto tptr = checkpoint::deserialize<ContainerT>(ret->getBuffer());
-  auto& t1 = *tptr;
+  auto t1 = checkpoint::deserialize<ContainerT>(ret->getBuffer());
 
-  EXPECT_EQ(c1.size(), t1.size());
+  EXPECT_EQ(c1.size(), t1->size());
 
   if (is_ordered) {
-    testEqualityContainerOrdered(c1, t1);
+    testEqualityContainerOrdered(c1, *t1);
   } else {
-    testEqualityContainerUnordered(c1, t1);
+    testEqualityContainerUnordered(c1, *t1);
   }
-
-  delete tptr;
 }
 
 TYPED_TEST_P(TestContainer, test_single_ordered_container) {
@@ -169,18 +166,15 @@ static void testMultiContainer(bool is_ordered, std::initializer_list<Pair> lst)
   ContainerT c1{lst};
   auto ret = checkpoint::serialize(c1);
 
-  auto tptr = checkpoint::deserialize<ContainerT>(ret->getBuffer());
-  auto& t1 = *tptr;
+  auto t1 = checkpoint::deserialize<ContainerT>(ret->getBuffer());
 
-  EXPECT_EQ(c1.size(), t1.size());
+  EXPECT_EQ(c1.size(), t1->size());
 
   if (is_ordered) {
-    testEqualityContainerOrdered(c1, t1);
+    testEqualityContainerOrdered(c1, *t1);
   } else {
-    testEqualityContainerUnordered(c1, t1);
+    testEqualityContainerUnordered(c1, *t1);
   }
-
-  delete tptr;
 }
 
 TYPED_TEST_P(TestMultiContainer, test_multi_container) {

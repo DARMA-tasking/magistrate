@@ -85,10 +85,8 @@ TEST_F(TestByteMacro, test_bytecopy_trait) {
 
   auto ret = checkpoint::serialize<TestType>(t);
 
-  auto tptr = checkpoint::deserialize<TestType>(ret->getBuffer());
-  auto& t_final = *tptr;
-
-  t_final.check();
+  auto t1 = checkpoint::deserialize<TestType>(ret->getBuffer());
+  t1->check();
 }
 
 }}} // end namespace checkpoint::tests::unit

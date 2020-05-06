@@ -75,11 +75,11 @@ TEST_F(TestByteCopyTrait, test_bytecopy_trait) {
     printf("buffer=%p, size=%ld\n", ret->getBuffer(), ret->getSize());
   #endif
 
-  auto tptr = checkpoint::deserialize<TestType>(ret->getBuffer());
-  (void)tptr;
+  auto t1 = checkpoint::deserialize<TestType>(ret->getBuffer());
+  (void)t1;
 
   #if TEST_BYTE_DEBUG_PRINT
-    auto& dest = *tptr;
+  auto& dest = *t1;
     printf("ByteCopyStruct {%d,%d}\n", dest.x, dest.y);
   #endif
 }
