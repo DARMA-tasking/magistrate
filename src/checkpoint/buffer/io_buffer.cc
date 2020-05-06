@@ -60,28 +60,83 @@ namespace checkpoint { namespace buffer {
 void IOBuffer::setupFile() {
   debug_checkpoint("IOBuffer: opening file: %s\n", file_.c_str());
 
+  /*
+   * Start by opening the file, create/read-write/truncate mode
+   */
   fd_ = open(file_.c_str(), O_CREAT | O_RDWR | O_TRUNC, (mode_t)0600);
-  assert(fd_ != -1 && "open must be valid");
+  assert(fd_ != -1 && "open must return a valid file descriptor");
 
+  if (fd_ == -1) {
+    throw new std::runtime_error("Failed to open file");
+  }
+
+  int ret = 0;
+
+  /*
+   * If CMake detected fallocate, invoke on size_. We might want to change this
+   * to posix_fallocate, but from what I read it might be slower.
+   */
+# if defined(checkpoint_has_fallocate)
+  debug_checkpoint("IOBuffer: fallocate file\n");
+
+  ret = fallocate(fd_, 0, 0, size_);
+
+  if (ret != 0) {
+    throw new std::runtime_error("fallocate failed on file");
+  }
+# endif
+
+  /*
+   * Truncate the file to the appropriate size
+   */
   debug_checkpoint("IOBuffer: truncating file\n");
 
-  int ret = ftruncate(fd_, size_);
+  ret = ftruncate(fd_, size_);
   assert(ret == 0 && "ftruncate should not fail");
 
+  if (ret != 0) {
+    throw new std::runtime_error("ftruncate failed on file");
+  }
+
+  /*
+   * Sync the file with the new size to the file system
+   */
   debug_checkpoint("IOBuffer: syncing file\n");
 
   ret = fsync(fd_);
   assert(ret == 0 && "fsync should not fail");
 
+  if (ret != 0) {
+    throw new std::runtime_error("fsync failed on file");
+  }
+
   debug_checkpoint("IOBuffer: mmap file: len=%lu\n", size_);
 
-  void* addr = mmap(nullptr, size_, PROT_WRITE, MAP_PRIVATE, fd_, 0);
+  /*
+   * mmap or mmap64 the file descriptor in WRITE mode, PRIVATE to this process
+   */
+  void* addr = nullptr;
+
+# if defined(checkpoint_has_mmap64)
+  addr = mmap64(nullptr, size_, PROT_WRITE, MAP_PRIVATE, fd_, 0);
+  assert(addr != MAP_FAILED && "mmap64 should not fail");
+
+  if (addr == MAP_FAILED) {
+    throw new std::runtime_error("mmap64 failed on file");
+  }
+# else
+  addr = mmap(nullptr, size_, PROT_WRITE, MAP_PRIVATE, fd_, 0);
   assert(addr != MAP_FAILED && "mmap should not fail");
 
-  // fallocate does not exist on darwin
+  if (addr == MAP_FAILED) {
+    throw new std::runtime_error("mmap failed on file");
+  }
+# endif
 
-  //posix_fallocate(fd, 0, size_);
-
+  /*
+   * Return out the mapped file as a char* pointer so the serializer writes to
+   * this
+   */
   buffer_ = static_cast<SerialByteType*>(addr);
 }
 
@@ -90,15 +145,61 @@ void IOBuffer::setupFile() {
 
   debug_checkpoint("~IOBuffer: msync: file=%s, len=%lu\n", file_.c_str(), size_);
 
-  msync(addr, size_, MS_SYNC);
+  int ret = 0;
 
+  /*
+   * msync/msync64 the mapped file causing the file to be written out
+   */
+# if defined(checkpoint_has_msync64)
+  ret = msync64(addr, size_, MS_SYNC);
+  assert(ret == 0 && "msync64 should not fail");
+
+  if (ret != 0) {
+    throw new std::runtime_error("msync64 failed on file after write");
+  }
+
+# else
+  ret = msync(addr, size_, MS_SYNC);
+  assert(ret == 0 && "msync should not fail");
+
+  if (ret != 0) {
+    throw new std::runtime_error("msync failed on file after write");
+  }
+# endif
+
+  /*
+   * Unmap the file via munmap/munmap64
+   */
   debug_checkpoint("~IOBuffer: munmap\n");
 
-  munmap(addr, size_);
+# if defined(checkpoint_has_munmap64)
+  ret = munmap64(addr, size_);
+  assert(ret == 0 && "munmap64 should not fail");
 
+  if (ret != 0) {
+    throw new std::runtime_error("munmap64 failed on file after write");
+  }
+
+# else
+  ret = munmap(addr, size_);
+  assert(ret == 0 && "munmap should not fail");
+
+  if (ret != 0) {
+    throw new std::runtime_error("munmap failed on file after write");
+  }
+# endif
+
+  /*
+   * Finally, close the file. We are done.
+   */
   debug_checkpoint("~IOBuffer: closing file\n");
 
-  close(fd_);
+  ret = close(fd_);
+  assert(ret == 0 && "close should not fail");
+
+  if (ret != 0) {
+    throw new std::runtime_error("close on file descriptor failed");
+  }
 }
 
 }} /* end namespace checkpoint::buffer */
