@@ -53,17 +53,15 @@ endif()
 
 set(CMAKE_REQUIRED_INCLUDES "sys/mman.h")
 check_function_exists(mmap checkpoint_has_mmap)
+check_function_exists(msync checkpoint_has_msync)
+check_function_exists(mmap64 checkpoint_has_mmap64)
 
 if (NOT checkpoint_has_mmap)
   message(FATAL_ERROR "Expected function mmap(..), required for IO, was not found")
 endif()
 
-set(CMAKE_REQUIRED_INCLUDES "sys/mman.h")
-check_function_exists(mmap checkpoint_has_mmap)
-check_function_exists(mmap64 checkpoint_has_mmap64)
-
-if (NOT checkpoint_has_mmap)
-  message(FATAL_ERROR "Expected function mmap(..), required for IO, was not found")
+if (NOT checkpoint_has_msync)
+  message(FATAL_ERROR "Expected function msync(..), required for IO, was not found")
 endif()
 
 if (NOT checkpoint_has_mmap64)
