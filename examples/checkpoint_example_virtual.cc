@@ -140,14 +140,14 @@ namespace checkpoint {
       v.vec.push_back(new MyObj2(20));
       v.vec.push_back(new MyObj(10));
 
-      auto ret = checkpoint::serializeType<ExampleVector>(v);
+      auto ret = checkpoint::serialize<ExampleVector>(v);
 
-      auto const& buf = std::get<0>(ret);
-      auto const& buf_size = std::get<1>(ret);
+      auto const& buf = ret->getBuffer();
+      auto const& buf_size = ret->getSize();
 
-      printf("ptr=%p, size=%ld\n*****\n\n", static_cast<void*>(buf->getBuffer()), buf_size);
+      printf("ptr=%p, size=%ld\n*****\n\n", static_cast<void*>(buf), buf_size);
 
-      auto tptr = checkpoint::deserializeType<ExampleVector>(buf->getBuffer(), buf_size);
+      auto tptr = checkpoint::deserialize<ExampleVector>(buf, buf_size);
       auto& t = *tptr;
 
       for (auto elm : t.vec)

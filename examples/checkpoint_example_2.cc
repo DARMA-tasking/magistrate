@@ -81,14 +81,14 @@ int main(int, char**) {
 
   my_test_inst.print();
 
-  auto serialized = checkpoint::serializeType<MyTest>(my_test_inst);
+  auto ret = checkpoint::serialize<MyTest>(my_test_inst);
 
-  auto const& buf = std::get<0>(serialized);
-  auto const& buf_size = std::get<1>(serialized);
+  auto const& buf = ret->getBuffer();
+  auto const& buf_size = ret->getSize();
 
-  printf("ptr=%p, size=%ld\n", static_cast<void*>(buf->getBuffer()), buf_size);
+  printf("ptr=%p, size=%ld\n", static_cast<void*>(buf), buf_size);
 
-  auto tptr = checkpoint::deserializeType<MyTest>(buf->getBuffer(), buf_size);
+  auto tptr = checkpoint::deserialize<MyTest>(buf, buf_size);
   auto& t = *tptr;
 
   t.print();
