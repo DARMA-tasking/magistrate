@@ -58,7 +58,7 @@ static void serializationVectorBoolTest(std::vector<bool> &boolVectorIn) {
   #endif
 
   auto boolVectorOut = checkpoint::deserialize<std::vector<bool>>(
-   ret->getBuffer(), ret->getSize()
+   ret->getBuffer()
   );
 
    EXPECT_TRUE(boolVectorIn == *boolVectorOut);

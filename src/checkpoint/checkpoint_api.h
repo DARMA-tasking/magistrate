@@ -70,10 +70,11 @@ using SerializedReturnType = std::unique_ptr<SerializedInfo>;
  * Serializes an object recursively by invoking the \c serialize
  * functions/methods recursively.
  *
- * \param[in] target the \c T to serialie
+ * \param[in] target the \c T to serialize
  * \param[in] fn (optional) callback to supply buffer for to allow user
- * allocation of the produced byte buffer. The callback will pass the number of
- * bytes required and return a char* will at least that many bytes.
+ * allocation of the produced byte buffer. The callback will be passed the
+ * number of bytes required and return a char* to a buffer of at least that
+ * many bytes.
  *
  * \return a \c std::unique_ptr to a \c SerializedInfo containing the buffer
  * with serialized data and the size of the buffer
@@ -94,7 +95,6 @@ SerializedReturnType serialize(T& target, BufferCallbackType fn = nullptr);
  * deallocated with \c delete
  *
  * \param[in] buf the buffer containing the bytes to reify \c T
- * \param[in] len the number of bytes in \c buf
  * \param[in] user_buf (optional) buffer containing bytes allocated with
  * sufficient size for \c T. If this buffer is passed, the caller is responsible
  * for deallocating the buffer. If it is not passed, the system will allocate a
@@ -103,7 +103,7 @@ SerializedReturnType serialize(T& target, BufferCallbackType fn = nullptr);
  * \return a pointer to the newly reified \c T based on bytes in \c buf
  */
 template <typename T>
-T* deserialize(char* buf, std::size_t len, T* user_buf = nullptr);
+T* deserialize(char* buf, T* user_buf = nullptr);
 
 /**
  * \brief De-serialize and reify \c T from a byte buffer and corresponding \c
@@ -113,12 +113,11 @@ T* deserialize(char* buf, std::size_t len, T* user_buf = nullptr);
  * construct \c T in-place. This overload will not allocate or construct \c T
  *
  * \param[in] buf the buffer containing the bytes to reify \c T
- * \param[in] len the number of bytes in \c buf
  * \param[in] t a valid pointer to a \c T that has been user-allocated and
  * constructed
  */
 template <typename T>
-void deserializeInPlace(char* buf, std::size_t len, T* t);
+void deserializeInPlace(char* buf, T* t);
 
 /**
  * \brief Convenience function for de-serializing and reify \c T directly from \c

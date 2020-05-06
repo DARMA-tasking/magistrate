@@ -75,9 +75,7 @@ TEST_F(TestInterface, test_serialize) {
     printf("buffer=%p, size=%ld\n", ret->getBuffer(), ret->getSize());
   #endif
 
-  auto vec_ptr = checkpoint::deserialize<TestType>(
-    ret->getBuffer(), ret->getSize()
-  );
+  auto vec_ptr = checkpoint::deserialize<TestType>(ret->getBuffer());
   auto& des_vec = *vec_ptr;
 
   #if TEST_INTERFACE_DEBUG_PRINT

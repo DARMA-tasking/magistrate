@@ -51,10 +51,10 @@
 
 namespace checkpoint {
 
-Unpacker::Unpacker(SerialByteType* buf, SerialSizeType const& size)
+Unpacker::Unpacker(SerialByteType* buf)
   : MemorySerializer(ModeType::Unpacking, buf)
 {
-  debug_checkpoint("Unpacker: size=%ld, start_=%p, cur_=%p\n", size, start_, cur_);
+  debug_checkpoint("Unpacker: start_=%p, cur_=%p\n", start_, cur_);
 }
 
 void Unpacker::contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms) {

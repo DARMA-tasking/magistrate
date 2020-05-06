@@ -86,9 +86,7 @@ static void testContainer(bool is_ordered, std::initializer_list<T> lst) {
   ContainerT c1{lst};
   auto ret = checkpoint::serialize(c1);
 
-  auto tptr = checkpoint::deserialize<ContainerT>(
-    ret->getBuffer(), ret->getSize()
-  );
+  auto tptr = checkpoint::deserialize<ContainerT>(ret->getBuffer());
   auto& t1 = *tptr;
 
   EXPECT_EQ(c1.size(), t1.size());
@@ -171,9 +169,7 @@ static void testMultiContainer(bool is_ordered, std::initializer_list<Pair> lst)
   ContainerT c1{lst};
   auto ret = checkpoint::serialize(c1);
 
-  auto tptr = checkpoint::deserialize<ContainerT>(
-    ret->getBuffer(), ret->getSize()
-  );
+  auto tptr = checkpoint::deserialize<ContainerT>(ret->getBuffer());
   auto& t1 = *tptr;
 
   EXPECT_EQ(c1.size(), t1.size());

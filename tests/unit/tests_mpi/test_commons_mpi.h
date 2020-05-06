@@ -77,7 +77,7 @@ void serializeAnyMPI(T& view, std::function<void(T const&,T const&)> compare) {
 
     MPI_Recv(recv, viewSize, MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-    auto out_view = deserialize<T>(recv, viewSize);
+    auto out_view = deserialize<T>(recv);
     auto const& out_view_ref = *out_view;
 
 #if CHECKPOINT_USE_ND_COMPARE

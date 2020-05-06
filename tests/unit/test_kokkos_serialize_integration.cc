@@ -121,7 +121,7 @@ TEST_F(KokkosViewOfVIewTest, test_view_of_view_uninit_1) {
   ViewType test_data;
 
   auto ret = serialize<ViewType>(test_data);
-  deserialize<ViewType>(ret->getBuffer(), ret->getSize());
+  deserialize<ViewType>(ret->getBuffer());
 }
 
 TEST_F(KokkosViewOfVIewTest, test_view_of_view_uninit_fix) {

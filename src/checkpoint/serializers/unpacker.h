@@ -51,7 +51,7 @@
 namespace checkpoint {
 
 struct Unpacker : MemorySerializer {
-  Unpacker(SerialByteType* buf, SerialSizeType const& size);
+  explicit Unpacker(SerialByteType* buf);
 
   void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms);
 };

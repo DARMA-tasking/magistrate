@@ -165,7 +165,7 @@ void serializeAny(T& view, std::function<void(T const&,T const&)> compare) {
   using namespace checkpoint;
 
   auto ret = serialize<T>(view);
-  auto out_view = deserialize<T>(ret->getBuffer(), ret->getSize());
+  auto out_view = deserialize<T>(ret->getBuffer());
   auto const& out_view_ref = *out_view;
   #if CHECKPOINT_USE_ND_COMPARE
     compareND(view, out_view_ref);

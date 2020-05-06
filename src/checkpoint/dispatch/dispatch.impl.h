@@ -107,13 +107,12 @@ buffer::BufferPtrType Dispatch<T>::packType(
 
 template <typename T>
 T& Dispatch<T>::unpackType(
-  SerialByteType* buf, SerialByteType* data, SerialSizeType const& size,
-  bool in_place
+  SerialByteType* buf, SerialByteType* data, bool in_place
 ) {
   using DispatchT = DispatchCommon<T>;
   using CleanT = typename DispatchT::CleanT;
 
-  Unpacker unpacker(data, size);
+  Unpacker unpacker(data);
   if (in_place) {
     auto t_buf = reinterpret_cast<T*>(buf);
     SerializerDispatch<Unpacker, CleanT> ap;
@@ -155,19 +154,17 @@ buffer::ImplReturnType serializeType(T& to_serialize, BufferObtainFnType fn) {
 }
 
 template <typename T>
-T* deserializeType(
-  SerialByteType* data, SerialSizeType const& size, T* allocBuf
-) {
+T* deserializeType(SerialByteType* data, T* allocBuf) {
   auto mem = allocBuf ?
     reinterpret_cast<SerialByteType*>(allocBuf) : new SerialByteType[sizeof(T)];
-  auto& t = Dispatch<T>::unpackType(mem, data, size);
+  auto& t = Dispatch<T>::unpackType(mem, data);
   return &t;
 }
 
 template <typename T>
-void deserializeType(InPlaceTag, SerialByteType* data, SerialSizeType sz, T* t) {
+void deserializeType(InPlaceTag, SerialByteType* data, T* t) {
   auto t_place = reinterpret_cast<SerialByteType*>(t);
-  Dispatch<T>::unpackType(t_place, data, sz, true);
+  Dispatch<T>::unpackType(t_place, data, true);
 }
 
 template <typename T>

@@ -75,9 +75,7 @@ TEST_F(TestByteCopyTrait, test_bytecopy_trait) {
     printf("buffer=%p, size=%ld\n", ret->getBuffer(), ret->getSize());
   #endif
 
-  auto tptr = checkpoint::deserialize<TestType>(
-    ret->getBuffer(), ret->getSize()
-  );
+  auto tptr = checkpoint::deserialize<TestType>(ret->getBuffer());
   (void)tptr;
 
   #if TEST_BYTE_DEBUG_PRINT

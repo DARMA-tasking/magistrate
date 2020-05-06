@@ -88,7 +88,7 @@ int main(int, char**) {
 
   printf("ptr=%p, size=%ld\n", static_cast<void*>(buf), buf_size);
 
-  auto tptr = checkpoint::deserialize<MyTest>(buf, buf_size);
+  auto tptr = checkpoint::deserialize<MyTest>(buf);
   auto& t = *tptr;
 
   t.print();

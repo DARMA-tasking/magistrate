@@ -151,9 +151,7 @@ TEST_F(TestObject, test_bytecopy_trait) {
 
   auto ret = checkpoint::serialize<TestType>(t);
 
-  auto tptr = checkpoint::deserialize<TestType>(
-    ret->getBuffer(), ret->getSize()
-  );
+  auto tptr = checkpoint::deserialize<TestType>(ret->getBuffer());
   auto& t_final = *tptr;
 
   t_final.check();

@@ -69,8 +69,7 @@ struct Dispatch {
     PackerT& packer, T& to_pack, SerialSizeType const& size
   );
   static T& unpackType(
-    SerialByteType* buf, SerialByteType* data, SerialSizeType const& size,
-    bool in_place = false
+    SerialByteType* buf, SerialByteType* data, bool in_place = false
   );
 };
 
@@ -86,12 +85,10 @@ buffer::ImplReturnType serializeType(
 );
 
 template <typename T>
-T* deserializeType(
-  SerialByteType* data, SerialSizeType const& size, T* allocBuf = nullptr
-);
+T* deserializeType(SerialByteType* data, T* allocBuf = nullptr);
 
 template <typename T>
-void deserializeType(InPlaceTag, SerialByteType* data, SerialSizeType sz, T* t);
+void deserializeType(InPlaceTag, SerialByteType* data, T* t);
 
 template <typename T>
 std::size_t sizeType(T& t);

@@ -77,7 +77,7 @@ TEST_F(KokkosIntegrateTestMPI, test_integrate_1) {
 
     MPI_Recv(recv, dataSize, MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-    auto out_data = deserialize<DataType>(recv, dataSize);
+    auto out_data = deserialize<DataType>(recv);
     auto const& out_data_ref = *out_data;
 
     Data::checkIsGolden(out_data_ref);
