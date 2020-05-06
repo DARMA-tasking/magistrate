@@ -51,14 +51,11 @@
 
 namespace checkpoint {
 
-using SizeType = size_t;
-using SerialByteType = char;
-
-using BufferCallbackType = std::function<SerialByteType*(SizeType size)>;
+using BufferCallbackType = std::function<char*(std::size_t size)>;
 
 struct SerializedInfo {
-  virtual SizeType getSize() const = 0;
-  virtual SerialByteType* getBuffer() const = 0;
+  virtual std::size_t getSize() const = 0;
+  virtual char* getBuffer() const = 0;
   virtual ~SerializedInfo() { }
 };
 
@@ -69,10 +66,10 @@ template <typename T>
 SerializedReturnType serialize(T& target, BufferCallbackType fn = nullptr);
 
 template <typename T>
-T* deserialize(SerialByteType* buf, SizeType size, T* user_buf = nullptr);
+T* deserialize(char* buf, std::size_t size, T* user_buf = nullptr);
 
 template <typename T>
-void deserializeInPlace(SerialByteType* buf, SizeType size, T* t);
+void deserializeInPlace(char* buf, std::size_t size, T* t);
 
 template <typename T>
 T* deserialize(SerializedReturnType&& in);

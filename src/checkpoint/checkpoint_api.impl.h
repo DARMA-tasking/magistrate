@@ -65,7 +65,7 @@ SerializedReturnType serialize(T& target, BufferCallbackType fn) {
 }
 
 template <typename T>
-T* deserialize(SerialByteType* buf, SizeType size, T* user_buf) {
+T* deserialize(char* buf, std::size_t size, T* user_buf) {
   return ::checkpoint::deserializeType<T>(buf, size, user_buf);
 }
 
@@ -75,7 +75,7 @@ T* deserialize(SerializedReturnType&& in) {
 }
 
 template <typename T>
-void deserializeInPlace(SerialByteType* buf, SizeType size, T* t) {
+void deserializeInPlace(char* buf, std::size_t size, T* t) {
   return ::checkpoint::deserializeType<T>(::checkpoint::InPlaceTag{}, buf, size, t);
 }
 
