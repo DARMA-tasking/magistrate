@@ -42,6 +42,13 @@ if (NOT checkpoint_has_open)
   message(FATAL_ERROR "Expected function open(..), required for IO, was not found")
 endif()
 
+set(CMAKE_REQUIRED_INCLUDES "sys/types.h;sys/stat.h;unistd.h")
+check_function_exists(fstat checkpoint_has_fstat)
+
+if (NOT checkpoint_has_fstat)
+  message(FATAL_ERROR "Expected function fstat(..), required for IO, was not found")
+endif()
+
 set(CMAKE_REQUIRED_INCLUDES "sys/types.h;unistd.h")
 check_function_exists(ftruncate checkpoint_has_ftruncate)
 
