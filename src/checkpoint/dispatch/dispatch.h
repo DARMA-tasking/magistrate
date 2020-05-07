@@ -92,6 +92,11 @@ void deserializeType(InPlaceTag, SerialByteType* data, T* t);
 template <typename T>
 std::size_t sizeType(T& t);
 
+template <typename T, typename BufferT, typename... Args>
+PackerBuffer<BufferT> pack(
+  T& target, SerialSizeType size, Args&&... args
+);
+
 }} /* end namespace checkpoint::dispatch */
 
 #include "checkpoint/dispatch/dispatch.impl.h"
