@@ -59,8 +59,73 @@
 
 namespace checkpoint { namespace buffer {
 
-void IOBuffer::setupFile() {
-  debug_checkpoint("IOBuffer: opening file: %s\n", file_.c_str());
+void IOBuffer::setupForRead() {
+  debug_checkpoint("IOBuffer: opening file for read: %s\n", file_.c_str());
+
+  int ret = 0;
+
+  /*
+   * Start by opening the file, read-only mode
+   */
+  fd_ = open(file_.c_str(), O_RDONLY, (mode_t)0600);
+  if (fd_ == -1) {
+    auto err = std::string("Failed to open file=") + file_ + ": errno=" +
+      std::to_string(errno);
+    throw std::runtime_error(err);
+  }
+
+  debug_checkpoint("IOBuffer: fstat for file size\n");
+
+  /*
+   * Obtain the file size with fstat to do the proper mmap
+   */
+  struct stat sb;
+  ret = fstat(fd_, &sb);
+
+  if (ret != 0) {
+    auto err = std::string("fstat failed for reading file size: errno=") +
+      std::to_string(errno);
+    throw std::runtime_error(err);
+  }
+
+  size_ = sb.st_size;
+
+  debug_checkpoint("IOBuffer: got file size=%lu\n", size_);
+
+  /*
+   * mmap or mmap64 the file descriptor in READ mode
+   */
+  void* addr = nullptr;
+
+#   if defined(checkpoint_has_mmap64)
+  addr = mmap64(nullptr, size_, PROT_READ, MAP_SHARED, fd_, 0);
+
+  if (addr == MAP_FAILED) {
+    auto err = std::string("mmap64 failed for writing file: errno=") +
+      std::to_string(errno);
+    throw std::runtime_error(err);
+  }
+#   else
+  addr = mmap(nullptr, size_, PROT_READ, MAP_SHARED, fd_, 0);
+
+  if (addr == MAP_FAILED) {
+    auto err = std::string("mmap failed for writing file: errno=") +
+      std::to_string(errno);
+    throw std::runtime_error(err);
+  }
+# endif
+
+  /*
+   * Return out the mapped file as a char* pointer so the serializer writes to
+   * this
+   */
+  buffer_ = static_cast<SerialByteType*>(addr);
+
+  return;
+}
+
+void IOBuffer::setupForWrite() {
+  debug_checkpoint("IOBuffer: opening file for write: %s\n", file_.c_str());
 
   /*
    * Start by opening the file, create/read-write/truncate mode
@@ -91,7 +156,7 @@ void IOBuffer::setupFile() {
   /*
    * Truncate the file to the appropriate size
    */
-  debug_checkpoint("IOBuffer: truncating file\n");
+  debug_checkpoint("IOBuffer: truncating file: size=%lu\n", size_);
 
   ret = ftruncate(fd_, size_);
 
@@ -117,12 +182,12 @@ void IOBuffer::setupFile() {
   debug_checkpoint("IOBuffer: mmap file: len=%lu\n", size_);
 
   /*
-   * mmap or mmap64 the file descriptor in WRITE mode, PRIVATE to this process
+   * mmap or mmap64 the file descriptor in WRITE mode
    */
   void* addr = nullptr;
 
 # if defined(checkpoint_has_mmap64)
-  addr = mmap64(nullptr, size_, PROT_WRITE, MAP_PRIVATE, fd_, 0);
+  addr = mmap64(nullptr, size_, PROT_WRITE, MAP_SHARED, fd_, 0);
 
   if (addr == MAP_FAILED) {
     auto err = std::string("mmap64 failed for writing file: errno=") +
@@ -130,7 +195,7 @@ void IOBuffer::setupFile() {
     throw std::runtime_error(err);
   }
 # else
-  addr = mmap(nullptr, size_, PROT_WRITE, MAP_PRIVATE, fd_, 0);
+  addr = mmap(nullptr, size_, PROT_WRITE, MAP_SHARED, fd_, 0);
 
   if (addr == MAP_FAILED) {
     auto err = std::string("mmap failed for writing file: errno=") +
@@ -146,6 +211,19 @@ void IOBuffer::setupFile() {
   buffer_ = static_cast<SerialByteType*>(addr);
 }
 
+
+void IOBuffer::setupFile() {
+  debug_checkpoint("IOBuffer: opening file: %s\n", file_.c_str());
+
+  if (mode_ == ModeEnum::ReadFromFile) {
+    setupForRead();
+  } else if (mode_ == ModeEnum::WriteToFile) {
+    setupForWrite();
+  } else {
+    throw std::runtime_error("Invalid IOBuffer mode");
+  }
+}
+
 void IOBuffer::closeFile() {
   /*
    * If fd_ is not set, then we should not have anything open or mapped
@@ -156,31 +234,33 @@ void IOBuffer::closeFile() {
 
   auto addr = static_cast<void*>(buffer_);
 
-  debug_checkpoint("~IOBuffer: msync: file=%s, len=%lu\n", file_.c_str(), size_);
-
   int ret = 0;
 
   /*
    * msync/msync64 the mapped file causing the file to be written out
    */
-# if defined(checkpoint_has_msync64)
-  ret = msync64(addr, size_, MS_SYNC);
+  if (mode_ == ModeEnum::WriteToFile) {
+    debug_checkpoint("~IOBuffer: msync: file=%s, len=%lu\n", file_.c_str(), size_);
 
-  if (ret != 0) {
-    auto err = std::string("msync64 failed on file after write: errno=") +
-               std::to_string(errno);
-    throw std::runtime_error(err);
+#   if defined(checkpoint_has_msync64)
+    ret = msync64(addr, size_, MS_SYNC);
+
+    if (ret != 0) {
+      auto err = std::string("msync64 failed on file after write: errno=") +
+                 std::to_string(errno);
+      throw std::runtime_error(err);
+    }
+
+#   else
+    ret = msync(addr, size_, MS_SYNC);
+
+    if (ret != 0) {
+      auto err = std::string("msync failed on file after write: errno=") +
+                 std::to_string(errno);
+      throw std::runtime_error(err);
+    }
+#   endif
   }
-
-# else
-  ret = msync(addr, size_, MS_SYNC);
-
-  if (ret != 0) {
-    auto err = std::string("msync failed on file after write: errno=") +
-               std::to_string(errno);
-    throw std::runtime_error(err);
-  }
-# endif
 
   /*
    * Unmap the file via munmap/munmap64

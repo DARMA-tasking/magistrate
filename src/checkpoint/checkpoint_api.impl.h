@@ -93,7 +93,18 @@ std::size_t getSize(T& target) {
 template <typename T>
 void serializeToFile(T& target, std::string const& file) {
   auto len = getSize<T>(target);
-  dispatch::pack<T, buffer::IOBuffer>(target, len, file);
+  dispatch::pack<T, buffer::IOBuffer>(
+    target, len, buffer::IOBuffer::WriteToFileTag{}, len, file
+  );
+}
+
+template <typename T>
+std::unique_ptr<T> deserializeFromFile(std::string const& file) {
+  auto mem = new SerialByteType[sizeof(T)];
+  auto t = dispatch::unpack<T, buffer::IOBuffer>(
+    mem, false, buffer::IOBuffer::ReadFromFileTag{}, file
+  );
+  return std::unique_ptr<T>(t);
 }
 
 } /* end namespace checkpoint */

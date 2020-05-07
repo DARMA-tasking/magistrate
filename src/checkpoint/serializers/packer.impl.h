@@ -115,9 +115,8 @@ void PackerBuffer<BufferT>::contiguousBytes(
   void* ptr, SerialSizeType size, SerialSizeType num_elms
 ) {
   debug_checkpoint(
-    "PackerBuffer: offset=%ld, size=%ld, num_elms=%ld, ptr=%p, cur_=%p, val=%d\n",
-    cur_ - start_, size_, num_elms, ptr, static_cast<void*>(cur_),
-    *reinterpret_cast<int*>(ptr)
+    "PackerBuffer: offset=%ld, size=%ld, num_elms=%ld, ptr=%p, cur_=%p\n",
+    cur_ - start_, size_, num_elms, ptr, static_cast<void*>(cur_)
   );
 
   SerialSizeType const len = size * num_elms;

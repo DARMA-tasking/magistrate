@@ -78,8 +78,13 @@ public:
     setupFile();
   }
 
+private:
   void setupFile();
   void closeFile();
+  void setupForRead();
+  void setupForWrite();
+
+public:
 
   virtual ~IOBuffer() { closeFile(); }
 

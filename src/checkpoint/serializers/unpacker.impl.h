@@ -87,6 +87,11 @@ template <typename BufferT>
 void UnpackerBuffer<BufferT>::contiguousBytes(
   void* ptr, SerialSizeType size, SerialSizeType num_elms
 ) {
+  debug_checkpoint(
+    "UnpackerBuffer: offset=%ld, num_elms=%ld, ptr=%p, cur_=%p\n",
+    cur_ - start_, num_elms, ptr, static_cast<void*>(cur_)
+  );
+
   SerialSizeType const len = size * num_elms;
   SerialByteType* spot = this->getSpotIncrement(len);
   std::memcpy(ptr, spot, len);
