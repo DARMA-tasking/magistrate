@@ -61,12 +61,9 @@ namespace checkpoint { namespace dispatch {
 
 template <typename T, typename TraverserT>
 TraverserT& Traverse::with(T& target, TraverserT& t, SerialSizeType len) {
-  using DispatchT = DispatchCommon<T>;
-  using CleanT = typename DispatchT::CleanT;
+  auto val = cleanType(&target);
 
-  auto val = DispatchT::clean(&target);
-
-  SerializerDispatch<TraverserT, CleanT> ap;
+  SerializerDispatch<TraverserT, typename CleanType<T>::CleanT> ap;
   ap(t, val, len);
 
   return t;
@@ -81,10 +78,7 @@ TraverserT Traverse::with(T& target, Args&&... args) {
 
 template <typename T>
 T* Traverse::reconstruct(SerialByteType* mem) {
-  using DispatchT = DispatchCommon<T>;
-  using CleanT = typename DispatchT::CleanT;
-
-  return Reconstructor<CleanT>::construct(mem);
+  return Reconstructor<typename CleanType<T>::CleanT>::construct(mem);
 }
 
 template <typename T, typename SizerT, typename...Args>

@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                              dispatch_common.h
+//                                 clean_type.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,20 +42,18 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_COMMON_H
-#define INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_COMMON_H
+#if !defined INCLUDED_CHECKPOINT_DISPATCH_CLEAN_TYPE_H
+#define INCLUDED_CHECKPOINT_DISPATCH_CLEAN_TYPE_H
 
 #include "checkpoint/common.h"
 #include "checkpoint/buffer/buffer.h"
 #include "checkpoint/dispatch/dispatch_serializer.h"
 #include "checkpoint/dispatch/reconstructor.h"
 
-#include <tuple>
-
 namespace checkpoint { namespace dispatch {
 
 template <typename T>
-struct DispatchCommon {
+struct CleanType {
 
   template <typename U>
   using isConst = typename std::enable_if<std::is_const<U>::value, T>::type;
@@ -68,7 +66,7 @@ struct DispatchCommon {
 
   template <typename U = T>
   static NonConstRefT* clean(T* val) {
-    return DispatchCommon<T>::apply1(val);
+    return CleanType<T>::apply1(val);
   }
 
   template <typename U = T>
@@ -82,6 +80,11 @@ struct DispatchCommon {
   }
 };
 
+template <typename T>
+typename CleanType<T>::CleanT* cleanType(T* val) {
+  return CleanType<T>::clean(val);
+}
+
 }} /* end namespace checkpoint::dispatch */
 
-#endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_COMMON_H*/
+#endif /*INCLUDED_CHECKPOINT_DISPATCH_CLEAN_TYPE_H*/

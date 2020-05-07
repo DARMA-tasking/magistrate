@@ -47,7 +47,7 @@
 
 #include "checkpoint/common.h"
 #include "checkpoint/buffer/buffer.h"
-#include "checkpoint/dispatch/dispatch_common.h"
+#include "checkpoint/dispatch/clean_type.h"
 #include "checkpoint/dispatch/dispatch_serializer.h"
 #include "checkpoint/dispatch/dispatch_byte_macro.h"
 #include "checkpoint/dispatch/reconstructor.h"
