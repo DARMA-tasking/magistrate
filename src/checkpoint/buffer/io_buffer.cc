@@ -56,6 +56,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <errno.h>
+#include <string.h>
 
 namespace checkpoint { namespace buffer {
 
@@ -70,7 +71,7 @@ void IOBuffer::setupForRead() {
   fd_ = open(file_.c_str(), O_RDONLY, (mode_t)0600);
   if (fd_ == -1) {
     auto err = std::string("Failed to open file=") + file_ + ": errno=" +
-      std::to_string(errno);
+               std::to_string(errno) + ": " + strerror(errno);
     throw std::runtime_error(err);
   }
 
@@ -84,7 +85,7 @@ void IOBuffer::setupForRead() {
 
   if (ret != 0) {
     auto err = std::string("fstat failed for reading file size: errno=") +
-      std::to_string(errno);
+               std::to_string(errno) + ": " + strerror(errno);
     throw std::runtime_error(err);
   }
 
@@ -97,20 +98,20 @@ void IOBuffer::setupForRead() {
    */
   void* addr = nullptr;
 
-#   if defined(checkpoint_has_mmap64)
+# if defined(checkpoint_has_mmap64)
   addr = mmap64(nullptr, size_, PROT_READ, MAP_SHARED, fd_, 0);
 
   if (addr == MAP_FAILED) {
     auto err = std::string("mmap64 failed for writing file: errno=") +
-      std::to_string(errno);
+               std::to_string(errno) + ": " + strerror(errno);
     throw std::runtime_error(err);
   }
-#   else
+# else
   addr = mmap(nullptr, size_, PROT_READ, MAP_SHARED, fd_, 0);
 
   if (addr == MAP_FAILED) {
     auto err = std::string("mmap failed for writing file: errno=") +
-      std::to_string(errno);
+               std::to_string(errno) + ": " + strerror(errno);
     throw std::runtime_error(err);
   }
 # endif
@@ -133,7 +134,7 @@ void IOBuffer::setupForWrite() {
   fd_ = open(file_.c_str(), O_CREAT | O_RDWR | O_TRUNC, (mode_t)0600);
   if (fd_ == -1) {
     auto err = std::string("Failed to open file=") + file_ + ": errno=" +
-               std::to_string(errno);
+               std::to_string(errno) + ": " + strerror(errno);
     throw std::runtime_error(err);
   }
 
@@ -162,7 +163,7 @@ void IOBuffer::setupForWrite() {
 
   if (ret != 0) {
     auto err = std::string("ftruncate failed on file: errno=") +
-               std::to_string(errno);
+               std::to_string(errno) + ": " + strerror(errno);
     throw std::runtime_error(err);
   }
 
@@ -175,7 +176,7 @@ void IOBuffer::setupForWrite() {
 
   if (ret != 0) {
     auto err = std::string("fsync failed on file: errno=") +
-               std::to_string(errno);
+               std::to_string(errno) + ": " + strerror(errno);
     throw std::runtime_error(err);
   }
 
@@ -191,7 +192,7 @@ void IOBuffer::setupForWrite() {
 
   if (addr == MAP_FAILED) {
     auto err = std::string("mmap64 failed for writing file: errno=") +
-               std::to_string(errno);
+               std::to_string(errno) + ": " + strerror(errno);
     throw std::runtime_error(err);
   }
 # else
@@ -199,7 +200,7 @@ void IOBuffer::setupForWrite() {
 
   if (addr == MAP_FAILED) {
     auto err = std::string("mmap failed for writing file: errno=") +
-               std::to_string(errno);
+               std::to_string(errno) + ": " + strerror(errno);
     throw std::runtime_error(err);
   }
 # endif
@@ -247,7 +248,7 @@ void IOBuffer::closeFile() {
 
     if (ret != 0) {
       auto err = std::string("msync64 failed on file after write: errno=") +
-                 std::to_string(errno);
+                 std::to_string(errno) + ": " + strerror(errno);
       throw std::runtime_error(err);
     }
 
@@ -256,7 +257,7 @@ void IOBuffer::closeFile() {
 
     if (ret != 0) {
       auto err = std::string("msync failed on file after write: errno=") +
-                 std::to_string(errno);
+                 std::to_string(errno) + ": " + strerror(errno);
       throw std::runtime_error(err);
     }
 #   endif
@@ -272,7 +273,7 @@ void IOBuffer::closeFile() {
 
   if (ret != 0) {
     auto err = std::string("munmap64 failed on after write: errno=") +
-               std::to_string(errno);
+               std::to_string(errno) + ": " + strerror(errno);
     throw std::runtime_error(err);
   }
 
@@ -281,7 +282,7 @@ void IOBuffer::closeFile() {
 
   if (ret != 0) {
     auto err = std::string("munmap failed on file after write: errno=") +
-               std::to_string(errno);
+               std::to_string(errno) + ": " + strerror(errno);
     throw std::runtime_error(err);
   }
 # endif
@@ -295,7 +296,7 @@ void IOBuffer::closeFile() {
 
   if (ret != 0) {
     auto err = std::string("close on file descriptor failed: errno=") +
-               std::to_string(errno);
+               std::to_string(errno) + ": " + strerror(errno);
     throw std::runtime_error(err);
   }
 
