@@ -59,11 +59,11 @@ inline Serializer& operator|(Serializer& s, T& target) {
 
 namespace checkpoint { namespace dispatch {
 
-template <typename T, typename TraverserT>
+template <typename T, typename TraverserT, typename Dispatcher>
 TraverserT& Traverse::with(T& target, TraverserT& t, SerialSizeType len) {
   auto val = cleanType(&target);
 
-  SerializerDispatch<TraverserT, typename CleanType<T>::CleanT> ap;
+  SerializerDispatch<TraverserT, typename CleanType<T>::CleanT, Dispatcher> ap;
   ap(t, val, len);
 
   return t;

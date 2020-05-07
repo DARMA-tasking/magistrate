@@ -83,7 +83,14 @@ struct Traverse {
    *
    * \return the traverser after traversal is complete
    */
-  template <typename T, typename TraverserT>
+  template <
+    typename T,
+    typename TraverserT,
+    typename Dispatcher = BasicDispatcher<
+      TraverserT,
+      typename CleanType<T>::CleanT
+    >
+  >
   static TraverserT& with(T& target, TraverserT& t, SerialSizeType len = 1);
 
   /**

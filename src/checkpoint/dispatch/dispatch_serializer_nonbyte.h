@@ -75,6 +75,21 @@ struct hasSerialize {
 #endif
 
 template <typename SerializerT, typename T>
+struct BasicDispatcher {
+  static void serializeIntrusive(SerializerT& s, T& t) {
+    t.serialize(s);
+  }
+
+  static void serializeNonIntrusive(SerializerT& s, T& t) {
+    serialize(s, t);
+  }
+};
+
+template <
+  typename SerializerT,
+  typename T,
+  typename Dispatcher = BasicDispatcher<SerializerT, T>
+>
 struct SerializerDispatchNonByte {
 
   template <typename U = T>
@@ -143,7 +158,7 @@ struct SerializerDispatchNonByte {
       static_cast<void*>(&val)
     );
     for (SerialSizeType i = 0; i < num; i++) {
-      val[i].template serialize<SerializerT>(s);
+      Dispatcher::serializeIntrusive(s, val[i]);
       applyElm(s, val+i);
     }
   }
@@ -157,7 +172,7 @@ struct SerializerDispatchNonByte {
       static_cast<void*>(&val)
     );
     for (SerialSizeType i = 0; i < num; i++) {
-      serialize(s, val[i]);
+      Dispatcher::serializeNonIntrusive(s, val[i]);
     }
   }
 

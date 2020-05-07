@@ -46,9 +46,6 @@
 #define INCLUDED_CHECKPOINT_DISPATCH_CLEAN_TYPE_H
 
 #include "checkpoint/common.h"
-#include "checkpoint/buffer/buffer.h"
-#include "checkpoint/dispatch/dispatch_serializer.h"
-#include "checkpoint/dispatch/reconstructor.h"
 
 namespace checkpoint { namespace dispatch {
 
