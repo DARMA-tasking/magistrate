@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                            checkpoint_api.impl.h
+//                           test_serialize_file.cc
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,71 +42,108 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CHECKPOINT_API_IMPL_H
-#define INCLUDED_CHECKPOINT_CHECKPOINT_API_IMPL_H
+#include "test_harness.h"
 
-#include "checkpoint/common.h"
 #include <checkpoint/checkpoint.h>
-#include "checkpoint/checkpoint_api.h"
-#include "buffer/buffer.h"
 
-#include <memory>
+#include <gtest/gtest.h>
 
-namespace checkpoint {
+#include <vector>
+#include <cstdio>
 
-template <typename T>
-SerializedReturnType serialize(T& target, BufferCallbackType fn) {
-  auto ret = dispatch::serializeType<T>(target, fn);
-  auto& buf = std::get<0>(ret);
-  std::unique_ptr<SerializedInfo> base_ptr(
-    static_cast<SerializedInfo*>(buf.release())
-  );
-  return base_ptr;
-}
+namespace checkpoint { namespace tests { namespace unit {
 
 template <typename T>
-T* deserialize(char* buf, char* object_buf) {
-  return dispatch::deserializeType<T>(buf, object_buf);
+struct TestSerializeFile : TestHarness { };
+
+TYPED_TEST_CASE_P(TestSerializeFile);
+
+static constexpr int const u_val = 934;
+
+struct UserObjectA {
+  UserObjectA() = default;
+  explicit UserObjectA(int in_u) : u_(in_u) { }
+
+  void check() {
+    EXPECT_EQ(u_, u_val);
+  }
+
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    s | u_;
+  }
+
+  int u_;
+};
+
+struct UserObjectB {
+  UserObjectB() = default;
+  explicit UserObjectB(int in_u) : len_(in_u) {
+    u_.resize(len_);
+    for (std::size_t i = 0; i < len_; i++) {
+      u_[i] = u_val+i;
+    }
+  }
+
+  void check() {
+    EXPECT_EQ(u_.size(), static_cast<std::size_t>(len_));
+    int i = 0;
+    for (auto&& elm : u_) {
+      EXPECT_EQ(elm, u_val+i++);
+    }
+  }
+
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    s | u_;
+    s | len_;
+  }
+
+  std::vector<double> u_;
+  int len_ = 0;
+};
+
+struct UserObjectC {
+  UserObjectC() = default;
+  explicit UserObjectC(int in_u) : u_(std::to_string(in_u)) { }
+
+  void check() {
+    EXPECT_EQ(u_, std::to_string(u_val));
+  }
+
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    s | u_;
+  }
+
+  std::string u_ = {};
+};
+
+/*
+ * General test of serialization/deserialization for input object types
+ */
+
+TYPED_TEST_P(TestSerializeFile, test_serialize_file_multi) {
+  using TestType = TypeParam;
+
+  TestType in(u_val);
+  in.check();
+
+  auto len = checkpoint::getSize(in);
+  printf("len=%lu\n", len);
+
+  checkpoint::serializeToFile(in, "hello.txt");
+  auto out = checkpoint::deserializeFromFile<TestType>("hello.txt");
+  out->check();
 }
 
-template <typename T>
-std::unique_ptr<T> deserialize(char* buf) {
-  auto t = dispatch::deserializeType<T>(buf);
-  return std::unique_ptr<T>(t);
-}
+using ConstructTypes = ::testing::Types<
+  UserObjectA,
+  UserObjectB,
+  UserObjectC
+>;
 
-template <typename T>
-T* deserialize(SerializedReturnType&& in) {
-  return dispatch::deserializeType<T>(in->getBuffer());
-}
+REGISTER_TYPED_TEST_CASE_P(TestSerializeFile, test_serialize_file_multi);
+INSTANTIATE_TYPED_TEST_CASE_P(test_file, TestSerializeFile, ConstructTypes);
 
-template <typename T>
-void deserializeInPlace(char* buf, T* t) {
-  return dispatch::deserializeType<T>(dispatch::InPlaceTag{}, buf, t);
-}
-
-template <typename T>
-std::size_t getSize(T& target) {
-  return dispatch::sizeType<T>(target);
-}
-
-template <typename T>
-void serializeToFile(T& target, std::string const& file) {
-  auto len = getSize<T>(target);
-  dispatch::pack<T, buffer::IOBuffer>(
-    target, len, buffer::IOBuffer::WriteToFileTag{}, len, file
-  );
-}
-
-template <typename T>
-std::unique_ptr<T> deserializeFromFile(std::string const& file) {
-  auto mem = new SerialByteType[sizeof(T)];
-  auto t = dispatch::unpack<T, buffer::IOBuffer>(
-    mem, false, buffer::IOBuffer::ReadFromFileTag{}, file
-  );
-  return std::unique_ptr<T>(t);
-}
-
-} /* end namespace checkpoint */
-
-#endif /*INCLUDED_CHECKPOINT_CHECKPOINT_API_IMPL_H*/
+}}} // end namespace checkpoint::tests::unit

@@ -45,11 +45,13 @@
 #if !defined INCLUDED_CHECKPOINT_COMMON_H
 #define INCLUDED_CHECKPOINT_COMMON_H
 
+#include <cmake_config.h>
+
 #define DEBUG_CHECKPOINT 0
 
 #if DEBUG_CHECKPOINT
-#define debug_checkpoint(...)            \
-  do {                                          \
+#define debug_checkpoint(...)        \
+  do {                               \
     printf(__VA_ARGS__);             \
   } while (0);
 #include <cstdio>

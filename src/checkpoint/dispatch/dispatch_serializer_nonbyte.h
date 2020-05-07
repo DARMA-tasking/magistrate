@@ -142,7 +142,10 @@ struct SerializerDispatchNonByte {
     SerializerT& s, T* val, SerialSizeType num,
     hasInSerialize<U>* __attribute__((unused)) x = nullptr
   ) {
-    debug_checkpoint("SerializerDispatch: intrusive serialize: val=%p\n", &val);
+    debug_checkpoint(
+      "SerializerDispatch: intrusive serialize: val=%p\n",
+      static_cast<void*>(&val)
+    );
     for (SerialSizeType i = 0; i < num; i++) {
       val[i].template serialize<SerializerT>(s);
       applyElm(s, val+i);
@@ -154,7 +157,10 @@ struct SerializerDispatchNonByte {
     SerializerT& s, T* val, SerialSizeType num,
     hasNoninSerialize<U>* __attribute__((unused)) x = nullptr
   ) {
-    debug_checkpoint("SerializerDispatch: non-intrusive serialize: val=%p\n", &val);
+    debug_checkpoint(
+      "SerializerDispatch: non-intrusive serialize: val=%p\n",
+      static_cast<void*>(&val)
+    );
     for (SerialSizeType i = 0; i < num; i++) {
       serialize(s, val[i]);
     }
@@ -165,7 +171,10 @@ struct SerializerDispatchNonByte {
     SerializerT& s, T* val, SerialSizeType num,
     isEnum<U>* __attribute__((unused)) x = nullptr
   ) {
-    debug_checkpoint("SerializerDispatch: enum serialize: val=%p\n", &val);
+    debug_checkpoint(
+      "SerializerDispatch: enum serialize: val=%p\n",
+      static_cast<void*>(&val)
+    );
     for (SerialSizeType i = 0; i < num; i++) {
       applyElm(s, val+i);
     }

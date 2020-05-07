@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                   packer.h
+//                              cmake_config.h.in
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,46 +42,12 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_PACKER_H
-#define INCLUDED_CHECKPOINT_SERIALIZERS_PACKER_H
+#if !defined INCLUDED_CHECKPOINT_CMAKE_CONFIG_H_IN
+#define INCLUDED_CHECKPOINT_CMAKE_CONFIG_H_IN
 
-#include "checkpoint/common.h"
-#include "checkpoint/serializers/memory_serializer.h"
-#include "checkpoint/buffer/buffer.h"
-#include "checkpoint/buffer/managed_buffer.h"
-#include "checkpoint/buffer/user_buffer.h"
-#include "checkpoint/buffer/io_buffer.h"
+#cmakedefine checkpoint_has_fallocate
+#cmakedefine checkpoint_has_mmap64
+#cmakedefine checkpoint_has_msync64
+#cmakedefine checkpoint_has_munmap64
 
-namespace checkpoint {
-
-template <typename BufferT>
-struct PackerBuffer : MemorySerializer {
-  using BufferTPtrType = std::unique_ptr<BufferT>;
-  using PackerReturnType = std::tuple<BufferTPtrType, SerialSizeType>;
-
-  explicit PackerBuffer(SerialSizeType const& in_size);
-  PackerBuffer(SerialSizeType const& in_size, BufferTPtrType buf_ptr);
-
-  template <typename... Args>
-  explicit PackerBuffer(SerialSizeType const& in_size, Args&&... args);
-
-  void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms);
-  BufferTPtrType extractPackedBuffer();
-
-private:
-  // Size of the buffer we are packing (Sizer should have run already)
-  SerialSizeType const size_;
-
-  // The abstract buffer that may manage the memory in various ways
-  BufferTPtrType buffer_ = nullptr;
-};
-
-using Packer = PackerBuffer<buffer::ManagedBuffer>;
-using PackerUserBuf = PackerBuffer<buffer::UserBuffer>;
-using PackerIO = PackerBuffer<buffer::IOBuffer>;
-
-} /* end namespace checkpoint */
-
-#include "checkpoint/serializers/packer.impl.h"
-
-#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_PACKER_H*/
+#endif /*INCLUDED_CHECKPOINT_CMAKE_CONFIG_H_IN*/

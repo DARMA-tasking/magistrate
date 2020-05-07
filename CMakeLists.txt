@@ -5,6 +5,14 @@ set(CMAKE_CXX_STANDARD 14)
 
 include(cmake/turn_on_warnings.cmake)
 
+include(cmake/check_system_functions.cmake)
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  add_compile_options(-fdiagnostics-color=always)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  add_compile_options(-fcolor-diagnostics)
+endif()
+
 include (CTest)
 enable_testing()
 
@@ -85,6 +93,16 @@ endif()
 set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(PROJECT_EXAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/examples)
 set(PROJECT_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+
+configure_file(
+  ${PROJECT_SOURCE_DIR}/checkpoint/cmake_config.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/cmake_config.h @ONLY
+)
+
+install(
+  FILES            "${CMAKE_CURRENT_BINARY_DIR}/cmake_config.h"
+  DESTINATION      include
+)
 
 include (CTest)
 enable_testing()

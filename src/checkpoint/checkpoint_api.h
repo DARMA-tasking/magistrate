@@ -157,6 +157,36 @@ T* deserialize(SerializedReturnType&& in);
 template <typename T>
 std::size_t getSize(T& target);
 
+/**
+ * \brief Serialize \c T to file with filename \c file
+ *
+ * Byte-serializes \c T to file, truncating \c file if it already exists. If any
+ * error occurs while opening/closing/mapping the file, \c std::runtime_error
+ * will be thrown with an appropriate error message containing the corresponding
+ * errno.
+ *
+ * \param[in] target the \c T to serialize
+ * \param[in] file name of the file to create
+ */
+template <typename T>
+void serializeToFile(T& target, std::string const& file);
+
+/**
+ * \brief De-serialize and reify \c T from a file
+ *
+ * De-serializes an object recursively by first invoking the reconstruction
+ * strategy and then \c serialize functions/methods recursively to rebuild the
+ * state of the object as serialized. During reconstruction, based on trait
+ * detection, \c T will either be default constructed or reconstructed based on
+ * a user-defined reconstruct method.
+
+ * \param[in] file the filename to read with bytes for \c T
+ *
+ * \return unique pointer to the new object \c T
+ */
+template <typename T>
+std::unique_ptr<T> deserializeFromFile(std::string const& file);
+
 } /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CHECKPOINT_API_H*/

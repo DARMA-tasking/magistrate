@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                 unpacker.cc
+//                                 io_buffer.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,25 +42,68 @@
 //@HEADER
 */
 
+#if !defined INCLUDED_CHECKPOINT_BUFFER_IO_BUFFER_H
+#define INCLUDED_CHECKPOINT_BUFFER_IO_BUFFER_H
+
 #include "checkpoint/common.h"
-#include "checkpoint/serializers/memory_serializer.h"
-#include "checkpoint/serializers/unpacker.h"
+#include "checkpoint/buffer/buffer.h"
 
-#include <cstdlib>
-#include <cstring>
+#include <string>
 
-namespace checkpoint {
+namespace checkpoint { namespace buffer {
 
-Unpacker::Unpacker(SerialByteType* buf)
-  : MemorySerializer(ModeType::Unpacking, buf)
-{
-  debug_checkpoint("Unpacker: start_=%p, cur_=%p\n", start_, cur_);
-}
+struct IOBuffer : Buffer {
 
-void Unpacker::contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms) {
-  SerialSizeType const len = size * num_elms;
-  SerialByteType* spot = this->getSpotIncrement(len);
-  std::memcpy(ptr, spot, len);
-}
+public:
+  struct WriteToFileTag { };
+  struct ReadFromFileTag { };
 
-} /* end namespace checkpoint */
+private:
+  enum struct ModeEnum : int8_t {
+    WriteToFile, ReadFromFile
+  };
+
+public:
+  IOBuffer(
+    WriteToFileTag, SerialSizeType const& in_size, std::string const& in_file
+  ) : mode_(ModeEnum::WriteToFile), file_(in_file), size_(in_size)
+  {
+    setupFile();
+  }
+
+  IOBuffer(
+    ReadFromFileTag, std::string const& in_file
+  ) : mode_(ModeEnum::ReadFromFile), file_(in_file)
+  {
+    setupFile();
+  }
+
+private:
+  void setupFile();
+  void closeFile();
+  void setupForRead();
+  void setupForWrite();
+
+public:
+
+  virtual ~IOBuffer() { closeFile(); }
+
+  virtual SerialByteType* getBuffer() const override {
+    return buffer_;
+  }
+
+  virtual SerialSizeType getSize() const override {
+    return size_;
+  }
+
+private:
+  ModeEnum mode_ = ModeEnum::WriteToFile;
+  std::string file_ = "";
+  SerialSizeType size_ = 0;
+  SerialByteType* buffer_ = nullptr;
+  int fd_ = -1;
+};
+
+}} /* end namespace checkpoint::buffer */
+
+#endif /*INCLUDED_CHECKPOINT_BUFFER_IO_BUFFER_H*/

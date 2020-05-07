@@ -54,6 +54,13 @@
 
 #include <tuple>
 
+namespace checkpoint {
+
+template <typename Serializer, typename T>
+inline Serializer& operator|(Serializer& s, T& target);
+
+} /* end namespace checkpoint */
+
 namespace checkpoint { namespace dispatch {
 
 struct InPlaceTag { };
@@ -61,28 +68,27 @@ struct InPlaceTag { };
 template <typename T>
 struct Dispatch {
   static SerialSizeType sizeType(T& to_size);
-  static buffer::BufferPtrType packType(
-    T& to_pack, SerialSizeType const& size, SerialByteType* buf
+  template <typename PackerT, typename... Args>
+  static PackerT packType(
+    T& target, SerialSizeType const& size, Args&&... args
   );
   template <typename PackerT>
-  static buffer::BufferPtrType packTypeWithPacker(
+  static void packTypeWithPacker(
     PackerT& packer, T& to_pack, SerialSizeType const& size
   );
-  static T& unpackType(
-    SerialByteType* buf, SerialByteType* data, bool in_place = false
+  template <typename UnpackerT>
+  static T* unpackTypeWithUnpacker(
+    UnpackerT& unpacker, SerialByteType* buf, bool in_place
   );
+  template <typename UnpackerT, typename... Args>
+  static T* unpackType(SerialByteType* buf, bool in_place, Args&&... args);
 };
-
-template <typename Serializer, typename T>
-inline Serializer& operator|(Serializer& s, T& target);
 
 template <typename Serializer, typename T>
 inline void serializeArray(Serializer& s, T* array, SerialSizeType const num_elms);
 
 template <typename T>
-buffer::ImplReturnType serializeType(
-  T& to_serialize, BufferObtainFnType fn = nullptr
-);
+buffer::ImplReturnType serializeType(T& target, BufferObtainFnType fn = nullptr);
 
 template <typename T>
 T* deserializeType(SerialByteType* data, SerialByteType* allocBuf = nullptr);
@@ -92,6 +98,11 @@ void deserializeType(InPlaceTag, SerialByteType* data, T* t);
 
 template <typename T>
 std::size_t sizeType(T& t);
+
+template <typename T, typename BufferT, typename... Args>
+PackerBuffer<BufferT> pack(
+  T& target, SerialSizeType size, Args&&... args
+);
 
 }} /* end namespace checkpoint::dispatch */
 

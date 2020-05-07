@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                   packer.h
+//                               unpacker.impl.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,46 +42,61 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_PACKER_H
-#define INCLUDED_CHECKPOINT_SERIALIZERS_PACKER_H
+#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_UNPACKER_IMPL_H
+#define INCLUDED_CHECKPOINT_SERIALIZERS_UNPACKER_IMPL_H
 
 #include "checkpoint/common.h"
 #include "checkpoint/serializers/memory_serializer.h"
-#include "checkpoint/buffer/buffer.h"
-#include "checkpoint/buffer/managed_buffer.h"
-#include "checkpoint/buffer/user_buffer.h"
-#include "checkpoint/buffer/io_buffer.h"
+#include "checkpoint/serializers/unpacker.h"
+
+#include <cstdlib>
+#include <cstring>
 
 namespace checkpoint {
 
 template <typename BufferT>
-struct PackerBuffer : MemorySerializer {
-  using BufferTPtrType = std::unique_ptr<BufferT>;
-  using PackerReturnType = std::tuple<BufferTPtrType, SerialSizeType>;
+UnpackerBuffer<BufferT>::UnpackerBuffer(SerialByteType* buf)
+  : MemorySerializer(ModeType::Unpacking),
+    buffer_(std::make_unique<BufferT>(buf, 0))
+{
+  MemorySerializer::initializeBuffer(buffer_->getBuffer());
 
-  explicit PackerBuffer(SerialSizeType const& in_size);
-  PackerBuffer(SerialSizeType const& in_size, BufferTPtrType buf_ptr);
+  debug_checkpoint(
+    "UnpackerBuffer: start_=%p, cur_=%p\n",
+    static_cast<void*>(start_),
+    static_cast<void*>(cur_)
+  );
+}
 
-  template <typename... Args>
-  explicit PackerBuffer(SerialSizeType const& in_size, Args&&... args);
+template <typename BufferT>
+template <typename... Args>
+UnpackerBuffer<BufferT>::UnpackerBuffer(Args&&... args)
+  : MemorySerializer(ModeType::Unpacking),
+    buffer_(std::make_unique<BufferT>(std::forward<Args>(args)...))
+{
+  MemorySerializer::initializeBuffer(buffer_->getBuffer());
 
-  void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms);
-  BufferTPtrType extractPackedBuffer();
+  debug_checkpoint(
+    "UnpackerBuffer: start_=%p, cur_=%p\n",
+    static_cast<void*>(start_),
+    static_cast<void*>(cur_)
+  );
+}
 
-private:
-  // Size of the buffer we are packing (Sizer should have run already)
-  SerialSizeType const size_;
+template <typename BufferT>
+void UnpackerBuffer<BufferT>::contiguousBytes(
+  void* ptr, SerialSizeType size, SerialSizeType num_elms
+) {
+  debug_checkpoint(
+    "UnpackerBuffer: offset=%ld, num_elms=%ld, ptr=%p, cur_=%p\n",
+    cur_ - start_, num_elms, ptr, static_cast<void*>(cur_)
+  );
 
-  // The abstract buffer that may manage the memory in various ways
-  BufferTPtrType buffer_ = nullptr;
-};
-
-using Packer = PackerBuffer<buffer::ManagedBuffer>;
-using PackerUserBuf = PackerBuffer<buffer::UserBuffer>;
-using PackerIO = PackerBuffer<buffer::IOBuffer>;
+  SerialSizeType const len = size * num_elms;
+  SerialByteType* spot = this->getSpotIncrement(len);
+  std::memcpy(ptr, spot, len);
+}
 
 } /* end namespace checkpoint */
 
-#include "checkpoint/serializers/packer.impl.h"
-
-#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_PACKER_H*/
+#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_UNPACKER_IMPL_H*/
