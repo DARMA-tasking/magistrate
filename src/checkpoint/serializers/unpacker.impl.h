@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                 unpacker.cc
+//                               unpacker.impl.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,6 +42,9 @@
 //@HEADER
 */
 
+#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_UNPACKER_IMPL_H
+#define INCLUDED_CHECKPOINT_SERIALIZERS_UNPACKER_IMPL_H
+
 #include "checkpoint/common.h"
 #include "checkpoint/serializers/memory_serializer.h"
 #include "checkpoint/serializers/unpacker.h"
@@ -51,20 +54,29 @@
 
 namespace checkpoint {
 
-Unpacker::Unpacker(SerialByteType* buf)
-  : MemorySerializer(ModeType::Unpacking, buf)
+template <typename BufferT>
+UnpackerBuffer<BufferT>::UnpackerBuffer(SerialByteType* buf)
+  : MemorySerializer(ModeType::Unpacking),
+    buffer_(std::make_unique<BufferT>(buf, 0))
 {
+  MemorySerializer::initializeBuffer(buffer_->getBuffer());
+
   debug_checkpoint(
-    "Unpacker: start_=%p, cur_=%p\n",
+    "UnpackerBuffer: start_=%p, cur_=%p\n",
     static_cast<void*>(start_),
     static_cast<void*>(cur_)
   );
 }
 
-void Unpacker::contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms) {
+template <typename BufferT>
+void UnpackerBuffer<BufferT>::contiguousBytes(
+  void* ptr, SerialSizeType size, SerialSizeType num_elms
+) {
   SerialSizeType const len = size * num_elms;
   SerialByteType* spot = this->getSpotIncrement(len);
   std::memcpy(ptr, spot, len);
 }
 
 } /* end namespace checkpoint */
+
+#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_UNPACKER_IMPL_H*/

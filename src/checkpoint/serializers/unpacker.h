@@ -47,15 +47,26 @@
 
 #include "checkpoint/common.h"
 #include "checkpoint/serializers/memory_serializer.h"
+#include "checkpoint/buffer/user_buffer.h"
 
 namespace checkpoint {
 
-struct Unpacker : MemorySerializer {
-  explicit Unpacker(SerialByteType* buf);
+template <typename BufferT>
+struct UnpackerBuffer : MemorySerializer {
+  using BufferPtrType = std::unique_ptr<BufferT>;
+
+  explicit UnpackerBuffer(SerialByteType* buf);
 
   void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms);
+
+private:
+  BufferPtrType buffer_ = nullptr;
 };
 
+using Unpacker = UnpackerBuffer<buffer::UserBuffer>;
+
 } /* end namespace checkpoint */
+
+#include "checkpoint/serializers/unpacker.impl.h"
 
 #endif /*INCLUDED_CHECKPOINT_SERIALIZERS_UNPACKER_H*/
