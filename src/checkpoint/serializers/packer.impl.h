@@ -90,7 +90,7 @@ PackerBuffer<BufferT>::PackerBuffer(
   SerialSizeType const& in_size, Args&&... args
 ) : MemorySerializer(ModeType::Packing),
     size_(in_size),
-    buffer_(std::make_unique<BufferT>(size_, std::forward<Args>(args)...))
+    buffer_(std::make_unique<BufferT>(std::forward<Args>(args)...))
 {
   MemorySerializer::initializeBuffer(buffer_->getBuffer());
 

@@ -59,11 +59,11 @@ struct PackerBuffer : MemorySerializer {
   using BufferTPtrType = std::unique_ptr<BufferT>;
   using PackerReturnType = std::tuple<BufferTPtrType, SerialSizeType>;
 
-  PackerBuffer(SerialSizeType const& in_size);
+  explicit PackerBuffer(SerialSizeType const& in_size);
   PackerBuffer(SerialSizeType const& in_size, BufferTPtrType buf_ptr);
 
   template <typename... Args>
-  PackerBuffer(SerialSizeType const& in_size, Args&&... args);
+  explicit PackerBuffer(SerialSizeType const& in_size, Args&&... args);
 
   void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms);
   BufferTPtrType extractPackedBuffer();

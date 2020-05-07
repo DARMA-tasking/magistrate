@@ -57,6 +57,9 @@ struct UnpackerBuffer : MemorySerializer {
 
   explicit UnpackerBuffer(SerialByteType* buf);
 
+  template <typename... Args>
+  explicit UnpackerBuffer(Args&&... args);
+
   void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms);
 
 private:
@@ -64,6 +67,7 @@ private:
 };
 
 using Unpacker = UnpackerBuffer<buffer::UserBuffer>;
+using UnpackerIO = UnpackerBuffer<buffer::IOBuffer>;
 
 } /* end namespace checkpoint */
 

@@ -69,6 +69,21 @@ UnpackerBuffer<BufferT>::UnpackerBuffer(SerialByteType* buf)
 }
 
 template <typename BufferT>
+template <typename... Args>
+UnpackerBuffer<BufferT>::UnpackerBuffer(Args&&... args)
+  : MemorySerializer(ModeType::Unpacking),
+    buffer_(std::make_unique<BufferT>(std::forward<Args>(args)...))
+{
+  MemorySerializer::initializeBuffer(buffer_->getBuffer());
+
+  debug_checkpoint(
+    "UnpackerBuffer: start_=%p, cur_=%p\n",
+    static_cast<void*>(start_),
+    static_cast<void*>(cur_)
+  );
+}
+
+template <typename BufferT>
 void UnpackerBuffer<BufferT>::contiguousBytes(
   void* ptr, SerialSizeType size, SerialSizeType num_elms
 ) {

@@ -54,8 +54,26 @@ namespace checkpoint { namespace buffer {
 
 struct IOBuffer : Buffer {
 
-  IOBuffer(SerialSizeType const& in_size, std::string const& in_file)
-    : file_(in_file), size_(in_size)
+public:
+  struct WriteToFileTag { };
+  struct ReadFromFileTag { };
+
+private:
+  enum struct ModeEnum : int8_t {
+    WriteToFile, ReadFromFile
+  };
+
+public:
+  IOBuffer(
+    WriteToFileTag, SerialSizeType const& in_size, std::string const& in_file
+  ) : mode_(ModeEnum::WriteToFile), file_(in_file), size_(in_size)
+  {
+    setupFile();
+  }
+
+  IOBuffer(
+    ReadFromFileTag, std::string const& in_file
+  ) : mode_(ModeEnum::ReadFromFile), file_(in_file)
   {
     setupFile();
   }
@@ -74,6 +92,7 @@ struct IOBuffer : Buffer {
   }
 
 private:
+  ModeEnum mode_ = ModeEnum::WriteToFile;
   std::string file_ = "";
   SerialSizeType size_ = 0;
   SerialByteType* buffer_ = nullptr;
