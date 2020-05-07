@@ -54,6 +54,13 @@
 
 #include <tuple>
 
+namespace checkpoint {
+
+template <typename Serializer, typename T>
+inline Serializer& operator|(Serializer& s, T& target);
+
+} /* end namespace checkpoint */
+
 namespace checkpoint { namespace dispatch {
 
 struct InPlaceTag { };
@@ -76,9 +83,6 @@ struct Dispatch {
   template <typename UnpackerT, typename... Args>
   static T* unpackType(SerialByteType* buf, bool in_place, Args&&... args);
 };
-
-template <typename Serializer, typename T>
-inline Serializer& operator|(Serializer& s, T& target);
 
 template <typename Serializer, typename T>
 inline void serializeArray(Serializer& s, T* array, SerialSizeType const num_elms);
