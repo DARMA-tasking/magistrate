@@ -82,7 +82,7 @@ struct PrintBytesTraverse : checkpoint::Serializer {
   PrintBytesTraverse() : checkpoint::Serializer(checkpoint::eSerializationMode::None) { }
 
   void contiguousBytes(void* ptr, std::size_t size, std::size_t num_elms) {
-    printf("PrintBytesTraverse: size=%lu, num_elms=%lu\n", size, num_elms);
+    printf("PrintBytesTraverse: size=%zu, num_elms=%zu\n", size, num_elms);
   }
 };
 
@@ -92,7 +92,7 @@ struct TypedTraverse : checkpoint::Serializer {
 
   template <typename SerializerT, typename T>
   void contiguousTyped(SerializerT&, T*, std::size_t num_elms) {
-    printf("TypedTraverse: type is %s, num=%lu\n", typeid(T).name(), num_elms);
+    printf("TypedTraverse: type is %s, num=%zu\n", typeid(T).name(), num_elms);
   }
 };
 
