@@ -116,8 +116,7 @@ struct SerializerDispatchNonByte {
 
   template <typename U = T>
   void applyElm(
-    SerializerT& s, T* val,
-    hasSplitSerialize<U>* __attribute__((unused)) x = nullptr
+    SerializerT& s, T* val, hasSplitSerialize<U>* = nullptr
   ) {
     val->template serializeParent<SerializerT>(s);
     val->template serializeThis<SerializerT>(s);
@@ -125,22 +124,19 @@ struct SerializerDispatchNonByte {
 
   template <typename U = T>
   void applyElm(
-    SerializerT& s, T* val,
-    hasNotSplitSerialize<U>* __attribute__((unused)) x = nullptr
+    SerializerT& s, T* val, hasNotSplitSerialize<U>* = nullptr
   ) { }
 
   template <typename U = T>
   void applyElm(
-    SerializerT& s, T* val,
-    isEnum<U>* __attribute__((unused)) x = nullptr
+    SerializerT& s, T* val, isEnum<U>* = nullptr
   ) {
     serializeEnum(s, *val);
   }
 
   template <typename U = T>
   void apply(
-    SerializerT& s, T* val, SerialSizeType num,
-    hasInSerialize<U>* __attribute__((unused)) x = nullptr
+    SerializerT& s, T* val, SerialSizeType num, hasInSerialize<U>* = nullptr
   ) {
     debug_checkpoint(
       "SerializerDispatch: intrusive serialize: val=%p\n",
@@ -154,8 +150,7 @@ struct SerializerDispatchNonByte {
 
   template <typename U = T>
   void apply(
-    SerializerT& s, T* val, SerialSizeType num,
-    hasNoninSerialize<U>* __attribute__((unused)) x = nullptr
+    SerializerT& s, T* val, SerialSizeType num, hasNoninSerialize<U>* = nullptr
   ) {
     debug_checkpoint(
       "SerializerDispatch: non-intrusive serialize: val=%p\n",
@@ -168,8 +163,7 @@ struct SerializerDispatchNonByte {
 
   template <typename U = T>
   void apply(
-    SerializerT& s, T* val, SerialSizeType num,
-    isEnum<U>* __attribute__((unused)) x = nullptr
+    SerializerT& s, T* val, SerialSizeType num, isEnum<U>* = nullptr
   ) {
     debug_checkpoint(
       "SerializerDispatch: enum serialize: val=%p\n",
