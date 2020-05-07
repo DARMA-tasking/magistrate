@@ -80,7 +80,7 @@ struct UserObjectB {
   UserObjectB() = default;
   explicit UserObjectB(int in_u) : len_(in_u) {
     u_.resize(len_);
-    for (std::size_t i = 0; i < len_; i++) {
+    for (int i = 0; i < len_; i++) {
       u_[i] = u_val+i;
     }
   }
