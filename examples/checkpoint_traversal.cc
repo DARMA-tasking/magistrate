@@ -113,9 +113,10 @@ struct CustomDispatch {
 template <typename SerializerT, typename U>
 struct CustomDispatch<SerializerT, std::vector<U>> {
   static void serializeNonIntrusive(SerializerT& s, std::vector<U>& t) {
-    printf("Traversing vector: size=%lu\n", t.size());
+    // Do something special here: e.g., an RDMA for the vector during packing
+    printf("Traversing vector: size=%zu\n", t.size());
     for (std::size_t i = 0; i < t.size(); i++) {
-      printf("\t vector[%lu]=%s", i, std::to_string(t[i]).c_str());
+      printf("\t vector[%zu]=%s", i, std::to_string(t[i]).c_str());
     }
   }
 };
