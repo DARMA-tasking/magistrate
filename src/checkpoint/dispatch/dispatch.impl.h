@@ -101,13 +101,13 @@ T* Dispatch<T>::unpackTypeWithUnpacker(
 
   if (in_place) {
     auto t_buf = reinterpret_cast<T*>(buf);
-    SerializerDispatch<Unpacker, CleanT> ap;
+    SerializerDispatch<UnpackerT, CleanT> ap;
     ap(unpacker, t_buf, 1);
     return t_buf;
   } else {
     DeserializerDispatch<Serializer, CleanT> apply_des;
     auto& target = apply_des(unpacker,buf);
-    SerializerDispatch<Unpacker, CleanT> ap;
+    SerializerDispatch<UnpackerT, CleanT> ap;
     ap(unpacker, &target, 1);
     return &target;
   }
