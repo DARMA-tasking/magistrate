@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                           dispatch_deserializer.h
+//                               reconstructor.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,8 +42,8 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_DESERIALIZER_H
-#define INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_DESERIALIZER_H
+#if !defined INCLUDED_CHECKPOINT_DISPATCH_RECONSTRUCTOR_H
+#define INCLUDED_CHECKPOINT_DISPATCH_RECONSTRUCTOR_H
 
 #include "checkpoint/common.h"
 #include "checkpoint/traits/serializable_traits.h"
@@ -55,7 +55,7 @@
 namespace checkpoint { namespace dispatch {
 
 template <typename T>
-struct DeserializerDispatch {
+struct Reconstructor {
   template <typename U>
   using isDefaultConsType =
     typename std::enable_if<std::is_default_constructible<U>::value, T>::type;
@@ -82,30 +82,30 @@ struct DeserializerDispatch {
   #endif
 
   template <typename U = T>
-  T& operator()(void* buf, isDefaultConsType<U>* = nullptr) {
+  static T* construct(void* buf, isDefaultConsType<U>* = nullptr) {
     debug_checkpoint("DeserializerDispatch: default constructor: buf=%p\n", buf);
     T* t_ptr = new (buf) T{};
-    auto& t = *t_ptr;
-    return t;
+    return t_ptr;
   }
 
   #if HAS_DETECTION_COMPONENT
   template <typename U = T>
-  T& operator()(void* buf, isReconstructibleType<U>* = nullptr) {
+  static T* construct(void* buf, isReconstructibleType<U>* = nullptr) {
     debug_checkpoint("DeserializerDispatch: T::reconstruct(): buf=%p\n", buf);
-    return T::reconstruct(buf);
+    auto& t = T::reconstruct(buf);
+    return &t;
   }
   #endif
 
   template <typename U = T>
-  T& operator()(void* buf, isNonIntReconstructibleType<U>* = nullptr) {
+  static T* construct(void* buf, isNonIntReconstructibleType<U>* = nullptr) {
     debug_checkpoint("DeserializerDispatch: non-int reconstruct(): buf=%p\n", buf);
     T* t = nullptr;
     reconstruct(t,buf);
-    return *t;
+    return t;
   }
 };
 
 }} /* end namespace checkpoint::dispatch */
 
-#endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_DESERIALIZER_H*/
+#endif /*INCLUDED_CHECKPOINT_DISPATCH_RECONSTRUCTOR_H*/

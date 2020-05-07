@@ -87,13 +87,13 @@ void deserializeInPlace(char* buf, T* t) {
 
 template <typename T>
 std::size_t getSize(T& target) {
-  return dispatch::sizeType<T>(target);
+  return dispatch::Standard::size<T, Sizer>(target);
 }
 
 template <typename T>
 void serializeToFile(T& target, std::string const& file) {
   auto len = getSize<T>(target);
-  dispatch::pack<T, buffer::IOBuffer>(
+  dispatch::Standard::pack<T, PackerBuffer<buffer::IOBuffer>>(
     target, len, buffer::IOBuffer::WriteToFileTag{}, len, file
   );
 }
@@ -101,7 +101,7 @@ void serializeToFile(T& target, std::string const& file) {
 template <typename T>
 std::unique_ptr<T> deserializeFromFile(std::string const& file) {
   auto mem = new SerialByteType[sizeof(T)];
-  auto t = dispatch::unpack<T, buffer::IOBuffer>(
+  auto t = dispatch::Standard::unpack<T, UnpackerBuffer<buffer::IOBuffer>>(
     mem, false, buffer::IOBuffer::ReadFromFileTag{}, file
   );
   return std::unique_ptr<T>(t);

@@ -52,127 +52,79 @@ namespace checkpoint {
 
 template <typename Serializer, typename T>
 inline Serializer& operator|(Serializer& s, T& target) {
-  using DispatchT = dispatch::DispatchCommon<T>;
-  using CleanT = typename DispatchT::CleanT;
-  auto val = DispatchT::clean(&target);
-
-  dispatch::SerializerDispatch<Serializer, CleanT> ap;
-  ap(s, val, 1);
-
-  return s;
+  return dispatch::Traverse::with(target, s);
 }
 
 } /* end namespace checkpoint */
 
 namespace checkpoint { namespace dispatch {
 
-template <typename T>
-SerialSizeType Dispatch<T>::sizeType(T& to_size) {
+template <typename T, typename TraverserT>
+TraverserT& Traverse::with(T& target, TraverserT& t, SerialSizeType len) {
   using DispatchT = DispatchCommon<T>;
   using CleanT = typename DispatchT::CleanT;
-  auto val = DispatchT::clean(&to_size);
 
-  Sizer sizer;
-  SerializerDispatch<Sizer, CleanT> ap;
-  ap(sizer, val, 1);
+  auto val = DispatchT::clean(&target);
+
+  SerializerDispatch<TraverserT, CleanT> ap;
+  ap(t, val, len);
+
+  return t;
+}
+
+template <typename T, typename TraverserT, typename... Args>
+TraverserT Traverse::with(T& target, Args&&... args) {
+  TraverserT t(std::forward<Args>(args)...);
+  with(target, t);
+  return t;
+}
+
+template <typename T>
+T* Traverse::reconstruct(SerialByteType* mem) {
+  using DispatchT = DispatchCommon<T>;
+  using CleanT = typename DispatchT::CleanT;
+
+  return Reconstructor<CleanT>::construct(mem);
+}
+
+template <typename T, typename SizerT, typename...Args>
+SerialSizeType Standard::size(T& target, Args&&... args) {
+  auto sizer = Traverse::with<T, SizerT>(target, std::forward<Args>(args)...);
   return sizer.getSize();
 }
 
-template <typename T>
-template <typename PackerT>
-void Dispatch<T>::packTypeWithPacker(
-  PackerT& packer, T& to_pack, SerialSizeType const& size
-) {
-  using DispatchT = DispatchCommon<T>;
-  using CleanT = typename DispatchT::CleanT;
-  auto val = DispatchT::clean(&to_pack);
-
-  SerializerDispatch<PackerT, CleanT> ap;
-  ap(packer, val, 1);
+template <typename T, typename PackerT, typename... Args>
+PackerT Standard::pack(T& target, SerialSizeType const& size, Args&&... args) {
+  return Traverse::with<T, PackerT>(target, size, std::forward<Args>(args)...);
 }
 
-template <typename T>
-template <typename UnpackerT>
-T* Dispatch<T>::unpackTypeWithUnpacker(
-  UnpackerT& unpacker, SerialByteType* buf, bool in_place
-) {
-  using DispatchT = DispatchCommon<T>;
-  using CleanT = typename DispatchT::CleanT;
+template <typename T, typename UnpackerT, typename... Args>
+T* Standard::unpack(SerialByteType* mem, bool constructed, Args&&... args) {
+  T* t_buf = reinterpret_cast<T*>(mem);
 
-  if (in_place) {
-    auto t_buf = reinterpret_cast<T*>(buf);
-    SerializerDispatch<UnpackerT, CleanT> ap;
-    ap(unpacker, t_buf, 1);
-    return t_buf;
-  } else {
-    DeserializerDispatch<Serializer, CleanT> apply_des;
-    auto& target = apply_des(unpacker,buf);
-    SerializerDispatch<UnpackerT, CleanT> ap;
-    ap(unpacker, &target, 1);
-    return &target;
+  if (not constructed) {
+    t_buf = Traverse::reconstruct<T>(mem);
   }
-}
 
-template <typename T>
-template <typename PackerT, typename... Args>
-PackerT Dispatch<T>::packType(
-  T& target, SerialSizeType const& size, Args&&... args
-) {
-  PackerT packer(size, std::forward<Args>(args)...);
-  packTypeWithPacker(packer, target, size);
-  return packer;
-}
-
-template <typename T>
-template <typename UnpackerT, typename... Args>
-T* Dispatch<T>::unpackType(
-  SerialByteType* buf, bool in_place, Args&&... args
-) {
-  UnpackerT unpacker(std::forward<Args>(args)...);
-  return unpackTypeWithUnpacker(unpacker, buf, in_place);
-}
-
-
-template <typename T, typename BufferT, typename... Args>
-T* unpack(SerialByteType* buf, bool in_place, Args&&... args) {
-  using UnpackerType = UnpackerBuffer<BufferT>;
-  auto p = Dispatch<T>::template unpackType<UnpackerType>(
-    buf, in_place, std::forward<Args>(args)...
-  );
-  return p;
+  Traverse::with<T, UnpackerT>(*t_buf, std::forward<Args>(args)...);
+  return t_buf;
 }
 
 template <typename Serializer, typename T>
-inline void serializeArray(Serializer& s, T* array, SerialSizeType const num_elms) {
-  using DispatchT = DispatchCommon<T>;
-  using CleanT = typename DispatchT::CleanT;
-  auto val = DispatchT::clean(array);
-
-  SerializerDispatch<Serializer, CleanT> ap;
-  ap(s, val, num_elms);
-}
-
-template <typename T, typename BufferT, typename... Args>
-PackerBuffer<BufferT> pack(
-  T& target, SerialSizeType size, Args&&... args
-) {
-  using PackerType = PackerBuffer<BufferT>;
-  auto p = Dispatch<T>::template packType<PackerType>(
-    target, size, std::forward<Args>(args)...
-  );
-  return p;
+inline void serializeArray(Serializer& s, T* array, SerialSizeType const len) {
+  Traverse::with<T, Serializer>(*array, s, len);
 }
 
 template <typename T>
-buffer::ImplReturnType packType(
+buffer::ImplReturnType packBuffer(
   T& target, SerialSizeType size, BufferObtainFnType fn
 ) {
   SerialByteType* user_buf = fn ? fn(size) : nullptr;
   if (user_buf == nullptr) {
-    auto p = pack<T, buffer::ManagedBuffer>(target, size);
+    auto p = Standard::pack<T, PackerBuffer<buffer::ManagedBuffer>>(target, size);
     return std::make_tuple(std::move(p.extractPackedBuffer()), size);
   } else {
-    auto p = pack<T, buffer::UserBuffer>(
+    auto p = Standard::pack<T, PackerBuffer<buffer::UserBuffer>>(
       target, size, std::make_unique<buffer::UserBuffer>(user_buf, size)
     );
     return std::make_tuple(std::move(p.extractPackedBuffer()), size);
@@ -181,26 +133,21 @@ buffer::ImplReturnType packType(
 
 template <typename T>
 buffer::ImplReturnType serializeType(T& target, BufferObtainFnType fn) {
-  auto size = Dispatch<T>::sizeType(target);
-  debug_checkpoint("serializeType: size=%ld\n", size);
-  return packType<T>(target, size, fn);
+  auto len = Standard::size<T, Sizer>(target);
+  debug_checkpoint("serializeType: len=%ld\n", len);
+  return packBuffer<T>(target, len, fn);
 }
 
 template <typename T>
 T* deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
   auto mem = allocBuf ? allocBuf : new SerialByteType[sizeof(T)];
-  return unpack<T, buffer::UserBuffer>(mem, false, data);
+  return Standard::unpack<T, UnpackerBuffer<buffer::UserBuffer>>(mem, false, data);
 }
 
 template <typename T>
 void deserializeType(InPlaceTag, SerialByteType* data, T* t) {
-  auto t_place = reinterpret_cast<SerialByteType*>(t);
-  unpack<T, buffer::UserBuffer>(t_place, true, data);
-}
-
-template <typename T>
-std::size_t sizeType(T& target) {
-  return Dispatch<T>::sizeType(target);
+  auto t_buf = reinterpret_cast<SerialByteType*>(t);
+  Standard::unpack<T, UnpackerBuffer<buffer::UserBuffer>>(t_buf, true, data);
 }
 
 }} /* end namespace checkpoint::dispatch */

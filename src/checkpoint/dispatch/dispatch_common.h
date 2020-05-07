@@ -48,7 +48,7 @@
 #include "checkpoint/common.h"
 #include "checkpoint/buffer/buffer.h"
 #include "checkpoint/dispatch/dispatch_serializer.h"
-#include "checkpoint/dispatch/dispatch_deserializer.h"
+#include "checkpoint/dispatch/reconstructor.h"
 
 #include <tuple>
 
