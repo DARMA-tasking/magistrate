@@ -130,12 +130,11 @@ TYPED_TEST_P(TestSerializeFile, test_serialize_file_multi) {
   in.check();
 
   auto len = checkpoint::getSize(in);
-
   printf("len=%lu\n", len);
 
   checkpoint::serializeToFile(in, "hello.txt");
-
-  //out->check();
+  auto out = checkpoint::deserializeFromFile<TestType>("hello.txt");
+  out->check();
 }
 
 using ConstructTypes = ::testing::Types<
