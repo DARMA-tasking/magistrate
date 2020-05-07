@@ -101,8 +101,7 @@ struct UserObjectB {
   int u_;
 };
 
-template <typename SerializerT>
-void reconstruct(SerializerT& s, UserObjectB*& obj, void* buf) {
+void reconstruct(UserObjectB*& obj, void* buf) {
   obj = new (buf) UserObjectB(100);
 }
 
@@ -118,23 +117,10 @@ namespace checkpoint { namespace tests { namespace unit {
 
 struct UserObjectC;
 
-}}} // end namespace checkpoint::tests::unit
-
-// Forward-declare serialize/reconstruct methods
-namespace checkpoint {
-
-// This using declaration is only used for convenience
-using UserObjType = checkpoint::tests::unit::UserObjectC;
-
 template <typename SerializerT>
-void reconstruct(SerializerT& s, UserObjType*& obj, void* buf);
-template <typename SerializerT>
-void serialize(SerializerT& s, UserObjType& x);
+void serialize(SerializerT& s, UserObjectC& x);
 
-} /* end namespace checkpoint */
-
-// Actually define the UserObjectC
-namespace checkpoint { namespace tests { namespace unit {
+void reconstruct(UserObjectC*& obj, void* buf);
 
 struct UserObjectC {
   explicit UserObjectC(int in_u) : u_(std::to_string(in_u)) { }
@@ -145,14 +131,22 @@ public:
   }
 
   template <typename SerializerT>
-  friend void checkpoint::serialize(SerializerT&, UserObjectC&);
+  friend void serialize(SerializerT&, UserObjectC&);
 
-  template <typename SerializerT>
-  friend void checkpoint::reconstruct(SerializerT&, UserObjectC*&, void*);
+  friend void reconstruct(UserObjectC*&, void*);
 
 private:
   std::string u_ = {};
 };
+
+template <typename SerializerT>
+void serialize(SerializerT& s, UserObjectC& x) {
+  s | x.u_;
+}
+
+void reconstruct(UserObjectC*& obj, void* buf) {
+  obj = new (buf) UserObjectC(100);
+}
 
 }}} // end namespace checkpoint::tests::unit
 
@@ -162,15 +156,6 @@ namespace checkpoint {
 // This using declaration is only used for convenience
 using UserObjType = checkpoint::tests::unit::UserObjectC;
 
-template <typename SerializerT>
-void reconstruct(SerializerT& s, UserObjType*& obj, void* buf) {
-  obj = new (buf) UserObjType(100);
-}
-
-template <typename SerializerT>
-void serialize(SerializerT& s, UserObjType& x) {
-  s | x.u_;
-}
 
 } /* end namespace checkpoint */
 

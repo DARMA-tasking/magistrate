@@ -54,7 +54,7 @@
 
 namespace checkpoint { namespace dispatch {
 
-template <typename SerializerT, typename T>
+template <typename T>
 struct DeserializerDispatch {
   template <typename U>
   using isDefaultConsType =
@@ -82,10 +82,7 @@ struct DeserializerDispatch {
   #endif
 
   template <typename U = T>
-  T& operator()(
-    SerializerT& s, void* buf,
-    isDefaultConsType<U>* __attribute__((unused)) x = nullptr
-  ) {
+  T& operator()(void* buf, isDefaultConsType<U>* = nullptr) {
     debug_checkpoint("DeserializerDispatch: default constructor: buf=%p\n", buf);
     T* t_ptr = new (buf) T{};
     auto& t = *t_ptr;
@@ -94,23 +91,17 @@ struct DeserializerDispatch {
 
   #if HAS_DETECTION_COMPONENT
   template <typename U = T>
-  T& operator()(
-    SerializerT& s, void* buf,
-    isReconstructibleType<U>*  __attribute__((unused)) x = nullptr
-  ) {
+  T& operator()(void* buf, isReconstructibleType<U>* = nullptr) {
     debug_checkpoint("DeserializerDispatch: T::reconstruct(): buf=%p\n", buf);
     return T::reconstruct(buf);
   }
   #endif
 
   template <typename U = T>
-  T& operator()(
-    SerializerT& s, void* buf,
-    isNonIntReconstructibleType<U>*  __attribute__((unused)) x = nullptr
-  ) {
+  T& operator()(void* buf, isNonIntReconstructibleType<U>* = nullptr) {
     debug_checkpoint("DeserializerDispatch: non-int reconstruct(): buf=%p\n", buf);
     T* t = nullptr;
-    reconstruct(s,t,buf);
+    reconstruct(t,buf);
     return *t;
   }
 };
