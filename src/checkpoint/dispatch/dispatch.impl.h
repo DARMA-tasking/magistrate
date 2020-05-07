@@ -92,6 +92,28 @@ void Dispatch<T>::packTypeWithPacker(
 }
 
 template <typename T>
+template <typename UnpackerT>
+T* Dispatch<T>::unpackTypeWithUnpacker(
+  UnpackerT& unpacker, SerialByteType* buf, bool in_place
+) {
+  using DispatchT = DispatchCommon<T>;
+  using CleanT = typename DispatchT::CleanT;
+
+  if (in_place) {
+    auto t_buf = reinterpret_cast<T*>(buf);
+    SerializerDispatch<Unpacker, CleanT> ap;
+    ap(unpacker, t_buf, 1);
+    return t_buf;
+  } else {
+    DeserializerDispatch<Serializer, CleanT> apply_des;
+    auto& target = apply_des(unpacker,buf);
+    SerializerDispatch<Unpacker, CleanT> ap;
+    ap(unpacker, &target, 1);
+    return &target;
+  }
+}
+
+template <typename T>
 template <typename PackerT, typename... Args>
 PackerT Dispatch<T>::packType(
   T& target, SerialSizeType const& size, Args&&... args
@@ -102,25 +124,22 @@ PackerT Dispatch<T>::packType(
 }
 
 template <typename T>
-T& Dispatch<T>::unpackType(
-  SerialByteType* buf, SerialByteType* data, bool in_place
+template <typename UnpackerT, typename... Args>
+T* Dispatch<T>::unpackType(
+  SerialByteType* buf, bool in_place, Args&&... args
 ) {
-  using DispatchT = DispatchCommon<T>;
-  using CleanT = typename DispatchT::CleanT;
+  UnpackerT unpacker(std::forward<Args>(args)...);
+  return unpackTypeWithUnpacker(unpacker, buf, in_place);
+}
 
-  Unpacker unpacker(data);
-  if (in_place) {
-    auto t_buf = reinterpret_cast<T*>(buf);
-    SerializerDispatch<Unpacker, CleanT> ap;
-    ap(unpacker, t_buf, 1);
-    return *t_buf;
-  } else {
-    DeserializerDispatch<Serializer, CleanT> apply_des;
-    auto& target = apply_des(unpacker,buf);
-    SerializerDispatch<Unpacker, CleanT> ap;
-    ap(unpacker, &target, 1);
-    return target;
-  }
+
+template <typename T, typename BufferT, typename... Args>
+T* unpack(SerialByteType* buf, bool in_place, Args&&... args) {
+  using UnpackerType = UnpackerBuffer<BufferT>;
+  auto p = Dispatch<T>::template unpackType<UnpackerType>(
+    buf, in_place, std::forward<Args>(args)...
+  );
+  return p;
 }
 
 template <typename Serializer, typename T>
@@ -170,14 +189,13 @@ buffer::ImplReturnType serializeType(T& target, BufferObtainFnType fn) {
 template <typename T>
 T* deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
   auto mem = allocBuf ? allocBuf : new SerialByteType[sizeof(T)];
-  auto& t = Dispatch<T>::unpackType(mem, data, false);
-  return &t;
+  return unpack<T, buffer::UserBuffer>(mem, false, data);
 }
 
 template <typename T>
 void deserializeType(InPlaceTag, SerialByteType* data, T* t) {
   auto t_place = reinterpret_cast<SerialByteType*>(t);
-  Dispatch<T>::unpackType(t_place, data, true);
+  unpack<T, buffer::UserBuffer>(t_place, true, data);
 }
 
 template <typename T>

@@ -69,9 +69,12 @@ struct Dispatch {
   static void packTypeWithPacker(
     PackerT& packer, T& to_pack, SerialSizeType const& size
   );
-  static T& unpackType(
-    SerialByteType* buf, SerialByteType* data, bool in_place = false
+  template <typename UnpackerT>
+  static T* unpackTypeWithUnpacker(
+    UnpackerT& unpacker, SerialByteType* buf, bool in_place
   );
+  template <typename UnpackerT, typename... Args>
+  static T* unpackType(SerialByteType* buf, bool in_place, Args&&... args);
 };
 
 template <typename Serializer, typename T>
