@@ -59,17 +59,29 @@ inline Serializer& operator|(Serializer& s, T& target) {
 
 namespace checkpoint { namespace dispatch {
 
-template <typename T, typename TraverserT, typename Dispatcher>
+template <
+  typename T,
+  typename TraverserT,
+  template <typename, typename> class Dispatcher
+>
 TraverserT& Traverse::with(T& target, TraverserT& t, SerialSizeType len) {
+  using CleanT = typename CleanType<T>::CleanT;
+  using DispatchType = Dispatcher<TraverserT, CleanT>;
+
   auto val = cleanType(&target);
 
-  SerializerDispatch<TraverserT, typename CleanType<T>::CleanT, Dispatcher> ap;
+  SerializerDispatch<TraverserT, CleanT, DispatchType> ap;
   ap(t, val, len);
 
   return t;
 }
 
-template <typename T, typename TraverserT, typename... Args>
+template <
+  typename T,
+  typename TraverserT,
+  template <typename, typename> class DispatcherT,
+  typename... Args
+>
 TraverserT Traverse::with(T& target, Args&&... args) {
   TraverserT t(std::forward<Args>(args)...);
   with(target, t);
