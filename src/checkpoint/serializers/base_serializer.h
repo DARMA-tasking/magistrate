@@ -71,7 +71,7 @@ struct Serializer {
   bool isUnpacking() const { return cur_mode_ == ModeType::Unpacking; }
 
   template <typename SerializerT, typename T>
-  static void contiguousTyped(SerializerT& serdes, T* ptr, SerialSizeType num_elms) {
+  void contiguousTyped(SerializerT& serdes, T* ptr, SerialSizeType num_elms) {
     serdes.contiguousBytes(static_cast<void*>(ptr), sizeof(T), num_elms);
   }
 

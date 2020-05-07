@@ -96,7 +96,7 @@ struct SerializerDispatchByte {
   void operator()(
     SerializerT& s, T* val, SerialSizeType num, isByteCopyType<U>* x = nullptr
   ) {
-    SerializerT::contiguousTyped(s, val, num);
+    s.contiguousTyped(s, val, num);
   }
 
   template <typename U = T>
