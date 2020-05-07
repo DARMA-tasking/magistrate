@@ -94,16 +94,6 @@ set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(PROJECT_EXAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/examples)
 set(PROJECT_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
-configure_file(
-  ${PROJECT_SOURCE_DIR}/checkpoint/cmake_config.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/cmake_config.h @ONLY
-)
-
-install(
-  FILES            "${CMAKE_CURRENT_BINARY_DIR}/cmake_config.h"
-  DESTINATION      include
-)
-
 include (CTest)
 enable_testing()
 

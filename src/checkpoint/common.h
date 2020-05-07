@@ -45,7 +45,7 @@
 #if !defined INCLUDED_CHECKPOINT_COMMON_H
 #define INCLUDED_CHECKPOINT_COMMON_H
 
-#include <cmake_config.h>
+#include "cmake_config.h"
 
 #define DEBUG_CHECKPOINT 0
 

@@ -98,9 +98,19 @@ endif()
 target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC vt::lib::detector)
 target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 
+configure_file(
+  ${PROJECT_SOURCE_DIR}/checkpoint/cmake_config.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/cmake_config.h @ONLY
+)
+
+install(
+  FILES            "${CMAKE_CURRENT_BINARY_DIR}/cmake_config.h"
+  DESTINATION      include
+)
+
 target_include_directories(
   ${CHECKPOINT_LIBRARY} PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   $<INSTALL_INTERFACE:include>
 )
 
