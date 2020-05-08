@@ -139,6 +139,6 @@ install(
 
 export(
   TARGETS                   ${CHECKPOINT_LIBRARY}
-  FILE                      "darma_checkpointTargets.cmake"
-  NAMESPACE                 darma::backend::
+  FILE                      "checkpointTargets.cmake"
+  NAMESPACE                 vt::lib::
 )
