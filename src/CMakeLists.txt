@@ -111,13 +111,13 @@ install(
 target_include_directories(
   ${CHECKPOINT_LIBRARY} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-  $<INSTALL_INTERFACE:include>
+  $<INSTALL_INTERFACE:include/checkpoint>
 )
 
 target_include_directories(
   ${CHECKPOINT_LIBRARY} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-  $<INSTALL_INTERFACE:include>
+  $<INSTALL_INTERFACE:include/checkpoint>
 )
 
 install(
