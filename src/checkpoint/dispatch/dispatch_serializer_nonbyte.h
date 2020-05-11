@@ -75,6 +75,21 @@ struct hasSerialize {
 #endif
 
 template <typename SerializerT, typename T>
+struct BasicDispatcher {
+  static void serializeIntrusive(SerializerT& s, T& t) {
+    t.serialize(s);
+  }
+
+  static void serializeNonIntrusive(SerializerT& s, T& t) {
+    serialize(s, t);
+  }
+};
+
+template <
+  typename SerializerT,
+  typename T,
+  typename Dispatcher = BasicDispatcher<SerializerT, T>
+>
 struct SerializerDispatchNonByte {
 
   template <typename U = T>
@@ -116,8 +131,7 @@ struct SerializerDispatchNonByte {
 
   template <typename U = T>
   void applyElm(
-    SerializerT& s, T* val,
-    hasSplitSerialize<U>* __attribute__((unused)) x = nullptr
+    SerializerT& s, T* val, hasSplitSerialize<U>* = nullptr
   ) {
     val->template serializeParent<SerializerT>(s);
     val->template serializeThis<SerializerT>(s);
@@ -125,51 +139,46 @@ struct SerializerDispatchNonByte {
 
   template <typename U = T>
   void applyElm(
-    SerializerT& s, T* val,
-    hasNotSplitSerialize<U>* __attribute__((unused)) x = nullptr
+    SerializerT& s, T* val, hasNotSplitSerialize<U>* = nullptr
   ) { }
 
   template <typename U = T>
   void applyElm(
-    SerializerT& s, T* val,
-    isEnum<U>* __attribute__((unused)) x = nullptr
+    SerializerT& s, T* val, isEnum<U>* = nullptr
   ) {
     serializeEnum(s, *val);
   }
 
   template <typename U = T>
   void apply(
-    SerializerT& s, T* val, SerialSizeType num,
-    hasInSerialize<U>* __attribute__((unused)) x = nullptr
+    SerializerT& s, T* val, SerialSizeType num, hasInSerialize<U>* = nullptr
   ) {
     debug_checkpoint(
       "SerializerDispatch: intrusive serialize: val=%p\n",
       static_cast<void*>(&val)
     );
     for (SerialSizeType i = 0; i < num; i++) {
-      val[i].template serialize<SerializerT>(s);
+      Dispatcher::serializeIntrusive(s, val[i]);
       applyElm(s, val+i);
     }
   }
 
   template <typename U = T>
   void apply(
-    SerializerT& s, T* val, SerialSizeType num,
-    hasNoninSerialize<U>* __attribute__((unused)) x = nullptr
+    SerializerT& s, T* val, SerialSizeType num, hasNoninSerialize<U>* = nullptr
   ) {
     debug_checkpoint(
       "SerializerDispatch: non-intrusive serialize: val=%p\n",
       static_cast<void*>(&val)
     );
     for (SerialSizeType i = 0; i < num; i++) {
-      serialize(s, val[i]);
+      Dispatcher::serializeNonIntrusive(s, val[i]);
     }
   }
 
   template <typename U = T>
   void apply(
-    SerializerT& s, T* val, SerialSizeType num,
-    isEnum<U>* __attribute__((unused)) x = nullptr
+    SerializerT& s, T* val, SerialSizeType num, isEnum<U>* = nullptr
   ) {
     debug_checkpoint(
       "SerializerDispatch: enum serialize: val=%p\n",

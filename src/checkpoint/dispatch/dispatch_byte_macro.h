@@ -51,7 +51,7 @@
   namespace checkpoint {                                  \
     template <typename SerializerT>                       \
     void serialize(SerializerT& s, TYPE& t) {             \
-      SerializerT::contiguousTyped(s, &t, 1);             \
+      s.contiguousTyped(s, &t, 1);                        \
     }                                                     \
   }
 

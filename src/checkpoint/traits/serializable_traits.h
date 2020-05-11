@@ -125,7 +125,6 @@ struct SerializableTraits {
   template <typename U>
   using nonintrustive_reconstruct_t = decltype(
     reconstruct(
-      std::declval<Serializer&>(),
       std::declval<U*&>(),
       std::declval<void*>()
     )

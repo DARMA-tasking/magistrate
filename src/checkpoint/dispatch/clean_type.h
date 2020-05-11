@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                           dispatch_deserializer.h
+//                                 clean_type.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,79 +42,46 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_DESERIALIZER_H
-#define INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_DESERIALIZER_H
+#if !defined INCLUDED_CHECKPOINT_DISPATCH_CLEAN_TYPE_H
+#define INCLUDED_CHECKPOINT_DISPATCH_CLEAN_TYPE_H
 
 #include "checkpoint/common.h"
-#include "checkpoint/traits/serializable_traits.h"
-
-#include <type_traits>
-#include <tuple>
-#include <cstdlib>
 
 namespace checkpoint { namespace dispatch {
 
-template <typename SerializerT, typename T>
-struct DeserializerDispatch {
-  template <typename U>
-  using isDefaultConsType =
-    typename std::enable_if<std::is_default_constructible<U>::value, T>::type;
+template <typename T>
+struct CleanType {
 
   template <typename U>
-  using isNotDefaultConsType =
-    typename std::enable_if<not std::is_default_constructible<U>::value, T>::type;
+  using isConst = typename std::enable_if<std::is_const<U>::value, T>::type;
+  template <typename U>
+  using isNotConst = typename std::enable_if<!std::is_const<U>::value, T>::type;
 
-  // If we have the detection component, we can more precisely check for
-  // reconstuctibility
-  #if HAS_DETECTION_COMPONENT
-    template <typename U>
-    using isReconstructibleType =
-      typename std::enable_if<SerializableTraits<U>::is_reconstructible, T>::type;
-
-    template <typename U>
-    using isNonIntReconstructibleType =
-      typename std::enable_if<
-        SerializableTraits<U>::is_nonintrusive_reconstructible, T
-      >::type;
-  #else
-    template <typename U>
-    using isNonIntReconstructibleType = isNotDefaultConsType<U>;
-  #endif
+  using NonConstT = typename std::remove_const<T>::type;
+  using NonConstRefT = typename std::decay<T>::type;
+  using CleanT = NonConstRefT;
 
   template <typename U = T>
-  T& operator()(
-    SerializerT& s, void* buf,
-    isDefaultConsType<U>* __attribute__((unused)) x = nullptr
-  ) {
-    debug_checkpoint("DeserializerDispatch: default constructor: buf=%p\n", buf);
-    T* t_ptr = new (buf) T{};
-    auto& t = *t_ptr;
-    return t;
+  static NonConstRefT* clean(T* val) {
+    return CleanType<T>::apply1(val);
   }
 
-  #if HAS_DETECTION_COMPONENT
   template <typename U = T>
-  T& operator()(
-    SerializerT& s, void* buf,
-    isReconstructibleType<U>*  __attribute__((unused)) x = nullptr
-  ) {
-    debug_checkpoint("DeserializerDispatch: T::reconstruct(): buf=%p\n", buf);
-    return T::reconstruct(buf);
+  static NonConstRefT* apply1(T* val, isConst<U>* x = nullptr) {
+    return reinterpret_cast<NonConstRefT*>(const_cast<NonConstT*>(val));
   }
-  #endif
 
   template <typename U = T>
-  T& operator()(
-    SerializerT& s, void* buf,
-    isNonIntReconstructibleType<U>*  __attribute__((unused)) x = nullptr
-  ) {
-    debug_checkpoint("DeserializerDispatch: non-int reconstruct(): buf=%p\n", buf);
-    T* t = nullptr;
-    reconstruct(s,t,buf);
-    return *t;
+  static NonConstRefT* apply1(T* val, isNotConst<U>* x = nullptr) {
+    return reinterpret_cast<NonConstRefT*>(val);
   }
 };
 
+template <typename T>
+typename CleanType<T>::CleanT* cleanType(T* val) {
+  return CleanType<T>::clean(val);
+}
+
 }} /* end namespace checkpoint::dispatch */
 
-#endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_DESERIALIZER_H*/
+#endif /*INCLUDED_CHECKPOINT_DISPATCH_CLEAN_TYPE_H*/

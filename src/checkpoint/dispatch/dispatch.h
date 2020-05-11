@@ -47,10 +47,10 @@
 
 #include "checkpoint/common.h"
 #include "checkpoint/buffer/buffer.h"
-#include "checkpoint/dispatch/dispatch_common.h"
+#include "checkpoint/dispatch/clean_type.h"
 #include "checkpoint/dispatch/dispatch_serializer.h"
-#include "checkpoint/dispatch/dispatch_deserializer.h"
 #include "checkpoint/dispatch/dispatch_byte_macro.h"
+#include "checkpoint/dispatch/reconstructor.h"
 
 #include <tuple>
 
@@ -65,27 +65,105 @@ namespace checkpoint { namespace dispatch {
 
 struct InPlaceTag { };
 
-template <typename T>
-struct Dispatch {
-  static SerialSizeType sizeType(T& to_size);
-  template <typename PackerT, typename... Args>
-  static PackerT packType(
-    T& target, SerialSizeType const& size, Args&&... args
-  );
-  template <typename PackerT>
-  static void packTypeWithPacker(
-    PackerT& packer, T& to_pack, SerialSizeType const& size
-  );
-  template <typename UnpackerT>
-  static T* unpackTypeWithUnpacker(
-    UnpackerT& unpacker, SerialByteType* buf, bool in_place
-  );
-  template <typename UnpackerT, typename... Args>
-  static T* unpackType(SerialByteType* buf, bool in_place, Args&&... args);
+/**
+ * \struct Traverse
+ *
+ * \brief Traverse a target recursively\c T with a traverser object (typically
+ * inheriting from \c Serializer).
+ */
+struct Traverse {
+
+  /**
+   * \brief Traverse a \c target of type \c T recursively with a general \c
+   * TraverserT that gets applied to each element
+   *
+   * \param[in,out] target the target to traverse
+   * \param[in,out] t a reference to the traverser
+   * \param[in] len the len of the target. If > 1, \c target is an array
+   *
+   * \return the traverser after traversal is complete
+   */
+  template <typename T, typename TraverserT>
+  static TraverserT& with(T& target, TraverserT& t, SerialSizeType len = 1);
+
+  /**
+   * \brief Traverse a \c target of type \c T recursively after constructing a
+   * \c TraverserT from \c args
+   *
+   * \param[in,out] target the target to traverse
+   * \param[in] args the args to pass to the traverser for construction
+   *
+   * \return the constructed traverser after traversal is complete
+   */
+  template <typename T, typename TraverserT, typename... Args>
+  static TraverserT with(T& target, Args&&... args);
+
+  /**
+   * \brief Reconstruct in place a \c T on allocated memory \c mem. The buffer
+   * \c mem must contain enough memory to hold \c sizeof(T). This calls the
+   * reconstruction strategy based on trait detection which will detect the
+   * user's method of reconstructing the class.
+   *
+   * \param[in] mem The memory to in-place construct on
+   *
+   * \return a pointer to \c T
+   */
+  template <typename T>
+  static T* reconstruct(SerialByteType* mem);
+
 };
 
+/**
+ * \struct Standard
+ *
+ * \brief Standard traversals for sizing, packing and unpacking a class
+ */
+struct Standard {
+
+  /**
+   * \brief Recursively get the number of bytes to serialize \c T
+   *
+   * \param[in] target the target to size
+   * \param[in] args arguments to the sizer's constructor
+   *
+   * \return the number of bytes
+   */
+  template <typename T, typename SizerT, typename...Args>
+  static SerialSizeType size(T& target, Args&&... args);
+
+  /**
+   * \brief Pack \c target that requires \c size number of bytes.
+   *
+   * \param[in] target the target to pack
+   * \param[in] size the number of bytes for \c target
+   * \param[in] args arguments to the packer's constructor
+   *
+   * \return the packer after packing
+   */
+  template <typename T, typename PackerT, typename... Args>
+  static PackerT pack(T& target, SerialSizeType const& size, Args&&... args);
+
+  /**
+   * \brief Unpack \c T from packed byte-buffer \c mem
+   *
+   * \param[in] mem bytes holding a serialized \c T
+   * \param[in] constructed whether mem is constructed \c T or not
+   * \param[in] args arguments to the unpacker's constructor
+   *
+   * \return a pointer to an unpacked \c T
+   */
+  template <typename T, typename UnpackerT, typename... Args>
+  static T* unpack(SerialByteType* mem, bool constructed, Args&&... args);
+
+};
+
+template <typename T>
+buffer::ImplReturnType packBuffer(
+  T& target, SerialSizeType size, BufferObtainFnType fn
+);
+
 template <typename Serializer, typename T>
-inline void serializeArray(Serializer& s, T* array, SerialSizeType const num_elms);
+inline void serializeArray(Serializer& s, T* array, SerialSizeType const len);
 
 template <typename T>
 buffer::ImplReturnType serializeType(T& target, BufferObtainFnType fn = nullptr);
@@ -98,11 +176,6 @@ void deserializeType(InPlaceTag, SerialByteType* data, T* t);
 
 template <typename T>
 std::size_t sizeType(T& t);
-
-template <typename T, typename BufferT, typename... Args>
-PackerBuffer<BufferT> pack(
-  T& target, SerialSizeType size, Args&&... args
-);
 
 }} /* end namespace checkpoint::dispatch */
 

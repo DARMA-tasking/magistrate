@@ -60,7 +60,14 @@ namespace checkpoint { namespace dispatch {
 // efficient and non-byte version (the non-byte version will call serialize() on
 // each element)
 template <typename SerializerT, typename T>
-using SerializerDispatch = SerializerDispatchByte<SerializerT, T>;
+struct BasicDispatcher;
+
+template <
+  typename SerializerT,
+  typename T,
+  typename Dispatcher = BasicDispatcher<SerializerT, T>
+>
+using SerializerDispatch = SerializerDispatchByte<SerializerT, T, Dispatcher>;
 
 }} /* end namespace checkpoint::dispatch */
 

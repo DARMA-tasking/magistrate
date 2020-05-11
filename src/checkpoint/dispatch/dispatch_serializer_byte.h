@@ -68,7 +68,7 @@ struct hasByteCopy {
 };
 #endif
 
-template <typename SerializerT, typename T>
+template <typename SerializerT, typename T, typename Dispatcher>
 struct SerializerDispatchByte {
   #if HAS_DETECTION_COMPONENT
     template <typename U>
@@ -96,14 +96,14 @@ struct SerializerDispatchByte {
   void operator()(
     SerializerT& s, T* val, SerialSizeType num, isByteCopyType<U>* x = nullptr
   ) {
-    SerializerT::contiguousTyped(s, val, num);
+    s.contiguousTyped(s, val, num);
   }
 
   template <typename U = T>
   void operator()(
     SerializerT& s, T* val, SerialSizeType num, isNotByteCopyType<U>* x = nullptr
   ) {
-    SerializerDispatchNonByte<SerializerT, T> dispatch;
+    SerializerDispatchNonByte<SerializerT, T, Dispatcher> dispatch;
     dispatch(s, val, num);
   }
 };

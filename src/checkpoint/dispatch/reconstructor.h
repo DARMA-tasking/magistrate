@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                              dispatch_common.h
+//                               reconstructor.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,46 +42,70 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_COMMON_H
-#define INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_COMMON_H
+#if !defined INCLUDED_CHECKPOINT_DISPATCH_RECONSTRUCTOR_H
+#define INCLUDED_CHECKPOINT_DISPATCH_RECONSTRUCTOR_H
 
 #include "checkpoint/common.h"
-#include "checkpoint/buffer/buffer.h"
-#include "checkpoint/dispatch/dispatch_serializer.h"
-#include "checkpoint/dispatch/dispatch_deserializer.h"
+#include "checkpoint/traits/serializable_traits.h"
 
+#include <type_traits>
 #include <tuple>
+#include <cstdlib>
 
 namespace checkpoint { namespace dispatch {
 
 template <typename T>
-struct DispatchCommon {
+struct Reconstructor {
+  template <typename U>
+  using isDefaultConsType =
+    typename std::enable_if<std::is_default_constructible<U>::value, T>::type;
 
   template <typename U>
-  using isConst = typename std::enable_if<std::is_const<U>::value, T>::type;
-  template <typename U>
-  using isNotConst = typename std::enable_if<!std::is_const<U>::value, T>::type;
+  using isNotDefaultConsType =
+    typename std::enable_if<not std::is_default_constructible<U>::value, T>::type;
 
-  using NonConstT = typename std::remove_const<T>::type;
-  using NonConstRefT = typename std::decay<T>::type;
-  using CleanT = NonConstRefT;
+  // If we have the detection component, we can more precisely check for
+  // reconstuctibility
+  #if HAS_DETECTION_COMPONENT
+    template <typename U>
+    using isReconstructibleType =
+      typename std::enable_if<SerializableTraits<U>::is_reconstructible, T>::type;
+
+    template <typename U>
+    using isNonIntReconstructibleType =
+      typename std::enable_if<
+        SerializableTraits<U>::is_nonintrusive_reconstructible, T
+      >::type;
+  #else
+    template <typename U>
+    using isNonIntReconstructibleType = isNotDefaultConsType<U>;
+  #endif
 
   template <typename U = T>
-  static NonConstRefT* clean(T* val) {
-    return DispatchCommon<T>::apply1(val);
+  static T* construct(void* buf, isDefaultConsType<U>* = nullptr) {
+    debug_checkpoint("DeserializerDispatch: default constructor: buf=%p\n", buf);
+    T* t_ptr = new (buf) T{};
+    return t_ptr;
   }
 
+  #if HAS_DETECTION_COMPONENT
   template <typename U = T>
-  static NonConstRefT* apply1(T* val, isConst<U>* x = nullptr) {
-    return reinterpret_cast<NonConstRefT*>(const_cast<NonConstT*>(val));
+  static T* construct(void* buf, isReconstructibleType<U>* = nullptr) {
+    debug_checkpoint("DeserializerDispatch: T::reconstruct(): buf=%p\n", buf);
+    auto& t = T::reconstruct(buf);
+    return &t;
   }
+  #endif
 
   template <typename U = T>
-  static NonConstRefT* apply1(T* val, isNotConst<U>* x = nullptr) {
-    return reinterpret_cast<NonConstRefT*>(val);
+  static T* construct(void* buf, isNonIntReconstructibleType<U>* = nullptr) {
+    debug_checkpoint("DeserializerDispatch: non-int reconstruct(): buf=%p\n", buf);
+    T* t = nullptr;
+    reconstruct(t,buf);
+    return t;
   }
 };
 
 }} /* end namespace checkpoint::dispatch */
 
-#endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_COMMON_H*/
+#endif /*INCLUDED_CHECKPOINT_DISPATCH_RECONSTRUCTOR_H*/
