@@ -134,10 +134,21 @@ struct CustomDispatch<SerializerT, std::vector<U>> {
     for (std::size_t i = 0; i < t.size(); i++) {
       printf("\t vector[%zu]=%s", i, std::to_string(t[i]).c_str());
     }
+    printf("\n");
     total_num_elms += t.size();
     num_vecs++;
   }
 };
+
+struct TestTraverse2 : checkpoint::Serializer {
+  template <typename U, typename V>
+  using DispatcherType = CustomDispatch<U, V>;
+
+  void contiguousBytes(void* ptr, std::size_t size, std::size_t num_elms) { }
+
+  TestTraverse2() : checkpoint::Serializer(checkpoint::eSerializationMode::None) { }
+};
+
 
 using TestTraversal = TestHarness;
 
@@ -159,7 +170,7 @@ TEST_F(TestTraversal, test_traversal_dispatcher) {
   using TestType = TestObject;
   TestType t{TestType::MakeTag{}};
 
-  checkpoint::dispatch::Traverse::with<TestObject, TestTraverse, CustomDispatch>(t);
+  checkpoint::dispatch::Traverse::with<TestObject, TestTraverse2>(t);
 
   EXPECT_EQ(num_vecs, 3);
   EXPECT_EQ(total_num_elms, 120);
