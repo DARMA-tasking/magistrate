@@ -138,7 +138,10 @@ buffer::ImplReturnType serializeType(T& target, BufferObtainFnType fn) {
 
 template <typename T>
 T* deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
-  auto mem = allocBuf ? allocBuf : new SerialByteType[sizeof(T)];
+  auto mem =
+    allocBuf ?
+    allocBuf :
+    reinterpret_cast<SerialByteType*>(std::allocator<T>{}.allocate(1));
   return Standard::unpack<T, UnpackerBuffer<buffer::UserBuffer>>(mem, false, data);
 }
 
