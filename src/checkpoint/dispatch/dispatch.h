@@ -83,11 +83,7 @@ struct Traverse {
    *
    * \return the traverser after traversal is complete
    */
-  template <
-    typename T,
-    typename TraverserT,
-    template <typename, typename> class Dispatcher = BasicDispatcher
-  >
+  template <typename T, typename TraverserT>
   static TraverserT& with(T& target, TraverserT& t, SerialSizeType len = 1);
 
   /**
@@ -99,12 +95,7 @@ struct Traverse {
    *
    * \return the constructed traverser after traversal is complete
    */
-  template <
-    typename T,
-    typename TraverserT,
-    template <typename, typename> class Dispatcher = BasicDispatcher,
-    typename... Args
-  >
+  template <typename T, typename TraverserT, typename... Args>
   static TraverserT with(T& target, Args&&... args);
 
   /**

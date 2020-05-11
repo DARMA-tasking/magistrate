@@ -60,8 +60,18 @@ enum struct eSerializationMode : int8_t {
   Invalid = -1
 };
 
+namespace dispatch {
+
+template <typename SerializerT, typename T>
+struct BasicDispatcher;
+
+} /* end namespace dispatch */
+
 struct Serializer {
   using ModeType = eSerializationMode;
+
+  template <typename SerializerT, typename T>
+  using DispatcherType = dispatch::BasicDispatcher<SerializerT, T>;
 
   explicit Serializer(ModeType const& in_mode) : cur_mode_(in_mode) {}
 
