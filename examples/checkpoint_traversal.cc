@@ -45,6 +45,7 @@
 #include <checkpoint/checkpoint.h>
 
 #include <cstdio>
+#include <string>
 
 namespace checkpoint { namespace examples {
 
@@ -86,14 +87,14 @@ struct PrintBytesTraverse : checkpoint::Serializer {
   }
 };
 
-/// Custom traverser for printing typed ranges
-struct TypedTraverse : checkpoint::Serializer {
-  TypedTraverse() : checkpoint::Serializer(checkpoint::eSerializationMode::None) { }
+template <typename U>
+struct ToString {
+  static std::string apply(U& u) { return std::to_string(u); }
+};
 
-  template <typename SerializerT, typename T>
-  void contiguousTyped(SerializerT&, T*, std::size_t num_elms) {
-    printf("TypedTraverse: type is %s, num=%zu\n", typeid(T).name(), num_elms);
-  }
+template <>
+struct ToString<std::string> {
+  static std::string apply(std::string& u) { return u; }
 };
 
 /// Custom dispatcher to customizing type-specific traversal behavior
@@ -116,11 +117,24 @@ struct CustomDispatch<SerializerT, std::vector<U>> {
     // Do something special here: e.g., an RDMA for the vector during packing
     printf("Traversing vector: size=%zu\n", t.size());
     for (std::size_t i = 0; i < t.size(); i++) {
-      printf("\t vector[%zu]=%s", i, std::to_string(t[i]).c_str());
+      printf("\t vector[%zu]=%s", i, ToString<U>::apply(t[i]).c_str());
     }
+    printf("\n");
   }
 };
 
+/// Custom traverser for printing typed ranges
+struct TypedTraverse : checkpoint::Serializer {
+  template <typename U, typename V>
+  using DispatcherType = CustomDispatch<U, V>;
+
+  TypedTraverse() : checkpoint::Serializer(checkpoint::eSerializationMode::None) { }
+
+  template <typename SerializerT, typename T>
+  void contiguousTyped(SerializerT&, T*, std::size_t num_elms) {
+    printf("TypedTraverse: type is %s, num=%zu\n", typeid(T).name(), num_elms);
+  }
+};
 
 int main(int, char**) {
   using namespace checkpoint::examples;
@@ -130,11 +144,9 @@ int main(int, char**) {
   // Traverse my_obj with a custom traverser that prints the bytes
   checkpoint::dispatch::Traverse::with<TestObject, PrintBytesTraverse>(my_obj);
 
-  // Traverse my_obj with a custom traverser that prints the types and lens
+  // Traverse my_obj with a custom traverser and dispatcher that prints the
+  // types and lens
   checkpoint::dispatch::Traverse::with<TestObject, TypedTraverse>(my_obj);
-
-  // Traverse my_obj with a custom dispatcher
-  checkpoint::dispatch::Traverse::with<TestObject, TypedTraverse, CustomDispatch>(my_obj);
 
   return 0;
 }
