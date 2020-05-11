@@ -76,8 +76,9 @@ std::unique_ptr<T> deserialize(char* buf) {
 }
 
 template <typename T>
-T* deserialize(SerializedReturnType&& in) {
-  return dispatch::deserializeType<T>(in->getBuffer());
+std::unique_ptr<T> deserialize(SerializedReturnType&& in) {
+  auto t = dispatch::deserializeType<T>(in->getBuffer());
+  return std::unique_ptr<T>(t);
 }
 
 template <typename T>

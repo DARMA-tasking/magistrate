@@ -142,10 +142,10 @@ void deserializeInPlace(char* buf, T* t);
  *
  * \param[in] in the buffer and size combo returned from \c serialize
  *
- * \return a pointer to \c T that must be deallocated
+ * \return a unique pointer to \c T that must be deallocated
  */
 template <typename T>
-T* deserialize(SerializedReturnType&& in);
+std::unique_ptr<T> deserialize(SerializedReturnType&& in);
 
 /**
  * \brief Get the number of bytes that \c target requires for serialization.
