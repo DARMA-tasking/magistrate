@@ -85,6 +85,10 @@ struct BasicDispatcher {
   static void serializeNonIntrusive(SerializerT& s, T& t) {
     serialize(s, t);
   }
+
+  static void serializeNonIntrusiveEnum(SerializerT& s, T& t) {
+    serializeEnum(s, t);
+  }
 };
 
 template <
@@ -167,7 +171,7 @@ struct SerializerDispatchNonByte {
   void applyElm(
     SerializerT& s, T* val, isEnum<U>* = nullptr
   ) {
-    serializeEnum(s, *val);
+    Dispatcher::serializeNonIntrusiveEnum(s, *val);
   }
 
   /**
