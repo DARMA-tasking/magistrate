@@ -46,9 +46,6 @@
 
 namespace checkpoint { namespace dispatch {
 
-struct Checker {
-
-private:
-};
+std::stack<CountRecord> stack;
 
 }} /* end namespace checkpoint::dispatch */
