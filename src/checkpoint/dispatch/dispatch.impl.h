@@ -47,6 +47,7 @@
 
 #include "checkpoint/common.h"
 #include "checkpoint/dispatch/dispatch.h"
+#include "checkpoint/dispatch/checker.h"
 
 namespace checkpoint {
 
