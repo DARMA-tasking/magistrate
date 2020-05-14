@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                 checkpoint.h
+//                             test_unique_ptr.cc
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,24 +42,86 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CHECKPOINT_H
-#define INCLUDED_CHECKPOINT_CHECKPOINT_H
+#include <gtest/gtest.h>
 
-#include "checkpoint/serializers/serializers_headers.h"
-#include "checkpoint/dispatch/dispatch.h"
-#include "checkpoint/traits/serializable_traits.h"
+#include "test_harness.h"
 
-#include "checkpoint/container/array_serialize.h"
-#include "checkpoint/container/enum_serialize.h"
-#include "checkpoint/container/list_serialize.h"
-#include "checkpoint/container/map_serialize.h"
-#include "checkpoint/container/string_serialize.h"
-#include "checkpoint/container/tuple_serialize.h"
-#include "checkpoint/container/vector_serialize.h"
-#include "checkpoint/container/unique_ptr_serialize.h"
-#include "checkpoint/container/view_serialize.h"
+#include <checkpoint/checkpoint.h>
 
-#include "checkpoint/checkpoint_api.h"
-#include "checkpoint/checkpoint_api.impl.h"
+#include <vector>
+#include <cstdio>
 
-#endif /*INCLUDED_CHECKPOINT_CHECKPOINT_H*/
+namespace checkpoint { namespace tests { namespace unit {
+
+using TestUniquePtr = TestHarness;
+
+static constexpr int const x_val = 29;
+static constexpr int const y_val = 31;
+static constexpr int const z_val = 37;
+static constexpr int const vec_val = 41;
+
+struct UserObject2 {
+  struct MakeTag { };
+
+  UserObject2() = default;
+
+  explicit UserObject2(MakeTag)
+    : x(x_val),
+      y(y_val)
+  {
+    vec.push_back(vec_val);
+  }
+
+  template <typename Serializer>
+  void serialize(Serializer& s) {
+    s | x | y | vec;
+  }
+
+  void check() {
+    EXPECT_EQ(x, x_val);
+    EXPECT_EQ(y, y_val);
+    EXPECT_EQ(vec.size(), 1UL);
+    EXPECT_EQ(vec[0], vec_val);
+  }
+
+private:
+  int x = 0, y = 0;
+  std::vector<int> vec;
+};
+
+struct UserObject1 {
+
+  struct MakeTag { };
+
+  UserObject1() = default;
+  explicit UserObject1(MakeTag)
+    : z(z_val),
+      obj(std::make_unique<UserObject2>(UserObject2::MakeTag{}))
+  { }
+
+  template <typename Serializer>
+  void serialize(Serializer& s) {
+    s | z | obj | obj_null;
+  }
+
+  void check() {
+    EXPECT_EQ(z, z_val);
+    EXPECT_NE(obj, nullptr);
+    obj->check();
+    EXPECT_EQ(obj_null, nullptr);
+  }
+
+  int z = 0;
+  std::unique_ptr<UserObject2> obj = nullptr;
+  std::unique_ptr<UserObject2> obj_null = nullptr;
+};
+
+TEST_F(TestUniquePtr, test_unique_ptr_1) {
+  UserObject1 t{UserObject1::MakeTag{}};
+
+  auto ret = checkpoint::serialize(t);
+  auto out = checkpoint::deserialize<UserObject1>(ret->getBuffer());
+  out->check();
+}
+
+}}} // end namespace checkpoint::tests::unit

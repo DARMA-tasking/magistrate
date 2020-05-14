@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                 checkpoint.h
+//                            unique_ptr_serialize.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,24 +42,28 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CHECKPOINT_H
-#define INCLUDED_CHECKPOINT_CHECKPOINT_H
+#if !defined INCLUDED_CHECKPOINT_CONTAINER_UNIQUE_PTR_SERIALIZE_H
+#define INCLUDED_CHECKPOINT_CONTAINER_UNIQUE_PTR_SERIALIZE_H
 
-#include "checkpoint/serializers/serializers_headers.h"
-#include "checkpoint/dispatch/dispatch.h"
-#include "checkpoint/traits/serializable_traits.h"
+#include "checkpoint/common.h"
+#include "checkpoint/dispatch/reconstructor.h"
 
-#include "checkpoint/container/array_serialize.h"
-#include "checkpoint/container/enum_serialize.h"
-#include "checkpoint/container/list_serialize.h"
-#include "checkpoint/container/map_serialize.h"
-#include "checkpoint/container/string_serialize.h"
-#include "checkpoint/container/tuple_serialize.h"
-#include "checkpoint/container/vector_serialize.h"
-#include "checkpoint/container/unique_ptr_serialize.h"
-#include "checkpoint/container/view_serialize.h"
+namespace checkpoint {
 
-#include "checkpoint/checkpoint_api.h"
-#include "checkpoint/checkpoint_api.impl.h"
+template <typename Serializer, typename T>
+void serialize(Serializer& s, std::unique_ptr<T>& ptr) {
+  bool is_null = ptr == nullptr;
+  s | is_null;
 
-#endif /*INCLUDED_CHECKPOINT_CHECKPOINT_H*/
+  if (not is_null) {
+    if (s.isUnpacking()) {
+      auto t = std::allocator<T>{}.allocate(1);
+      ptr = std::unique_ptr<T>(dispatch::Reconstructor<T>::construct(t));
+    }
+    s | *ptr;
+  }
+}
+
+} /* end namespace checkpoint */
+
+#endif /*INCLUDED_CHECKPOINT_CONTAINER_UNIQUE_PTR_SERIALIZE_H*/
