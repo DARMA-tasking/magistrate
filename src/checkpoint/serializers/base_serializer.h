@@ -49,6 +49,7 @@
 
 #include <type_traits>
 #include <cstdlib>
+#include <string>
 
 namespace checkpoint {
 
@@ -147,6 +148,12 @@ struct Serializer {
   void contiguousTyped(SerializerT& serdes, T* ptr, SerialSizeType num_elms) {
     serdes.contiguousBytes(static_cast<void*>(ptr), sizeof(T), num_elms);
   }
+
+  template <typename T>
+  void check(T& t, std::string name) { }
+
+  template <typename T>
+  void skip(T& t, std::string name = "") { }
 
   /**
    * \brief Get a buffer if it is associated with the serializer
