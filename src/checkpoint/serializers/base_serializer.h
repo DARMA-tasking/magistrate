@@ -153,7 +153,7 @@ struct Serializer {
   void check(T& t, std::string name) { }
 
   template <typename T>
-  void skip(T& t, std::string name = "") { }
+  void ignore(T& t, std::string name = "") { }
 
   /**
    * \brief Get a buffer if it is associated with the serializer
