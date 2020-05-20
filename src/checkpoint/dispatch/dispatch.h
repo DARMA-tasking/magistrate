@@ -155,6 +155,13 @@ struct Standard {
   template <typename T, typename UnpackerT, typename... Args>
   static T* unpack(SerialByteType* mem, bool constructed, Args&&... args);
 
+  /**
+   * \brief Allocate memory for \c T
+   *
+   * \return allocated buffer
+   */
+  template <typename T>
+  static SerialByteType* allocate();
 };
 
 template <typename T>

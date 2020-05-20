@@ -56,6 +56,7 @@
 #include "checkpoint/container/string_serialize.h"
 #include "checkpoint/container/tuple_serialize.h"
 #include "checkpoint/container/vector_serialize.h"
+#include "checkpoint/container/unique_ptr_serialize.h"
 #include "checkpoint/container/view_serialize.h"
 
 #include "checkpoint/checkpoint_api.h"

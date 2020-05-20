@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                            checkpoint_api.impl.h
+//                             test_unique_ptr.cc
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,72 +42,86 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CHECKPOINT_API_IMPL_H
-#define INCLUDED_CHECKPOINT_CHECKPOINT_API_IMPL_H
+#include <gtest/gtest.h>
 
-#include "checkpoint/common.h"
+#include "test_harness.h"
+
 #include <checkpoint/checkpoint.h>
-#include "checkpoint/checkpoint_api.h"
-#include "buffer/buffer.h"
 
-#include <memory>
+#include <vector>
+#include <cstdio>
 
-namespace checkpoint {
+namespace checkpoint { namespace tests { namespace unit {
 
-template <typename T>
-SerializedReturnType serialize(T& target, BufferCallbackType fn) {
-  auto ret = dispatch::serializeType<T>(target, fn);
-  auto& buf = std::get<0>(ret);
-  std::unique_ptr<SerializedInfo> base_ptr(
-    static_cast<SerializedInfo*>(buf.release())
-  );
-  return base_ptr;
+using TestUniquePtr = TestHarness;
+
+static constexpr int const x_val = 29;
+static constexpr int const y_val = 31;
+static constexpr int const z_val = 37;
+static constexpr int const vec_val = 41;
+
+struct UserObject2 {
+  struct MakeTag { };
+
+  UserObject2() = default;
+
+  explicit UserObject2(MakeTag)
+    : x(x_val),
+      y(y_val)
+  {
+    vec.push_back(vec_val);
+  }
+
+  template <typename Serializer>
+  void serialize(Serializer& s) {
+    s | x | y | vec;
+  }
+
+  void check() {
+    EXPECT_EQ(x, x_val);
+    EXPECT_EQ(y, y_val);
+    EXPECT_EQ(vec.size(), 1UL);
+    EXPECT_EQ(vec[0], vec_val);
+  }
+
+private:
+  int x = 0, y = 0;
+  std::vector<int> vec;
+};
+
+struct UserObject1 {
+
+  struct MakeTag { };
+
+  UserObject1() = default;
+  explicit UserObject1(MakeTag)
+    : z(z_val),
+      obj(std::make_unique<UserObject2>(UserObject2::MakeTag{}))
+  { }
+
+  template <typename Serializer>
+  void serialize(Serializer& s) {
+    s | z | obj | obj_null;
+  }
+
+  void check() {
+    EXPECT_EQ(z, z_val);
+    EXPECT_NE(obj, nullptr);
+    obj->check();
+    EXPECT_EQ(obj_null, nullptr);
+  }
+
+  int z = 0;
+  std::unique_ptr<UserObject2> obj = nullptr;
+  std::unique_ptr<UserObject2> obj_null = nullptr;
+};
+
+TEST_F(TestUniquePtr, test_unique_ptr_1) {
+  UserObject1 t{UserObject1::MakeTag{}};
+
+  auto ret = checkpoint::serialize(t);
+  auto out = checkpoint::deserialize<UserObject1>(ret->getBuffer());
+  out->check();
 }
 
-template <typename T>
-T* deserialize(char* buf, char* object_buf) {
-  return dispatch::deserializeType<T>(buf, object_buf);
-}
-
-template <typename T>
-std::unique_ptr<T> deserialize(char* buf) {
-  auto t = dispatch::deserializeType<T>(buf);
-  return std::unique_ptr<T>(t);
-}
-
-template <typename T>
-std::unique_ptr<T> deserialize(SerializedReturnType&& in) {
-  auto t = dispatch::deserializeType<T>(in->getBuffer());
-  return std::unique_ptr<T>(t);
-}
-
-template <typename T>
-void deserializeInPlace(char* buf, T* t) {
-  return dispatch::deserializeType<T>(dispatch::InPlaceTag{}, buf, t);
-}
-
-template <typename T>
-std::size_t getSize(T& target) {
-  return dispatch::Standard::size<T, Sizer>(target);
-}
-
-template <typename T>
-void serializeToFile(T& target, std::string const& file) {
-  auto len = getSize<T>(target);
-  dispatch::Standard::pack<T, PackerBuffer<buffer::IOBuffer>>(
-    target, len, buffer::IOBuffer::WriteToFileTag{}, len, file
-  );
-}
-
-template <typename T>
-std::unique_ptr<T> deserializeFromFile(std::string const& file) {
-  auto mem = dispatch::Standard::allocate<T>();
-  auto t = dispatch::Standard::unpack<T, UnpackerBuffer<buffer::IOBuffer>>(
-    mem, false, buffer::IOBuffer::ReadFromFileTag{}, file
-  );
-  return std::unique_ptr<T>(t);
-}
-
-} /* end namespace checkpoint */
-
-#endif /*INCLUDED_CHECKPOINT_CHECKPOINT_API_IMPL_H*/
+}}} // end namespace checkpoint::tests::unit

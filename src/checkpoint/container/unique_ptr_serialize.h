@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                            checkpoint_api.impl.h
+//                            unique_ptr_serialize.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,72 +42,28 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CHECKPOINT_API_IMPL_H
-#define INCLUDED_CHECKPOINT_CHECKPOINT_API_IMPL_H
+#if !defined INCLUDED_CHECKPOINT_CONTAINER_UNIQUE_PTR_SERIALIZE_H
+#define INCLUDED_CHECKPOINT_CONTAINER_UNIQUE_PTR_SERIALIZE_H
 
 #include "checkpoint/common.h"
-#include <checkpoint/checkpoint.h>
-#include "checkpoint/checkpoint_api.h"
-#include "buffer/buffer.h"
-
-#include <memory>
+#include "checkpoint/dispatch/reconstructor.h"
 
 namespace checkpoint {
 
-template <typename T>
-SerializedReturnType serialize(T& target, BufferCallbackType fn) {
-  auto ret = dispatch::serializeType<T>(target, fn);
-  auto& buf = std::get<0>(ret);
-  std::unique_ptr<SerializedInfo> base_ptr(
-    static_cast<SerializedInfo*>(buf.release())
-  );
-  return base_ptr;
-}
+template <typename Serializer, typename T>
+void serialize(Serializer& s, std::unique_ptr<T>& ptr) {
+  bool is_null = ptr == nullptr;
+  s | is_null;
 
-template <typename T>
-T* deserialize(char* buf, char* object_buf) {
-  return dispatch::deserializeType<T>(buf, object_buf);
-}
-
-template <typename T>
-std::unique_ptr<T> deserialize(char* buf) {
-  auto t = dispatch::deserializeType<T>(buf);
-  return std::unique_ptr<T>(t);
-}
-
-template <typename T>
-std::unique_ptr<T> deserialize(SerializedReturnType&& in) {
-  auto t = dispatch::deserializeType<T>(in->getBuffer());
-  return std::unique_ptr<T>(t);
-}
-
-template <typename T>
-void deserializeInPlace(char* buf, T* t) {
-  return dispatch::deserializeType<T>(dispatch::InPlaceTag{}, buf, t);
-}
-
-template <typename T>
-std::size_t getSize(T& target) {
-  return dispatch::Standard::size<T, Sizer>(target);
-}
-
-template <typename T>
-void serializeToFile(T& target, std::string const& file) {
-  auto len = getSize<T>(target);
-  dispatch::Standard::pack<T, PackerBuffer<buffer::IOBuffer>>(
-    target, len, buffer::IOBuffer::WriteToFileTag{}, len, file
-  );
-}
-
-template <typename T>
-std::unique_ptr<T> deserializeFromFile(std::string const& file) {
-  auto mem = dispatch::Standard::allocate<T>();
-  auto t = dispatch::Standard::unpack<T, UnpackerBuffer<buffer::IOBuffer>>(
-    mem, false, buffer::IOBuffer::ReadFromFileTag{}, file
-  );
-  return std::unique_ptr<T>(t);
+  if (not is_null) {
+    if (s.isUnpacking()) {
+      auto t = dispatch::Standard::allocate<T>();
+      ptr = std::unique_ptr<T>(dispatch::Reconstructor<T>::construct(t));
+    }
+    s | *ptr;
+  }
 }
 
 } /* end namespace checkpoint */
 
-#endif /*INCLUDED_CHECKPOINT_CHECKPOINT_API_IMPL_H*/
+#endif /*INCLUDED_CHECKPOINT_CONTAINER_UNIQUE_PTR_SERIALIZE_H*/
