@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                  checker.cc
+//                                checker.impl.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,8 +42,68 @@
 //@HEADER
 */
 
+#if !defined INCLUDED_CHECKPOINT_DISPATCH_CHECKER_IMPL_H
+#define INCLUDED_CHECKPOINT_DISPATCH_CHECKER_IMPL_H
+
 #include "checkpoint/dispatch/checker.h"
 
 namespace checkpoint { namespace dispatch {
 
+template <typename SerializerT, typename T>
+void CounterDispatch<SerializerT,T>::serializeIntrusive(SerializerT& s, T& t) {
+  if (s.stack_->size() > 0) {
+    s.stack_->top().addSerializedMember(reinterpret_cast<void*>(&t));
+  }
+
+  s.stack_->push(CountRecord{typeid(T).name()});
+  t.serialize(s);
+
+  NonCounter nc{s};
+  t.serialize(nc);
+
+  {
+    auto& top = s.stack_->top();
+
+    for (auto&& member : top.all_members) {
+      auto addr = std::get<0>(member);
+      auto name = std::get<1>(member);
+
+      // If added to the ignore member list, don't run the check
+      if (top.ignored_members.find(addr) != top.ignored_members.end()) {
+        continue;
+      }
+
+      auto serialized_iter = top.serialized_members.find(addr);
+      if (serialized_iter == top.serialized_members.end()) {
+        printf("Missing serializer for %s\n", name.c_str());
+      }
+    }
+  }
+
+  s.stack_->pop();
+}
+
+template <typename SerializerT, typename T>
+void CounterDispatch<SerializerT,T>::serializeNonIntrusiveEnum(SerializerT& s, T& t) {
+  if (s.stack_->size() > 0) {
+    s.stack_->top().addSerializedMember(reinterpret_cast<void*>(&t));
+  }
+}
+
+template <typename SerializerT, typename T>
+void CounterDispatch<SerializerT,T>::serializeNonIntrusive(SerializerT& s, T& t) {
+  if (s.stack_->size() > 0) {
+    s.stack_->top().addSerializedMember(reinterpret_cast<void*>(&t));
+  }
+  s.stack_->push(CountRecord{typeid(T).name()});
+  serialize(s, t);
+
+  NonCounter nc{s};
+  serialize(nc, t);
+
+  s.stack_->pop();
+}
+
 }} /* end namespace checkpoint::dispatch */
+
+#endif /*INCLUDED_CHECKPOINT_DISPATCH_CHECKER_IMPL_H*/

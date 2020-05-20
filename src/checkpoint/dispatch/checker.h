@@ -46,11 +46,15 @@
 #define INCLUDED_CHECKPOINT_DISPATCH_CHECKER_H
 
 #include "checkpoint/serializers/base_serializer.h"
+#include "checkpoint/dispatch/clean_type.h"
 
 #include <stack>
 #include <unordered_set>
 #include <vector>
 #include <tuple>
+#include <string>
+#include <memory>
+#include <cassert>
 
 namespace checkpoint { namespace dispatch {
 
@@ -61,12 +65,12 @@ struct CountRecord {
     : name_(in_name)
   { }
 
-  void add(void* addr) { exists.insert(addr); }
-  void addCheck(void* addr, std::string name) {
-    checks.push_back(std::make_tuple(addr,name));
+  void addSerializedMember(void* addr) { serialized_members.insert(addr); }
+  void addMember(void* addr, std::string name) {
+    all_members.push_back(std::make_tuple(addr,name));
   }
-  void addSkip(void* addr) {
-    skips.insert(addr);
+  void addIgnoredMember(void* addr) {
+    ignored_members.insert(addr);
   }
 
   std::string getName() const { return name_; }
@@ -74,89 +78,78 @@ struct CountRecord {
 private:
   std::string name_ = 0;
 public:
-  std::unordered_set<void*> exists;
-  std::vector<std::tuple<void*,std::string>> checks;
-  std::unordered_set<void*> skips;
+  std::unordered_set<void*> serialized_members;
+  std::vector<std::tuple<void*,std::string>> all_members;
+  std::unordered_set<void*> ignored_members;
 };
-
-extern std::stack<CountRecord> stack;
 
 template <typename SerializerT, typename T>
 struct CounterDispatch {
-  static void serializeIntrusive(SerializerT& s, T& t) {
-    if (stack.size() > 0) {
-      stack.top().add(reinterpret_cast<void*>(&t));
-    }
-
-    stack.push(CountRecord{typeid(T).name()});
-    t.serialize(s);
-
-    for (auto&& check : stack.top().checks) {
-      auto addr = std::get<0>(check);
-      auto name = std::get<1>(check);
-      auto skip_iter = stack.top().skips.find(addr);
-      if (skip_iter == stack.top().skips.end()) {
-        auto exists_iter = stack.top().exists.find(addr);
-        if (exists_iter == stack.top().exists.end()) {
-          printf("Missing serializer for %s\n", name.c_str());
-        }
-      }
-    }
-
-    stack.pop();
-  }
-
-  static void serializeNonIntrusiveEnum(SerializerT& s, T& t) {
-    if (stack.size() > 0) {
-      stack.top().add(reinterpret_cast<void*>(&t));
-    }
-  }
-
-  static void serializeNonIntrusive(SerializerT& s, T& t) {
-    if (stack.size() > 0) {
-      stack.top().add(reinterpret_cast<void*>(&t));
-    }
-    stack.push(CountRecord{typeid(T).name()});
-    //printf("\t (%zu) \t NI: starting: %s\n", st.size(), typeid(T).name());
-    serialize(s, t);
-    //printf("\t (%zu) \t NI: finishing: %s\n", st.size(), typeid(T).name());
-    stack.pop();
-  }
+  static void serializeIntrusive(SerializerT& s, T& t);
+  static void serializeNonIntrusiveEnum(SerializerT& s, T& t);
+  static void serializeNonIntrusive(SerializerT& s, T& t);
 };
 
-/// Custom traverser for printing raw bytes
-struct Counter : checkpoint::Serializer {
+/// Custom traverser for checking serialize functions
+struct BaseCounter : checkpoint::Serializer {
   template <typename U, typename V>
   using DispatcherType = CounterDispatch<U, V>;
 
-  Counter() : checkpoint::Serializer(checkpoint::eSerializationMode::None) { }
+  BaseCounter() : BaseCounter(checkpoint::eSerializationMode::None) { }
+
+  explicit BaseCounter(checkpoint::eSerializationMode in_mode)
+    : checkpoint::Serializer(in_mode),
+      stack_(std::make_shared<std::stack<CountRecord>>())
+  { }
+
+  template <typename CounterLike>
+  explicit BaseCounter(CounterLike& cl)
+    : checkpoint::Serializer(cl.getMode()),
+      stack_(cl.getStack())
+  { }
+
 
   template <typename T>
   void check(T& t, std::string t_name) {
-    if (stack.size() > 0) {
-      stack.top().addCheck(reinterpret_cast<void*>(&t), t_name);
-      printf("Adding check for: %s\n", t_name.c_str());
-    }
+    assert(stack_->size() > 0 && "Must have valid live stack");
+    stack_->top().addMember(reinterpret_cast<void*>(cleanType(&t)), t_name);
   }
 
   template <typename T>
   void skip(T& t, std::string t_name) {
-    if (stack.size() > 0) {
-      stack.top().addSkip(reinterpret_cast<void*>(&t));
-    }
+    assert(stack_->size() > 0 && "Must have valid live stack");
+    stack_->top().addIgnoredMember(reinterpret_cast<void*>(cleanType(&t)));
   }
 
   template <typename SerializerT, typename T>
   void contiguousTyped(SerializerT&, T* t, std::size_t num_elms) {
-    if (stack.size() > 0) {
-      stack.top().add(reinterpret_cast<void*>(t));
-    }
-    //printf("Counter: type is %s, num=%zu\n", typeid(T).name(), num_elms);
+    assert(stack_->size() > 0 && "Must have valid live stack");
+    stack_->top().addSerializedMember(reinterpret_cast<void*>(t));
   }
 
   void contiguousBytes(void* ptr, std::size_t size, std::size_t num_elms) { }
+
+  std::shared_ptr<std::stack<CountRecord>> getStack() {
+    return stack_;
+  }
+
+  template <typename U, typename V>
+  friend struct CounterDispatch;
+
+protected:
+  std::shared_ptr<std::stack<CountRecord>> stack_;
+};
+
+// Type that does special dispatch
+struct Counter : BaseCounter { };
+
+// Type that invokes regular serializer overload
+struct NonCounter : BaseCounter {
+  explicit NonCounter(Counter& c) : BaseCounter(c) { }
 };
 
 }} /* end namespace checkpoint::dispatch */
+
+#include "checkpoint/dispatch/checker.impl.h"
 
 #endif /*INCLUDED_CHECKPOINT_DISPATCH_CHECKER_H*/
