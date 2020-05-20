@@ -57,7 +57,7 @@ void serialize(Serializer& s, std::unique_ptr<T>& ptr) {
 
   if (not is_null) {
     if (s.isUnpacking()) {
-      auto t = std::allocator<T>{}.allocate(1);
+      auto t = dispatch::Standard::allocate<T>();
       ptr = std::unique_ptr<T>(dispatch::Reconstructor<T>::construct(t));
     }
     s | *ptr;

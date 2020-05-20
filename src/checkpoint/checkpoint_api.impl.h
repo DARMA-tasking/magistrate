@@ -101,7 +101,7 @@ void serializeToFile(T& target, std::string const& file) {
 
 template <typename T>
 std::unique_ptr<T> deserializeFromFile(std::string const& file) {
-  auto mem = reinterpret_cast<SerialByteType*>(std::allocator<T>{}.allocate(1));
+  auto mem = dispatch::Standard::allocate<T>();
   auto t = dispatch::Standard::unpack<T, UnpackerBuffer<buffer::IOBuffer>>(
     mem, false, buffer::IOBuffer::ReadFromFileTag{}, file
   );

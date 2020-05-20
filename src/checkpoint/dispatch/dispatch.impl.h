@@ -96,6 +96,11 @@ PackerT Standard::pack(T& target, SerialSizeType const& size, Args&&... args) {
   return Traverse::with<T, PackerT>(target, size, std::forward<Args>(args)...);
 }
 
+template <typename T>
+SerialByteType* Standard::allocate() {
+  return reinterpret_cast<SerialByteType*>(std::allocator<T>{}.allocate(1));
+}
+
 template <typename T, typename UnpackerT, typename... Args>
 T* Standard::unpack(SerialByteType* mem, bool constructed, Args&&... args) {
   T* t_buf = reinterpret_cast<T*>(mem);
@@ -138,10 +143,7 @@ buffer::ImplReturnType serializeType(T& target, BufferObtainFnType fn) {
 
 template <typename T>
 T* deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
-  auto mem =
-    allocBuf ?
-    allocBuf :
-    reinterpret_cast<SerialByteType*>(std::allocator<T>{}.allocate(1));
+  auto mem = allocBuf ? allocBuf : Standard::allocate<T>();
   return Standard::unpack<T, UnpackerBuffer<buffer::UserBuffer>>(mem, false, data);
 }
 
