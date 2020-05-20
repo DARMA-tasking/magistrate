@@ -55,8 +55,11 @@ namespace checkpoint { namespace tests { namespace unit {
 
 template <typename T>
 struct TestSerializeFile : TestHarness { };
+template <typename T>
+struct TestSerializeFileInPlace : TestHarness { };
 
 TYPED_TEST_CASE_P(TestSerializeFile);
+TYPED_TEST_CASE_P(TestSerializeFileInPlace);
 
 static constexpr int const u_val = 934;
 
@@ -137,6 +140,22 @@ TYPED_TEST_P(TestSerializeFile, test_serialize_file_multi) {
   out->check();
 }
 
+TYPED_TEST_P(TestSerializeFileInPlace, test_serialize_file_multi_in_place) {
+  using TestType = TypeParam;
+
+  TestType in(u_val);
+  in.check();
+
+  auto len = checkpoint::getSize(in);
+  printf("len=%lu\n", len);
+
+  checkpoint::serializeToFile(in, "hello.txt");
+
+  TestType out{};
+  checkpoint::deserializeInPlaceFromFile<TestType>("hello.txt", &out);
+  out.check();
+}
+
 using ConstructTypes = ::testing::Types<
   UserObjectA,
   UserObjectB,
@@ -144,6 +163,9 @@ using ConstructTypes = ::testing::Types<
 >;
 
 REGISTER_TYPED_TEST_CASE_P(TestSerializeFile, test_serialize_file_multi);
+REGISTER_TYPED_TEST_CASE_P(TestSerializeFileInPlace, test_serialize_file_multi_in_place);
+
 INSTANTIATE_TYPED_TEST_CASE_P(test_file, TestSerializeFile, ConstructTypes);
+INSTANTIATE_TYPED_TEST_CASE_P(test_file_in_place, TestSerializeFileInPlace, ConstructTypes);
 
 }}} // end namespace checkpoint::tests::unit
