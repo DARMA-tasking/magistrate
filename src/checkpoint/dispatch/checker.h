@@ -123,7 +123,7 @@ struct BaseCounter : checkpoint::Serializer {
   }
 
   template <typename T>
-  void ignore(T& t, std::string t_name) {
+  void ignore(T& t, std::string t_name = "") {
     assert(stack_->size() > 0 && "Must have valid live stack");
     stack_->top().addIgnoredMember(reinterpret_cast<void*>(cleanType(&t)));
   }
