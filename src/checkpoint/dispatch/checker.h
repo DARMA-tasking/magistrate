@@ -95,19 +95,26 @@ struct BaseCounter : checkpoint::Serializer {
   template <typename U, typename V>
   using DispatcherType = CounterDispatch<U, V>;
 
-  BaseCounter() : BaseCounter(checkpoint::eSerializationMode::None) { }
+  BaseCounter() : BaseCounter(checkpoint::eSerializationMode::None, false) { }
 
-  explicit BaseCounter(checkpoint::eSerializationMode in_mode)
+  BaseCounter(checkpoint::eSerializationMode in_mode, bool in_print_missing)
     : checkpoint::Serializer(in_mode),
-      stack_(std::make_shared<std::stack<CountRecord>>())
+      stack_(std::make_shared<std::stack<CountRecord>>()),
+      print_missing_(in_print_missing)
   { }
 
   template <typename CounterLike>
   explicit BaseCounter(CounterLike& cl)
     : checkpoint::Serializer(cl.getMode()),
-      stack_(cl.getStack())
+      stack_(cl.getStack()),
+      print_missing_(cl.printMissing())
   { }
 
+  ~BaseCounter() {
+    for (auto&& missing : missing_set_) {
+      printf("Missing serializer for %s\n", missing.c_str());
+    }
+  }
 
   template <typename T>
   void check(T& t, std::string t_name) {
@@ -133,11 +140,23 @@ struct BaseCounter : checkpoint::Serializer {
     return stack_;
   }
 
+  bool printMissing() const { return print_missing_; }
+
+  void addMissing(std::string const& missing) {
+    missing_set_.insert(missing);
+  }
+
+  std::unordered_set<std::string> const& getMissing() const {
+    return missing_set_;
+  }
+
   template <typename U, typename V>
   friend struct CounterDispatch;
 
 protected:
   std::shared_ptr<std::stack<CountRecord>> stack_;
+  std::unordered_set<std::string> missing_set_;
+  bool print_missing_ = false;
 };
 
 // Type that does special dispatch

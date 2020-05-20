@@ -75,7 +75,10 @@ void CounterDispatch<SerializerT,T>::serializeIntrusive(SerializerT& s, T& t) {
 
       auto serialized_iter = top.serialized_members.find(addr);
       if (serialized_iter == top.serialized_members.end()) {
-        printf("Missing serializer for %s\n", name.c_str());
+        if (s.printMissing()) {
+          printf("Missing serializer for %s\n", name.c_str());
+        }
+        s.addMissing(name);
       }
     }
   }
