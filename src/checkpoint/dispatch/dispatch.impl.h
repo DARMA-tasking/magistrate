@@ -102,15 +102,14 @@ SerialByteType* Standard::allocate() {
 }
 
 template <typename T, typename UnpackerT, typename... Args>
-T* Standard::unpack(SerialByteType* mem, bool constructed, Args&&... args) {
-  T* t_buf = reinterpret_cast<T*>(mem);
-
-  if (not constructed) {
-    t_buf = Traverse::reconstruct<T>(mem);
-  }
-
+T* Standard::unpack(T* t_buf, Args&&... args) {
   Traverse::with<T, UnpackerT>(*t_buf, std::forward<Args>(args)...);
   return t_buf;
+}
+
+template <typename T>
+T* Standard::construct(SerialByteType* mem) {
+  return Traverse::reconstruct<T>(mem);
 }
 
 template <typename Serializer, typename T>
@@ -144,13 +143,13 @@ buffer::ImplReturnType serializeType(T& target, BufferObtainFnType fn) {
 template <typename T>
 T* deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
   auto mem = allocBuf ? allocBuf : Standard::allocate<T>();
-  return Standard::unpack<T, UnpackerBuffer<buffer::UserBuffer>>(mem, false, data);
+  T* t_buf = Standard::construct<T>(mem);
+  return Standard::unpack<T, UnpackerBuffer<buffer::UserBuffer>>(t_buf, data);
 }
 
 template <typename T>
 void deserializeType(InPlaceTag, SerialByteType* data, T* t) {
-  auto t_buf = reinterpret_cast<SerialByteType*>(t);
-  Standard::unpack<T, UnpackerBuffer<buffer::UserBuffer>>(t_buf, true, data);
+  Standard::unpack<T, UnpackerBuffer<buffer::UserBuffer>>(t, data);
 }
 
 }} /* end namespace checkpoint::dispatch */

@@ -102,17 +102,17 @@ void serializeToFile(T& target, std::string const& file) {
 template <typename T>
 std::unique_ptr<T> deserializeFromFile(std::string const& file) {
   auto mem = dispatch::Standard::allocate<T>();
+  T* t_buf = dispatch::Standard::construct<T>(mem);
   auto t = dispatch::Standard::unpack<T, UnpackerBuffer<buffer::IOBuffer>>(
-    mem, false, buffer::IOBuffer::ReadFromFileTag{}, file
+    t_buf, buffer::IOBuffer::ReadFromFileTag{}, file
   );
   return std::unique_ptr<T>(t);
 }
 
 template <typename T>
 void deserializeInPlaceFromFile(std::string const& file, T* t) {
-  auto t_buf = reinterpret_cast<SerialByteType*>(t);
   dispatch::Standard::unpack<T, UnpackerBuffer<buffer::IOBuffer>>(
-    t_buf, true, buffer::IOBuffer::ReadFromFileTag{}, file
+    t, buffer::IOBuffer::ReadFromFileTag{}, file
   );
 }
 
