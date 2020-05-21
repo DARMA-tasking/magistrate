@@ -197,8 +197,6 @@ std::unique_ptr<T> deserializeFromFile(std::string const& file);
  *
  * \param[in] file the filename to read with bytes for \c T
  * \param[in] t a valid, constructed \c T to deserialize into
- *
- * \return unique pointer to the new object \c T
  */
 template <typename T>
 void deserializeInPlaceFromFile(std::string const& file, T* buf);
