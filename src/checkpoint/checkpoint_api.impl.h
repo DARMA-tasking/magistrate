@@ -108,6 +108,14 @@ std::unique_ptr<T> deserializeFromFile(std::string const& file) {
   return std::unique_ptr<T>(t);
 }
 
+template <typename T>
+void deserializeInPlaceFromFile(std::string const& file, T* t) {
+  auto t_buf = reinterpret_cast<SerialByteType*>(t);
+  dispatch::Standard::unpack<T, UnpackerBuffer<buffer::IOBuffer>>(
+    t_buf, true, buffer::IOBuffer::ReadFromFileTag{}, file
+  );
+}
+
 } /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CHECKPOINT_API_IMPL_H*/
