@@ -153,7 +153,17 @@ struct Standard {
    * \return a pointer to an unpacked \c T
    */
   template <typename T, typename UnpackerT, typename... Args>
-  static T* unpack(SerialByteType* mem, bool constructed, Args&&... args);
+  static T* unpack(T* mem, Args&&... args);
+
+  /**
+   * \brief Construct \c T on allocate memory \c mem
+   *
+   * \param[in] mem allocated buffer
+   *
+   * \return constructed pointer to \c T
+   */
+  template <typename T>
+  static T* construct(SerialByteType* mem);
 
   /**
    * \brief Allocate memory for \c T
