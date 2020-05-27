@@ -101,6 +101,12 @@ struct Reconstructor {
     template <typename U>
     using isNotConstructible =
     typename std::enable_if<not SerializableTraits<U>::is_constructible, T>::type;
+  #else
+    template <typename U>
+    using isConstructible = isDefaultConsType<U>;
+
+    template <typename U>
+    using isNotConstructible = isNotDefaultConsType<U>;
   #endif
 
   // Default-construct as lowest priority in reconstruction preference
@@ -189,6 +195,15 @@ struct Reconstructor {
     return constructTag<U>(buf);
   }
 
+  #else
+
+  template <typename U = T>
+  static T* construct(void* buf) {
+    return constructDefault<U>(buf);
+  }
+
+  #endif
+
   /// Overloads that allow failure to reconstruct so SFINAE overloads don't
   /// static assert out
   template <typename U = T>
@@ -208,16 +223,6 @@ struct Reconstructor {
   static T* constructAllowFail(void* buf) {
     return constructAllowFailImpl<U>(buf);
   }
-
-  #else
-
-  template <typename U = T>
-  static T* construct(void* buf) {
-    return constructDefault<U>(buf);
-  }
-
-  #endif
-
 
 };
 
