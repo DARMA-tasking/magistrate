@@ -69,12 +69,12 @@
 namespace checkpoint { namespace debug {
 
 template <typename T>
-int useVarsDummy(T t) {
+inline int useVarsDummy(T t) {
   return (void)(t), 0;
 }
 
 template <typename... Args>
-void useVars(Args&&... args) {
+inline void useVars(Args&&... args) {
   using expander = int[];
   (void)(expander {
     0,
