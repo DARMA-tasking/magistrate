@@ -177,9 +177,12 @@ struct SerializableTraits {
   static constexpr auto const has_serialize_function =
     has_serialize_instrusive or has_serialize_noninstrusive;
 
+  static constexpr auto const is_constructible =
+    is_default_constructible or is_reconstructible or is_tagged_constructible;
+
   // This defines what it means to be serializable
   static constexpr auto const is_serializable =
-    has_serialize_function and (is_default_constructible or is_reconstructible);
+    has_serialize_function and is_constructible;
 };
 
 }  // end namespace checkpoint

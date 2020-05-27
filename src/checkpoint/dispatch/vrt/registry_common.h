@@ -49,6 +49,8 @@ namespace checkpoint { namespace dispatch { namespace vrt {
 
 using TypeIdx = int;
 
+static constexpr TypeIdx const no_type_idx = -1;
+
 }}} /* end namespace checkpoint::dispatch::vrt */
 
 #endif /*INCLUDED_CHECKPOINT_DISPATCH_VRT_REGISTRY_COMMON_H*/

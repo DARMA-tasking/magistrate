@@ -97,7 +97,7 @@ Registrar<ObjT>::Registrar() {
       index,
       []()          -> std::size_t { return sizeof(ObjT); },
       []()          -> void*       { return std::allocator<ObjT>{}.allocate(1); },
-      [](void* buf) -> BaseType*   { return dispatch::Reconstructor<ObjT>::construct(buf); }
+      [](void* buf) -> BaseType*   { return dispatch::Reconstructor<ObjT>::constructAllowFail(buf); }
     )
   );
 }

@@ -50,10 +50,17 @@
 
 namespace checkpoint { namespace dispatch { namespace vrt {
 
+/**
+ * \struct OptionalTypeToken
+ *
+ * \brief Used to serialize pointers, storing information about whether the type
+ * requires dispatch to virtual serialize, and if so, the type idx to properly
+ * reconstruct the virtual type.
+ */
 struct OptionalTypeToken {
   OptionalTypeToken() = default;
 
-  explicit OptionalTypeToken(bool in_is_virtual, TypeIdx in_type_idx = -1)
+  explicit OptionalTypeToken(bool in_is_virtual, TypeIdx in_type_idx = no_type_idx)
     : is_virtual_(in_is_virtual),
       type_idx_(in_type_idx)
   { }
@@ -70,16 +77,22 @@ struct OptionalTypeToken {
 
   TypeIdx getTypeIdx() const {
     checkpointAssert(
-      not is_virtual_ or type_idx_ != -1, "Must be valid type idx if virtual"
+      not is_virtual_ or type_idx_ != no_type_idx, "Must be valid type idx if virtual"
     );
     return type_idx_;
   }
 
 private:
   bool is_virtual_ = false;
-  TypeIdx type_idx_ = -1;
+  TypeIdx type_idx_ = no_type_idx;
 };
 
+/**
+ * \struct RegisterIfNeeded
+ *
+ * \brief Get the registered type idx if the type being serialization has a
+ * virtual serialize.
+ */
 template <typename T, typename _enabled = void>
 struct RegisterIfNeeded;
 
@@ -99,7 +112,7 @@ struct RegisterIfNeeded<
   typename std::enable_if_t<VirtualSerializeTraits<T>::has_not_virtual_serialize>
 > {
   static TypeIdx apply(T*) {
-    return -1;
+    return no_type_idx;
   }
 };
 
@@ -114,8 +127,41 @@ struct RegisterIfNeeded<
 template <typename BaseT, typename SerializerT>
 void virtualSerialize(BaseT*& base, SerializerT& s) {
   auto serializer_idx = serializer_registry::makeObjIdx<BaseT, SerializerT>();
-  base->_checkpointDynamicSerialize(&s, serializer_idx, -1);
+  base->_checkpointDynamicSerialize(&s, serializer_idx, no_type_idx);
 }
+
+/**
+ * \struct StaticAllocateConstruct
+ *
+ * \brief Allocate and construct \c T if not virtual. We can't unconditionally
+ * allocate/construct with the reconstructor due to a bad combination of SFINAE
+ * and static_assert in the reconstructor. Some registered base types might be
+ * abstract and thus not reconstructible.
+ */
+template <typename T, typename _enabled = void>
+struct StaticAllocateConstruct;
+
+template <typename T>
+struct StaticAllocateConstruct<
+  T,
+  typename std::enable_if_t<VirtualSerializeTraits<T>::has_not_virtual_serialize>
+> {
+  static T* apply() {
+    auto t = std::allocator<T>{}.allocate(1);
+    return dispatch::Reconstructor<T>::construct(t);
+  }
+};
+
+template <typename T>
+struct StaticAllocateConstruct<
+  T,
+  typename std::enable_if_t<VirtualSerializeTraits<T>::has_virtual_serialize>
+> {
+  static T* apply() {
+    checkpointAssert(false, "This code should be unreachable");
+    return nullptr;
+  }
+};
 
 }}} /* end namespace checkpoint::dispatch::vrt */
 
@@ -127,8 +173,9 @@ void serializeAllocatePointer(SerializerT& s, T*& target) {
   using dispatch::vrt::OptionalTypeToken;
   using dispatch::vrt::VirtualSerializeTraits;
   using dispatch::vrt::RegisterIfNeeded;
+  using dispatch::vrt::StaticAllocateConstruct;
 
-  TypeIdx entry = -1;
+  TypeIdx entry = dispatch::vrt::no_type_idx;
 
   if (not s.isUnpacking()) {
     entry = RegisterIfNeeded<T>::apply(target);
@@ -145,8 +192,8 @@ void serializeAllocatePointer(SerializerT& s, T*& target) {
       target = dispatch::vrt::objregistry::getObjConstruct<T>(entry)(t);
     } else {
       // no type idx needed in this case, static construction in default case
-      auto t = std::allocator<T>{}.allocate(1);
-      target = dispatch::Reconstructor<T>::construct(t);
+      // we can't directly call because of bad mix between SFINAE and static_assert
+      target = StaticAllocateConstruct<T>::apply();
     }
   }
 }

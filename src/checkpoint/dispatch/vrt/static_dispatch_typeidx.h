@@ -62,7 +62,7 @@ struct DispatchTypeIdx<
 > {
   static TypeIdx get() {
     debug_checkpoint("abstract getIndex: %s\n", typeid(T).name());
-    return -1;
+    return no_type_idx;
   }
 };
 

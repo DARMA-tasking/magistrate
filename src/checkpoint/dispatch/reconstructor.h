@@ -93,6 +93,14 @@ struct Reconstructor {
     template <typename U>
     using isNotTaggedConstructibleType =
     typename std::enable_if<not SerializableTraits<U>::is_tagged_constructible, T>::type;
+
+    template <typename U>
+    using isConstructible =
+    typename std::enable_if<SerializableTraits<U>::is_constructible, T>::type;
+
+    template <typename U>
+    using isNotConstructible =
+    typename std::enable_if<not SerializableTraits<U>::is_constructible, T>::type;
   #endif
 
   // Default-construct as lowest priority in reconstruction preference
@@ -179,6 +187,26 @@ struct Reconstructor {
   template <typename U = T>
   static T* construct(void* buf) {
     return constructTag<U>(buf);
+  }
+
+  /// Overloads that allow failure to reconstruct so SFINAE overloads don't
+  /// static assert out
+  template <typename U = T>
+  static T* constructAllowFailImpl(void* buf, isConstructible<U>* = nullptr) {
+    return construct<U>(buf);
+  }
+
+  template <typename U = T>
+  static T* constructAllowFailImpl(void* buf, isNotConstructible<U>* = nullptr) {
+    checkpointAssert(false, "This code should be unreachable");
+    return nullptr;
+  }
+
+  // Used for instantiating reconstructor on abstract types that might not be
+  // reconstructible
+  template <typename U = T>
+  static T* constructAllowFail(void* buf) {
+    return constructAllowFailImpl<U>(buf);
   }
 
   #else
