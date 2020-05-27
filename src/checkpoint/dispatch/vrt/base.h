@@ -51,6 +51,8 @@
 #include "checkpoint/dispatch/vrt/object_registry.h"
 #include "checkpoint/dispatch/vrt/serializer_registry.h"
 
+#include <string>
+
 namespace checkpoint { namespace dispatch { namespace vrt {
 
 /**
@@ -68,16 +70,11 @@ struct SerializableBase : SerializableBaseBase {
   ) override {
     auto base_idx = objregistry::makeObjIdx<BaseT>();
 
-    if (base_idx != expected_idx) {
-      printf("broken assert %s\n", typeid(BaseT).name());
-    }
-
-    checkpointAssert(
-      base_idx == expected_idx,
-      "Type idx for base does not matched expected value. "
+    auto debug_str = std::string("Type idx for base \"") + typeid(BaseT).name() +
+      "\" does not matched expected value. "
       "You are probably missing a SerializableBase<T> or SerializableDerived<T> "
-      "in the virtual class hierarchy."
-    );
+      "in the virtual class hierarchy.";
+    checkpointAssert(base_idx == expected_idx, debug_str.c_str());
 
     auto dispatcher = serializer_registry::getObjIdx<BaseT>(serializer_idx);
     dispatcher(s, *static_cast<BaseT*>(this));
