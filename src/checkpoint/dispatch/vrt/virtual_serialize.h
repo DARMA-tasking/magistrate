@@ -67,7 +67,11 @@ struct OptionalTypeToken {
   }
 
   bool isVirtual() const { return is_virtual_; }
-  TypeIdx getTypeIdx() const { return type_idx_; }
+
+  TypeIdx getTypeIdx() const {
+    assert(not is_virtual_ or type_idx_ != -1 && "Must be valid type idx if virtual");
+    return type_idx_;
+  }
 
 private:
   bool is_virtual_ = false;
@@ -98,7 +102,7 @@ struct RegisterIfNeeded<
 };
 
 template <typename T, typename SerializerT>
-void serializeAllocationWrapper(T*& object, SerializerT& s) {
+void serializeAllocatePointer(T*& object, SerializerT& s) {
   TypeIdx entry = -1;
 
   if (not s.isUnpacking()) {
@@ -112,9 +116,8 @@ void serializeAllocationWrapper(T*& object, SerializerT& s) {
     if (token.isVirtual()) {
       // use type idx here, registration needed for proper type re-construction
       auto entry = token.getTypeIdx();
-      auto mem = objregistry::getObjAllocate<T>(entry)();
-      auto ptr = objregistry::getObjConstruct<T>(entry)(mem);
-      object = ptr;
+      auto t = objregistry::getObjAllocate<T>(entry)();
+      object = objregistry::getObjConstruct<T>(entry)(t);
     } else {
       // no type idx needed in this case, static construction in default case
       auto t = std::allocator<T>{}.allocate(1);
@@ -129,26 +132,10 @@ void serializeAllocationWrapper(T*& object, SerializerT& s) {
  *
  * This will automatically record the exact derived type at
  * serialization, and reconstruct objects accordingly at
- * deserialization. The constructor will be passed an argument of
- * type SERIALIZE_CONSTRUCT_TAG.
+ * deserialization.
  */
 template <typename BaseT, typename SerializerT>
 void virtualSerialize(BaseT*& base, SerializerT& s) {
-  // TypeIdx entry = -1;
-  // if (not s.isUnpacking()) {
-  //   entry = base->_checkpointDynamicTypeIndex();
-  // }
-
-  // s | entry;
-
-  // debug_checkpoint("virtualSerialize: entry=%d\n", entry);
-
-  // if (s.isUnpacking()) {
-  //   auto mem = objregistry::getObjAllocate<BaseT>(entry)();
-  //   auto ptr = objregistry::getObjConstruct<BaseT>(entry)(mem);
-  //   base = ptr;
-  // }
-
   auto serializer_idx = serializer_registry::makeObjIdx<BaseT, SerializerT>();
   base->_checkpointDynamicSerialize(&s, serializer_idx, -1);
 }
