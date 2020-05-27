@@ -52,9 +52,13 @@
 #include "checkpoint/dispatch/dispatch_byte_macro.h"
 #include "checkpoint/dispatch/reconstructor.h"
 
+#include <functional>
+
 #include <tuple>
 
 namespace checkpoint {
+
+using BufferObtainFnType = std::function<SerialByteType*(SerialSizeType size)>;
 
 template <typename Serializer, typename T>
 inline Serializer& operator|(Serializer& s, T& target);

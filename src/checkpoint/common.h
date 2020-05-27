@@ -127,8 +127,6 @@ namespace checkpoint {
 using SerialSizeType = size_t;
 using SerialByteType = char;
 
-using BufferObtainFnType = std::function<SerialByteType*(SerialSizeType size)>;
-
 } /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_COMMON_H*/
