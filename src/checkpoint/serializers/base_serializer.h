@@ -88,12 +88,12 @@ struct Serializer {
   SerialByteType* getBuffer() const { return nullptr; }
   SerialByteType* getSpotIncrement(SerialSizeType const inc) { return nullptr; }
 
-  bool isNonVirtual() const { return force_non_virtual_; }
-  void setNonVirtual(bool val) { force_non_virtual_ = val; }
+  bool isVirtualDisabled() const { return virtual_disabled_; }
+  void setVirtualDisabled(bool val) { virtual_disabled_ = val; }
 
 protected:
   ModeType cur_mode_ = ModeType::Invalid;
-  bool force_non_virtual_ = false;
+  bool virtual_disabled_ = false;
 };
 
 } /* end namespace checkpoint */

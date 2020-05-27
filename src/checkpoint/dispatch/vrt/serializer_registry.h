@@ -96,9 +96,10 @@ Registrar<ObjT, SerializerT>::Registrar() {
     index,
     [=](void* s, ObjT& obj) {
       auto& ser = *reinterpret_cast<SerializerT*>(s);
-      ser.setNonVirtual(true);
+      // Disable virtual serializer dispatch because we are already in a
+      // virtualSerialize and otherwise we will recurse indefinitely
+      ser.setVirtualDisabled(true);
       ser | obj;
-      ser.setNonVirtual(true);
     }
   );
 }

@@ -203,7 +203,8 @@ struct SerializerDispatchNonByte {
   void apply(
     SerializerT& s, T* val, SerialSizeType num, hasVirtualSerialize<U>* = nullptr
   ) {
-    if (s.isNonVirtual()) {
+    if (s.isVirtualDisabled()) {
+      s.setVirtualDisabled(false);
       return applyStatic(s, val, num);
     } else {
       dispatch::vrt::virtualSerialize(val, s);
