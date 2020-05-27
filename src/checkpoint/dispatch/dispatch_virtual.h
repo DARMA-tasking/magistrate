@@ -55,32 +55,6 @@
 
 namespace checkpoint {
 
-
-// //////////////////////////////////////////////////////////////////////////
-// // Serializer registry
-// //////////////////////////////////////////////////////////////////////////
-
-// namespace serializer_registry {
-
-
-// } /* end namespace serializer_registry */
-
-// //////////////////////////////////////////////////////////////////////////
-// // Object registry
-// //////////////////////////////////////////////////////////////////////////
-
-// namespace objregistry {
-
-
-// } /* end namespace objregistry */
-
-
-
-
-
-
-
-
 template <typename ObjT, typename SerializerT>
 void instantiate() {
   dispatch::vrt::serializer_registry::makeObjIdx<ObjT, SerializerT>();
@@ -106,7 +80,7 @@ void virtualSerialize(BaseT*& base, SerializerT& s) {
 
   s | entry;
 
-  debug_checkpoint("entry=%d\n", entry);
+  debug_checkpoint("virtualSerialize: entry=%d\n", entry);
 
   if (s.isUnpacking()) {
     auto lam = objregistry::getObjIdx<BaseT>(entry);

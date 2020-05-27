@@ -54,9 +54,9 @@
 #include "detector_headers.h"
 #endif /*HAS_DETECTION_COMPONENT*/
 
-#if HAS_DETECTION_COMPONENT
-
 namespace checkpoint { namespace dispatch { namespace vrt {
+
+#if HAS_DETECTION_COMPONENT
 
 template <typename T>
 struct VirtualSerializeTraits {
@@ -80,15 +80,13 @@ struct VirtualSerializeTraits {
   using has_dynamic_type_index = detection::is_detected<has_dynamic_type_index_t, T>;
 
   // This defines what it means to be virtually serializable
-  static constexpr auto const is_virtual_serializable =
-    has_dynamic_serialize and has_dynamic_type_index;
+  static constexpr auto const has_virtual_serialize =
+    has_dynamic_serialize::value and has_dynamic_type_index::value;
 
   // This defines what it means not to be virtually serializable
-  static constexpr auto const is_not_virtual_serializable =
-    not is_virtual_serializable;
+  static constexpr auto const has_not_virtual_serialize =
+    not has_virtual_serialize;
 };
-
-}}} /* end namespace checkpoint::dispatch::vrt */
 
 #else
 
@@ -113,5 +111,7 @@ struct VirtualSerializeTraits {
 };
 
 #endif
+
+}}} /* end namespace checkpoint::dispatch::vrt */
 
 #endif /*INCLUDED_CHECKPOINT_DISPATCH_VRT_VIRTUAL_SERIALIZE_TRAITS_H*/
