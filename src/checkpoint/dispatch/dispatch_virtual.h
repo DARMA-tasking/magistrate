@@ -46,8 +46,7 @@
 #define INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_VIRTUAL_H
 
 #include "checkpoint/dispatch/dispatch.h"
-#include "checkpoint/dispatch/vrt/base.h"
-#include "checkpoint/dispatch/vrt/derived.h"
+#include "checkpoint/dispatch/vrt/virtual_serialize.h"
 
 #include <vector>
 #include <tuple>
@@ -60,36 +59,6 @@ void instantiate() {
   dispatch::vrt::serializer_registry::makeObjIdx<ObjT, SerializerT>();
 }
 
-/**
- * \brief A function to handle serialization of objects of a mix of
- * types in a virtual inheritance hierarchy
- *
- * This will automatically record the exact derived type at
- * serialization, and reconstruct objects accordingly at
- * deserialization. The constructor will be passed an argument of
- * type SERIALIZE_CONSTRUCT_TAG.
- */
-template <typename BaseT, typename SerializerT>
-void virtualSerialize(BaseT*& base, SerializerT& s) {
-  using namespace dispatch::vrt;
-
-  TypeIdx entry = -1;
-  if (not s.isUnpacking()) {
-    entry = base->_checkpointDynamicTypeIndex();
-  }
-
-  s | entry;
-
-  debug_checkpoint("virtualSerialize: entry=%d\n", entry);
-
-  if (s.isUnpacking()) {
-    auto lam = objregistry::getObjIdx<BaseT>(entry);
-    auto ptr = std::get<1>(lam)();
-    base = ptr;
-  }
-
-  base->_checkpointDynamicSerialize(&s, dispatch::vrt::serializer_registry::makeObjIdx<BaseT, SerializerT>(), -1);
-}
 
 } /* end namespace checkpoint */
 

@@ -47,6 +47,7 @@
 
 #include "checkpoint/common.h"
 #include "checkpoint/dispatch/vrt/registry_common.h"
+#include "checkpoint/dispatch/reconstructor.h"
 
 #include <functional>
 #include <vector>
@@ -59,7 +60,9 @@ template <typename T>
 using RegistryType = std::vector<
   std::tuple<
     TypeIdx,
-    std::function<T*(void)>
+    std::function<std::size_t(void)>, // Get the registered object size
+    std::function<void*(void)>,       // Do standard allocation for object
+    std::function<T*(void*)>          // Construct object on memory
   >
 >;
 
@@ -92,7 +95,9 @@ Registrar<ObjT>::Registrar() {
   reg.emplace_back(
     std::make_tuple(
       index,
-      []() -> BaseType* { return new ObjT(SERIALIZE_CONSTRUCT_TAG{}); }
+      []()          -> std::size_t { return sizeof(ObjT); },
+      []()          -> void*       { return std::allocator<ObjT>{}.allocate(1); },
+      [](void* buf) -> BaseType*   { return dispatch::Reconstructor<ObjT>::construct(buf); }
     )
   );
 }
@@ -103,7 +108,22 @@ TypeIdx const Type<ObjT>::idx = Registrar<ObjT>().index;
 template <typename T>
 inline auto getObjIdx(TypeIdx han) {
   debug_checkpoint("getObjIdx: han=%d, size=%ld\n", han, getRegistry<T>().size());
-  return getRegistry<T>().at(han);
+  return std::get<0>(getRegistry<T>().at(han));
+}
+
+template <typename T>
+inline auto getObjSize(TypeIdx han) {
+  return std::get<1>(getRegistry<T>().at(han));
+}
+
+template <typename T>
+inline auto getObjAllocate(TypeIdx han) {
+  return std::get<2>(getRegistry<T>().at(han));
+}
+
+template <typename T>
+inline auto getObjConstruct(TypeIdx han) {
+  return std::get<3>(getRegistry<T>().at(han));
 }
 
 template <typename ObjT>

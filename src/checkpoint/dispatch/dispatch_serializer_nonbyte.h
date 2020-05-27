@@ -47,6 +47,8 @@
 
 #include "checkpoint/common.h"
 #include "checkpoint/traits/serializable_traits.h"
+#include "checkpoint/dispatch/vrt/virtual_serialize_traits.h"
+#include "checkpoint/dispatch/vrt/virtual_serialize.h"
 
 #include <type_traits>
 #include <tuple>
@@ -117,6 +119,14 @@ struct SerializerDispatchNonByte {
     typename std::enable_if<SerializableTraits<U>::has_serialize_noninstrusive, T>::type;
 
     template <typename U>
+    using hasVirtualSerialize =
+    typename std::enable_if<vrt::VirtualSerializeTraits<U>::has_virtual_serialize, T>::type;
+
+    template <typename U>
+    using hasNotVirtualSerialize =
+    typename std::enable_if<vrt::VirtualSerializeTraits<U>::has_not_virtual_serialize, T>::type;
+
+    template <typename U>
     using isEnum =
     typename std::enable_if<std::is_enum<U>::value, T>::type;
   #else
@@ -150,7 +160,7 @@ struct SerializerDispatchNonByte {
   }
 
   template <typename U = T>
-  void apply(
+  void applyStatic(
     SerializerT& s, T* val, SerialSizeType num, hasInSerialize<U>* = nullptr
   ) {
     debug_checkpoint(
@@ -164,7 +174,7 @@ struct SerializerDispatchNonByte {
   }
 
   template <typename U = T>
-  void apply(
+  void applyStatic(
     SerializerT& s, T* val, SerialSizeType num, hasNoninSerialize<U>* = nullptr
   ) {
     debug_checkpoint(
@@ -177,7 +187,7 @@ struct SerializerDispatchNonByte {
   }
 
   template <typename U = T>
-  void apply(
+  void applyStatic(
     SerializerT& s, T* val, SerialSizeType num, isEnum<U>* = nullptr
   ) {
     debug_checkpoint(
@@ -187,6 +197,24 @@ struct SerializerDispatchNonByte {
     for (SerialSizeType i = 0; i < num; i++) {
       applyElm(s, val+i);
     }
+  }
+
+  template <typename U = T>
+  void apply(
+    SerializerT& s, T* val, SerialSizeType num, hasVirtualSerialize<U>* = nullptr
+  ) {
+    if (s.isNonVirtual()) {
+      return applyStatic(s, val, num);
+    } else {
+      dispatch::vrt::virtualSerialize(val, s);
+    }
+  }
+
+  template <typename U = T>
+  void apply(
+    SerializerT& s, T* val, SerialSizeType num, hasNotVirtualSerialize<U>* = nullptr
+  ) {
+    return applyStatic(s, val, num);
   }
 };
 

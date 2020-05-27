@@ -96,7 +96,9 @@ Registrar<ObjT, SerializerT>::Registrar() {
     index,
     [=](void* s, ObjT& obj) {
       auto& ser = *reinterpret_cast<SerializerT*>(s);
+      ser.setNonVirtual(true);
       ser | obj;
+      ser.setNonVirtual(true);
     }
   );
 }
