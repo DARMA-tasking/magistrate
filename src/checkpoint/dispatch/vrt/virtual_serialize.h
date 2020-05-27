@@ -103,31 +103,6 @@ struct RegisterIfNeeded<
   }
 };
 
-template <typename T, typename SerializerT>
-void serializeAllocatePointer(T*& object, SerializerT& s) {
-  TypeIdx entry = -1;
-
-  if (not s.isUnpacking()) {
-    entry = RegisterIfNeeded<T>::apply(object);
-  }
-
-  OptionalTypeToken token(VirtualSerializeTraits<T>::has_virtual_serialize, entry);
-  s | token;
-
-  if (s.isUnpacking()) {
-    if (token.isVirtual()) {
-      // use type idx here, registration needed for proper type re-construction
-      auto entry = token.getTypeIdx();
-      auto t = objregistry::getObjAllocate<T>(entry)();
-      object = objregistry::getObjConstruct<T>(entry)(t);
-    } else {
-      // no type idx needed in this case, static construction in default case
-      auto t = std::allocator<T>{}.allocate(1);
-      object = dispatch::Reconstructor<T>::construct(t);
-    }
-  }
-}
-
 /**
  * \brief A function to handle serialization of objects of a mix of
  * types in a virtual inheritance hierarchy
@@ -143,5 +118,39 @@ void virtualSerialize(BaseT*& base, SerializerT& s) {
 }
 
 }}} /* end namespace checkpoint::dispatch::vrt */
+
+namespace checkpoint {
+
+template <typename SerializerT, typename T>
+void serializeAllocatePointer(SerializerT& s, T*& target) {
+  using dispatch::vrt::TypeIdx;
+  using dispatch::vrt::OptionalTypeToken;
+  using dispatch::vrt::VirtualSerializeTraits;
+  using dispatch::vrt::RegisterIfNeeded;
+
+  TypeIdx entry = -1;
+
+  if (not s.isUnpacking()) {
+    entry = RegisterIfNeeded<T>::apply(target);
+  }
+
+  OptionalTypeToken token(VirtualSerializeTraits<T>::has_virtual_serialize, entry);
+  s | token;
+
+  if (s.isUnpacking()) {
+    if (token.isVirtual()) {
+      // use type idx here, registration needed for proper type re-construction
+      auto entry = token.getTypeIdx();
+      auto t = dispatch::vrt::objregistry::getObjAllocate<T>(entry)();
+      target = dispatch::vrt::objregistry::getObjConstruct<T>(entry)(t);
+    } else {
+      // no type idx needed in this case, static construction in default case
+      auto t = std::allocator<T>{}.allocate(1);
+      target = dispatch::Reconstructor<T>::construct(t);
+    }
+  }
+}
+
+} /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_DISPATCH_VRT_VIRTUAL_SERIALIZE_H*/

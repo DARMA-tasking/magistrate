@@ -58,7 +58,7 @@ void serialize(Serializer& s, std::unique_ptr<T>& ptr) {
 
   if (not is_null) {
     T* t = ptr.get();
-    dispatch::vrt::serializeAllocatePointer<T>(t, s);
+    serializeAllocatePointer(s, t);
     if (s.isUnpacking()) {
       ptr = std::unique_ptr<T>(t);
     }
