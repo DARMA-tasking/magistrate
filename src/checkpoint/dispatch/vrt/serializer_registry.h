@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                              dispatch_virtual.h
+//                            serializer_registry.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,81 +42,79 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_VIRTUAL_H
-#define INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_VIRTUAL_H
+#if !defined INCLUDED_CHECKPOINT_DISPATCH_VRT_SERIALIZER_REGISTRY_H
+#define INCLUDED_CHECKPOINT_DISPATCH_VRT_SERIALIZER_REGISTRY_H
 
-#include "checkpoint/dispatch/dispatch.h"
-#include "checkpoint/dispatch/vrt/base.h"
-#include "checkpoint/dispatch/vrt/derived.h"
+#include "checkpoint/common.h"
+#include "checkpoint/dispatch/vrt/registry_common.h"
 
+#include <functional>
 #include <vector>
 #include <tuple>
-#include <functional>
 
-namespace checkpoint {
+namespace checkpoint { namespace dispatch { namespace vrt {
+namespace serializer_registry {
 
-
-// //////////////////////////////////////////////////////////////////////////
-// // Serializer registry
-// //////////////////////////////////////////////////////////////////////////
-
-// namespace serializer_registry {
-
-
-// } /* end namespace serializer_registry */
-
-// //////////////////////////////////////////////////////////////////////////
-// // Object registry
-// //////////////////////////////////////////////////////////////////////////
-
-// namespace objregistry {
-
-
-// } /* end namespace objregistry */
-
-
-
-
-
-
-
+template <typename ObjT>
+using RegistryType = std::vector<
+  std::tuple<
+    TypeIdx,
+    std::function<void(void*, ObjT&)>
+  >
+>;
 
 template <typename ObjT, typename SerializerT>
-void instantiate() {
-  dispatch::vrt::serializer_registry::makeObjIdx<ObjT, SerializerT>();
+struct Registrar {
+  Registrar();
+  TypeIdx index;
+};
+
+template <typename ObjT, typename SerializerT>
+struct Type {
+  static TypeIdx const idx;
+};
+
+template <typename ObjT>
+inline RegistryType<ObjT>& getRegistry() {
+  static RegistryType<ObjT> reg;
+  return reg;
 }
 
-/**
- * \brief A function to handle serialization of objects of a mix of
- * types in a virtual inheritance hierarchy
- *
- * This will automatically record the exact derived type at
- * serialization, and reconstruct objects accordingly at
- * deserialization. The constructor will be passed an argument of
- * type SERIALIZE_CONSTRUCT_TAG.
- */
-template <typename BaseT, typename SerializerT>
-void virtualSerialize(BaseT*& base, SerializerT& s) {
-  using namespace dispatch::vrt;
+template <typename ObjT, typename SerializerT>
+Registrar<ObjT, SerializerT>::Registrar() {
+  auto& reg = getRegistry<ObjT>();
+  index = reg.size();
 
-  TypeIdx entry = -1;
-  if (not s.isUnpacking()) {
-    entry = base->getIndex();
-  }
+  debug_checkpoint(
+    "registrar: %zu, ObjT=%s SerializerT=%s\n",
+    reg.size(),
+    typeid(ObjT).name(),
+    typeid(SerializerT).name()
+  );
 
-  s | entry;
-
-  debug_checkpoint("entry=%d\n", entry);
-
-  if (s.isUnpacking()) {
-    auto lam = objregistry::getObjIdx<BaseT>(entry);
-    auto ptr = std::get<1>(lam)();
-    base = ptr;
-  }
-
-  base->doSerialize(&s, dispatch::vrt::serializer_registry::makeObjIdx<BaseT, SerializerT>(), -1);
+  reg.emplace_back(
+    index,
+    [=](void* s, ObjT& obj) {
+      auto& ser = *reinterpret_cast<SerializerT*>(s);
+      ser | obj;
+    }
+  );
 }
 
-} /* end namespace checkpoint */
+template <typename ObjT, typename SerializerT>
+TypeIdx const Type<ObjT, SerializerT>::idx =
+  Registrar<ObjT, SerializerT>().index;
 
-#endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_VIRTUAL_H*/
+template <typename ObjT>
+inline auto getObjIdx(TypeIdx han) {
+  return std::get<1>(getRegistry<ObjT>().at(han));
+}
+
+template <typename ObjT, typename SerializerT>
+inline TypeIdx makeObjIdx() {
+  return Type<ObjT, SerializerT>::idx;
+}
+
+}}}} /* end namespace checkpoint::dispatch::vrt::serializer_registry */
+
+#endif /*INCLUDED_CHECKPOINT_DISPATCH_VRT_SERIALIZER_REGISTRY_H*/

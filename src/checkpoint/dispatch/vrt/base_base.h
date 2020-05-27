@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                              dispatch_virtual.h
+//                                 base_base.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,81 +42,23 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_VIRTUAL_H
-#define INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_VIRTUAL_H
+#if !defined INCLUDED_CHECKPOINT_DISPATCH_VRT_BASE_BASE_H
+#define INCLUDED_CHECKPOINT_DISPATCH_VRT_BASE_BASE_H
 
-#include "checkpoint/dispatch/dispatch.h"
-#include "checkpoint/dispatch/vrt/base.h"
-#include "checkpoint/dispatch/vrt/derived.h"
-
-#include <vector>
-#include <tuple>
-#include <functional>
-
-namespace checkpoint {
-
-
-// //////////////////////////////////////////////////////////////////////////
-// // Serializer registry
-// //////////////////////////////////////////////////////////////////////////
-
-// namespace serializer_registry {
-
-
-// } /* end namespace serializer_registry */
-
-// //////////////////////////////////////////////////////////////////////////
-// // Object registry
-// //////////////////////////////////////////////////////////////////////////
-
-// namespace objregistry {
-
-
-// } /* end namespace objregistry */
-
-
-
-
-
-
-
-
-template <typename ObjT, typename SerializerT>
-void instantiate() {
-  dispatch::vrt::serializer_registry::makeObjIdx<ObjT, SerializerT>();
-}
+namespace checkpoint { namespace dispatch { namespace vrt {
 
 /**
- * \brief A function to handle serialization of objects of a mix of
- * types in a virtual inheritance hierarchy
+ * \brief A non-templated base class usable as a tag type to check inheritance
  *
- * This will automatically record the exact derived type at
- * serialization, and reconstruct objects accordingly at
- * deserialization. The constructor will be passed an argument of
- * type SERIALIZE_CONSTRUCT_TAG.
+ * Used via std::is_base_of<SerializableBaseBase, T>
  */
-template <typename BaseT, typename SerializerT>
-void virtualSerialize(BaseT*& base, SerializerT& s) {
-  using namespace dispatch::vrt;
+struct SerializableBaseBase {
 
-  TypeIdx entry = -1;
-  if (not s.isUnpacking()) {
-    entry = base->getIndex();
-  }
+  virtual void doSerialize(void* s, TypeIdx ser, TypeIdx expected_idx) = 0;
+  virtual TypeIdx getIndex() = 0;
 
-  s | entry;
+};
 
-  debug_checkpoint("entry=%d\n", entry);
+}}} /* end namespace checkpoint::dispatch::vrt */
 
-  if (s.isUnpacking()) {
-    auto lam = objregistry::getObjIdx<BaseT>(entry);
-    auto ptr = std::get<1>(lam)();
-    base = ptr;
-  }
-
-  base->doSerialize(&s, dispatch::vrt::serializer_registry::makeObjIdx<BaseT, SerializerT>(), -1);
-}
-
-} /* end namespace checkpoint */
-
-#endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_VIRTUAL_H*/
+#endif /*INCLUDED_CHECKPOINT_DISPATCH_VRT_BASE_BASE_H*/

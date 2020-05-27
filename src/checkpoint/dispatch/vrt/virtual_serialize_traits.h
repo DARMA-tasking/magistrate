@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                              dispatch_virtual.h
+//                          virtual_serialize_traits.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,81 +42,76 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_VIRTUAL_H
-#define INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_VIRTUAL_H
+#if !defined INCLUDED_CHECKPOINT_DISPATCH_VRT_VIRTUAL_SERIALIZE_TRAITS_H
+#define INCLUDED_CHECKPOINT_DISPATCH_VRT_VIRTUAL_SERIALIZE_TRAITS_H
 
-#include "checkpoint/dispatch/dispatch.h"
-#include "checkpoint/dispatch/vrt/base.h"
-#include "checkpoint/dispatch/vrt/derived.h"
+#include "checkpoint/common.h"
+#include "checkpoint/dispatch/vrt/registry_common.h"
 
-#include <vector>
-#include <tuple>
-#include <functional>
+#include <type_traits>
 
-namespace checkpoint {
+#if HAS_DETECTION_COMPONENT
+#include "detector_headers.h"
+#endif /*HAS_DETECTION_COMPONENT*/
 
+#if HAS_DETECTION_COMPONENT
 
-// //////////////////////////////////////////////////////////////////////////
-// // Serializer registry
-// //////////////////////////////////////////////////////////////////////////
+namespace checkpoint { namespace dispatch { namespace vrt {
 
-// namespace serializer_registry {
+template <typename T>
+struct VirtualSerializeTraits {
 
+  template <typename U>
+  using has_do_serialize_t = decltype(
+    std::declval<U>().doSerialize(
+      std::declval<void*>(),
+      std::declval<TypeIdx>(),
+      std::declval<TypeIdx>()
+    )
+  );
 
-// } /* end namespace serializer_registry */
+  using has_do_serialize = detection::is_detected<has_do_serialize_t, T>;
 
-// //////////////////////////////////////////////////////////////////////////
-// // Object registry
-// //////////////////////////////////////////////////////////////////////////
+  template <typename U>
+  using has_get_index_t = decltype(
+    std::declval<U>().getIndex()
+  );
 
-// namespace objregistry {
+  using has_get_index = detection::is_detected<has_get_index_t, T>;
 
+  // This defines what it means to be virtually serializable
+  static constexpr auto const is_virtual_serializable =
+    has_do_serialize and has_get_index;
 
-// } /* end namespace objregistry */
+  // This defines what it means not to be virtually serializable
+  static constexpr auto const is_not_virtual_serializable =
+    not is_virtual_serializable;
+};
 
+}}} /* end namespace checkpoint::dispatch::vrt */
 
+#else
 
+template <typename T>
+struct VirtualSerializeTraits {
+  template <
+    typename C,
+    typename = decltype(
+      std::declval<U>().doSerialize(
+        std::declval<void*>(),
+        std::declval<TypeIdx>(),
+        std::declval<TypeIdx>()
+      )
+    )
+  >
+  static std::true_type test(int);
 
+  template <typename C>
+  static std::false_type test(...);
 
+  static constexpr bool is_virtual_serializable = decltype(test<T>(0))::value;
+};
 
+#endif
 
-
-template <typename ObjT, typename SerializerT>
-void instantiate() {
-  dispatch::vrt::serializer_registry::makeObjIdx<ObjT, SerializerT>();
-}
-
-/**
- * \brief A function to handle serialization of objects of a mix of
- * types in a virtual inheritance hierarchy
- *
- * This will automatically record the exact derived type at
- * serialization, and reconstruct objects accordingly at
- * deserialization. The constructor will be passed an argument of
- * type SERIALIZE_CONSTRUCT_TAG.
- */
-template <typename BaseT, typename SerializerT>
-void virtualSerialize(BaseT*& base, SerializerT& s) {
-  using namespace dispatch::vrt;
-
-  TypeIdx entry = -1;
-  if (not s.isUnpacking()) {
-    entry = base->getIndex();
-  }
-
-  s | entry;
-
-  debug_checkpoint("entry=%d\n", entry);
-
-  if (s.isUnpacking()) {
-    auto lam = objregistry::getObjIdx<BaseT>(entry);
-    auto ptr = std::get<1>(lam)();
-    base = ptr;
-  }
-
-  base->doSerialize(&s, dispatch::vrt::serializer_registry::makeObjIdx<BaseT, SerializerT>(), -1);
-}
-
-} /* end namespace checkpoint */
-
-#endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_VIRTUAL_H*/
+#endif /*INCLUDED_CHECKPOINT_DISPATCH_VRT_VIRTUAL_SERIALIZE_TRAITS_H*/
