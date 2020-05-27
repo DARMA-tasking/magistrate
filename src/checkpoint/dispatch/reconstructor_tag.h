@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                              registry_common.h
+//                             reconstructor_tag.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,13 +42,19 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_DISPATCH_VRT_REGISTRY_COMMON_H
-#define INCLUDED_CHECKPOINT_DISPATCH_VRT_REGISTRY_COMMON_H
+#if !defined INCLUDED_CHECKPOINT_DISPATCH_RECONSTRUCTOR_TAG_H
+#define INCLUDED_CHECKPOINT_DISPATCH_RECONSTRUCTOR_TAG_H
 
-namespace checkpoint { namespace dispatch { namespace vrt {
+namespace checkpoint { namespace dispatch {
 
-using TypeIdx = int;
+struct SERIALIZE_CONSTRUCT_TAG {};
 
-}}} /* end namespace checkpoint::dispatch::vrt */
+}} /* end namespace checkpoint::dispatch */
 
-#endif /*INCLUDED_CHECKPOINT_DISPATCH_VRT_REGISTRY_COMMON_H*/
+namespace checkpoint {
+
+using SERIALIZE_CONSTRUCT_TAG = dispatch::SERIALIZE_CONSTRUCT_TAG;
+
+} /* end namespace checkpoint */
+
+#endif /*INCLUDED_CHECKPOINT_DISPATCH_RECONSTRUCTOR_TAG_H*/

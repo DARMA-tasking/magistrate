@@ -47,6 +47,7 @@
 
 #include "checkpoint/common.h"
 #include "checkpoint/serializers/serializers_headers.h"
+#include "checkpoint/dispatch/reconstructor_tag.h"
 
 #include <cstdint>
 #include <cassert>
@@ -118,6 +119,10 @@ struct SerializableTraits {
   using has_default_constructor = detection::is_detected<constructor_t, T>;
 
   template <typename U>
+  using tagged_constructor_t = decltype(U(std::declval<SERIALIZE_CONSTRUCT_TAG>()));
+  using has_tagged_constructor = detection::is_detected<tagged_constructor_t, T>;
+
+  template <typename U>
   using reconstruct_t = decltype(U::reconstruct(std::declval<void*>()));
   using has_reconstruct =
     detection::is_detected_convertible<T&, reconstruct_t, T>;
@@ -161,6 +166,10 @@ struct SerializableTraits {
   // This defines what it means to be default constructible
   static constexpr auto const is_default_constructible =
     has_default_constructor::value;
+
+  // If the class has tagged constructor especially for constructing
+  static constexpr auto const is_tagged_constructible =
+    has_tagged_constructor::value;
 
   static constexpr auto const has_serialize_instrusive =
     has_serialize::value;

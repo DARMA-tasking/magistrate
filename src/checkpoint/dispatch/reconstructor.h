@@ -47,6 +47,7 @@
 
 #include "checkpoint/common.h"
 #include "checkpoint/traits/serializable_traits.h"
+#include "checkpoint/dispatch/reconstructor_tag.h"
 
 #include <type_traits>
 #include <tuple>
@@ -58,52 +59,138 @@ template <typename T>
 struct Reconstructor {
   template <typename U>
   using isDefaultConsType =
-    typename std::enable_if<std::is_default_constructible<U>::value, T>::type;
+  typename std::enable_if<std::is_default_constructible<U>::value, T>::type;
 
   template <typename U>
   using isNotDefaultConsType =
-    typename std::enable_if<not std::is_default_constructible<U>::value, T>::type;
+  typename std::enable_if<not std::is_default_constructible<U>::value, T>::type;
 
   // If we have the detection component, we can more precisely check for
   // reconstuctibility
   #if HAS_DETECTION_COMPONENT
     template <typename U>
     using isReconstructibleType =
-      typename std::enable_if<SerializableTraits<U>::is_reconstructible, T>::type;
+    typename std::enable_if<SerializableTraits<U>::is_reconstructible, T>::type;
 
     template <typename U>
     using isNonIntReconstructibleType =
-      typename std::enable_if<
-        SerializableTraits<U>::is_nonintrusive_reconstructible, T
-      >::type;
-  #else
+    typename std::enable_if<
+      SerializableTraits<U>::is_nonintrusive_reconstructible, T
+    >::type;
+
     template <typename U>
-    using isNonIntReconstructibleType = isNotDefaultConsType<U>;
+    using isNotReconstructibleType =
+    typename std::enable_if<
+      not SerializableTraits<U>::is_nonintrusive_reconstructible and
+      not SerializableTraits<U>::is_nonintrusive_reconstructible,
+      T
+    >::type;
+
+    template <typename U>
+    using isTaggedConstructibleType =
+    typename std::enable_if<SerializableTraits<U>::is_tagged_constructible, T>::type;
+
+    template <typename U>
+    using isNotTaggedConstructibleType =
+    typename std::enable_if<not SerializableTraits<U>::is_tagged_constructible, T>::type;
   #endif
 
+  // Default-construct as lowest priority in reconstruction preference
   template <typename U = T>
-  static T* construct(void* buf, isDefaultConsType<U>* = nullptr) {
+  static T* constructDefault(void* buf, isDefaultConsType<U>* = nullptr) {
     debug_checkpoint("DeserializerDispatch: default constructor: buf=%p\n", buf);
     T* t_ptr = new (buf) T{};
     return t_ptr;
   }
 
-  #if HAS_DETECTION_COMPONENT
+  // Fail, no valid option to constructing T
   template <typename U = T>
-  static T* construct(void* buf, isReconstructibleType<U>* = nullptr) {
+  static T* constructDefault(void* buf, isNotDefaultConsType<U>* = nullptr) {
+    #if HAS_DETECTION_COMPONENT
+    static_assert(
+      SerializableTraits<U>::is_tagged_constructible or
+      SerializableTraits<U>::is_reconstructible or
+      SerializableTraits<U>::is_nonintrusive_reconstructible or
+      std::is_default_constructible<U>::value,
+      "Either a default constructor, reconstruct() function, or tagged "
+      "constructor are required for de-serialization"
+    );
+    #else
+    static_assert(
+      std::is_default_constructible<U>::value,
+      "A default constructor is required for de-serialization. To enable "
+      "reconstruct or tagged constructors, you must compile with the "
+      "detection component."
+    );
+    #endif
+    return nullptr;
+  }
+
+  #if HAS_DETECTION_COMPONENT
+
+  /*
+   * Try to reconstruct with the following precedence:
+   *
+   *   - Tagged constructor: T(SERIALIZE_CONSTRUCT_TAG{})
+   *   - Reconstruct: T::reconstruct(buf) or reconstruct(t, buf)
+   *   - Default constructor: T()
+   *
+   * If none of these options work, static assert failure
+   */
+
+  // Intrusive reconstruct
+  template <typename U = T>
+  static T* constructReconstruct(void* buf, isReconstructibleType<U>* = nullptr) {
     debug_checkpoint("DeserializerDispatch: T::reconstruct(): buf=%p\n", buf);
     auto& t = T::reconstruct(buf);
     return &t;
   }
-  #endif
 
+  // Non-intrusive reconstruct
   template <typename U = T>
-  static T* construct(void* buf, isNonIntReconstructibleType<U>* = nullptr) {
+  static T* constructReconstruct(void* buf, isNonIntReconstructibleType<U>* = nullptr) {
     debug_checkpoint("DeserializerDispatch: non-int reconstruct(): buf=%p\n", buf);
     T* t = nullptr;
+    // Explicitly call bare to invoke ADL
     reconstruct(t,buf);
     return t;
   }
+
+  /// Non-reconstruct pass-through
+  template <typename U = T>
+  static T* constructReconstruct(void* buf, isNotReconstructibleType<U>* = nullptr) {
+    return constructDefault<U>(buf);
+  }
+
+  /// Tagged constructor
+  template <typename U = T>
+  static T* constructTag(void* buf, isTaggedConstructibleType<U>* = nullptr) {
+    debug_checkpoint("DeserializerDispatch: tagged constructor: buf=%p\n", buf);
+    T* t_ptr = new (buf) T{SERIALIZE_CONSTRUCT_TAG{}};
+    return t_ptr;
+  }
+
+  /// Non-tagged constructor pass-through
+  template <typename U = T>
+  static T* constructTag(void* buf, isNotTaggedConstructibleType<U>* = nullptr) {
+    return constructReconstruct<U>(buf);
+  }
+
+  template <typename U = T>
+  static T* construct(void* buf) {
+    return constructTag<U>(buf);
+  }
+
+  #else
+
+  template <typename U = T>
+  static T* construct(void* buf) {
+    return constructDefault<U>(buf);
+  }
+
+  #endif
+
+
 };
 
 }} /* end namespace checkpoint::dispatch */
