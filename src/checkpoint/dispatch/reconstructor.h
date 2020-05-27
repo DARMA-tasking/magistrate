@@ -82,7 +82,7 @@ struct Reconstructor {
     using isNotReconstructibleType =
     typename std::enable_if<
       not SerializableTraits<U>::is_nonintrusive_reconstructible and
-      not SerializableTraits<U>::is_nonintrusive_reconstructible,
+      not SerializableTraits<U>::is_reconstructible,
       T
     >::type;
 
