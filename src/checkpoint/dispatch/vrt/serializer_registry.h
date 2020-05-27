@@ -110,6 +110,11 @@ TypeIdx const Type<ObjT, SerializerT>::idx =
 
 template <typename ObjT>
 inline auto getObjIdx(TypeIdx han) {
+  checkpointAssert(
+    han < getRegistry<ObjT>().size(),
+    "Missing type idx in registry. A derived type was not registered with "
+    "checkpoint for a given serializer"
+  );
   return std::get<1>(getRegistry<ObjT>().at(han));
 }
 
