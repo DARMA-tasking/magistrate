@@ -59,7 +59,7 @@
   ) override {                                                                       \
     debug_checkpoint(                                                                \
       "%s: BEGIN: _checkpointDynamicSerialize: serializer_idx=%d {\n",               \
-      typeid(DERIVED).name(), ser_idx                                                \
+      #DERIVED, ser_idx                                                              \
     );                                                                               \
     ::checkpoint::dispatch::vrt::assertTypeIdxMatch<DERIVED>(expected_idx);          \
     auto base_idx = ::checkpoint::dispatch::vrt::objregistry::makeObjIdx<BASE>();    \
@@ -69,7 +69,7 @@
     dispatcher(s, *static_cast<DERIVED*>(this));                                     \
     debug_checkpoint(                                                                \
       "%s: END: _checkpointDynamicSerialize: serializer_idx=%d }\n",                 \
-      typeid(DERIVED).name(), ser_idx                                                \
+      #DERIVED, ser_idx                                                              \
     );                                                                               \
   }                                                                                  \
   ::checkpoint::dispatch::vrt::TypeIdx _checkpointDynamicTypeIndex() override {      \
