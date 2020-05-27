@@ -61,6 +61,19 @@ namespace checkpoint { namespace dispatch { namespace vrt {
 template <typename T>
 struct VirtualSerializeTraits {
 
+  /**
+   * Expect a typedef:
+   *  using _CheckpointVirtualSerializerBaseType = T;
+   */
+  template <typename U>
+  using has_base_typedef_t = typename U::_CheckpointVirtualSerializerBaseType;
+
+  using has_base_typedef = detection::is_detected<has_base_typedef_t, T>;
+
+  /**
+   * Expect dynamic serialize method:
+   *  virtual void _checkpointDynamicSerialize(void*, TypeIdx, TypeIdx);
+   */
   template <typename U>
   using has_dynamic_serialize_t = decltype(
     std::declval<U>()._checkpointDynamicSerialize(
@@ -72,16 +85,23 @@ struct VirtualSerializeTraits {
 
   using has_dynamic_serialize = detection::is_detected<has_dynamic_serialize_t, T>;
 
+  /**
+   * Expect dynamic type idx method:
+   *  virtual TypeIdx _checkpointDynamicTypeIndex();
+   */
   template <typename U>
   using has_dynamic_type_index_t = decltype(
     std::declval<U>()._checkpointDynamicTypeIndex()
   );
 
-  using has_dynamic_type_index = detection::is_detected<has_dynamic_type_index_t, T>;
+  using has_dynamic_type_index =
+    detection::is_detected_exact<TypeIdx, has_dynamic_type_index_t, T>;
 
   // This defines what it means to be virtually serializable
   static constexpr auto const has_virtual_serialize =
-    has_dynamic_serialize::value and has_dynamic_type_index::value;
+    has_dynamic_serialize::value and
+    has_dynamic_type_index::value and
+    has_base_typedef::value;
 
   // This defines what it means not to be virtually serializable
   static constexpr auto const has_not_virtual_serialize =
