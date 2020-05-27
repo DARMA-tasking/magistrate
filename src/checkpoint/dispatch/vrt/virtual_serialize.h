@@ -90,8 +90,8 @@ private:
 /**
  * \struct RegisterIfNeeded
  *
- * \brief Get the registered type idx if the type being serialization has a
- * virtual serialize.
+ * \brief Get the registered derived type idx if the type being serialized has a
+ * virtual serialize, checked with type traits.
  */
 template <typename T, typename _enabled = void>
 struct RegisterIfNeeded;
@@ -124,8 +124,10 @@ struct RegisterIfNeeded<
  * serialization, and reconstruct objects accordingly at
  * deserialization.
  */
-template <typename BaseT, typename SerializerT>
-void virtualSerialize(BaseT*& base, SerializerT& s) {
+template <typename T, typename SerializerT>
+void virtualSerialize(T*& base, SerializerT& s) {
+  // Get the real base in case this is called on a derived type
+  using BaseT = typename T::_CheckpointVirtualSerializerBaseType;
   auto serializer_idx = serializer_registry::makeObjIdx<BaseT, SerializerT>();
   base->_checkpointDynamicSerialize(&s, serializer_idx, no_type_idx);
 }

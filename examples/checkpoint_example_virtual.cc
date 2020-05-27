@@ -118,10 +118,6 @@ struct ExampleVector {
 
   template <typename SerializerT>
   void serialize(SerializerT& s) {
-    instantiate<MyObj, SerializerT>();
-    instantiate<MyObj2, SerializerT>();
-    instantiate<MyObj3, SerializerT>();
-
     s | vec;
   }
 

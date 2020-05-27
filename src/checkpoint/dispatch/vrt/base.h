@@ -51,6 +51,7 @@
 #include "checkpoint/dispatch/vrt/object_registry.h"
 #include "checkpoint/dispatch/vrt/serializer_registry.h"
 #include "checkpoint/dispatch/vrt/inheritance_assert_helpers.h"
+#include "checkpoint/dispatch/vrt/serialize_instantiator.h"
 
 #define checkpoint_virtual_serialize_base(BASE)                                   \
   using _CheckpointVirtualSerializerBaseType = BASE;                              \

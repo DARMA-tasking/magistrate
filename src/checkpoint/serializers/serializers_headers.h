@@ -51,4 +51,12 @@
 #include "checkpoint/serializers/packer.h"
 #include "checkpoint/serializers/unpacker.h"
 
+#define checkpoint_serializer_variatic_args()   \
+  checkpoint::Packer,                           \
+  checkpoint::PackerUserBuf,                    \
+  checkpoint::PackerIO,                         \
+  checkpoint::Unpacker,                         \
+  checkpoint::UnpackerIO,                       \
+  checkpoint::Sizer                             \
+
 #endif /*INCLUDED_CHECKPOINT_SERIALIZERS_SERIALIZERS_HEADERS_H*/

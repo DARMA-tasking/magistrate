@@ -58,8 +58,9 @@ namespace serializer_registry {
 template <typename ObjT>
 using RegistryType = std::vector<
   std::tuple<
-    TypeIdx,
-    std::function<void(void*, ObjT&)>
+    TypeIdx,                             /**< This entry type idx */
+    TypeIdx,                             /**< The base class type idx */
+    std::function<void(void*, ObjT&)>    /**< Type-erased serialize dispatch */
   >
 >;
 
@@ -81,12 +82,17 @@ inline RegistryType<ObjT>& getRegistry() {
 }
 
 template <typename ObjT, typename SerializerT>
+inline TypeIdx makeObjIdx() {
+  return Type<ObjT, SerializerT>::idx;
+}
+
+template <typename ObjT, typename SerializerT>
 Registrar<ObjT, SerializerT>::Registrar() {
   auto& reg = getRegistry<ObjT>();
-  index = reg.size();
+  index = static_cast<TypeIdx>(reg.size());
 
   debug_checkpoint(
-    "registrar: %zu, ObjT=%s SerializerT=%s\n",
+    "serializer registrar: %zu, ObjT=%s SerializerT=%s\n",
     reg.size(),
     typeid(ObjT).name(),
     typeid(SerializerT).name()
@@ -94,6 +100,7 @@ Registrar<ObjT, SerializerT>::Registrar() {
 
   reg.emplace_back(
     index,
+    no_type_idx, // Set later when linkDerivedToBase is called
     [=](void* s, ObjT& obj) {
       auto& ser = *reinterpret_cast<SerializerT*>(s);
       // Disable virtual serializer dispatch because we are already in a
@@ -109,18 +116,33 @@ TypeIdx const Type<ObjT, SerializerT>::idx =
   Registrar<ObjT, SerializerT>().index;
 
 template <typename ObjT>
-inline auto getObjIdx(TypeIdx han) {
+inline auto& getObjIdxRef(TypeIdx han) {
   checkpointAssert(
-    han < getRegistry<ObjT>().size(),
+    han < static_cast<TypeIdx>(getRegistry<ObjT>().size()),
     "Missing type idx in registry. A derived type was not registered with "
     "checkpoint for a given serializer"
   );
-  return std::get<1>(getRegistry<ObjT>().at(han));
+  return getRegistry<ObjT>().at(han);
 }
 
-template <typename ObjT, typename SerializerT>
-inline TypeIdx makeObjIdx() {
-  return Type<ObjT, SerializerT>::idx;
+template <typename ObjT>
+inline auto getObjIdx(TypeIdx han) {
+  auto elm = getObjIdxRef<ObjT>(han);
+  return std::get<2>(elm);
+}
+
+template <typename DerivedT>
+inline std::function<void(void*, DerivedT&)> getBaseIdx(TypeIdx base_idx) {
+  auto& reg = getRegistry<DerivedT>();
+  for (auto entry : reg) {
+    if (std::get<1>(entry) == base_idx) {
+      return std::get<2>(entry);
+    }
+  }
+  checkpointAssert(
+    false, "Error, could not find corresponding entry in derived for base"
+  );
+  return nullptr;
 }
 
 }}}} /* end namespace checkpoint::dispatch::vrt::serializer_registry */

@@ -88,9 +88,9 @@ Registrar<ObjT>::Registrar() {
   using BaseType = typename ObjT::_CheckpointVirtualSerializerBaseType;
 
   auto& reg = getRegistry<BaseType>();
-  index = reg.size();
+  index = static_cast<TypeIdx>(reg.size());
 
-  debug_checkpoint("registrar: %ld, %s\n", reg.size(), typeid(ObjT).name());
+  debug_checkpoint("object registrar: %zu, %s\n", reg.size(), typeid(ObjT).name());
 
   reg.emplace_back(
     std::make_tuple(

@@ -50,26 +50,33 @@
 #include "checkpoint/dispatch/vrt/object_registry.h"
 #include "checkpoint/dispatch/vrt/serializer_registry.h"
 #include "checkpoint/dispatch/vrt/inheritance_assert_helpers.h"
+#include "checkpoint/dispatch/vrt/serialize_instantiator.h"
 
 #define checkpoint_virtual_serialize_derived(DERIVED, BASE)                          \
   void _checkpointDynamicSerialize(                                                  \
     void* s,                                                                         \
-    ::checkpoint::dispatch::vrt::TypeIdx ser_idx,                                    \
+    ::checkpoint::dispatch::vrt::TypeIdx base_ser_idx,                               \
     ::checkpoint::dispatch::vrt::TypeIdx expected_idx                                \
   ) override {                                                                       \
+    ::checkpoint::instantiateObjSerializer<                                          \
+      DERIVED,                                                                       \
+      checkpoint_serializer_variatic_args()                                          \
+    >();                                                                             \
     debug_checkpoint(                                                                \
       "%s: BEGIN: _checkpointDynamicSerialize: serializer_idx=%d {\n",               \
-      #DERIVED, ser_idx                                                              \
+      #DERIVED, base_ser_idx                                                         \
     );                                                                               \
     ::checkpoint::dispatch::vrt::assertTypeIdxMatch<DERIVED>(expected_idx);          \
     auto base_idx = ::checkpoint::dispatch::vrt::objregistry::makeObjIdx<BASE>();    \
-    BASE::_checkpointDynamicSerialize(s, ser_idx, base_idx);                         \
+    BASE::_checkpointDynamicSerialize(s, base_ser_idx, base_idx);                    \
     auto dispatcher =                                                                \
-      ::checkpoint::dispatch::vrt::serializer_registry::getObjIdx<DERIVED>(ser_idx); \
+      ::checkpoint::dispatch::vrt::serializer_registry::getBaseIdx<DERIVED>(         \
+        base_ser_idx                                                                 \
+      );                                                                             \
     dispatcher(s, *static_cast<DERIVED*>(this));                                     \
     debug_checkpoint(                                                                \
       "%s: END: _checkpointDynamicSerialize: serializer_idx=%d }\n",                 \
-      #DERIVED, ser_idx                                                              \
+      #DERIVED, base_ser_idx                                                         \
     );                                                                               \
   }                                                                                  \
   ::checkpoint::dispatch::vrt::TypeIdx _checkpointDynamicTypeIndex() override {      \

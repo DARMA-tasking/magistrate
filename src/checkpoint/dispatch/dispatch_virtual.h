@@ -54,10 +54,6 @@
 
 namespace checkpoint {
 
-template <typename ObjT, typename SerializerT>
-void instantiate() {
-  dispatch::vrt::serializer_registry::makeObjIdx<ObjT, SerializerT>();
-}
 
 
 } /* end namespace checkpoint */
