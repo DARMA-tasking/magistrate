@@ -85,7 +85,7 @@ inline RegistryType<T>& getRegistry() {
 
 template <typename ObjT>
 Registrar<ObjT>::Registrar() {
-  using BaseType = typename ObjT::SerDerBaseType;
+  using BaseType = typename ObjT::_CheckpointVirtualSerializerBaseType;
 
   auto& reg = getRegistry<BaseType>();
   index = reg.size();

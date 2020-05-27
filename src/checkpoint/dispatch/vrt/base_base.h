@@ -52,15 +52,7 @@ namespace checkpoint { namespace dispatch { namespace vrt {
  *
  * Used via std::is_base_of<SerializableBaseBase, T>
  */
-struct SerializableBaseBase {
-
-  virtual void _checkpointDynamicSerialize(
-    void* s, TypeIdx serializer_idx, TypeIdx expected_idx
-  ) = 0;
-
-  virtual TypeIdx _checkpointDynamicTypeIndex() = 0;
-
-};
+struct SerializableBaseBase { };
 
 }}} /* end namespace checkpoint::dispatch::vrt */
 

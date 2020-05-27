@@ -50,8 +50,23 @@
 #include "checkpoint/dispatch/vrt/static_dispatch_typeidx.h"
 #include "checkpoint/dispatch/vrt/object_registry.h"
 #include "checkpoint/dispatch/vrt/serializer_registry.h"
+#include "checkpoint/dispatch/vrt/inheritance_assert_helpers.h"
 
-#include <string>
+#define checkpoint_virtual_serialize_base(BASE)                                   \
+  using _CheckpointVirtualSerializerBaseType = BASE;                              \
+  virtual void _checkpointDynamicSerialize(                                       \
+    void* s,                                                                      \
+    ::checkpoint::dispatch::vrt::TypeIdx ser_idx,                                 \
+    ::checkpoint::dispatch::vrt::TypeIdx expected_idx                             \
+  ) {                                                                             \
+    ::checkpoint::dispatch::vrt::assertTypeIdxMatch<BASE>(expected_idx);          \
+    auto dispatcher =                                                             \
+      ::checkpoint::dispatch::vrt::serializer_registry::getObjIdx<BASE>(ser_idx); \
+    dispatcher(s, *static_cast<BASE*>(this));                                     \
+  }                                                                               \
+  virtual ::checkpoint::dispatch::vrt::TypeIdx _checkpointDynamicTypeIndex() {    \
+    return ::checkpoint::dispatch::vrt::DispatchTypeIdx<BASE>::get();             \
+  }                                                                               \
 
 namespace checkpoint { namespace dispatch { namespace vrt {
 
@@ -63,26 +78,7 @@ namespace checkpoint { namespace dispatch { namespace vrt {
  */
 template <typename BaseT>
 struct SerializableBase : SerializableBaseBase {
-  using SerDerBaseType = BaseT;
-
-  void _checkpointDynamicSerialize(
-    void* s, TypeIdx serializer_idx, TypeIdx expected_idx
-  ) override {
-    auto base_idx = objregistry::makeObjIdx<BaseT>();
-
-    auto debug_str = std::string("Type idx for base \"") + typeid(BaseT).name() +
-      "\" does not matched expected value. "
-      "You are probably missing a SerializableBase<T> or SerializableDerived<T> "
-      "in the virtual class hierarchy.";
-    checkpointAssert(base_idx == expected_idx, debug_str.c_str());
-
-    auto dispatcher = serializer_registry::getObjIdx<BaseT>(serializer_idx);
-    dispatcher(s, *static_cast<BaseT*>(this));
-  }
-
-  TypeIdx _checkpointDynamicTypeIndex() override {
-    return DispatchTypeIdx<BaseT>::get();
-  }
+  checkpoint_virtual_serialize_base(BaseT)
 };
 
 }}} /* end namespace checkpoint::dispatch::vrt */

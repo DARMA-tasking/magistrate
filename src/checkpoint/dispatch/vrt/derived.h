@@ -49,8 +49,32 @@
 #include "checkpoint/dispatch/vrt/static_dispatch_typeidx.h"
 #include "checkpoint/dispatch/vrt/object_registry.h"
 #include "checkpoint/dispatch/vrt/serializer_registry.h"
+#include "checkpoint/dispatch/vrt/inheritance_assert_helpers.h"
 
-#include <string>
+#define checkpoint_virtual_serialize_derived(DERIVED, BASE)                          \
+  void _checkpointDynamicSerialize(                                                  \
+    void* s,                                                                         \
+    ::checkpoint::dispatch::vrt::TypeIdx ser_idx,                                    \
+    ::checkpoint::dispatch::vrt::TypeIdx expected_idx                                \
+  ) override {                                                                       \
+    debug_checkpoint(                                                                \
+      "%s: BEGIN: _checkpointDynamicSerialize: serializer_idx=%d {\n",               \
+      typeid(DERIVED).name(), ser_idx                                                \
+    );                                                                               \
+    ::checkpoint::dispatch::vrt::assertTypeIdxMatch<DERIVED>(expected_idx);          \
+    auto base_idx = ::checkpoint::dispatch::vrt::objregistry::makeObjIdx<BASE>();    \
+    BASE::_checkpointDynamicSerialize(s, ser_idx, base_idx);                         \
+    auto dispatcher =                                                                \
+      ::checkpoint::dispatch::vrt::serializer_registry::getObjIdx<DERIVED>(ser_idx); \
+    dispatcher(s, *static_cast<DERIVED*>(this));                                     \
+    debug_checkpoint(                                                                \
+      "%s: END: _checkpointDynamicSerialize: serializer_idx=%d }\n",                 \
+      typeid(DERIVED).name(), ser_idx                                                \
+    );                                                                               \
+  }                                                                                  \
+  ::checkpoint::dispatch::vrt::TypeIdx _checkpointDynamicTypeIndex() override {      \
+    return ::checkpoint::dispatch::vrt::DispatchTypeIdx<DERIVED>::get();             \
+  }                                                                                  \
 
 namespace checkpoint { namespace dispatch { namespace vrt {
 
@@ -78,43 +102,7 @@ struct SerializableDerived : BaseT {
     BaseT::serialize(s);
   }
 
-  void _checkpointDynamicSerialize(
-    void* s, TypeIdx serializer_idx, TypeIdx expected_idx
-  ) override {
-
-    debug_checkpoint(
-      "%s: BEGIN: _checkpointDynamicSerialize: serializer_idx=%d {\n",
-      typeid(DerivedT).name(), serializer_idx
-    );
-
-    auto derived_idx = objregistry::makeObjIdx<DerivedT>();
-
-    auto debug_str = std::string("Type idx for derived \"") +
-      typeid(DerivedT).name() +
-      "\" does not matched expected value. "
-      "You are probably missing a SerializableBase<T> or SerializableDerived<T> "
-      "in the virtual class hierarchy.";
-
-    checkpointAssert(
-      derived_idx == expected_idx or expected_idx == -1,
-      debug_str.c_str()
-    );
-
-    BaseT::_checkpointDynamicSerialize(s, serializer_idx, objregistry::makeObjIdx<BaseT>());
-
-    auto dispatcher = serializer_registry::getObjIdx<DerivedT>(serializer_idx);
-    dispatcher(s, *static_cast<DerivedT*>(this));
-
-    debug_checkpoint(
-      "%s: END: _checkpointDynamicSerialize: serializer_idx=%d }\n",
-      typeid(DerivedT).name(), serializer_idx
-    );
-
-  }
-
-  TypeIdx _checkpointDynamicTypeIndex() override {
-    return objregistry::makeObjIdx<DerivedT>();
-  }
+  checkpoint_virtual_serialize_derived(DerivedT, BaseT)
 };
 
 }}} /* end namespace checkpoint::dispatch::vrt */
