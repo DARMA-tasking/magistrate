@@ -69,7 +69,9 @@ struct OptionalTypeToken {
   bool isVirtual() const { return is_virtual_; }
 
   TypeIdx getTypeIdx() const {
-    assert(not is_virtual_ or type_idx_ != -1 && "Must be valid type idx if virtual");
+    checkpointAssert(
+      not is_virtual_ or type_idx_ != -1, "Must be valid type idx if virtual"
+    );
     return type_idx_;
   }
 

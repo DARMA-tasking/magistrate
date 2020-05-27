@@ -72,7 +72,12 @@ struct SerializableBase : SerializableBaseBase {
       printf("broken assert %s\n", typeid(BaseT).name());
     }
 
-    assert(base_idx == expected_idx && "Check in base");
+    checkpointAssert(
+      base_idx == expected_idx,
+      "Type idx for base does not matched expected value. "
+      "You are probably missing a SerializableBase<T> or SerializableDerived<T> "
+      "in the virtual class hierarchy."
+    );
 
     auto dispatcher = serializer_registry::getObjIdx<BaseT>(serializer_idx);
     dispatcher(s, *static_cast<BaseT*>(this));

@@ -90,7 +90,12 @@ struct SerializableDerived : BaseT {
       if (derived_idx != expected_idx) {
         printf("broken assert %s\n", typeid(DerivedT).name());
       }
-      assert(derived_idx == expected_idx && "Check in base");
+      checkpointAssert(
+        derived_idx == expected_idx or expected_idx == -1,
+        "Type idx for derived class does not matched expected value. "
+        "You are probably missing a SerializableBase<T> or SerializableDerived<T> "
+        "in the virtual class hierarchy."
+      );
     }
 
     BaseT::_checkpointDynamicSerialize(s, serializer_idx, objregistry::makeObjIdx<BaseT>());

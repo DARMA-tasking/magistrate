@@ -66,7 +66,7 @@
 namespace checkpoint {
 
 template <typename T>
-void reconstruct(T) { assert(0); }
+void reconstruct(T) { checkpointAssert(false, "This code should be unreachable"); }
 
 struct SerdesByteCopy {
   using isByteCopyable = std::true_type;

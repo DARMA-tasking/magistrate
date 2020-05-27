@@ -47,6 +47,11 @@
 
 #include <checkpoint/cmake_config.h>
 
+#include <cstdlib>
+#include <cstdint>
+#include <utility>
+#include <cassert>
+
 #define DEBUG_CHECKPOINT 0
 
 #if DEBUG_CHECKPOINT
@@ -59,9 +64,63 @@
 #define debug_checkpoint(...)
 #endif
 
-#include <cstdlib>
-#include <cstdint>
-#include <functional>
+#define CHECKPOINT_ASSERT_ENABLED 1
+
+namespace checkpoint { namespace debug {
+
+template <typename T>
+int useVarsDummy(T t) {
+  return (void)(t), 0;
+}
+
+template <typename... Args>
+void useVars(Args&&... args) {
+  using expander = int[];
+  (void)(expander {
+    0,
+    useVarsDummy(std::forward<Args>(args)) ...
+  });
+}
+
+inline void assertOut(
+  char const* cond, char const* str,
+  char const* file, int const line, char const* func
+) {
+  auto msg = "Assertion failed in Checkpoint library:";
+  fprintf(
+    stderr,
+    "-----------------------------------------------------------------------\n"
+    "%s\n"
+    "-----------------------------------------------------------------------\n"
+    "   Reason: %s\n"
+    "Condition: %s\n"
+    "     File: %s\n"
+    "     Line: %d\n"
+    "     Func: %s\n"
+    "-----------------------------------------------------------------------\n",
+    msg, str, cond, file, line, func
+  );
+  assert(false && "Checkpoint assertion failure");
+}
+
+}} /* end namespace checkpoint::debug */
+
+// Macro for to force use of variables in assert statement to avoid warnings
+#define checkpoint_force_use(...) ::checkpoint::debug::useVars(__VA_ARGS__);
+
+// Macro for assertion with info about where and why it triggered
+#if CHECKPOINT_ASSERT_ENABLED
+#define checkpointAssert(cond,str)                                    \
+  do {                                                                \
+    if (!(cond)) {                                                    \
+      ::checkpoint::debug::assertOut(                                 \
+        #cond, str, __FILE__, __LINE__, __func__                      \
+      );                                                              \
+    }                                                                 \
+  } while (false)
+#else
+#define checkpointAssert(cond,str) checkpoint_force_use(cond)
+#endif
 
 namespace checkpoint {
 
