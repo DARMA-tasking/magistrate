@@ -154,14 +154,11 @@ struct SerializableTraits {
     has_byteCopyTraitTrue::value or has_isArith<T>::value;
 
   // This defines what it means to be reconstructible
-  static constexpr auto const is_reconstructible =
-    has_reconstruct::value and not has_default_constructor::value;
+  static constexpr auto const is_reconstructible = has_reconstruct::value;
 
   // This defines what it means to be non-intrusively reconstructible
   static constexpr auto const is_nonintrusive_reconstructible =
-    has_nonintrusive_reconstruct::value and
-    not has_default_constructor::value and
-    not has_reconstruct::value;
+    has_nonintrusive_reconstruct::value and not has_reconstruct::value;
 
   // This defines what it means to be default constructible
   static constexpr auto const is_default_constructible =
