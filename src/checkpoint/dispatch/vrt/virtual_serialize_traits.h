@@ -62,26 +62,26 @@ template <typename T>
 struct VirtualSerializeTraits {
 
   template <typename U>
-  using has_do_serialize_t = decltype(
-    std::declval<U>().doSerialize(
+  using has_dynamic_serialize_t = decltype(
+    std::declval<U>()._checkpointDynamicSerialize(
       std::declval<void*>(),
       std::declval<TypeIdx>(),
       std::declval<TypeIdx>()
     )
   );
 
-  using has_do_serialize = detection::is_detected<has_do_serialize_t, T>;
+  using has_dynamic_serialize = detection::is_detected<has_dynamic_serialize_t, T>;
 
   template <typename U>
-  using has_get_index_t = decltype(
-    std::declval<U>().getIndex()
+  using has_dynamic_type_index_t = decltype(
+    std::declval<U>()._checkpointDynamicTypeIndex()
   );
 
-  using has_get_index = detection::is_detected<has_get_index_t, T>;
+  using has_dynamic_type_index = detection::is_detected<has_dynamic_type_index_t, T>;
 
   // This defines what it means to be virtually serializable
   static constexpr auto const is_virtual_serializable =
-    has_do_serialize and has_get_index;
+    has_dynamic_serialize and has_dynamic_type_index;
 
   // This defines what it means not to be virtually serializable
   static constexpr auto const is_not_virtual_serializable =
@@ -97,7 +97,7 @@ struct VirtualSerializeTraits {
   template <
     typename C,
     typename = decltype(
-      std::declval<U>().doSerialize(
+      std::declval<U>()._checkpointDynamicSerialize(
         std::declval<void*>(),
         std::declval<TypeIdx>(),
         std::declval<TypeIdx>()

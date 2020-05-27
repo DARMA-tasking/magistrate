@@ -101,7 +101,7 @@ void virtualSerialize(BaseT*& base, SerializerT& s) {
 
   TypeIdx entry = -1;
   if (not s.isUnpacking()) {
-    entry = base->getIndex();
+    entry = base->_checkpointDynamicTypeIndex();
   }
 
   s | entry;
@@ -114,7 +114,7 @@ void virtualSerialize(BaseT*& base, SerializerT& s) {
     base = ptr;
   }
 
-  base->doSerialize(&s, dispatch::vrt::serializer_registry::makeObjIdx<BaseT, SerializerT>(), -1);
+  base->_checkpointDynamicSerialize(&s, dispatch::vrt::serializer_registry::makeObjIdx<BaseT, SerializerT>(), -1);
 }
 
 } /* end namespace checkpoint */

@@ -54,8 +54,11 @@ namespace checkpoint { namespace dispatch { namespace vrt {
  */
 struct SerializableBaseBase {
 
-  virtual void doSerialize(void* s, TypeIdx ser, TypeIdx expected_idx) = 0;
-  virtual TypeIdx getIndex() = 0;
+  virtual void _checkpointDynamicSerialize(
+    void* s, TypeIdx serializer_idx, TypeIdx expected_idx
+  ) = 0;
+
+  virtual TypeIdx _checkpointDynamicTypeIndex() = 0;
 
 };
 

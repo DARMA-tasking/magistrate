@@ -76,13 +76,14 @@ struct SerializableDerived : BaseT {
     BaseT::serialize(s);
   }
 
-  TypeIdx getIndex() override {
-    return objregistry::makeObjIdx<DerivedT>();
-  }
+  void _checkpointDynamicSerialize(
+    void* s, TypeIdx serializer_idx, TypeIdx expected_idx
+  ) override {
 
-  void doSerialize(void* s, TypeIdx ser, TypeIdx expected_idx) override {
-
-    printf("%s: BEGIN: doSerialize: ser=%d {\n", typeid(DerivedT).name(), ser);
+    debug_checkpoint(
+      "%s: BEGIN: _checkpointDynamicSerialize: serializer_idx=%d {\n",
+      typeid(DerivedT).name(), serializer_idx
+    );
 
     auto derived_idx = objregistry::makeObjIdx<DerivedT>();
     if (expected_idx != -1) {
@@ -92,13 +93,20 @@ struct SerializableDerived : BaseT {
       assert(derived_idx == expected_idx && "Check in base");
     }
 
-    BaseT::doSerialize(s, ser, objregistry::makeObjIdx<BaseT>());
+    BaseT::_checkpointDynamicSerialize(s, serializer_idx, objregistry::makeObjIdx<BaseT>());
 
-    auto dd = serializer_registry::getObjIdx<DerivedT>(ser);
-    dd(s, *static_cast<DerivedT*>(this));
+    auto dispatcher = serializer_registry::getObjIdx<DerivedT>(serializer_idx);
+    dispatcher(s, *static_cast<DerivedT*>(this));
 
-    printf("%s: END: doSerialize: ser=%d }\n", typeid(DerivedT).name(), ser);
+    debug_checkpoint(
+      "%s: END: _checkpointDynamicSerialize: serializer_idx=%d }\n",
+      typeid(DerivedT).name(), serializer_idx
+    );
 
+  }
+
+  TypeIdx _checkpointDynamicTypeIndex() override {
+    return objregistry::makeObjIdx<DerivedT>();
   }
 };
 

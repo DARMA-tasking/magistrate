@@ -63,7 +63,9 @@ template <typename BaseT>
 struct SerializableBase : SerializableBaseBase {
   using SerDerBaseType = BaseT;
 
-  void doSerialize(void* s, TypeIdx ser, TypeIdx expected_idx) override {
+  void _checkpointDynamicSerialize(
+    void* s, TypeIdx serializer_idx, TypeIdx expected_idx
+  ) override {
     auto base_idx = objregistry::makeObjIdx<BaseT>();
 
     if (base_idx != expected_idx) {
@@ -72,11 +74,11 @@ struct SerializableBase : SerializableBaseBase {
 
     assert(base_idx == expected_idx && "Check in base");
 
-    auto dispatcher = serializer_registry::getObjIdx<BaseT>(ser);
+    auto dispatcher = serializer_registry::getObjIdx<BaseT>(serializer_idx);
     dispatcher(s, *static_cast<BaseT*>(this));
   }
 
-  TypeIdx getIndex() override {
+  TypeIdx _checkpointDynamicTypeIndex() override {
     return DispatchTypeIdx<BaseT>::get();
   }
 };
