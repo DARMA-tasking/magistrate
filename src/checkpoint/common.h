@@ -49,6 +49,7 @@
 
 #include <cstdlib>
 #include <cstdint>
+#include <cstdio>
 #include <utility>
 #include <cassert>
 
@@ -59,7 +60,6 @@
   do {                               \
     printf(__VA_ARGS__);             \
   } while (0);
-#include <cstdio>
 #else
 #define debug_checkpoint(...)
 #endif
