@@ -103,12 +103,6 @@ struct SerializableDerived : BaseT {
 
   SerializableDerived() = default;
 
-  template <typename SerializerT>
-  void serialize(SerializerT& s) {
-    debug_checkpoint("SerializableDerived:: serialize\n");
-    BaseT::serialize(s);
-  }
-
   checkpoint_virtual_serialize_derived(DerivedT, BaseT)
 };
 
