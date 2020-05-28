@@ -67,6 +67,8 @@ struct TestBase : SerializableBase<TestBase> {
   explicit TestBase(TEST_CONSTRUCT) { init();  }
   explicit TestBase(SERIALIZE_CONSTRUCT_TAG) {}
 
+  virtual ~TestBase() = default;
+
   template <typename SerializerT>
   void serialize(SerializerT& s) {
     s | my_ints;
@@ -183,16 +185,16 @@ struct TestWrapper {
 
   void check() {
     EXPECT_EQ(vec.size(), vec_num_elms);
-//    int i = 0;
+    int i = 0;
     for (auto&& elm : vec) {
       EXPECT_NE(elm, nullptr);
       elm->check();
-      // if (i % 2 == 0) {
-      //   EXPECT_EQ(elm->getID(), TestEnum::Derived1);
-      // } else {
-      //   EXPECT_EQ(elm->getID(), TestEnum::Derived2);
-      // }
-//      i++;
+      if (i % 2 == 0) {
+        EXPECT_EQ(elm->getID(), TestEnum::Derived1);
+      } else {
+        EXPECT_EQ(elm->getID(), TestEnum::Derived2);
+      }
+     i++;
     }
   }
 
