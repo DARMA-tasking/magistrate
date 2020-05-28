@@ -55,13 +55,18 @@ namespace checkpoint { namespace tests { namespace unit {
 
 struct TEST_CONSTRUCT { };
 
-namespace test_1 {
-
-static constexpr std::size_t const num_ints = 1;
+static constexpr std::size_t const num_ints = 100;
+static constexpr std::size_t const vec_num_elms = 25;
 
 enum TestEnum {
-  Base, Derived1, Derived2
+  Base, Derived1, Derived2, Derived3
 };
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+namespace test_1 {
 
 struct TestBase : SerializableBase<TestBase> {
   explicit TestBase(TEST_CONSTRUCT) { init();  }
@@ -119,7 +124,7 @@ struct TestDerived1 : SerializableDerived<TestDerived1, TestBase> {
     EXPECT_EQ(a, 29.);
     EXPECT_NE(my_ptr_int, nullptr);
     EXPECT_EQ(*my_ptr_int, 139);
-    TestBase::check();
+    Parent::check();
   }
 
   TestEnum getID() override { return TestEnum::Derived1; }
@@ -153,7 +158,7 @@ struct TestDerived2 : SerializableDerived<TestDerived2, TestBase> {
     for (auto&& elm : my_set) {
       EXPECT_EQ(elm, i++);
     }
-    TestBase::check();
+    Parent::check();
   }
 
   TestEnum getID() override { return TestEnum::Derived2; }
@@ -161,8 +166,6 @@ struct TestDerived2 : SerializableDerived<TestDerived2, TestBase> {
 private:
   std::set<int> my_set;
 };
-
-static constexpr std::size_t const vec_num_elms = 1;
 
 struct TestWrapper {
   explicit TestWrapper(TEST_CONSTRUCT) { init();  }
@@ -203,6 +206,356 @@ struct TestWrapper {
 
 } /* end namespace test_1 */
 
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+namespace test_2 {
+
+struct TestBase {
+  explicit TestBase(TEST_CONSTRUCT) { init();  }
+  explicit TestBase(SERIALIZE_CONSTRUCT_TAG) {}
+
+  checkpoint_virtual_serialize_base(TestBase)
+
+  virtual ~TestBase() = default;
+
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    s | a;
+  }
+
+  void init() {
+    a = 29;
+  }
+
+  virtual void check() {
+    EXPECT_EQ(a, 29);
+  }
+
+  // Return base here to make this variant non-abstract
+  virtual TestEnum getID() { return TestEnum::Base; }
+
+private:
+  int a = 0;
+};
+
+struct TestDerived1 : TestBase {
+  using Parent = TestBase;
+
+  explicit TestDerived1(TEST_CONSTRUCT tag) : Parent(tag) { init();  }
+  explicit TestDerived1(SERIALIZE_CONSTRUCT_TAG tag) : Parent(tag)  {}
+
+  checkpoint_virtual_serialize_derived(TestDerived1, TestBase)
+
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    s | a;
+    s | my_ptr_int;
+  }
+
+  void init() {
+    a = 29.;
+    my_ptr_int = std::make_unique<int>(139);
+  }
+
+  void check() override {
+    EXPECT_EQ(a, 29.);
+    EXPECT_NE(my_ptr_int, nullptr);
+    EXPECT_EQ(*my_ptr_int, 139);
+    Parent::check();
+  }
+
+  TestEnum getID() override { return TestEnum::Derived1; }
+
+private:
+  double a = 0.0;
+  std::unique_ptr<int> my_ptr_int;
+};
+
+struct TestDerived2 : TestBase {
+  using Parent = TestBase;
+
+  explicit TestDerived2(TEST_CONSTRUCT tag) : Parent(tag) { init();  }
+  explicit TestDerived2(SERIALIZE_CONSTRUCT_TAG tag) : Parent(tag) {}
+
+  checkpoint_virtual_serialize_derived(TestDerived2, TestBase)
+
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    s | my_set;
+  }
+
+  void init() {
+    for (std::size_t i = 0; i < num_ints; i++) {
+      my_set.insert(static_cast<int>(i));
+    }
+  }
+
+  void check() override {
+    EXPECT_EQ(my_set.size(), num_ints);
+    int i = 0;
+    for (auto&& elm : my_set) {
+      EXPECT_EQ(elm, i++);
+    }
+    Parent::check();
+  }
+
+  TestEnum getID() override { return TestEnum::Derived2; }
+
+private:
+  std::set<int> my_set;
+};
+
+struct TestDerived3 : TestDerived2 {
+  using Parent = TestDerived2;
+
+  explicit TestDerived3(TEST_CONSTRUCT tag) : Parent(tag) { init();  }
+  explicit TestDerived3(SERIALIZE_CONSTRUCT_TAG tag) : Parent(tag) {}
+
+  checkpoint_virtual_serialize_derived(TestDerived3, TestDerived2)
+
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    s | x;
+  }
+
+  void init() {
+    x = 34.;
+  }
+
+  void check() override {
+    EXPECT_EQ(x, 34.);
+    Parent::check();
+  }
+
+  TestEnum getID() override { return TestEnum::Derived3; }
+
+private:
+  double x = 0.;
+};
+
+struct TestWrapper {
+  explicit TestWrapper(TEST_CONSTRUCT) { init();  }
+  explicit TestWrapper(SERIALIZE_CONSTRUCT_TAG) {}
+
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    auto vec_size = vec.size();
+    s | vec_size;
+    vec.resize(vec_size);
+
+    for (auto&& elm : vec) {
+      TestBase* base = elm.get();
+      checkpoint::serializeAllocatePointer(s, base);
+      if (s.isUnpacking()) {
+        elm = std::shared_ptr<TestBase>(base);
+      }
+      s | *elm;
+    }
+  }
+
+  void init() {
+    for (std::size_t i = 0; i < vec_num_elms; i++) {
+      if (i % 3 == 0) {
+        vec.emplace_back(std::make_shared<TestDerived1>(TEST_CONSTRUCT{}));
+      } else if (i % 3 == 1) {
+        vec.emplace_back(std::make_shared<TestDerived2>(TEST_CONSTRUCT{}));
+      } else if (i % 3 == 2) {
+        vec.emplace_back(std::make_shared<TestDerived3>(TEST_CONSTRUCT{}));
+      }
+    }
+  }
+
+  void check() {
+    EXPECT_EQ(vec.size(), vec_num_elms);
+    int i = 0;
+    for (auto&& elm : vec) {
+      EXPECT_NE(elm, nullptr);
+      elm->check();
+      if (i % 3 == 0) {
+        EXPECT_EQ(elm->getID(), TestEnum::Derived1);
+      } else if (i % 3 == 1) {
+        EXPECT_EQ(elm->getID(), TestEnum::Derived2);
+      } else if (i % 3 == 2) {
+        EXPECT_EQ(elm->getID(), TestEnum::Derived3);
+      }
+     i++;
+    }
+  }
+
+  std::vector<std::shared_ptr<TestBase>> vec;
+};
+
+} /* end namespace test_2 */
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+// This test checks to composability of virtual serialize by composing virtual
+// objects from test_1 and test_2 into a third hierarchy.
+
+namespace test_3 {
+
+struct TestBase {
+  explicit TestBase(TEST_CONSTRUCT) { init();  }
+  explicit TestBase(SERIALIZE_CONSTRUCT_TAG) {}
+
+  checkpoint_virtual_serialize_base(TestBase)
+
+  virtual ~TestBase() = default;
+
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    s | a;
+  }
+
+  void init() {
+    a = 29;
+  }
+
+  virtual void check() {
+    EXPECT_EQ(a, 29);
+  }
+
+  // Return base here to make this variant non-abstract
+  virtual TestEnum getID() { return TestEnum::Base; }
+
+private:
+  int a = 0;
+};
+
+struct TestDerived1 : TestBase {
+  using Parent = TestBase;
+
+  explicit TestDerived1(TEST_CONSTRUCT tag) : Parent(tag) { init();  }
+  explicit TestDerived1(SERIALIZE_CONSTRUCT_TAG tag) : Parent(tag)  {}
+
+  checkpoint_virtual_serialize_derived(TestDerived1, TestBase)
+
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    s | recur_vec;
+  }
+
+  void init() {
+    for (std::size_t i = 0; i < vec_num_elms; i++) {
+      if (i % 2 == 0) {
+        recur_vec.emplace_back(std::make_unique<test_1::TestDerived1>(TEST_CONSTRUCT{}));
+      } else {
+        recur_vec.emplace_back(std::make_unique<test_1::TestDerived2>(TEST_CONSTRUCT{}));
+      }
+    }
+  }
+
+  void check() override {
+    EXPECT_EQ(recur_vec.size(), vec_num_elms);
+    int i = 0;
+    for (auto&& elm : recur_vec) {
+      EXPECT_NE(elm, nullptr);
+      elm->check();
+      if (i % 2 == 0) {
+        EXPECT_EQ(elm->getID(), TestEnum::Derived1);
+      } else {
+        EXPECT_EQ(elm->getID(), TestEnum::Derived2);
+      }
+     i++;
+    }
+    Parent::check();
+  }
+
+  TestEnum getID() override { return TestEnum::Derived1; }
+
+private:
+  std::vector<std::unique_ptr<test_1::TestBase>> recur_vec;
+};
+
+struct TestDerived2 : TestBase {
+  using Parent = TestBase;
+
+  explicit TestDerived2(TEST_CONSTRUCT tag) : Parent(tag) { init();  }
+  explicit TestDerived2(SERIALIZE_CONSTRUCT_TAG tag) : Parent(tag) {}
+
+  checkpoint_virtual_serialize_derived(TestDerived2, TestBase)
+
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    s | recur_vec;
+  }
+
+  void init() {
+    for (std::size_t i = 0; i < vec_num_elms; i++) {
+      if (i % 2 == 0) {
+        recur_vec.emplace_back(std::make_unique<test_2::TestDerived1>(TEST_CONSTRUCT{}));
+      } else {
+        recur_vec.emplace_back(std::make_unique<test_2::TestDerived2>(TEST_CONSTRUCT{}));
+      }
+    }
+  }
+
+  void check() override {
+    EXPECT_EQ(recur_vec.size(), vec_num_elms);
+    int i = 0;
+    for (auto&& elm : recur_vec) {
+      EXPECT_NE(elm, nullptr);
+      elm->check();
+      if (i % 2 == 0) {
+        EXPECT_EQ(elm->getID(), TestEnum::Derived1);
+      } else {
+        EXPECT_EQ(elm->getID(), TestEnum::Derived2);
+      }
+     i++;
+    }
+    Parent::check();
+  }
+
+  TestEnum getID() override { return TestEnum::Derived2; }
+
+private:
+  std::vector<std::unique_ptr<test_2::TestBase>> recur_vec;
+};
+
+struct TestWrapper {
+  explicit TestWrapper(TEST_CONSTRUCT) { init();  }
+  explicit TestWrapper(SERIALIZE_CONSTRUCT_TAG) {}
+
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    s | vec;
+  }
+
+  void init() {
+    for (std::size_t i = 0; i < vec_num_elms; i++) {
+      if (i % 2 == 0) {
+        vec.emplace_back(std::make_unique<TestDerived1>(TEST_CONSTRUCT{}));
+      } else {
+        vec.emplace_back(std::make_unique<TestDerived2>(TEST_CONSTRUCT{}));
+      }
+    }
+  }
+
+  void check() {
+    EXPECT_EQ(vec.size(), vec_num_elms);
+    int i = 0;
+    for (auto&& elm : vec) {
+      EXPECT_NE(elm, nullptr);
+      elm->check();
+      if (i % 2 == 0) {
+        EXPECT_EQ(elm->getID(), TestEnum::Derived1);
+      } else {
+        EXPECT_EQ(elm->getID(), TestEnum::Derived2);
+      }
+     i++;
+    }
+  }
+
+  std::vector<std::unique_ptr<TestBase>> vec;
+};
+
+} /* end namespace test_3 */
+
+
 template <typename T>
 struct TestVirtualSerialize : TestHarness { };
 
@@ -225,8 +578,9 @@ TYPED_TEST_P(TestVirtualSerialize, test_virtual_serialize) {
 }
 
 using ConstructTypes = ::testing::Types<
-  test_1::TestWrapper//,
-  //test_2::TestWrapper
+  test_1::TestWrapper,
+  test_2::TestWrapper,
+  test_3::TestWrapper
 >;
 
 REGISTER_TYPED_TEST_CASE_P(TestVirtualSerialize, test_virtual_serialize);
