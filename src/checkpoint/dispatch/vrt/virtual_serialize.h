@@ -189,9 +189,9 @@ void serializeAllocatePointer(SerializerT& s, T*& target) {
   if (s.isUnpacking()) {
     if (token.isVirtual()) {
       // use type idx here, registration needed for proper type re-construction
-      auto entry = token.getTypeIdx();
-      auto t = dispatch::vrt::objregistry::getObjAllocate<T>(entry)();
-      target = dispatch::vrt::objregistry::getObjConstruct<T>(entry)(t);
+      auto idx = token.getTypeIdx();
+      auto t = dispatch::vrt::objregistry::getObjAllocate<T>(idx)();
+      target = dispatch::vrt::objregistry::getObjConstruct<T>(idx)(t);
     } else {
       // no type idx needed in this case, static construction in default case
       // we can't directly call because of bad mix between SFINAE and static_assert
