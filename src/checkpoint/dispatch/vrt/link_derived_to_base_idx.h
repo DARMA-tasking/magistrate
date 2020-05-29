@@ -56,7 +56,7 @@ inline void linkDerivedToBase() {
   auto base_idx = makeObjIdx<BaseT, SerializerT>();
   // Link the DerivedT entry to the BaseT entry
   auto& entry = getObjIdxRef<DerivedT>(derived_idx);
-  std::get<1>(entry) = base_idx;
+  entry.base_idx_ = base_idx;
 }
 
 }}} /* end namespace checkpoint::dispatch::vrt */
