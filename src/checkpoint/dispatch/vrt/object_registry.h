@@ -57,14 +57,28 @@ namespace checkpoint { namespace dispatch { namespace vrt {
 namespace objregistry {
 
 template <typename T>
-using RegistryType = std::vector<
-  std::tuple<
-    TypeIdx,
-    std::function<std::size_t(void)>, // Get the registered object size
-    std::function<void*(void)>,       // Do standard allocation for object
-    std::function<T*(void*)>          // Construct object on memory
-  >
->;
+struct ObjectEntry {
+
+  template <typename Sizer, typename Allocator, typename Constructor>
+  ObjectEntry(
+    TypeIdx in_idx,
+    Sizer&& in_sizer,
+    Allocator&& in_allocator,
+    Constructor&& in_constructor
+  ) : idx_(in_idx),
+      sizer_(in_sizer),
+      allocator_(in_allocator),
+      constructor_(in_constructor)
+  { }
+
+  TypeIdx idx_ = no_type_idx;              /**< The type index for this ObjT */
+  std::function<std::size_t(void)> sizer_; /**< Get the registered object size */
+  std::function<void*(void)> allocator_;   /**< Do standard allocation for object */
+  std::function<T*(void*)> constructor_;   /**< Construct object on memory */
+};
+
+template <typename T>
+using RegistryType = std::vector<ObjectEntry<T>>;
 
 template <typename ObjT>
 struct Registrar {
@@ -93,12 +107,12 @@ Registrar<ObjT>::Registrar() {
   debug_checkpoint("object registrar: %zu, %s\n", reg.size(), typeid(ObjT).name());
 
   reg.emplace_back(
-    std::make_tuple(
+    ObjectEntry<BaseType>{
       index,
       []()          -> std::size_t { return sizeof(ObjT); },
       []()          -> void*       { return std::allocator<ObjT>{}.allocate(1); },
       [](void* buf) -> BaseType*   { return dispatch::Reconstructor<ObjT>::constructAllowFail(buf); }
-    )
+    }
   );
 }
 
@@ -108,22 +122,22 @@ TypeIdx const Type<ObjT>::idx = Registrar<ObjT>().index;
 template <typename T>
 inline auto getObjIdx(TypeIdx han) {
   debug_checkpoint("getObjIdx: han=%d, size=%ld\n", han, getRegistry<T>().size());
-  return std::get<0>(getRegistry<T>().at(han));
+  return getRegistry<T>().at(han).idx_;
 }
 
 template <typename T>
 inline auto getObjSize(TypeIdx han) {
-  return std::get<1>(getRegistry<T>().at(han));
+  return getRegistry<T>().at(han).sizer_;
 }
 
 template <typename T>
 inline auto getObjAllocate(TypeIdx han) {
-  return std::get<2>(getRegistry<T>().at(han));
+  return getRegistry<T>().at(han).allocator_;
 }
 
 template <typename T>
 inline auto getObjConstruct(TypeIdx han) {
-  return std::get<3>(getRegistry<T>().at(han));
+  return getRegistry<T>().at(han).constructor_;
 }
 
 template <typename ObjT>
