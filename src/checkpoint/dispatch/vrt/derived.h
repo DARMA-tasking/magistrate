@@ -46,7 +46,6 @@
 #define INCLUDED_CHECKPOINT_DISPATCH_VRT_DERIVED_H
 
 #include "checkpoint/dispatch/vrt/registry_common.h"
-#include "checkpoint/dispatch/vrt/static_dispatch_typeidx.h"
 #include "checkpoint/dispatch/vrt/object_registry.h"
 #include "checkpoint/dispatch/vrt/serializer_registry.h"
 #include "checkpoint/dispatch/vrt/inheritance_assert_helpers.h"
@@ -80,7 +79,7 @@
     );                                                                               \
   }                                                                                  \
   ::checkpoint::dispatch::vrt::TypeIdx _checkpointDynamicTypeIndex() override {      \
-    return ::checkpoint::dispatch::vrt::DispatchTypeIdx<DERIVED>::get();             \
+    return ::checkpoint::dispatch::vrt::objregistry::makeObjIdx<DERIVED>();          \
   }                                                                                  \
 
 namespace checkpoint { namespace dispatch { namespace vrt {
