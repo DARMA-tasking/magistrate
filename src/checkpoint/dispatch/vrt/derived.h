@@ -60,7 +60,7 @@
   ) override {                                                                       \
     ::checkpoint::instantiateObjSerializer<                                          \
       DERIVED,                                                                       \
-      checkpoint_serializer_variatic_args()                                          \
+      checkpoint_serializer_variadic_args()                                          \
     >();                                                                             \
     debug_checkpoint(                                                                \
       "%s: BEGIN: _checkpointDynamicSerialize: serializer_idx=%d {\n",               \

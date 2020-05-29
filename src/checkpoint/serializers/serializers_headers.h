@@ -51,7 +51,7 @@
 #include "checkpoint/serializers/packer.h"
 #include "checkpoint/serializers/unpacker.h"
 
-#define checkpoint_serializer_variatic_args()   \
+#define checkpoint_serializer_variadic_args()   \
   checkpoint::Packer,                           \
   checkpoint::PackerUserBuf,                    \
   checkpoint::PackerIO,                         \
