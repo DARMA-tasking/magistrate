@@ -59,20 +59,20 @@ namespace objregistry {
 template <typename T>
 struct ObjectEntry {
 
-  template <typename Sizer, typename Allocator, typename Constructor>
+  template <typename Allocator, typename Constructor>
   ObjectEntry(
     TypeIdx in_idx,
-    Sizer&& in_sizer,
+    std::size_t in_size,
     Allocator&& in_allocator,
     Constructor&& in_constructor
   ) : idx_(in_idx),
-      sizer_(in_sizer),
+      size_(in_size),
       allocator_(in_allocator),
       constructor_(in_constructor)
   { }
 
   TypeIdx idx_ = no_type_idx;              /**< The type index for this ObjT */
-  std::function<std::size_t(void)> sizer_; /**< Get the registered object size */
+  std::size_t size_ = 0;                   /**< The registered object size */
   std::function<void*(void)> allocator_;   /**< Do standard allocation for object */
   std::function<T*(void*)> constructor_;   /**< Construct object on memory */
 };
@@ -109,7 +109,7 @@ Registrar<ObjT>::Registrar() {
   reg.emplace_back(
     ObjectEntry<BaseType>{
       index,
-      []()          -> std::size_t { return sizeof(ObjT); },
+      sizeof(ObjT),
       []()          -> void*       { return std::allocator<ObjT>{}.allocate(1); },
       [](void* buf) -> BaseType*   { return dispatch::Reconstructor<ObjT>::constructAllowFail(buf); }
     }
@@ -127,7 +127,7 @@ inline auto getObjIdx(TypeIdx han) {
 
 template <typename T>
 inline auto getObjSize(TypeIdx han) {
-  return getRegistry<T>().at(han).sizer_;
+  return getRegistry<T>().at(han).size_;
 }
 
 template <typename T>
