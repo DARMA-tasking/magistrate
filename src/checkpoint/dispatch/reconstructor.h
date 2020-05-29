@@ -213,7 +213,11 @@ struct Reconstructor {
 
   template <typename U = T>
   static T* constructAllowFailImpl(void* buf, isNotConstructible<U>* = nullptr) {
-    checkpointAssert(false, "This code should be unreachable");
+    checkpointAssert(
+      false,
+      "Checkpoint is wrongly trying to reconstruct an abstract base "
+      "class instance"
+    );
     return nullptr;
   }
 
