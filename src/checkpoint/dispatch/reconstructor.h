@@ -70,7 +70,9 @@ struct Reconstructor {
   #if HAS_DETECTION_COMPONENT
     template <typename U>
     using isReconstructibleType =
-    typename std::enable_if<SerializableTraits<U>::is_reconstructible, T>::type;
+    typename std::enable_if<
+      SerializableTraits<U>::is_intrusive_reconstructible, T
+    >::type;
 
     template <typename U>
     using isNonIntReconstructibleType =
@@ -80,11 +82,7 @@ struct Reconstructor {
 
     template <typename U>
     using isNotReconstructibleType =
-    typename std::enable_if<
-      not SerializableTraits<U>::is_nonintrusive_reconstructible and
-      not SerializableTraits<U>::is_reconstructible,
-      T
-    >::type;
+    typename std::enable_if<not SerializableTraits<U>::is_reconstructible, T>::type;
 
     template <typename U>
     using isTaggedConstructibleType =
@@ -124,7 +122,6 @@ struct Reconstructor {
     static_assert(
       SerializableTraits<U>::is_tagged_constructible or
       SerializableTraits<U>::is_reconstructible or
-      SerializableTraits<U>::is_nonintrusive_reconstructible or
       std::is_default_constructible<U>::value,
       "Either a default constructor, reconstruct() function, or tagged "
       "constructor are required for de-serialization"
