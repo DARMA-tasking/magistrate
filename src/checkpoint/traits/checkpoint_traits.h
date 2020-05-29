@@ -85,7 +85,7 @@ struct SerializerTraits {
   using setVirtualDisabled_t = decltype(std::declval<U>().setVirtualDisabled(std::declval<bool>()));
   using has_setVirtualDisabled = detection::is_detected_convertible<bool, setVirtualDisabled_t, T>;
 
-  // This defines what it means to be reconstructible
+  // This defines what it means to be a valid serializer
   static constexpr auto const is_valid_serializer =
     has_contiguousBytes::value and
     has_isSizing::value and
