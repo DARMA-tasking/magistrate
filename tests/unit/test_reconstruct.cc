@@ -59,6 +59,7 @@ struct TestReconstruct : TestHarness { };
 TYPED_TEST_CASE_P(TestReconstruct);
 
 static constexpr int const u_val = 43;
+static constexpr int const w_val = 38;
 
 /*
  * Unit test with `UserObjectA` with a default constructor for deserialization
@@ -187,6 +188,55 @@ struct UserObjectD {
 };
 
 /*
+ * Unit test with `UserObjectE` with a combination of intrusive reconstruct and
+ * tagged construction
+ */
+
+struct UserObjectBaseE {
+  explicit UserObjectBaseE(int in_w) : w_(in_w) { }
+
+  static UserObjectBaseE& reconstruct(void* buf) {
+    checkpointAssert(false, "This should never be called");
+    auto t = new (buf) UserObjectBaseE(100);
+    return *t;
+  }
+
+  void check() {
+    EXPECT_EQ(w_, w_val);
+  }
+
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    s | w_;
+  }
+
+  int w_;
+};
+
+struct UserObjectE : UserObjectBaseE {
+  UserObjectE(UserObjectBaseE base) : UserObjectBaseE(base) { }
+
+  explicit UserObjectE(int in_u)
+    : UserObjectBaseE(w_val), u_(in_u)
+  { }
+  UserObjectE() : UserObjectBaseE(0) {
+    printf("default constructing\n");
+  }
+
+  void check() {
+    EXPECT_EQ(u_, u_val);
+  }
+
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    UserObjectBaseE::serialize(s);
+    s | u_;
+  }
+
+  int u_;
+};
+
+/*
  * General test of serialization/deserialization for input object types
  */
 
@@ -208,7 +258,8 @@ using ConstructTypes = ::testing::Types<
   UserObjectA,
   UserObjectB,
   UserObjectC,
-  UserObjectD
+  UserObjectD,
+  UserObjectE
 >;
 
 REGISTER_TYPED_TEST_CASE_P(TestReconstruct, test_reconstruct_multi_type);
