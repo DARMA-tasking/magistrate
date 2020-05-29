@@ -126,17 +126,17 @@ inline auto getObjIdx(TypeIdx han) {
 }
 
 template <typename T>
-inline auto getObjSize(TypeIdx han) {
+inline auto getSizeConcreteType(TypeIdx han) {
   return getRegistry<T>().at(han).size_;
 }
 
 template <typename T>
-inline auto getObjAllocate(TypeIdx han) {
+inline auto allocateConcreteType(TypeIdx han) {
   return getRegistry<T>().at(han).allocator_();
 }
 
 template <typename T>
-inline auto getObjConstruct(TypeIdx han, void* buf) {
+inline auto constructConcreteType(TypeIdx han, void* buf) {
   return getRegistry<T>().at(han).constructor_(buf);
 }
 
