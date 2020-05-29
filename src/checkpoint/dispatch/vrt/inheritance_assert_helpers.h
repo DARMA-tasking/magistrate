@@ -58,7 +58,8 @@ inline void assertTypeIdxMatch(TypeIdx const expected_idx) {
   auto debug_str = std::string("Type idx for object \"") + typeid(ObjT).name() +
     "\" does not matched expected value. "
     "You are probably missing a SerializableBase<T> or SerializableDerived<T> "
-    "in the virtual class hierarchy.";
+    "in the virtual class hierarchy; or, if you are using macros: "
+    "checkpoint_virtual_serialize_base(..) or checkpoint_virtual_serialize_derived(..)";
   checkpointAssert(
     obj_idx == expected_idx or expected_idx == no_type_idx, debug_str.c_str()
   );
