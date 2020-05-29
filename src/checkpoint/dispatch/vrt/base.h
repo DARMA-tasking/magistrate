@@ -46,7 +46,6 @@
 #define INCLUDED_CHECKPOINT_DISPATCH_VRT_BASE_H
 
 #include "checkpoint/dispatch/vrt/registry_common.h"
-#include "checkpoint/dispatch/vrt/base_base.h"
 #include "checkpoint/dispatch/vrt/static_dispatch_typeidx.h"
 #include "checkpoint/dispatch/vrt/object_registry.h"
 #include "checkpoint/dispatch/vrt/serializer_registry.h"
@@ -78,7 +77,7 @@ namespace checkpoint { namespace dispatch { namespace vrt {
  * common identifier of the whole hierarchy
  */
 template <typename BaseT>
-struct SerializableBase : SerializableBaseBase {
+struct SerializableBase {
   checkpoint_virtual_serialize_base(BaseT)
 };
 
