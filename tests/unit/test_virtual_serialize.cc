@@ -347,7 +347,7 @@ struct TestWrapper {
 
     for (auto&& elm : vec) {
       TestBase* base = elm.get();
-      checkpoint::serializeAllocatePointer(s, base);
+      checkpoint::allocateConstructForPointer(s, base);
       if (s.isUnpacking()) {
         elm = std::shared_ptr<TestBase>(base);
       }

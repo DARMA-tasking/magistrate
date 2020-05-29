@@ -58,7 +58,7 @@ void serialize(Serializer& s, std::unique_ptr<T>& ptr) {
 
   if (not is_null) {
     T* t = ptr.get();
-    serializeAllocatePointer(s, t);
+    allocateConstructForPointer(s, t);
     if (s.isUnpacking()) {
       ptr = std::unique_ptr<T>(t);
     }

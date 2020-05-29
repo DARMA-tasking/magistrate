@@ -124,8 +124,36 @@ struct SerializeAsVirtualIfNeeded<
   }
 };
 
+/**
+ * \brief Allocate and construct memory for a pointer with type \c T
+ *
+ * This function automatically handles allocating and constructing the right
+ * type for virtually serialized pointers or non-virtual static allocation and
+ * construction.
+ *
+ * An example of how to use this to properly serialize a std::shared_ptr<T>:
+ *
+ *   template <typename T>
+ *   struct X {
+ *     std::shared_ptr<T> a;
+ *
+ *     template <typename SerializerT>
+ *     void serialize(SerializerT& s) {
+ *       T* raw = elm.get();
+ *       checkpoint::allocateConstructForPointer(s, raw);
+ *       if (s.isUnpacking()) {
+ *         a = std::shared_ptr<T>(raw);
+ *       }
+ *       s | *a;
+ *     }
+ *   };
+ *
+ *
+ * \param[in] s the serializer
+ * \param[in] target a reference to a pointer to the target object
+ */
 template <typename SerializerT, typename T>
-void serializeAllocatePointer(SerializerT& s, T*& target) {
+void allocateConstructForPointer(SerializerT& s, T*& target) {
   SerializeAsVirtualIfNeeded<T, SerializerT>::apply(s, target);
 }
 
