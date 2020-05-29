@@ -53,9 +53,11 @@ namespace checkpoint { namespace dispatch { namespace vrt {
 
 template <typename ObjT>
 inline void assertTypeIdxMatch(TypeIdx const expected_idx) {
+#if CHECKPOINT_ASSERT_ENABLED
   auto obj_idx = objregistry::makeObjIdx<ObjT>();
 
-  auto debug_str = std::string("Type idx for object \"") + typeid(ObjT).name() +
+  static std::string debug_str =
+    std::string("Type idx for object \"") + typeid(ObjT).name() +
     "\" does not matched expected value. "
     "You are probably missing a SerializableBase<T> or SerializableDerived<T> "
     "in the virtual class hierarchy; or, if you are using macros: "
@@ -63,6 +65,7 @@ inline void assertTypeIdxMatch(TypeIdx const expected_idx) {
   checkpointAssert(
     obj_idx == expected_idx or expected_idx == no_type_idx, debug_str.c_str()
   );
+#endif
 }
 
 }}} /* end namespace checkpoint::dispatch::vrt */
