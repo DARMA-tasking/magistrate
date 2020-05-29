@@ -124,8 +124,7 @@ struct SerializableTraits {
 
   template <typename U>
   using reconstruct_t = decltype(U::reconstruct(std::declval<void*>()));
-  using has_reconstruct =
-    detection::is_detected_convertible<T&, reconstruct_t, T>;
+  using has_reconstruct = detection::is_detected_exact<T&, reconstruct_t, T>;
 
   template <typename U>
   using nonintrustive_reconstruct_t = decltype(
