@@ -54,8 +54,12 @@ template <typename ObjT, typename SerializerT>
 static inline void instantiateObjSerializerImpl() {
   dispatch::vrt::serializer_registry::makeObjIdx<ObjT, SerializerT>();
 
-  // We must save the idx of base in derived so we ensure we get the right entry
-  // if they are unaligned
+  // If the \c SerializerT static registrations order happen differently for a
+  // given \c BaseT and \c DerviedT , you will get the wrong serializer when
+  // using the base_idx in the derived class. Thus, link the correct base
+  // serialize type idx with a given derived type idx during
+  // sizing/packing. Then, when it unpacks, it can find the right one when
+  // running on the derived type using the base idx.
   using BaseType = typename ObjT::_CheckpointVirtualSerializerBaseType;
   linkDerivedToBase<SerializerT, ObjT, BaseType>();
 }
