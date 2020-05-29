@@ -80,4 +80,32 @@ TEST_F(KokkosViewContentsTest, test_view_contents) {
   EXPECT_EQ(20, alias(1));
 }
 
+struct KokkosViewExtentTest : virtual testing::Test { };
+
+
+TEST_F(KokkosViewExtentTest, test_view_extent) {
+  using ViewType = Kokkos::View<int*>;
+
+  ViewType original = ViewType("v", 12345);
+
+  using namespace checkpoint;
+
+  auto sizer = Sizer();
+  serializeExtentOnly(sizer, original, "v");
+
+  EXPECT_LE(sizer.getSize(), 1000);
+
+  auto packer = Packer(sizer.getSize());
+  serializeExtentOnly(packer, original, "v");
+
+  auto buffer = packer.extractPackedBuffer();
+  auto unpacker = Unpacker(buffer->getBuffer());
+
+  ViewType target = ViewType("w", 10);
+
+  serializeExtentOnly(unpacker, target, "v");
+
+  EXPECT_EQ(12345, target.extent(0));
+}
+
 #endif
