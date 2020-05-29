@@ -58,6 +58,10 @@
     ::checkpoint::dispatch::vrt::TypeIdx ser_idx,                                 \
     ::checkpoint::dispatch::vrt::TypeIdx expected_idx                             \
   ) {                                                                             \
+    ::checkpoint::instantiateObjSerializer<                                       \
+      BASE,                                                                       \
+      checkpoint_serializer_variadic_args()                                       \
+    >();                                                                          \
     ::checkpoint::dispatch::vrt::assertTypeIdxMatch<BASE>(expected_idx);          \
     auto dispatcher =                                                             \
       ::checkpoint::dispatch::vrt::serializer_registry::getObjIdx<BASE>(ser_idx); \
