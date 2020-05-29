@@ -48,14 +48,4 @@
 #include "checkpoint/dispatch/dispatch.h"
 #include "checkpoint/dispatch/vrt/virtual_serialize.h"
 
-#include <vector>
-#include <tuple>
-#include <functional>
-
-namespace checkpoint {
-
-
-
-} /* end namespace checkpoint */
-
 #endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_VIRTUAL_H*/
