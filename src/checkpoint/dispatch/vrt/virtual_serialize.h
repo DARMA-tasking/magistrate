@@ -118,8 +118,8 @@ struct SerializeAsVirtualIfNeeded<
 
     if (s.isUnpacking()) {
       // use type idx here, registration needed for proper type re-construction
-      auto t = dispatch::vrt::objregistry::getObjAllocate<T>(entry)();
-      target = dispatch::vrt::objregistry::getObjConstruct<T>(entry)(t);
+      auto t = dispatch::vrt::objregistry::getObjAllocate<T>(entry);
+      target = dispatch::vrt::objregistry::getObjConstruct<T>(entry, t);
     }
   }
 };
