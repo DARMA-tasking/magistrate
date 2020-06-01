@@ -104,7 +104,7 @@
  * --------------------- Overview of implementation: -------------------------
  * ---------------------------------------------------------------------------
  *
- * When packing we need to traverse the whole hierarchy of virtual classes of
+ * When packing we need to traverse the whole hierarchy of virtual classes to
  * serialize all the user's content. Thus, \c SerializableBase<T> and
  * \c SerializableDervived<T,BaseT> insert a shim layer between all layers of
  * the virtual hierarchy and below the base class. The alternative macros,
@@ -145,13 +145,13 @@
  * order the static serializer registries are created in we get the right
  * serializer across multiple registries.
  *
- * During unpacking a user's \c T -- which is virtually serialized, we have to
+ * During unpacking a user's \c T -- which is virtually serialized -- we have to
  * construct the correct derived type based on what was actually instantiated
  * when \c T was live. Thus, we have a second registry for all objects that
- * generated a unique index for each object type. This integer representing the
- * type is serialized during sizing and packing and then used during unpacking
- * to invoke the correct allocation and object construction. Refer to
- * object_registry.h for more details.
+ * generate a unique index for each object type. The generated integer
+ * representing the type is serialized during sizing and packing and then used
+ * during unpacking to invoke the correct allocation and object
+ * construction. Refer to object_registry.h for more details.
  *
  * The virtual method \c _checkpointDynamicTypeIndex gives us the correct
  * registered index for a virtual hierarchy for the derived class that is given
