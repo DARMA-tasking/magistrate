@@ -424,6 +424,14 @@ void serializeExtentOnly(SerializerT& s, Kokkos::View<T**,Ts...>& v, std::string
   }
 }
 
+template< typename SerializerT, typename T, typename... Ts >
+void serializeContentsOnly(SerializerT& s, Kokkos::View<T, Ts...>& v) {
+  Kokkos::View<T> values = v;
+  s | values;
+  if (s.isUnpacking())
+    Kokkos::deep_copy(v, values);
+}
+
 #if KOKKOS_KERNELS_ENABLED
 template< typename Serializer, typename T, typename... Ts >
 inline void serialize( Serializer &s, Kokkos::StaticCrsGraph<T, Ts...> &graph ) {
