@@ -77,10 +77,22 @@ struct SerializerTraits {
   using isUnpacking_t = decltype(std::declval<U>().isUnpacking());
   using has_isUnpacking = detection::is_detected_convertible<bool, isUnpacking_t, T>;
 
-  // This defines what it means to be reconstructible
+  template <typename U>
+  using isVirtualDisabled_t = decltype(std::declval<const U>().isVirtualDisabled());
+  using has_isVirtualDisabled = detection::is_detected_convertible<bool, isVirtualDisabled_t, T>;
+
+  template <typename U>
+  using setVirtualDisabled_t = decltype(std::declval<U>().setVirtualDisabled(std::declval<bool>()));
+  using has_setVirtualDisabled = detection::is_detected_convertible<bool, setVirtualDisabled_t, T>;
+
+  // This defines what it means to be a valid serializer
   static constexpr auto const is_valid_serializer =
-    has_contiguousBytes::value and has_isSizing::value
-    and has_isPacking::value and has_isUnpacking::value;
+    has_contiguousBytes::value and
+    has_isSizing::value and
+    has_isPacking::value and
+    has_isUnpacking::value and
+    has_isVirtualDisabled::value and
+    has_setVirtualDisabled::value;
 };
 
 }  // end namespace checkpoint

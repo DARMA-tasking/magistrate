@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                              base_serializer.h
+//                           serialize_instantiator.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,60 +42,55 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H
-#define INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H
+#if !defined INCLUDED_CHECKPOINT_DISPATCH_VRT_SERIALIZE_INSTANTIATOR_H
+#define INCLUDED_CHECKPOINT_DISPATCH_VRT_SERIALIZE_INSTANTIATOR_H
 
-#include "checkpoint/common.h"
+#include "checkpoint/dispatch/vrt/serializer_registry.h"
+#include "checkpoint/dispatch/vrt/link_derived_to_base_idx.h"
 
-#include <type_traits>
-#include <cstdlib>
+namespace checkpoint { namespace dispatch { namespace vrt {
+
+template <typename ObjT, typename SerializerT>
+static inline void instantiateObjSerializerImpl() {
+  dispatch::vrt::serializer_registry::makeObjIdx<ObjT, SerializerT>();
+
+  // If the \c SerializerT static registrations order happen differently for a
+  // given \c BaseT and \c DerviedT , you will get the wrong serializer when
+  // using the base_idx in the derived class. Thus, link the correct base
+  // serialize type idx with a given derived type idx during
+  // sizing/packing. Then, when it unpacks, it can find the right one when
+  // running on the derived type using the base idx.
+  using BaseType = typename ObjT::_CheckpointVirtualSerializerBaseType;
+  linkDerivedToBase<SerializerT, ObjT, BaseType>();
+}
+
+template <typename ObjT, typename... Ts>
+struct InstantiateTupleHelper;
+
+template <typename ObjT, typename T, typename... Ts>
+struct InstantiateTupleHelper<ObjT, T, Ts...> {
+  static void _recur_register() {
+    instantiateObjSerializerImpl<ObjT, T>();
+    InstantiateTupleHelper<ObjT, Ts...>::_recur_register();
+  }
+};
+
+template <typename ObjT>
+struct InstantiateTupleHelper<ObjT> {
+  static void _recur_register() {
+    // recursion done.
+  }
+};
+
+}}} /* end namespace checkpoint::dispatch::vrt */
 
 namespace checkpoint {
 
-enum struct eSerializationMode : int8_t {
-  None = 0,
-  Unpacking = 1,
-  Packing = 2,
-  Sizing = 3,
-  Invalid = -1
-};
-
-namespace dispatch {
-
-template <typename SerializerT, typename T>
-struct BasicDispatcher;
-
-} /* end namespace dispatch */
-
-struct Serializer {
-  using ModeType = eSerializationMode;
-
-  template <typename SerializerT, typename T>
-  using DispatcherType = dispatch::BasicDispatcher<SerializerT, T>;
-
-  explicit Serializer(ModeType const& in_mode) : cur_mode_(in_mode) {}
-
-  ModeType getMode() const { return cur_mode_; }
-  bool isSizing() const { return cur_mode_ == ModeType::Sizing; }
-  bool isPacking() const { return cur_mode_ == ModeType::Packing; }
-  bool isUnpacking() const { return cur_mode_ == ModeType::Unpacking; }
-
-  template <typename SerializerT, typename T>
-  void contiguousTyped(SerializerT& serdes, T* ptr, SerialSizeType num_elms) {
-    serdes.contiguousBytes(static_cast<void*>(ptr), sizeof(T), num_elms);
-  }
-
-  SerialByteType* getBuffer() const { return nullptr; }
-  SerialByteType* getSpotIncrement(SerialSizeType const inc) { return nullptr; }
-
-  bool isVirtualDisabled() const { return virtual_disabled_; }
-  void setVirtualDisabled(bool val) { virtual_disabled_ = val; }
-
-protected:
-  ModeType cur_mode_ = ModeType::Invalid;
-  bool virtual_disabled_ = false;
-};
+template <typename ObjT, typename... SerializerTs>
+inline void instantiateObjSerializer() {
+  dispatch::vrt::InstantiateTupleHelper<ObjT, SerializerTs...>::_recur_register();
+}
 
 } /* end namespace checkpoint */
 
-#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H*/
+#endif /*INCLUDED_CHECKPOINT_DISPATCH_VRT_SERIALIZE_INSTANTIATOR_H*/

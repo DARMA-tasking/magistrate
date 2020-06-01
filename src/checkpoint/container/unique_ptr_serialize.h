@@ -47,6 +47,7 @@
 
 #include "checkpoint/common.h"
 #include "checkpoint/dispatch/reconstructor.h"
+#include "checkpoint/dispatch/vrt/virtual_serialize.h"
 
 namespace checkpoint {
 
@@ -56,9 +57,10 @@ void serialize(Serializer& s, std::unique_ptr<T>& ptr) {
   s | is_null;
 
   if (not is_null) {
+    T* t = ptr.get();
+    allocateConstructForPointer(s, t);
     if (s.isUnpacking()) {
-      auto t = dispatch::Standard::allocate<T>();
-      ptr = std::unique_ptr<T>(dispatch::Reconstructor<T>::construct(t));
+      ptr = std::unique_ptr<T>(t);
     }
     s | *ptr;
   }

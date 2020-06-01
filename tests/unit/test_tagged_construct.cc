@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                              base_serializer.h
+//                          test_tagged_construct.cc
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,60 +42,98 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H
-#define INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H
+#include "test_harness.h"
 
-#include "checkpoint/common.h"
+#include <checkpoint/checkpoint.h>
 
-#include <type_traits>
-#include <cstdlib>
+#include <gtest/gtest.h>
 
-namespace checkpoint {
+#include <vector>
+#include <cstdio>
 
-enum struct eSerializationMode : int8_t {
-  None = 0,
-  Unpacking = 1,
-  Packing = 2,
-  Sizing = 3,
-  Invalid = -1
-};
+namespace checkpoint { namespace tests { namespace unit {
 
-namespace dispatch {
+template <typename T>
+struct TestTaggedConstruct : TestHarness { };
 
-template <typename SerializerT, typename T>
-struct BasicDispatcher;
+TYPED_TEST_CASE_P(TestTaggedConstruct);
 
-} /* end namespace dispatch */
+static constexpr int const u_val = 43;
 
-struct Serializer {
-  using ModeType = eSerializationMode;
+/*
+ * Unit test with `UserObjectA` with non-intrusive reconstruct for
+ * deserialization purposes
+ */
 
-  template <typename SerializerT, typename T>
-  using DispatcherType = dispatch::BasicDispatcher<SerializerT, T>;
+struct UserObjectA {
+  UserObjectA(checkpoint::SERIALIZE_CONSTRUCT_TAG) {}
+  explicit UserObjectA(int in_u) : u_(in_u) { }
 
-  explicit Serializer(ModeType const& in_mode) : cur_mode_(in_mode) {}
-
-  ModeType getMode() const { return cur_mode_; }
-  bool isSizing() const { return cur_mode_ == ModeType::Sizing; }
-  bool isPacking() const { return cur_mode_ == ModeType::Packing; }
-  bool isUnpacking() const { return cur_mode_ == ModeType::Unpacking; }
-
-  template <typename SerializerT, typename T>
-  void contiguousTyped(SerializerT& serdes, T* ptr, SerialSizeType num_elms) {
-    serdes.contiguousBytes(static_cast<void*>(ptr), sizeof(T), num_elms);
+  void check() {
+    EXPECT_EQ(u_, u_val);
   }
 
-  SerialByteType* getBuffer() const { return nullptr; }
-  SerialByteType* getSpotIncrement(SerialSizeType const inc) { return nullptr; }
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    s | u_;
+  }
 
-  bool isVirtualDisabled() const { return virtual_disabled_; }
-  void setVirtualDisabled(bool val) { virtual_disabled_ = val; }
-
-protected:
-  ModeType cur_mode_ = ModeType::Invalid;
-  bool virtual_disabled_ = false;
+  int u_;
 };
 
-} /* end namespace checkpoint */
+void reconstruct(UserObjectA*& obj, void* buf) {
+  obj = new (buf) UserObjectA(100);
+}
 
-#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H*/
+struct UserObjectB;
+
+template <typename SerializerT>
+void serialize(SerializerT& s, UserObjectB& x);
+
+struct UserObjectB {
+  UserObjectB(checkpoint::SERIALIZE_CONSTRUCT_TAG) {}
+  explicit UserObjectB(int in_u) : u_(std::to_string(in_u)) { }
+
+public:
+  void check() {
+    EXPECT_EQ(u_, std::to_string(u_val));
+  }
+
+  template <typename SerializerT>
+  friend void serialize(SerializerT&, UserObjectB&);
+
+private:
+  std::string u_ = {};
+};
+
+template <typename SerializerT>
+void serialize(SerializerT& s, UserObjectB& x) {
+  s | x.u_;
+}
+
+/*
+ * General test of serialization/deserialization for input object types
+ */
+
+TYPED_TEST_P(TestTaggedConstruct, test_tagged_construct) {
+  namespace ser = checkpoint;
+
+  using TestType = TypeParam;
+
+  TestType in(u_val);
+  in.check();
+
+  auto ret = ser::serialize<TestType>(in);
+  auto out = ser::deserialize<TestType>(std::move(ret));
+
+  out->check();
+}
+
+using ConstructTypes = ::testing::Types<
+  UserObjectA, UserObjectB
+>;
+
+REGISTER_TYPED_TEST_CASE_P(TestTaggedConstruct, test_tagged_construct);
+INSTANTIATE_TYPED_TEST_CASE_P(test_tagged, TestTaggedConstruct, ConstructTypes);
+
+}}} // end namespace checkpoint::tests::unit

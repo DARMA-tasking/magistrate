@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                              base_serializer.h
+//                         inheritance_assert_helpers.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,60 +42,32 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H
-#define INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H
+#if !defined INCLUDED_CHECKPOINT_DISPATCH_VRT_INHERITANCE_ASSERT_HELPERS_H
+#define INCLUDED_CHECKPOINT_DISPATCH_VRT_INHERITANCE_ASSERT_HELPERS_H
 
 #include "checkpoint/common.h"
 
-#include <type_traits>
-#include <cstdlib>
+#include <string>
 
-namespace checkpoint {
+namespace checkpoint { namespace dispatch { namespace vrt {
 
-enum struct eSerializationMode : int8_t {
-  None = 0,
-  Unpacking = 1,
-  Packing = 2,
-  Sizing = 3,
-  Invalid = -1
-};
+template <typename ObjT>
+inline void assertTypeIdxMatch(TypeIdx const expected_idx) {
+#if CHECKPOINT_ASSERT_ENABLED
+  auto obj_idx = objregistry::makeObjIdx<ObjT>();
 
-namespace dispatch {
+  static std::string debug_str =
+    std::string("Type idx for object \"") + typeid(ObjT).name() +
+    "\" does not matched expected value. "
+    "You are probably missing a SerializableBase<T> or SerializableDerived<T> "
+    "in the virtual class hierarchy; or, if you are using macros: "
+    "checkpoint_virtual_serialize_base(..) or checkpoint_virtual_serialize_derived(..)";
+  checkpointAssert(
+    obj_idx == expected_idx or expected_idx == no_type_idx, debug_str.c_str()
+  );
+#endif
+}
 
-template <typename SerializerT, typename T>
-struct BasicDispatcher;
+}}} /* end namespace checkpoint::dispatch::vrt */
 
-} /* end namespace dispatch */
-
-struct Serializer {
-  using ModeType = eSerializationMode;
-
-  template <typename SerializerT, typename T>
-  using DispatcherType = dispatch::BasicDispatcher<SerializerT, T>;
-
-  explicit Serializer(ModeType const& in_mode) : cur_mode_(in_mode) {}
-
-  ModeType getMode() const { return cur_mode_; }
-  bool isSizing() const { return cur_mode_ == ModeType::Sizing; }
-  bool isPacking() const { return cur_mode_ == ModeType::Packing; }
-  bool isUnpacking() const { return cur_mode_ == ModeType::Unpacking; }
-
-  template <typename SerializerT, typename T>
-  void contiguousTyped(SerializerT& serdes, T* ptr, SerialSizeType num_elms) {
-    serdes.contiguousBytes(static_cast<void*>(ptr), sizeof(T), num_elms);
-  }
-
-  SerialByteType* getBuffer() const { return nullptr; }
-  SerialByteType* getSpotIncrement(SerialSizeType const inc) { return nullptr; }
-
-  bool isVirtualDisabled() const { return virtual_disabled_; }
-  void setVirtualDisabled(bool val) { virtual_disabled_ = val; }
-
-protected:
-  ModeType cur_mode_ = ModeType::Invalid;
-  bool virtual_disabled_ = false;
-};
-
-} /* end namespace checkpoint */
-
-#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H*/
+#endif /*INCLUDED_CHECKPOINT_DISPATCH_VRT_INHERITANCE_ASSERT_HELPERS_H*/

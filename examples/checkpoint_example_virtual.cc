@@ -45,115 +45,107 @@
 #include <checkpoint/checkpoint.h>
 #include "checkpoint/dispatch/dispatch_virtual.h"
 
-namespace checkpoint {
+namespace checkpoint { namespace examples {
 
-  namespace examples {
+struct MyBase : checkpoint::SerializableBase<MyBase> {
+  MyBase() { printf("MyBase cons\n"); }
+  explicit MyBase(SERIALIZE_CONSTRUCT_TAG) { printf("MyBase recons\n"); }
 
-    struct MyBase : checkpoint::SerializableBase<MyBase> {
-      MyBase() { printf("MyBase cons\n"); }
-      explicit MyBase(SERIALIZE_CONSTRUCT_TAG) { printf("MyBase recons\n"); }
+  int val_ = 0;
 
-      int val_ = 0;
+  template <typename S>
+  void serialize(S& s) {
+    s | val_;
+    printf("MyBase: serialize val %d\n", val_);
+  }
 
-      template <typename S>
-      void serialize(S& s) {
-        s | val_;
-        printf("MyBase: serialize val %d\n", val_);
-      }
+  virtual void test() = 0;
+};
 
-      virtual void test() = 0;
-    };
+struct MyObj : checkpoint::SerializableDerived<MyObj, MyBase> {
+  explicit MyObj(int val) { printf("MyObj cons\n"); val_ = val;}
+  explicit MyObj(SERIALIZE_CONSTRUCT_TAG){}
 
-    struct MyObj : checkpoint::SerializableDerived<MyObj, MyBase> {
-      explicit MyObj(int val) { printf("MyObj cons\n"); val_ = val;}
-      explicit MyObj(SERIALIZE_CONSTRUCT_TAG){}
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    printf("MyObj: serialize\n");
+  }
 
-      template <typename SerializerT>
-      void serialize(SerializerT& s) {
-        printf("MyObj: serialize\n");
-      }
+  void test() override {
+    printf("test MyObj 10 == %d ?\n", val_);
+    assert(val_ == 10);
+  }
+};
 
-      void test() override {
-        printf("test MyObj 10 == %d ?\n", val_);
-        assert(val_ == 10);
-      }
-    };
+struct MyObj2 : checkpoint::SerializableDerived<MyObj2, MyBase> {
+  explicit MyObj2(int val) { printf("MyObj2 cons\n"); val_=val; }
+  explicit MyObj2(SERIALIZE_CONSTRUCT_TAG) {}
 
-    struct MyObj2 : checkpoint::SerializableDerived<MyObj2, MyBase> {
-      explicit MyObj2(int val) { printf("MyObj2 cons\n"); val_=val; }
-      explicit MyObj2(SERIALIZE_CONSTRUCT_TAG) {}
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    printf("MyObj2: serialize\n");
+  }
+  void test() override {
+    printf("test MyObj2 20 == %d ?\n", val_);
+    assert(val_ == 20);
+  }
+};
 
-      template <typename SerializerT>
-      void serialize(SerializerT& s) {
-        printf("MyObj2: serialize\n");
-      }
-      void test() override {
-        printf("test MyObj2 20 == %d ?\n", val_);
-        assert(val_ == 20);
-      }
-    };
+struct MyObj3 : checkpoint::SerializableDerived<MyObj3, MyBase> {
+  int a=0, b=0, c=0;
+  explicit MyObj3(int val) { printf("MyObj3 cons\n"); a= 10; b=20; c=100; val_=val;}
+  explicit MyObj3(SERIALIZE_CONSTRUCT_TAG) {}
 
-    struct MyObj3 : checkpoint::SerializableDerived<MyObj3, MyBase> {
-      int a=0, b=0, c=0;
-      explicit MyObj3(int val) { printf("MyObj3 cons\n"); a= 10; b=20; c=100; val_=val;}
-      explicit MyObj3(SERIALIZE_CONSTRUCT_TAG) {}
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    s|a|b|c;
+    printf("MyObj3: serialize a b c %d %d %d\n", a, b, c);
+  }
+  void test() override {
+    printf("val_ 30  a 10 b 20 c 100 = %d %d %d %d\n", val_, a, b, c);
+    assert(val_ == 30);
+    assert(a==10);
+    assert(b==20);
+    assert(c==100);
+  }
+};
 
-      template <typename SerializerT>
-      void serialize(SerializerT& s) {
-        s|a|b|c;
-        printf("MyObj3: serialize a b c %d %d %d\n", a, b, c);
-      }
-      void test() override {
-        printf("val_ 30  a 10 b 20 c 100 = %d %d %d %d\n", val_, a, b, c);
-        assert(val_ == 30);
-        assert(a==10);
-        assert(b==20);
-        assert(c==100);
-      }
-    };
+/*
+ * Example vector that holds a vector of unique_ptr to MyBase
+ */
 
-    /*
-     * Example vector that holds virtual elements. User calls
-     * `checkpoint::virtualSerialize(elm, s)` instead of `s | elm`
-     */
+struct ExampleVector {
 
-    struct ExampleVector {
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    s | vec;
+  }
 
-      template <typename SerializerT>
-      void serialize(SerializerT& s) {
-        std::size_t size = vec.size();
-        s | size;
-        vec.resize(size);
+  std::vector<std::unique_ptr<MyBase>> vec;
+};
 
-        for (auto& elm : vec) {
-          checkpoint::virtualSerialize(elm, s);
-        }
-      }
+void test() {
 
-      std::vector<MyBase*> vec;
-    };
+  ExampleVector v;
+  v.vec.push_back(std::make_unique<MyObj3>(30));
+  v.vec.push_back(std::make_unique<MyObj2>(20));
+  v.vec.push_back(std::make_unique<MyObj>(10));
 
-    void test() {
+  auto ret = checkpoint::serialize(v);
 
-      ExampleVector v;
-      v.vec.push_back(new MyObj3(30));
-      v.vec.push_back(new MyObj2(20));
-      v.vec.push_back(new MyObj(10));
+  auto const& buf = ret->getBuffer();
+  auto const& buf_size = ret->getSize();
 
-      auto ret = checkpoint::serialize(v);
+  printf("ptr=%p, size=%ld\n*****\n\n", static_cast<void*>(buf), buf_size);
 
-      auto const& buf = ret->getBuffer();
-      auto const& buf_size = ret->getSize();
+  auto t = checkpoint::deserialize<ExampleVector>(buf);
 
-      printf("ptr=%p, size=%ld\n*****\n\n", static_cast<void*>(buf), buf_size);
+  for (auto&& elm : t->vec) {
+    elm->test();
+  }
+}
 
-      auto t = checkpoint::deserialize<ExampleVector>(buf);
-
-      for (auto elm : t->vec)
-        elm->test();
-    }
-
-  }} // end namespace checkpoint::examples
+}} // end namespace checkpoint::examples
 
 int main(int, char**) {
   using namespace checkpoint::examples;

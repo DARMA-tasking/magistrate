@@ -138,7 +138,7 @@ struct TraverseRecurImplBase {
   ) {
     auto const ex1 = std::get<0>(view).extent(nd-d);
     auto const ex2 = std::get<1>(view).extent(nd-d);
-    assert(ex1 == ex2 && "Matching extents must be equal");
+    checkpointAssert(ex1 == ex2, "Matching extents must be equal");
     CountType neq = 0;
     for (SizeType i = 0; i < ex1; i++) {
       auto const ret = ChildT::apply(
@@ -252,7 +252,10 @@ struct TraverseRecurImpl {
 
 struct DefaultRecurOP {
   template <typename T, typename U>
-  bool operator()(U, T, T) const { assert(0); return false; /* to avoid warning */ }
+  bool operator()(U, T, T) const {
+    checkpointAssert(false, "Wrong overload");
+    return false; /* to avoid warning */
+  }
 };
 
 }} /* end namespace checkpoint::detail */

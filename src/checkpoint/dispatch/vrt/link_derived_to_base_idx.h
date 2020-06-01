@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                              base_serializer.h
+//                          link_derived_to_base_idx.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,60 +42,23 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H
-#define INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H
+#if !defined INCLUDED_CHECKPOINT_DISPATCH_VRT_LINK_DERIVED_TO_BASE_IDX_H
+#define INCLUDED_CHECKPOINT_DISPATCH_VRT_LINK_DERIVED_TO_BASE_IDX_H
 
-#include "checkpoint/common.h"
+#include "checkpoint/dispatch/vrt/serializer_registry.h"
 
-#include <type_traits>
-#include <cstdlib>
+namespace checkpoint { namespace dispatch { namespace vrt {
 
-namespace checkpoint {
+template <typename SerializerT, typename DerivedT, typename BaseT>
+inline void linkDerivedToBase() {
+  using namespace serializer_registry;
+  auto derived_idx = makeObjIdx<DerivedT, SerializerT>();
+  auto base_idx = makeObjIdx<BaseT, SerializerT>();
+  // Link the DerivedT entry to the BaseT entry
+  auto& entry = getObjIdxRef<DerivedT>(derived_idx);
+  entry.base_idx_ = base_idx;
+}
 
-enum struct eSerializationMode : int8_t {
-  None = 0,
-  Unpacking = 1,
-  Packing = 2,
-  Sizing = 3,
-  Invalid = -1
-};
+}}} /* end namespace checkpoint::dispatch::vrt */
 
-namespace dispatch {
-
-template <typename SerializerT, typename T>
-struct BasicDispatcher;
-
-} /* end namespace dispatch */
-
-struct Serializer {
-  using ModeType = eSerializationMode;
-
-  template <typename SerializerT, typename T>
-  using DispatcherType = dispatch::BasicDispatcher<SerializerT, T>;
-
-  explicit Serializer(ModeType const& in_mode) : cur_mode_(in_mode) {}
-
-  ModeType getMode() const { return cur_mode_; }
-  bool isSizing() const { return cur_mode_ == ModeType::Sizing; }
-  bool isPacking() const { return cur_mode_ == ModeType::Packing; }
-  bool isUnpacking() const { return cur_mode_ == ModeType::Unpacking; }
-
-  template <typename SerializerT, typename T>
-  void contiguousTyped(SerializerT& serdes, T* ptr, SerialSizeType num_elms) {
-    serdes.contiguousBytes(static_cast<void*>(ptr), sizeof(T), num_elms);
-  }
-
-  SerialByteType* getBuffer() const { return nullptr; }
-  SerialByteType* getSpotIncrement(SerialSizeType const inc) { return nullptr; }
-
-  bool isVirtualDisabled() const { return virtual_disabled_; }
-  void setVirtualDisabled(bool val) { virtual_disabled_ = val; }
-
-protected:
-  ModeType cur_mode_ = ModeType::Invalid;
-  bool virtual_disabled_ = false;
-};
-
-} /* end namespace checkpoint */
-
-#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H*/
+#endif /*INCLUDED_CHECKPOINT_DISPATCH_VRT_LINK_DERIVED_TO_BASE_IDX_H*/

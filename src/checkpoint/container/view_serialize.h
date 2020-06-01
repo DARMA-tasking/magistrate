@@ -242,8 +242,8 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
 
   static constexpr auto const rank_val = ViewType::Rank;
 
-  assert(
-    ViewType::traits::is_managed &&
+  checkpointAssert(
+    ViewType::traits::is_managed,
     "Serialization not implemented for unmanaged views"
   );
 

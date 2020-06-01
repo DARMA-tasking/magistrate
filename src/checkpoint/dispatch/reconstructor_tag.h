@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                              base_serializer.h
+//                             reconstructor_tag.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,60 +42,19 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H
-#define INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H
+#if !defined INCLUDED_CHECKPOINT_DISPATCH_RECONSTRUCTOR_TAG_H
+#define INCLUDED_CHECKPOINT_DISPATCH_RECONSTRUCTOR_TAG_H
 
-#include "checkpoint/common.h"
+namespace checkpoint { namespace dispatch {
 
-#include <type_traits>
-#include <cstdlib>
+struct SERIALIZE_CONSTRUCT_TAG {};
+
+}} /* end namespace checkpoint::dispatch */
 
 namespace checkpoint {
 
-enum struct eSerializationMode : int8_t {
-  None = 0,
-  Unpacking = 1,
-  Packing = 2,
-  Sizing = 3,
-  Invalid = -1
-};
-
-namespace dispatch {
-
-template <typename SerializerT, typename T>
-struct BasicDispatcher;
-
-} /* end namespace dispatch */
-
-struct Serializer {
-  using ModeType = eSerializationMode;
-
-  template <typename SerializerT, typename T>
-  using DispatcherType = dispatch::BasicDispatcher<SerializerT, T>;
-
-  explicit Serializer(ModeType const& in_mode) : cur_mode_(in_mode) {}
-
-  ModeType getMode() const { return cur_mode_; }
-  bool isSizing() const { return cur_mode_ == ModeType::Sizing; }
-  bool isPacking() const { return cur_mode_ == ModeType::Packing; }
-  bool isUnpacking() const { return cur_mode_ == ModeType::Unpacking; }
-
-  template <typename SerializerT, typename T>
-  void contiguousTyped(SerializerT& serdes, T* ptr, SerialSizeType num_elms) {
-    serdes.contiguousBytes(static_cast<void*>(ptr), sizeof(T), num_elms);
-  }
-
-  SerialByteType* getBuffer() const { return nullptr; }
-  SerialByteType* getSpotIncrement(SerialSizeType const inc) { return nullptr; }
-
-  bool isVirtualDisabled() const { return virtual_disabled_; }
-  void setVirtualDisabled(bool val) { virtual_disabled_ = val; }
-
-protected:
-  ModeType cur_mode_ = ModeType::Invalid;
-  bool virtual_disabled_ = false;
-};
+using SERIALIZE_CONSTRUCT_TAG = dispatch::SERIALIZE_CONSTRUCT_TAG;
 
 } /* end namespace checkpoint */
 
-#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H*/
+#endif /*INCLUDED_CHECKPOINT_DISPATCH_RECONSTRUCTOR_TAG_H*/
