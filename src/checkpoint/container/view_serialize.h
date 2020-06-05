@@ -440,7 +440,16 @@ inline void serialize( Serializer &s, Kokkos::StaticCrsGraph<T, Ts...> &graph ) 
 
 template< typename Serializer, typename T, typename... Ts >
 inline void serialize( Serializer &s, KokkosSparse::CrsMatrix<T, Ts...> &matrix ) {
+  using MatrixType = std::remove_reference_t<decltype(matrix)>;
+
+  auto numCols = matrix.numCols();
+
+  s | numCols;
   s | matrix.graph | matrix.values;
+
+  if (s.isUnpacking()) {
+    matrix = MatrixType(matrix.graph.entries.label(), numCols, matrix.values, matrix.graph);
+  }
 }
 #endif
 

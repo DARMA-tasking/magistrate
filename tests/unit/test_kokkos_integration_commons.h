@@ -80,6 +80,7 @@ struct Data : BaseData {
   using Kokkos_ViewType4 = ::Kokkos::View<int*[2]>;
   #if KOKKOS_KERNELS_ENABLED
   using Kokkos_CrsType = ::Kokkos::StaticCrsGraph<double, Kokkos::DefaultExecutionSpace>;
+  using Kokkos_CrsMatrix = ::KokkosSparse::CrsMatrix<double, int, Kokkos::DefaultExecutionSpace>;
   #endif
   using DimType          = typename Kokkos_ViewType1::size_type;
 
@@ -132,6 +133,25 @@ struct Data : BaseData {
     }
 
     crs = Kokkos::create_staticcrsgraph<Kokkos_CrsType>( "crs_type" , graph );
+
+    int nrow = 5, ncol = 7;
+    size_t nnz = 11;
+    std::vector<int> rows{0, 2, 4, 5, 7, 11};
+    std::vector<int> cols{0, 1, 1, 3, 2, 0, 3, 0, 2, 4, 6};
+    std::vector<double> values{1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1, 10.1, 11.1};
+    crs_mat = KokkosSparse::CrsMatrix<double, int, Kokkos::DefaultExecutionSpace>("crs_matrix", nrow, ncol, nnz, &values[0], &rows[0], &cols[0]);
+
+    //--- Check that the input matrix is stored as expected
+    EXPECT_EQ( nrow, (int) crs_mat.numRows());
+    EXPECT_EQ( ncol, (int) crs_mat.numCols());
+    EXPECT_EQ( nnz, (size_t) crs_mat.nnz());
+    for (int ir = 0; ir < std::min<int>(nrow, crs_mat.numRows()); ++ir) {
+      auto myRow = crs_mat.rowConst(ir);
+      for (int jc = 0; jc < myRow.length; ++jc) {
+        EXPECT_EQ( cols[rows[ir] + jc], myRow.colidx(jc) );
+        EXPECT_EQ( values[rows[ir] + jc], myRow.value(jc) );
+      }
+    }
     #endif
   }
 
@@ -205,6 +225,23 @@ struct Data : BaseData {
         EXPECT_EQ( (int) in.crs.entries( j + begin ) , graph[i][j] );
       }
     }
+    //--- Check that the output matrix is stored as expected
+    int nrow = 5, ncol = 7, nnz = 11;
+    std::vector<int> rows{0, 2, 4, 5, 7, 11};
+    std::vector<int> cols{0, 1, 1, 3, 2, 0, 3, 0, 2, 4, 6};
+    std::vector<double> values{1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1, 10.1, 11.1};
+    //
+    EXPECT_EQ( nrow, (int) in.crs_mat.numRows());
+    EXPECT_EQ( ncol, (int) in.crs_mat.numCols());
+    EXPECT_EQ( nnz, (int) in.crs_mat.nnz());
+    //
+    for (int ir = 0; ir < in.crs_mat.numRows(); ++ir) {
+      auto myRow = in.crs_mat.row(ir);
+      for (int jc = 0; jc < myRow.length; ++jc) {
+        EXPECT_EQ( cols[rows[ir] + jc], myRow.colidx(jc) );
+        EXPECT_EQ( values[rows[ir] + jc], myRow.value(jc) );
+      }
+    }
     #endif
   }
 
@@ -216,6 +253,7 @@ struct Data : BaseData {
     s | v0 | v1 | v2 | v3 | v4;
     #if KOKKOS_KERNELS_ENABLED
     s | crs;
+    s | crs_mat;
     #endif
   }
 
@@ -229,6 +267,7 @@ public:
   Kokkos_ViewType4 v4;
   #if KOKKOS_KERNELS_ENABLED
   Kokkos_CrsType crs;
+  Kokkos_CrsMatrix crs_mat;
   #endif
 };
 
