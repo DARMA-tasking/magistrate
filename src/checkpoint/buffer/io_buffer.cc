@@ -149,8 +149,10 @@ void IOBuffer::setupForWrite() {
 
   ret = fallocate(fd_, 0, 0, size_);
 
-  if (ret != 0) {
-    throw std::runtime_error("fallocate failed on file");
+  if (ret != 0 and errno == ENOSPC) {
+    auto err = std::string("fallocate failed on file: errno=") +
+               std::to_string(errno) + ": " + strerror(errno);
+    throw std::runtime_error(err);
   }
 # endif
 
