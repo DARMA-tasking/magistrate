@@ -117,9 +117,13 @@ struct SerializeAsVirtualIfNeeded<
     s | entry;
 
     if (s.isUnpacking()) {
+      using BaseT = typename T::_CheckpointVirtualSerializerBaseType;
+
       // use type idx here, registration needed for proper type re-construction
-      auto t = dispatch::vrt::objregistry::allocateConcreteType<T>(entry);
-      target = dispatch::vrt::objregistry::constructConcreteType<T>(entry, t);
+      auto t = dispatch::vrt::objregistry::allocateConcreteType<BaseT>(entry);
+      target = static_cast<T*>(
+        dispatch::vrt::objregistry::constructConcreteType<BaseT>(entry, t)
+      );
     }
   }
 };
