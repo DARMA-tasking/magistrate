@@ -51,6 +51,8 @@ struct MyBase : checkpoint::SerializableBase<MyBase> {
   MyBase() { printf("MyBase cons\n"); }
   explicit MyBase(SERIALIZE_CONSTRUCT_TAG) { printf("MyBase recons\n"); }
 
+  virtual ~MyBase() = default;
+
   int val_ = 0;
 
   template <typename S>
