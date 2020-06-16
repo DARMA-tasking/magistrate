@@ -344,12 +344,24 @@ struct TestWrapper {
     auto vec_size = vec.size();
     s | vec_size;
     vec.resize(vec_size);
+    auto vec_derived_size = vec_derived.size();
+    s | vec_derived_size;
+    vec_derived.resize(vec_derived_size);
 
     for (auto&& elm : vec) {
       TestBase* base = elm.get();
       checkpoint::allocateConstructForPointer(s, base);
       if (s.isUnpacking()) {
         elm = std::shared_ptr<TestBase>(base);
+      }
+      s | *elm;
+    }
+
+    for (auto&& elm : vec_derived) {
+      TestDerived2* derived = elm.get();
+      checkpoint::allocateConstructForPointer(s, derived);
+      if (s.isUnpacking()) {
+        elm = std::shared_ptr<TestDerived2>(derived);
       }
       s | *elm;
     }
@@ -365,10 +377,15 @@ struct TestWrapper {
         vec.emplace_back(std::make_shared<TestDerived3>(TEST_CONSTRUCT{}));
       }
     }
+
+    for (std::size_t i = 0; i < vec_num_elms; i++) {
+      vec_derived.emplace_back(std::make_shared<TestDerived3>(TEST_CONSTRUCT{}));
+    }
   }
 
   void check() {
     EXPECT_EQ(vec.size(), vec_num_elms);
+    EXPECT_EQ(vec_derived.size(), vec_num_elms);
     int i = 0;
     for (auto&& elm : vec) {
       EXPECT_NE(elm, nullptr);
@@ -382,9 +399,15 @@ struct TestWrapper {
       }
      i++;
     }
+    for (auto&& elm : vec_derived) {
+      EXPECT_NE(elm, nullptr);
+      elm->check();
+      EXPECT_EQ(elm->getID(), TestEnum::Derived3);
+    }
   }
 
   std::vector<std::shared_ptr<TestBase>> vec;
+  std::vector<std::shared_ptr<TestDerived2>> vec_derived;
 };
 
 } /* end namespace test_2 */
