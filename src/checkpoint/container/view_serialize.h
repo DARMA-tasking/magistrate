@@ -57,6 +57,7 @@
 #include <Kokkos_View.hpp>
 #include <Kokkos_DynamicView.hpp>
 #include <Kokkos_Serial.hpp>
+#include <Kokkos_DynRankView.hpp>
 
 #if KOKKOS_KERNELS_ENABLED
 #include <Kokkos_StaticCrsGraph.hpp>
@@ -100,34 +101,43 @@ namespace checkpoint {
 
 template <typename ViewType, std::size_t N,typename... I>
 static ViewType buildView(
-  std::string const& label, typename ViewType::pointer_type const val_ptr,
-  I&&... index
+  std::string const& label, I&&... index
 ) {
   ViewType v{label, std::forward<I>(index)...};
   return v;
 }
 
-template <typename ViewType, typename Tuple, std::size_t... I>
+template <typename ViewType, unsigned Rank, typename Tuple, std::size_t... I>
 static constexpr ViewType constructView(
-  std::string const& view_label, typename ViewType::pointer_type const val_ptr,
-  Tuple&& t, std::index_sequence<I...>
+  std::string const& view_label, Tuple&& t, std::index_sequence<I...>
 ) {
-  constexpr auto const rank_val = ViewType::Rank;
-  return buildView<ViewType,rank_val>(
-    view_label,val_ptr,std::get<I>(std::forward<Tuple>(t))...
+  return buildView<ViewType,Rank>(
+    view_label,std::get<I>(std::forward<Tuple>(t))...
   );
 }
 
 template <typename ViewType, typename Tuple>
 static constexpr ViewType constructView(
-  std::string const& view_label, typename ViewType::pointer_type const val_ptr,
-  Tuple&& t
+  std::string const& view_label, Tuple&& t
 ) {
   using TupUnrefT = std::remove_reference_t<Tuple>;
   constexpr auto tup_size = std::tuple_size<TupUnrefT>::value;
-  return constructView<ViewType>(
-    view_label, val_ptr, std::forward<Tuple>(t),
-    std::make_index_sequence<tup_size>{}
+  return constructView<ViewType, ViewType::Rank>(
+    view_label, std::forward<Tuple>(t), std::make_index_sequence<tup_size>{}
+  );
+}
+
+/*
+ * Factory for constructing a DynRankView
+ */
+template <typename ViewType, unsigned Rank, typename Tuple>
+static constexpr ViewType constructRankedView(
+  std::string const& view_label, Tuple&& t
+) {
+  using TupUnrefT = std::remove_reference_t<Tuple>;
+  constexpr auto tup_size = std::tuple_size<TupUnrefT>::value;
+  return constructView<ViewType, Rank>(
+    view_label, std::forward<Tuple>(t), std::make_index_sequence<tup_size>{}
   );
 }
 
@@ -206,7 +216,7 @@ inline void serialize(
     unsigned min_chunk_size = static_cast<unsigned>(chunk_size);
     unsigned max_alloc_extent = static_cast<unsigned>(max_extent);
     view = constructView<ViewType>(
-      label, nullptr, std::make_tuple(min_chunk_size,max_alloc_extent)
+      label, std::make_tuple(min_chunk_size,max_alloc_extent)
     );
 
     // Resize the view to the size that was packed. It seems this is necessary.
@@ -233,6 +243,88 @@ inline void serialize(
 #else
     TraverseManual<SerializerT,ViewType,1>::apply(s,view);
 #endif
+}
+
+template <typename SerializerT, typename T, typename... Args>
+inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view) {
+  using ViewType = Kokkos::DynRankView<T,Args...>;
+  using ArrayLayoutType = typename ViewType::traits::array_layout;
+
+  // Serialize the label for the view which is used to construct a new view with
+  // the same label. Labels may not be unique and are for debugging Kokkos::View
+  auto const label = serializeViewLabel(s,view);
+
+  // Serialize the total number of runtime dimensions
+  unsigned dims = 0;
+  if (!s.isUnpacking()) {
+    dims = view.rank();
+  }
+  s | dims;
+
+  // Serialize the Kokkos layout data, including the extents, strides
+  ArrayLayoutType layout;
+
+  // Make sure we serialize all 7 dimensions, instead of just `dims`. The
+  // other dimensions contain a 1 to make sure the size comes out correctly
+  if (s.isUnpacking()) {
+    serializeLayout<SerializerT>(s, 7, layout);
+  } else {
+    ArrayLayoutType layout_cur = view.layout();
+    serializeLayout<SerializerT>(s, 7, layout_cur);
+  }
+
+  // Construct a view with the layout and use operator= to propagate out
+  if (s.isUnpacking()) {
+    if (dims == 1) {
+      view = constructRankedView<ViewType,1>(label, std::make_tuple(layout));
+    } else if (dims == 2) {
+      view = constructRankedView<ViewType,2>(label, std::make_tuple(layout));
+    } else if (dims == 3) {
+      view = constructRankedView<ViewType,3>(label, std::make_tuple(layout));
+    } else if (dims == 4) {
+      view = constructRankedView<ViewType,4>(label, std::make_tuple(layout));
+    } else if (dims == 5) {
+      view = constructRankedView<ViewType,5>(label, std::make_tuple(layout));
+    } else if (dims == 6) {
+      view = constructRankedView<ViewType,6>(label, std::make_tuple(layout));
+    } else if (dims == 7) {
+      view = constructRankedView<ViewType,7>(label, std::make_tuple(layout));
+    } else {
+      checkpointAssert(
+        false,
+        "Serializing Kokkos::DynRankView is only supported up to 7 dimensions"
+      );
+    }
+  }
+
+  // Serialize the total number of elements in the Kokkos::View
+  size_t num_elms = view.size();
+  s | num_elms;
+
+  // Serialize whether the view is contiguous or not. Is this required?
+  bool is_contig = view.span_is_contiguous();
+  s | is_contig;
+
+  DEBUG_PRINT_CHECKPOINT(
+    s, "label=%s: contig=%s, size=%zu, dims=%d\n",
+    label.c_str(), is_contig ? "true" : "false", num_elms, dims
+  );
+
+  bool init = false;
+  if (!s.isUnpacking()) {
+     init = view.use_count() > 0;
+  }
+  s | init;
+
+  if (init) {
+    // Serialize the actual data owned by the Kokkos::View
+    if (is_contig) {
+      // Serialize the data directly out of the data buffer
+      dispatch::serializeArray(s, view.data(), num_elms);
+    } else {
+      TraverseManual<SerializerT,ViewType,1>::apply(s,view);
+    }
+  }
 }
 
 template <typename SerializerT, typename T, typename... Args>
@@ -273,7 +365,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
 
   // Construct a view with the layout and use operator= to propagate out
   if (s.isUnpacking()) {
-    view = constructView<ViewType>(label, nullptr, std::make_tuple(layout));
+    view = constructView<ViewType>(label, std::make_tuple(layout));
   }
 #else
   //
@@ -303,7 +395,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
 
   // Construct a view with the layout and use operator= to propagate out
   if (s.isUnpacking()) {
-    view = constructView<ViewType>(label, nullptr, extents_array);
+    view = constructView<ViewType>(label, extents_array);
   }
 #endif
 
@@ -400,6 +492,12 @@ struct SerializeConst<
 template <typename SerializerT, typename T, typename... Args>
 inline void serialize(SerializerT& s, Kokkos::View<T,Args...>& view) {
   using ViewType = Kokkos::View<T,Args...>;
+  SerializeConst<ViewType>::apply(s,view);
+}
+
+template <typename SerializerT, typename T, typename... Args>
+inline void serialize(SerializerT& s, Kokkos::DynRankView<T,Args...>& view) {
+  using ViewType = Kokkos::DynRankView<T,Args...>;
   SerializeConst<ViewType>::apply(s,view);
 }
 

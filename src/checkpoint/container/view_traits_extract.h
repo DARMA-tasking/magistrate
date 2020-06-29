@@ -54,6 +54,7 @@
 #include <Kokkos_View.hpp>
 #include <Kokkos_DynamicView.hpp>
 #include <Kokkos_Serial.hpp>
+#include <Kokkos_DynRankView.hpp>
 
 #include <utility>
 #include <tuple>
@@ -78,6 +79,11 @@ struct ViewGetType<Kokkos::View<T,Args...>> {
 
 template <typename T, typename... Args>
 struct ViewGetType<Kokkos::Experimental::DynamicView<T,Args...>> {
+  using DataType = T;
+};
+
+template <typename T, typename... Args>
+struct ViewGetType<Kokkos::DynRankView<T,Args...>> {
   using DataType = T;
 };
 
