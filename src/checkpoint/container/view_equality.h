@@ -57,6 +57,7 @@
 #include <Kokkos_View.hpp>
 #include <Kokkos_DynamicView.hpp>
 #include <Kokkos_Serial.hpp>
+#include <Kokkos_DynRankView.hpp>
 
 #include <array>
 #include <cassert>
@@ -170,6 +171,12 @@ struct ViewEqualityStatic {
   bool operator()(
     Kokkos::Experimental::DynamicView<AnyT,Args...> const& v, Callable eq
   ) {
+    // No static dimension to check against dynamic dimension, return true
+    return true;
+  }
+
+  template <typename AnyT, typename... Args>
+  bool operator()(Kokkos::DynRankView<AnyT,Args...> const& v, Callable eq) {
     // No static dimension to check against dynamic dimension, return true
     return true;
   }
