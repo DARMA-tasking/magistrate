@@ -46,6 +46,8 @@
 
 #include "test_commons.h"
 
+#include <Kokkos_DynRankView.hpp>
+
 template <typename ViewT, unsigned ndim>
 static void compareInner1d(ViewT const& k1, ViewT const& k2) {
   std::cout << "compareInner1d: " << k1.extent(0) << "," << k2.extent(0) << "\n";
@@ -64,6 +66,13 @@ static void compare1d(ViewT const& k1, ViewT const& k2) {
 // 1-D initialization
 template <typename T, typename... Args>
 static inline void init1d(Kokkos::View<T*,Args...> const& v) {
+  for (auto i = 0UL; i < v.extent(0); i++) {
+    v.operator()(i) = i;
+  }
+}
+
+template <typename T, typename... Args>
+static inline void init1d(Kokkos::DynRankView<T,Args...> const& v) {
   for (auto i = 0UL; i < v.extent(0); i++) {
     v.operator()(i) = i;
   }
@@ -151,6 +160,17 @@ using DynamicTestTypes = testing::Types<
   unsigned *,
   long     *,
   long long*
+>;
+
+using DynRankViewTestTypes = testing::Types<
+  int,
+  double,
+  float,
+  int32_t,
+  int64_t,
+  unsigned,
+  long,
+  long long
 >;
 
 #endif
