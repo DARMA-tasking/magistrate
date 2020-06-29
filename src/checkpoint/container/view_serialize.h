@@ -322,7 +322,21 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
       // Serialize the data directly out of the data buffer
       dispatch::serializeArray(s, view.data(), num_elms);
     } else {
-      TraverseManual<SerializerT,ViewType,1>::apply(s,view);
+      if (dims == 1) {
+        TraverseManual<SerializerT,ViewType,1>::apply(s,view);
+      } else if (dims == 2) {
+        TraverseManual<SerializerT,ViewType,2>::apply(s,view);
+      } else if (dims == 3) {
+        TraverseManual<SerializerT,ViewType,3>::apply(s,view);
+      } else if (dims == 4) {
+        TraverseManual<SerializerT,ViewType,4>::apply(s,view);
+      } else {
+        checkpointAssert(
+          false,
+          "Serializing Kokkos::DynRankView is only supported up to 4 dimensions"
+          " for non-contiguous views"
+        );
+      }
     }
   }
 }
