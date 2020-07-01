@@ -128,7 +128,7 @@ struct TraverseManual<SerializerT,ViewType,0> {
     // above for more clarity.
     //
     // if (s.isUnpacking()) {
-    //   BaseType val;
+    //   BaseType val{};
     //   s | val;
     //   v.operator()() = val;
     // } else {
@@ -153,16 +153,9 @@ struct TraverseManual<SerializerT,ViewType,1> {
     using SizeType = typename ViewType::size_type;
     for (SizeType i = 0; i < v.extent(0); i++) {
       if (s.isUnpacking()) {
-        #pragma GCC diagnostic push
-#if !defined(__has_warning)
-        #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#elif __has_warning("-Wmaybe-uninitialized")
-        #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
-        BaseType val;
+        BaseType val{};
         s | val;
         v.operator()(i) = val;
-        #pragma GCC diagnostic pop
       } else {
         BaseType const& val = v.operator()(i);
         s | val;
@@ -179,16 +172,9 @@ struct TraverseManual<SerializerT,ViewType,2> {
     for (SizeType i = 0; i < v.extent(0); i++) {
       for (SizeType j = 0; j < v.extent(1); j++) {
         if (s.isUnpacking()) {
-          #pragma GCC diagnostic push
-#if !defined(__has_warning)
-          #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#elif __has_warning("-Wmaybe-uninitialized")
-          #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
-          BaseType val;
+          BaseType val{};
           s | val;
           v.operator()(i,j) = val;
-          #pragma GCC diagnostic pop
         } else {
           BaseType const& val = v.operator()(i,j);
           s | val;
@@ -207,16 +193,9 @@ struct TraverseManual<SerializerT,ViewType,3> {
       for (SizeType j = 0; j < v.extent(1); j++) {
         for (SizeType k = 0; k < v.extent(2); k++) {
           if (s.isUnpacking()) {
-            #pragma GCC diagnostic push
-#if !defined(__has_warning)
-            #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#elif __has_warning("-Wmaybe-uninitialized")
-            #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
-            BaseType val;
+            BaseType val{};
             s | val;
             v.operator()(i,j,k) = val;
-            #pragma GCC diagnostic pop
           } else {
             BaseType const& val = v.operator()(i,j,k);
             s | val;
@@ -237,7 +216,7 @@ struct TraverseManual<SerializerT,ViewType,4> {
         for (SizeType k = 0; k < v.extent(2); k++) {
           for (SizeType l = 0; l < v.extent(3); l++) {
             if (s.isUnpacking()) {
-              BaseType val;
+              BaseType val{};
               s | val;
               v.operator()(i,j,k,l) = val;
             } else {
