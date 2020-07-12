@@ -96,7 +96,7 @@ struct SerializerDispatchNonByte {
 
   template <typename U = T>
   void operator()(SerializerT& s, T* val, SerialSizeType num) {
-    return apply(s, val, num);
+    apply(s, val, num);
   }
 
   // If we have the detection component, we can more precisely check for
@@ -205,7 +205,7 @@ struct SerializerDispatchNonByte {
   ) {
     if (s.isVirtualDisabled()) {
       s.setVirtualDisabled(false);
-      return applyStatic(s, val, num);
+      applyStatic(s, val, num);
     } else {
       dispatch::vrt::virtualSerialize(val, s);
     }
@@ -215,7 +215,7 @@ struct SerializerDispatchNonByte {
   void apply(
     SerializerT& s, T* val, SerialSizeType num, hasNotVirtualSerialize<U>* = nullptr
   ) {
-    return applyStatic(s, val, num);
+    applyStatic(s, val, num);
   }
 };
 
