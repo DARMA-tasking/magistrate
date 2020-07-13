@@ -270,6 +270,14 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
     serializeLayout<SerializerT>(s, 7, layout);
   } else {
     ArrayLayoutType layout_cur = view.layout();
+
+    // We must set these to the invalid index (they are not set in the layout by
+    // default!). This ensures that when the DynRankView comes out after
+    // de-serialization, the number of ranks is correct.
+    for (int i = dims; i < 8; i++) {
+      layout_cur.dimension[i] = KOKKOS_INVALID_INDEX;
+    }
+
     serializeLayout<SerializerT>(s, 7, layout_cur);
   }
 
