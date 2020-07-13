@@ -264,8 +264,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
   // Serialize the Kokkos layout data, including the extents, strides
   ArrayLayoutType layout;
 
-  // Make sure we serialize all 7 dimensions, instead of just `dims`. The
-  // other dimensions contain a 1 to make sure the size comes out correctly
+  // Make sure we serialize all 7 dimensions, instead of just `dims`.
   if (s.isUnpacking()) {
     serializeLayout<SerializerT>(s, 7, layout);
   } else {
