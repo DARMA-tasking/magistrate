@@ -74,7 +74,8 @@ TYPED_TEST_P(KokkosDynRankViewTest1D, test_1d_any) {
   ViewType in_view("test", N);
 
   init1d(in_view);
-  serializeAny<ViewType>(in_view, &compare1d<ViewType>);
+  auto out_view = serializeAny<ViewType>(in_view, &compare1d<ViewType>);
+  EXPECT_EQ(out_view->rank(), 1);
 }
 
 TYPED_TEST_P(KokkosDynRankViewTest2D, test_2d_any) {
@@ -89,7 +90,8 @@ TYPED_TEST_P(KokkosDynRankViewTest2D, test_2d_any) {
   ViewType in_view("test2", N1, N2);
 
   init2d(in_view);
-  serializeAny<ViewType>(in_view, &compare2d<ViewType>);
+  auto out_view = serializeAny<ViewType>(in_view, &compare2d<ViewType>);
+  EXPECT_EQ(out_view->rank(), 2);
 }
 
 TYPED_TEST_P(KokkosDynRankViewTest3D, test_3d_any) {
@@ -105,7 +107,8 @@ TYPED_TEST_P(KokkosDynRankViewTest3D, test_3d_any) {
   ViewType in_view("test2", N1, N2, N3);
 
   init3d(in_view);
-  serializeAny<ViewType>(in_view, &compare3d<ViewType>);
+  auto out_view = serializeAny<ViewType>(in_view, &compare3d<ViewType>);
+  EXPECT_EQ(out_view->rank(), 3);
 }
 
 REGISTER_TYPED_TEST_CASE_P(KokkosDynRankViewTest1D, test_1d_any);

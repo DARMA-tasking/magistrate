@@ -161,7 +161,9 @@ struct TestFactory {
 
 namespace  {
 template <typename T>
-void serializeAny(T& view, std::function<void(T const&,T const&)> compare) {
+std::unique_ptr<T> serializeAny(
+  T& view, std::function<void(T const&,T const&)> compare
+) {
   using namespace checkpoint;
 
   auto ret = serialize<T>(view);
@@ -172,6 +174,7 @@ void serializeAny(T& view, std::function<void(T const&,T const&)> compare) {
   #else
     compare(view, out_view_ref);
   #endif
+  return std::move(out_view);
 }
 } //end namespace
 
