@@ -49,6 +49,7 @@
 #include "checkpoint/buffer/io_buffer.h"
 
 #include <string>
+#include <stdexcept>
 
 #include <sys/types.h>
 #include <sys/stat.h>
