@@ -92,6 +92,11 @@ std::size_t getSize(T& target) {
 }
 
 template <typename T>
+std::size_t getMemoryFootprint(T& target) {
+  return dispatch::Standard::footprint<T, Footprinter>(target);
+}
+
+template <typename T>
 void serializeToFile(T& target, std::string const& file) {
   auto len = getSize<T>(target);
   dispatch::Standard::pack<T, PackerBuffer<buffer::IOBuffer>>(

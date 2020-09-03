@@ -2,11 +2,11 @@
 //@HEADER
 // *****************************************************************************
 //
-//                              base_serializer.h
+//                                footprinter.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
-// Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
+// Copyright 2020 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
@@ -42,62 +42,26 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H
-#define INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H
+#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_FOOTPRINTER_H
+#define INCLUDED_CHECKPOINT_SERIALIZERS_FOOTPRINTER_H
 
 #include "checkpoint/common.h"
-
-#include <type_traits>
-#include <cstdlib>
+#include "checkpoint/serializers/base_serializer.h"
 
 namespace checkpoint {
 
-enum struct eSerializationMode : int8_t {
-  None = 0,
-  Unpacking = 1,
-  Packing = 2,
-  Sizing = 3,
-  Footprinting = 4,
-  Invalid = -1
-};
+struct Footprinter : Serializer {
+  Footprinter() : Serializer(ModeType::Footprinting) { }
 
-namespace dispatch {
+  SerialSizeType getMemoryFootprint() const;
+  void contiguousBytes(void*, SerialSizeType size, SerialSizeType num_elms);
+  template<typename T>
+  void countBytes(const T& t) { num_bytes_ += sizeof t; }
 
-template <typename SerializerT, typename T>
-struct BasicDispatcher;
-
-} /* end namespace dispatch */
-
-struct Serializer {
-  using ModeType = eSerializationMode;
-
-  template <typename SerializerT, typename T>
-  using DispatcherType = dispatch::BasicDispatcher<SerializerT, T>;
-
-  explicit Serializer(ModeType const& in_mode) : cur_mode_(in_mode) {}
-
-  ModeType getMode() const { return cur_mode_; }
-  bool isSizing() const { return cur_mode_ == ModeType::Sizing; }
-  bool isPacking() const { return cur_mode_ == ModeType::Packing; }
-  bool isUnpacking() const { return cur_mode_ == ModeType::Unpacking; }
-  bool isFootprinting() const { return cur_mode_ == ModeType::Footprinting; }
-
-  template <typename SerializerT, typename T>
-  void contiguousTyped(SerializerT& serdes, T* ptr, SerialSizeType num_elms) {
-    serdes.contiguousBytes(static_cast<void*>(ptr), sizeof(T), num_elms);
-  }
-
-  SerialByteType* getBuffer() const { return nullptr; }
-  SerialByteType* getSpotIncrement(SerialSizeType const inc) { return nullptr; }
-
-  bool isVirtualDisabled() const { return virtual_disabled_; }
-  void setVirtualDisabled(bool val) { virtual_disabled_ = val; }
-
-protected:
-  ModeType cur_mode_ = ModeType::Invalid;
-  bool virtual_disabled_ = false;
+private:
+  SerialSizeType num_bytes_ = 0;
 };
 
 } /* end namespace checkpoint */
 
-#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H*/
+#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_FOOTPRINTER_H*/

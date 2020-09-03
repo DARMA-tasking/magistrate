@@ -219,6 +219,22 @@ struct SerializerDispatchNonByte {
   }
 };
 
+#if !HAS_DETECTION_COMPONENT
+template <typename SerializerT, typename T>
+struct hasGetMemoryFootprint {
+  template <
+    typename C,
+    typename = decltype(std::declval<C>().getMemoryFootprint(std::declval<SerializerT&>()))
+  >
+  static std::true_type test(int);
+
+  template <typename C>
+  static std::false_type test(...);
+
+  static constexpr bool value = decltype(test<T>(0))::value;
+};
+#endif
+
 }} /* end namespace checkpoint::dispatch */
 
 #endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_SERIALIZER_NONBYTE_H*/

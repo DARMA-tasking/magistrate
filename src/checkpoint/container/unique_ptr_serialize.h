@@ -66,6 +66,16 @@ void serialize(Serializer& s, std::unique_ptr<T>& ptr) {
   }
 }
 
+// FIXME - not related to unique_ptr
+template <typename Serializer, typename T>
+void serialize(Serializer& s, T* ptr) {
+  s.countBytes(ptr);
+
+  if (ptr != nullptr) {
+    s | *ptr;
+  }
+}
+
 } /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_UNIQUE_PTR_SERIALIZE_H*/

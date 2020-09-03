@@ -132,6 +132,23 @@ struct SerializableTraits {
   static constexpr auto const has_serialize_function =
     has_serialize_instrusive or has_serialize_noninstrusive;
 
+  template <typename U>
+  using footprint_intrusive_t = decltype(
+    std::declval<U>().getMemoryFootprint(std::declval<Serializer&>())
+  );
+
+  static constexpr auto const has_get_memory_footprint_intrusive =
+    detection::is_detected<footprint_intrusive_t, T>::value;
+
+  template <typename U>
+  using footprint_nonintrustive_t = decltype(getMemoryFootprint(
+    std::declval<Serializer&>(),
+    std::declval<U&>()
+  ));
+
+  static constexpr auto const has_get_memory_footprint_nonintrusive =
+    detection::is_detected<footprint_nonintrustive_t, T>::value;
+
   // This defines what it means to have parent serializability
   static constexpr auto const has_parent_serialize = has_serializeParent::value;
 
