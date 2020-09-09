@@ -54,7 +54,11 @@ namespace checkpoint {
 template <typename Serializer, typename T>
 void serialize(Serializer& s, std::unique_ptr<T>& ptr) {
   bool is_null = ptr == nullptr;
-  s | is_null;
+  if (s.isFootprinting()) {
+    s.countBytes(ptr);
+  } else {
+    s | is_null;
+  }
 
   if (not is_null) {
     T* t = ptr.get();
@@ -62,16 +66,6 @@ void serialize(Serializer& s, std::unique_ptr<T>& ptr) {
     if (s.isUnpacking()) {
       ptr = std::unique_ptr<T>(t);
     }
-    s | *ptr;
-  }
-}
-
-// FIXME - not related to unique_ptr
-template <typename Serializer, typename T>
-void serialize(Serializer& s, T* ptr) {
-  s.countBytes(ptr);
-
-  if (ptr != nullptr) {
     s | *ptr;
   }
 }

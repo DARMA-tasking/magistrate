@@ -61,8 +61,13 @@ void serializeStringMeta(Serializer& s, std::string& str) {
 
 template <typename Serializer>
 void serialize(Serializer& s, std::string& str) {
-  serializeStringMeta(s, str);
-  dispatch::serializeArray(s, str.c_str(), str.size());
+  if (s.isFootprinting()) {
+    s.countBytes(str);
+    dispatch::serializeArray(s, str.c_str(), str.capacity());
+  } else {
+    serializeStringMeta(s, str);
+    dispatch::serializeArray(s, str.c_str(), str.size());
+  }
 }
 
 } /* end namespace checkpoint */

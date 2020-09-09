@@ -61,8 +61,13 @@ void serializeVectorMeta(Serializer& s, std::vector<T, VectorAllocator>& vec) {
 
 template <typename Serializer, typename T, typename VectorAllocator>
 void serialize(Serializer& s, std::vector<T, VectorAllocator>& vec) {
-  serializeVectorMeta(s, vec);
-  dispatch::serializeArray(s, &vec[0], vec.size());
+  if (s.isFootprinting()) {
+    s.countBytes(vec);
+    dispatch::serializeArray(s, &vec[0], vec.capacity());
+  } else {
+    serializeVectorMeta(s, vec);
+    dispatch::serializeArray(s, &vec[0], vec.size());
+  }
 }
 
 template <typename Serializer, typename VectorAllocator>

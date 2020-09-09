@@ -53,6 +53,7 @@
 #include "checkpoint/container/enum_serialize.h"
 #include "checkpoint/container/list_serialize.h"
 #include "checkpoint/container/map_serialize.h"
+#include "checkpoint/container/raw_ptr_serialize.h"
 #include "checkpoint/container/string_serialize.h"
 #include "checkpoint/container/tuple_serialize.h"
 #include "checkpoint/container/vector_serialize.h"

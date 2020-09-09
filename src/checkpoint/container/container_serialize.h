@@ -54,7 +54,11 @@ template <typename Serializer, typename ContainerT>
 inline typename ContainerT::size_type
 serializeContainerSize(Serializer& s, ContainerT& cont) {
   typename ContainerT::size_type cont_size = cont.size();
-  s | cont_size;
+  if (s.isFootprinting()) {
+    s.countBytes(cont);
+  } else {
+    s | cont_size;
+  }
   return cont_size;
 }
 

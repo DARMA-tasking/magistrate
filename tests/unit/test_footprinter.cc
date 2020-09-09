@@ -53,17 +53,12 @@ namespace checkpoint { namespace tests { namespace unit {
 struct TestFootprinter : TestHarness { };
 
 struct Test1 {
+  double d;
+
   template <typename Serializer>
   void serialize(Serializer& s) {
     s | d;
   }
-
-  template <typename Serializer>
-  void getMemoryFootprint(Serializer& s) {
-    s | d;
-  }
-
-  double d;
 };
 
 struct Test2 {
@@ -71,21 +66,23 @@ struct Test2 {
 };
 
 template <typename Serializer>
-void getMemoryFootprint(Serializer& s, Test2 t) {
-  s | t.f;
-}
-
-template <typename Serializer>
 void serialize(Serializer& s, Test2 t) {
   s | t.f;
 }
 
-TEST_F(TestFootprinter, test_basic_types) {
+TEST_F(TestFootprinter, test_fundamental_types) {
   int i;
   EXPECT_EQ(checkpoint::getMemoryFootprint(i), sizeof(i));
 
   double d;
   EXPECT_EQ(checkpoint::getMemoryFootprint(d), sizeof(d));
+
+  auto str = "12345";
+  EXPECT_EQ(
+    checkpoint::getMemoryFootprint(str),
+    sizeof(str) + sizeof(*str)
+    // actually: sizeof(str) + 6 * sizeof(str[0])
+  );
 
   {
     int* ptr = nullptr;
@@ -94,8 +91,173 @@ TEST_F(TestFootprinter, test_basic_types) {
 
   {
     int* ptr = new int();
-    EXPECT_EQ(checkpoint::getMemoryFootprint(ptr), sizeof(ptr) + sizeof(*ptr));
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(ptr),
+      sizeof(ptr) + sizeof(*ptr)
+    );
+    delete ptr;
   }
+
+  {
+    int *arr = new int[5];
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(arr),
+      sizeof(arr) + sizeof(*arr)
+      // actually: sizeof(arr) + 5 * sizeof(arr[0])
+    );
+    delete [] arr;
+  }
+
+  {
+    int arr[] = {1, 2, 3, 4, 5};
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(arr),
+      sizeof(&arr) + sizeof(arr[0])
+      // actually: sizeof(&arr) + sizeof(arr)
+    );
+  }
+}
+
+TEST_F(TestFootprinter, test_array) {
+  std::array<int, 3> a = {1, 2, 3};
+  EXPECT_EQ(
+    checkpoint::getMemoryFootprint(a),
+    sizeof(a) + a.size() * sizeof(a[0])
+  );
+}
+
+TEST_F(TestFootprinter, test_deque) {
+  std::deque<int> d = {1, 2, 3};
+  EXPECT_EQ(
+    checkpoint::getMemoryFootprint(d),
+    sizeof(d) + d.size() * sizeof(d.front())
+  );
+}
+
+TEST_F(TestFootprinter, test_enum) {
+  {
+    enum color
+    {
+      red,
+      green,
+      blue
+    };
+    color col = red;
+
+    EXPECT_EQ(checkpoint::getMemoryFootprint(col), sizeof(col));
+  }
+
+  {
+    enum struct color : char
+    {
+      red = 'r',
+      green = 'g',
+      blue = 'b'
+    };
+    color col = color::green;
+
+    EXPECT_EQ(checkpoint::getMemoryFootprint(col), sizeof(char));
+  }
+}
+
+TEST_F(TestFootprinter, test_list) {
+  std::list<int> l = {1, 2, 3};
+  EXPECT_EQ(
+    checkpoint::getMemoryFootprint(l),
+    sizeof(l) + l.size() * sizeof(l.front())
+  );
+}
+
+TEST_F(TestFootprinter, test_map) {
+  {
+    std::map<int, char> m = {{1, 'a'}, {2, 'b'}, {3, 'c'}};
+    auto p = *m.begin();
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(m),
+      sizeof(m) + m.size() * (sizeof(p) + sizeof(p.first) + sizeof(p.second))
+    );
+  }
+
+  {
+    std::unordered_map<int, char> m = {{1, 'a'}, {2, 'b'}, {3, 'c'}};
+    auto p = *m.begin();
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(m),
+      sizeof(m) + m.size() * (sizeof(p) + sizeof(p.first) + sizeof(p.second))
+    );
+  }
+
+  {
+    std::multimap<int, char> m = {{1, 'a'}, {1, 'b'}, {1, 'c'}};
+    auto p = *m.begin();
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(m),
+      sizeof(m) + m.size() * (sizeof(p) + sizeof(p.first) + sizeof(p.second))
+    );
+  }
+
+  {
+    std::unordered_multimap<int, char> m = {{1, 'a'}, {1, 'b'}, {1, 'c'}};
+    auto p = *m.begin();
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(m),
+      sizeof(m) + m.size() * (sizeof(p) + sizeof(p.first) + sizeof(p.second))
+    );
+  }
+}
+
+TEST_F(TestFootprinter, test_set) {
+  {
+    std::set<int> s = {1, 2, 3};
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(s),
+      sizeof(s) + s.size() * sizeof(*s.begin())
+    );
+  }
+
+  {
+    std::unordered_set<int> s = {1, 2, 3};
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(s),
+      sizeof(s) + s.size() * sizeof(*s.begin())
+    );
+  }
+
+  {
+    std::multiset<int> s = {1, 1, 1};
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(s),
+      sizeof(s) + s.size() * sizeof(*s.begin())
+    );
+  }
+
+  {
+    std::unordered_multiset<int> s = {1, 1, 1};
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(s),
+      sizeof(s) + s.size() * sizeof(*s.begin())
+    );
+  }
+}
+
+// does not account for small string optimisation
+TEST_F(TestFootprinter, test_string) {
+  std::string s = "123456789";
+  EXPECT_EQ(
+    checkpoint::getMemoryFootprint(s),
+    sizeof(s) + s.capacity() * sizeof(s[0]));
+}
+
+// naive approach, just sum memory usage of all elements
+TEST_F(TestFootprinter, test_tuple) {
+  int i         = 1;
+  double d      = 3.8;
+  std::string s = "123456789";
+  auto t = std::make_tuple(i, d, s);
+  EXPECT_EQ(
+    checkpoint::getMemoryFootprint(t),
+    sizeof(i) + sizeof(d) + sizeof(s) + s.capacity() * sizeof(s[0])
+  );
 }
 
 TEST_F(TestFootprinter, test_unique_ptr) {
@@ -106,7 +268,10 @@ TEST_F(TestFootprinter, test_unique_ptr) {
 
   {
     auto ptr = std::make_unique<Test1>();
-    EXPECT_EQ(checkpoint::getMemoryFootprint(ptr), sizeof(ptr) + sizeof(*ptr));
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(ptr),
+      sizeof(ptr) + sizeof(*ptr)
+    );
   }
 
   {
@@ -118,28 +283,21 @@ TEST_F(TestFootprinter, test_unique_ptr) {
   }
 }
 
-TEST_F(TestFootprinter, test_string) {
-  std::string s = "123456789";
-  EXPECT_EQ(
-    checkpoint::getMemoryFootprint(s),
-    sizeof(s) + s.capacity() * sizeof(s[0]));
-}
-
 TEST_F(TestFootprinter, test_vector) {
   {
     std::vector<int> v = {1, 2, 3, 4, 5};
     EXPECT_EQ(
       checkpoint::getMemoryFootprint(v),
-      sizeof(v) + v.capacity() * sizeof(int));
+      sizeof(v) + v.capacity() * sizeof(v[0])
+    );
   }
 
   {
     std::vector<Test1*> v = { new Test1(), nullptr };
     EXPECT_EQ(
       checkpoint::getMemoryFootprint(v),
-      sizeof(v) + v.capacity() * sizeof(Test1*) + sizeof(*v[0])
+      sizeof(v) + v.capacity() * sizeof(v[0]) + sizeof(*v[0])
     );
-
     delete v[0];
   }
 }

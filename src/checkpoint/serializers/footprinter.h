@@ -53,10 +53,17 @@ namespace checkpoint {
 struct Footprinter : Serializer {
   Footprinter() : Serializer(ModeType::Footprinting) { }
 
-  SerialSizeType getMemoryFootprint() const;
-  void contiguousBytes(void*, SerialSizeType size, SerialSizeType num_elms);
+  SerialSizeType getMemoryFootprint() const {
+    return num_bytes_;
+  }
+  void contiguousBytes(void*, SerialSizeType size, SerialSizeType num_elms) {
+    num_bytes_ += size * num_elms;
+  }
+
   template<typename T>
-  void countBytes(const T& t) { num_bytes_ += sizeof t; }
+  void countBytes(const T& t) {  // this needs a better name
+    num_bytes_ += sizeof(t);
+  }
 
 private:
   SerialSizeType num_bytes_ = 0;

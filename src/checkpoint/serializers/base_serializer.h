@@ -82,6 +82,9 @@ struct Serializer {
   bool isUnpacking() const { return cur_mode_ == ModeType::Unpacking; }
   bool isFootprinting() const { return cur_mode_ == ModeType::Footprinting; }
 
+  template<typename T>
+  void countBytes(const T& t) {}
+
   template <typename SerializerT, typename T>
   void contiguousTyped(SerializerT& serdes, T* ptr, SerialSizeType num_elms) {
     serdes.contiguousBytes(static_cast<void*>(ptr), sizeof(T), num_elms);

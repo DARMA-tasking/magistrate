@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                               footprinter.cc
+//                             raw_ptr_serialize.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,17 +42,31 @@
 //@HEADER
 */
 
-#include "checkpoint/serializers/footprinter.h"
+#if !defined INCLUDED_CHECKPOINT_CONTAINER_RAW_PTR_SERIALIZE_H
+#define INCLUDED_CHECKPOINT_CONTAINER_RAW_PTR_SERIALIZE_H
+
+#include "checkpoint/common.h"
 
 namespace checkpoint {
 
-SerialSizeType Footprinter::getMemoryFootprint() const {
-  return num_bytes_;
-}
+/**
+ * \brief Serialize raw pointer \c ptr
+ *
+ * For footprinting mode, count the pointer size and follow it (note that it
+ * doesn't work correctly for C-style arrays!).
+ *
+ * \param[in] serializer serializer to use
+ * \param[in] ptr pointer to serialize
+ */
+template <typename Serializer, typename T>
+void serialize(Serializer& s, T* ptr) {
+  s.countBytes(ptr);
 
-void Footprinter::contiguousBytes(void*, SerialSizeType size, SerialSizeType num_elms) {
-  //printf("contiguousBytes: size=%zu, num_elms=%zu\n", size, num_elms);
-  num_bytes_ += size * num_elms;
+  if (ptr != nullptr) {
+    s | *ptr;
+  }
 }
 
 } /* end namespace checkpoint */
+
+#endif /*INCLUDED_CHECKPOINT_CONTAINER_RAW_PTR_SERIALIZE_H*/
