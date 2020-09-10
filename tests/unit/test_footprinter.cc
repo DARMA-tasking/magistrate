@@ -126,6 +126,14 @@ TEST_F(TestFootprinter, test_array) {
   );
 }
 
+TEST_F(TestFootprinter, test_chrono_duration) {
+  std::chrono::seconds sec(1);
+  EXPECT_EQ(
+    checkpoint::getMemoryFootprint(sec),
+    sizeof(sec)
+  );
+}
+
 TEST_F(TestFootprinter, test_deque) {
   std::deque<int> d = {1, 2, 3};
   EXPECT_EQ(
