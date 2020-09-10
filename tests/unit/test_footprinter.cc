@@ -220,6 +220,32 @@ TEST_F(TestFootprinter, test_map) {
   }
 }
 
+TEST_F(TestFootprinter, test_queue) {
+  {
+    std::queue<int> q;
+    q.push(1);
+    q.push(2);
+    q.push(3);
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(q),
+      sizeof(q) + q.size() * sizeof(q.front())
+    );
+    EXPECT_EQ(q.size(), std::size_t{3});
+  }
+
+  {
+    std::priority_queue<int> q;
+    q.push(1);
+    q.push(2);
+    q.push(3);
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(q),
+      sizeof(q) + q.size() * sizeof(q.top())
+    );
+    EXPECT_EQ(q.size(), std::size_t{3});
+  }
+}
+
 TEST_F(TestFootprinter, test_set) {
   {
     std::set<int> s = {1, 2, 3};
