@@ -160,6 +160,20 @@ TEST_F(TestFootprinter, test_enum) {
   }
 }
 
+void fn() {
+  std::cout << 1;
+}
+
+TEST_F(TestFootprinter, test_function) {
+  std::function<void()> f = fn;
+  auto ptr = f.target<void(*)()>();
+  EXPECT_NE(ptr, nullptr);
+  EXPECT_EQ(
+    checkpoint::getMemoryFootprint(f),
+    sizeof(f)
+  );
+}
+
 TEST_F(TestFootprinter, test_list) {
   std::list<int> l = {1, 2, 3};
   EXPECT_EQ(
