@@ -67,6 +67,15 @@ void serialize(Serializer& s, T* ptr) {
   }
 }
 
+template <typename Serializer>
+void serialize(Serializer& s, FILE* ptr) {
+  s.countBytes(ptr);
+
+  if (ptr != nullptr) {
+    s.countBytes(*ptr);
+  }
+}
+
 } /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_RAW_PTR_SERIALIZE_H*/
