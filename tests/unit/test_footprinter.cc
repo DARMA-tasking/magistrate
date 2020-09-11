@@ -228,6 +228,21 @@ TEST_F(TestFootprinter, test_map) {
   }
 }
 
+TEST_F(TestFootprinter, test_shared_ptr) {
+  {
+    std::shared_ptr<Test1> ptr;
+    EXPECT_EQ(checkpoint::getMemoryFootprint(ptr), sizeof(ptr));
+  }
+
+  {
+    auto ptr = std::make_shared<Test2>();
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(ptr),
+      sizeof(ptr) + sizeof(*ptr)
+    );
+  }
+}
+
 TEST_F(TestFootprinter, test_queue) {
   {
     std::queue<int> q;

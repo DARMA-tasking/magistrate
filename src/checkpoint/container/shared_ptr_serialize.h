@@ -2,11 +2,11 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                 checkpoint.h
+//                           shared_ptr_serialize.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
-// Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
+// Copyright 2020 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
@@ -42,29 +42,22 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CHECKPOINT_H
-#define INCLUDED_CHECKPOINT_CHECKPOINT_H
+#if !defined INCLUDED_CHECKPOINT_CONTAINER_SHARED_PTR_SERIALIZE_H
+#define INCLUDED_CHECKPOINT_CONTAINER_SHARED_PTR_SERIALIZE_H
 
-#include "checkpoint/serializers/serializers_headers.h"
-#include "checkpoint/dispatch/dispatch.h"
-#include "checkpoint/traits/serializable_traits.h"
+#include "checkpoint/common.h"
 
-#include "checkpoint/container/array_serialize.h"
-#include "checkpoint/container/chrono_serialize.h"
-#include "checkpoint/container/enum_serialize.h"
-#include "checkpoint/container/function_serialize.h"
-#include "checkpoint/container/list_serialize.h"
-#include "checkpoint/container/map_serialize.h"
-#include "checkpoint/container/queue_serialize.h"
-#include "checkpoint/container/raw_ptr_serialize.h"
-#include "checkpoint/container/shared_ptr_serialize.h"
-#include "checkpoint/container/string_serialize.h"
-#include "checkpoint/container/tuple_serialize.h"
-#include "checkpoint/container/vector_serialize.h"
-#include "checkpoint/container/unique_ptr_serialize.h"
-#include "checkpoint/container/view_serialize.h"
+namespace checkpoint {
 
-#include "checkpoint/checkpoint_api.h"
-#include "checkpoint/checkpoint_api.impl.h"
+template <typename Serializer, typename T>
+void serialize(Serializer& s, std::shared_ptr<T>& ptr) {
+  s.countBytes(ptr);
 
-#endif /*INCLUDED_CHECKPOINT_CHECKPOINT_H*/
+  if (ptr != nullptr) {
+    s | *ptr;
+  }
+}
+
+} /* end namespace checkpoint */
+
+#endif /*INCLUDED_CHECKPOINT_CONTAINER_SHARED_PTR_SERIALIZE_H*/
