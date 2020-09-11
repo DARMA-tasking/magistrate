@@ -122,7 +122,7 @@ TEST_F(TestFootprinter, test_array) {
   std::array<int, 3> a = {1, 2, 3};
   EXPECT_EQ(
     checkpoint::getMemoryFootprint(a),
-    sizeof(a) + a.size() * sizeof(a[0])
+    a.size() * sizeof(a[0])
   );
 }
 
