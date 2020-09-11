@@ -47,19 +47,36 @@
 
 #include "checkpoint/common.h"
 
+#include <functional>
+
 namespace checkpoint {
 
 /**
- * \brief Serialize \c func
+ * \brief Serialize function \c func
  *
+ * Only footprinting mode is supported at the moment.
  *
  * \param[in] serializer serializer to use
  * \param[in] func function to serialize
  */
-template <typename Serializer, typename Res, typename... ArgTypes>
-void serialize(Serializer& s, std::function<Res(ArgTypes...)>& fn) {
+template <typename SerializerT, typename Res, typename... ArgTypes>
+void serialize(SerializerT& s, std::function<Res(ArgTypes...)>& fn) {
+  serializeFunction(s, fn);
+}
+
+template <
+  typename SerializerT,
+  typename Res,
+  typename... ArgTypes,
+  typename = std::enable_if_t<
+    std::is_same<
+      SerializerT,
+      checkpoint::Footprinter
+    >::value
+  >
+>
+void serializeFunction(SerializerT& s, std::function<Res(ArgTypes...)>& fn) {
   s.countBytes(fn);
-  //fn.target<...>();
 }
 
 } /* end namespace checkpoint */

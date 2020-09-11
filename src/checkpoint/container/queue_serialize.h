@@ -45,17 +45,29 @@
 #if !defined INCLUDED_CHECKPOINT_CONTAINER_QUEUE_SERIALIZE_H
 #define INCLUDED_CHECKPOINT_CONTAINER_QUEUE_SERIALIZE_H
 
-#include <queue>
-
 #include "checkpoint/common.h"
-#include "checkpoint/container/container_serialize.h"
+
+#include <queue>
 
 namespace checkpoint {
 
 template <typename Serializer, typename T>
 void serialize(Serializer& s, std::queue<T> q) {
-  s.countBytes(q);
+  serializeQueue(s, q);
+}
 
+template <
+  typename SerializerT,
+  typename T,
+  typename = std::enable_if_t<
+    std::is_same<
+      SerializerT,
+      checkpoint::Footprinter
+    >::value
+  >
+>
+void serializeQueue(SerializerT& s, std::queue<T> q) {
+  s.countBytes(q);
   while (not q.empty())
   {
     s | q.front();
@@ -65,8 +77,21 @@ void serialize(Serializer& s, std::queue<T> q) {
 
 template <typename Serializer, typename T>
 void serialize(Serializer& s, std::priority_queue<T> q) {
-  s.countBytes(q);
+  serializeQueue(s, q);
+}
 
+template <
+  typename SerializerT,
+  typename T,
+  typename = std::enable_if_t<
+    std::is_same<
+      SerializerT,
+      checkpoint::Footprinter
+    >::value
+  >
+>
+void serializeQueue(SerializerT& s, std::priority_queue<T> q) {
+  s.countBytes(q);
   while (not q.empty())
   {
     s | q.top();

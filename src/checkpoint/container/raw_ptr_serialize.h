@@ -52,25 +52,60 @@ namespace checkpoint {
 /**
  * \brief Serialize raw pointer \c ptr
  *
- * For footprinting mode, count the pointer size and follow it (note that it
- * doesn't work correctly for C-style arrays!).
+ * Only footprinting mode is supported at the moment. Counts the pointer size
+ * and follows it (note that it doesn't work correctly for C-style arrays!).
  *
  * \param[in] serializer serializer to use
  * \param[in] ptr pointer to serialize
  */
-template <typename Serializer, typename T>
-void serialize(Serializer& s, T* ptr) {
-  s.countBytes(ptr);
+template <typename SerializerT, typename T>
+void serialize(SerializerT& s, T* ptr) {
+  serializeRawPtr(s, ptr);
+}
 
+template <
+  typename SerializerT,
+  typename T,
+  typename = std::enable_if_t<
+    std::is_same<
+      SerializerT,
+      checkpoint::Footprinter
+    >::value
+  >
+>
+void serializeRawPtr(SerializerT& s, T* ptr) {
+  s.countBytes(ptr);
   if (ptr != nullptr) {
     s | *ptr;
   }
 }
 
-template <typename Serializer>
-void serialize(Serializer& s, FILE* ptr) {
-  s.countBytes(ptr);
+/**
+ * \brief Serialize FILE pointer \c ptr
+ *
+ * Only footprinting mode is supported at the moment. Counts the pointer and
+ * pointee (underlying struct) size without following it.
+ *
+ * \param[in] serializer serializer to use
+ * \param[in] ptr pointer to serialize
+ */
 
+template <typename SerializerT>
+void serialize(SerializerT& s, FILE* ptr) {
+  serializeFilePtr(s, ptr);
+}
+
+template <
+  typename SerializerT,
+  typename = std::enable_if_t<
+    std::is_same<
+      SerializerT,
+      checkpoint::Footprinter
+    >::value
+  >
+>
+void serializeFilePtr(SerializerT& s, FILE* ptr) {
+  s.countBytes(ptr);
   if (ptr != nullptr) {
     s.countBytes(*ptr);
   }

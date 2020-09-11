@@ -46,7 +46,6 @@
 #define INCLUDED_CHECKPOINT_CONTAINER_STRING_SERIALIZE_H
 
 #include "checkpoint/common.h"
-#include "checkpoint/serializers/serializers_headers.h"
 
 #include <string>
 
@@ -59,6 +58,16 @@ void serializeStringMeta(Serializer& s, std::string& str) {
   str.resize(str_size);
 }
 
+/**
+ * \brief Serialize string \c str
+ *
+ * Resizes a string to it's actual size and serializes it.
+ * Note: footprinting mode does not detect small string optimization, so
+ * a limited overcount is possible.
+ *
+ * \param[in] serializer serializer to use
+ * \param[in] str string to serialize
+ */
 template <typename Serializer>
 void serialize(Serializer& s, std::string& str) {
   if (s.isFootprinting()) {

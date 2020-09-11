@@ -45,15 +45,19 @@
 #if !defined INCLUDED_CHECKPOINT_CONTAINER_CHRONO_SERIALIZE_H
 #define INCLUDED_CHECKPOINT_CONTAINER_CHRONO_SERIALIZE_H
 
-#include <chrono>
-
 #include "checkpoint/common.h"
 
+#include <chrono>
 
 namespace checkpoint {
 
 template <typename Serializer, typename Rep, typename Period>
 void serialize(Serializer& s, std::chrono::duration<Rep, Period> d) {
+  checkpointAssert(
+    s.isFootprinting(),
+    "Only memory footprinting is supported for this type"
+  );
+
   s.countBytes(d);
 }
 
