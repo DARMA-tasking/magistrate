@@ -61,7 +61,7 @@ void serializeStringMeta(Serializer& s, std::string& str) {
 /**
  * \brief Serialize string \c str
  *
- * Resizes a string to it's actual size and serializes it.
+ * Resizes a string to its actual size and serializes it.
  * Note: footprinting mode does not detect small string optimization, so
  * a limited overcount is possible.
  *

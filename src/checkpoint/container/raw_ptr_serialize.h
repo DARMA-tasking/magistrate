@@ -83,13 +83,12 @@ void serializeRawPtr(SerializerT& s, T* ptr) {
 /**
  * \brief Serialize FILE pointer \c ptr
  *
- * Only footprinting mode is supported at the moment. Counts the pointer and
- * pointee (underlying struct) size without following it.
+ * Only footprinting mode is supported at the moment. Counts the pointer size
+ * without following it.
  *
  * \param[in] serializer serializer to use
  * \param[in] ptr pointer to serialize
  */
-
 template <typename SerializerT>
 void serialize(SerializerT& s, FILE* ptr) {
   serializeFilePtr(s, ptr);
@@ -106,9 +105,6 @@ template <
 >
 void serializeFilePtr(SerializerT& s, FILE* ptr) {
   s.countBytes(ptr);
-  if (ptr != nullptr) {
-    s.countBytes(*ptr);
-  }
 }
 
 } /* end namespace checkpoint */

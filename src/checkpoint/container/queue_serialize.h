@@ -52,37 +52,18 @@
 namespace checkpoint {
 
 template <typename Serializer, typename T>
-void serialize(Serializer& s, std::queue<T> q) {
+void serialize(Serializer& s, const std::queue<T>& q) {
   serializeQueue(s, q);
-}
-
-template <
-  typename SerializerT,
-  typename T,
-  typename = std::enable_if_t<
-    std::is_same<
-      SerializerT,
-      checkpoint::Footprinter
-    >::value
-  >
->
-void serializeQueue(SerializerT& s, std::queue<T> q) {
-  s.countBytes(q);
-  while (not q.empty())
-  {
-    s | q.front();
-    q.pop();
-  }
 }
 
 template <typename Serializer, typename T>
-void serialize(Serializer& s, std::priority_queue<T> q) {
+void serialize(Serializer& s, const std::priority_queue<T>& q) {
   serializeQueue(s, q);
 }
 
 template <
   typename SerializerT,
-  typename T,
+  typename Q,
   typename = std::enable_if_t<
     std::is_same<
       SerializerT,
@@ -90,13 +71,9 @@ template <
     >::value
   >
 >
-void serializeQueue(SerializerT& s, std::priority_queue<T> q) {
+void serializeQueue(SerializerT& s, const Q& q) {
   s.countBytes(q);
-  while (not q.empty())
-  {
-    s | q.top();
-    q.pop();
-  }
+  s.contiguousBytes(nullptr, sizeof(typename Q::value_type), q.size());
 }
 
 } /* end namespace checkpoint */
