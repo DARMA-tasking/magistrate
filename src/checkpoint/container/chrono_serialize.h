@@ -52,13 +52,10 @@
 namespace checkpoint {
 
 template <typename Serializer, typename Rep, typename Period>
-void serialize(Serializer& s, std::chrono::duration<Rep, Period> d) {
-  checkpointAssert(
-    s.isFootprinting(),
-    "Only memory footprinting is supported for this type"
-  );
-
-  s.countBytes(d);
+void serialize(Serializer& s, std::chrono::duration<Rep, Period>& d) {
+    Rep r = d.count();
+    s | r;
+    d = std::chrono::duration<Rep, Period>(r);
 }
 
 } /* end namespace checkpoint */

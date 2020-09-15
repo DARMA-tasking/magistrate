@@ -132,6 +132,22 @@ TEST_F(TestFootprinter, test_chrono_duration) {
     checkpoint::getMemoryFootprint(sec),
     sizeof(sec)
   );
+
+  {
+    std::chrono::milliseconds milisec{300};
+    auto ms_ret = checkpoint::serialize(milisec);
+    auto deserialized =
+      checkpoint::deserialize<std::chrono::milliseconds>(ms_ret->getBuffer());
+    EXPECT_EQ(milisec, *deserialized);
+  }
+
+  {
+    std::chrono::hours hrs{24};
+    auto hrs_ret = checkpoint::serialize(hrs);
+    auto deserialized =
+      checkpoint::deserialize<std::chrono::hours>(hrs_ret->getBuffer());
+    EXPECT_EQ(hrs, *deserialized);
+  }
 }
 
 TEST_F(TestFootprinter, test_deque) {
