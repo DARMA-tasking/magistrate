@@ -93,8 +93,10 @@ std::size_t getSize(T& target) {
 
 template <typename T>
 std::size_t getMemoryFootprint(T& target) {
-  // FIXME: use std::max to make sure that it's not smaller than sizeof(T)
-  return dispatch::Standard::footprint<T, Footprinter>(target);
+  return std::max(
+    dispatch::Standard::footprint<T, Footprinter>(target),
+    sizeof(target)
+  );
 }
 
 template <typename T>

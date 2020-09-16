@@ -112,7 +112,7 @@ TEST_F(TestFootprinter, test_fundamental_types) {
     int arr[] = {1, 2, 3, 4, 5};
     EXPECT_EQ(
       checkpoint::getMemoryFootprint(arr),
-      sizeof(&arr) + sizeof(arr[0])
+      sizeof(arr)
       // actually: sizeof(&arr) + sizeof(arr)
     );
   }
