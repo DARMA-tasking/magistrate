@@ -379,6 +379,14 @@ TEST_F(TestFootprinter, test_vector) {
     );
     delete v[0];
   }
+
+  {
+    std::vector<bool> v = { false, true, false, true, true };
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(v),
+      sizeof(v)
+    );
+  }
 }
 
 }}} // end namespace checkpoint::tests::unit

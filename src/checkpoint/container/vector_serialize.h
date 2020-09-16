@@ -72,6 +72,11 @@ void serialize(Serializer& s, std::vector<T, VectorAllocator>& vec) {
 
 template <typename Serializer, typename VectorAllocator>
 void serialize(Serializer& s, std::vector<bool, VectorAllocator>& vec) {
+  if (s.isFootprinting()) {
+    s.countBytes(vec);
+    return;
+  }
+
   serializeVectorMeta(s, vec);
 
   if (!s.isUnpacking()) {
