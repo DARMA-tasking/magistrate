@@ -2,11 +2,11 @@
 //@HEADER
 // *****************************************************************************
 //
-//                            unique_ptr_serialize.h
+//                             raw_ptr_serialize.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
-// Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
+// Copyright 2020 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
@@ -42,34 +42,71 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CONTAINER_UNIQUE_PTR_SERIALIZE_H
-#define INCLUDED_CHECKPOINT_CONTAINER_UNIQUE_PTR_SERIALIZE_H
+#if !defined INCLUDED_CHECKPOINT_CONTAINER_RAW_PTR_SERIALIZE_H
+#define INCLUDED_CHECKPOINT_CONTAINER_RAW_PTR_SERIALIZE_H
 
 #include "checkpoint/common.h"
-#include "checkpoint/dispatch/reconstructor.h"
-#include "checkpoint/dispatch/vrt/virtual_serialize.h"
 
 namespace checkpoint {
 
-template <typename Serializer, typename T>
-void serialize(Serializer& s, std::unique_ptr<T>& ptr) {
-  bool is_null = ptr == nullptr;
-  if (s.isFootprinting()) {
-    s.countBytes(ptr);
-  } else {
-    s | is_null;
-  }
+/**
+ * \brief Serialize raw pointer \c ptr
+ *
+ * Only footprinting mode is supported at the moment. Counts the pointer size
+ * and follows it (note that it doesn't work correctly for C-style arrays!).
+ *
+ * \param[in] serializer serializer to use
+ * \param[in] ptr pointer to serialize
+ */
+template <typename SerializerT, typename T>
+void serialize(SerializerT& s, T* ptr) {
+  serializeRawPtr(s, ptr);
+}
 
-  if (not is_null) {
-    T* t = ptr.get();
-    allocateConstructForPointer(s, t);
-    if (s.isUnpacking()) {
-      ptr = std::unique_ptr<T>(t);
-    }
+template <
+  typename SerializerT,
+  typename T,
+  typename = std::enable_if_t<
+    std::is_same<
+      SerializerT,
+      checkpoint::Footprinter
+    >::value
+  >
+>
+void serializeRawPtr(SerializerT& s, T* ptr) {
+  s.countBytes(ptr);
+  if (ptr != nullptr) {
     s | *ptr;
   }
 }
 
+/**
+ * \brief Serialize FILE pointer \c ptr
+ *
+ * Only footprinting mode is supported at the moment. Counts the pointer size
+ * without following it.
+ *
+ * \param[in] serializer serializer to use
+ * \param[in] ptr pointer to serialize
+ */
+template <typename SerializerT>
+void serialize(SerializerT& s, FILE* ptr) {
+  serializeFilePtr(s, ptr);
+}
+
+template <
+  typename SerializerT,
+  typename = std::enable_if_t<
+    std::is_same<
+      SerializerT,
+      checkpoint::Footprinter
+    >::value
+  >
+>
+void serializeFilePtr(SerializerT& s, FILE* ptr) {
+  s.countBytes(ptr);
+}
+
 } /* end namespace checkpoint */
 
-#endif /*INCLUDED_CHECKPOINT_CONTAINER_UNIQUE_PTR_SERIALIZE_H*/
+#endif /*INCLUDED_CHECKPOINT_CONTAINER_RAW_PTR_SERIALIZE_H*/

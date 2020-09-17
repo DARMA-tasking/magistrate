@@ -73,7 +73,7 @@ RUN \
  cmake -GNinja $kokkos_cmake_str -Dgtest_DIR=$GTEST_BUILD/install -DGTEST_ROOT=$GTEST_BUILD/install -DCHECKPOINT_BUILD_TESTS:BOOL=1 -DCMAKE_INSTALL_PREFIX=$CHECKPOINT_BUILD/install -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_C_COMPILER=$CC -Ddetector_DIR=$DETECTOR_BUILD/install  $CHECKPOINT && \
  ninja && \
  ninja install && \
- ninja test
+ ctest --output-on-failure
 
 COPY $DETECTOR_BUILD/ $DETECTOR_BUILD
 COPY $CHECKPOINT_BUILD/ $CHECKPOINT_BUILD

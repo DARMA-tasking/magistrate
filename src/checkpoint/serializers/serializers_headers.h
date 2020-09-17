@@ -47,6 +47,7 @@
 
 #include "checkpoint/common.h"
 #include "checkpoint/serializers/base_serializer.h"
+#include "checkpoint/serializers/footprinter.h"
 #include "checkpoint/serializers/sizer.h"
 #include "checkpoint/serializers/packer.h"
 #include "checkpoint/serializers/unpacker.h"

@@ -2,11 +2,11 @@
 //@HEADER
 // *****************************************************************************
 //
-//                            unique_ptr_serialize.h
+//                           shared_ptr_serialize.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
-// Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
+// Copyright 2020 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
@@ -42,34 +42,35 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CONTAINER_UNIQUE_PTR_SERIALIZE_H
-#define INCLUDED_CHECKPOINT_CONTAINER_UNIQUE_PTR_SERIALIZE_H
+#if !defined INCLUDED_CHECKPOINT_CONTAINER_SHARED_PTR_SERIALIZE_H
+#define INCLUDED_CHECKPOINT_CONTAINER_SHARED_PTR_SERIALIZE_H
 
 #include "checkpoint/common.h"
-#include "checkpoint/dispatch/reconstructor.h"
-#include "checkpoint/dispatch/vrt/virtual_serialize.h"
 
 namespace checkpoint {
 
-template <typename Serializer, typename T>
-void serialize(Serializer& s, std::unique_ptr<T>& ptr) {
-  bool is_null = ptr == nullptr;
-  if (s.isFootprinting()) {
-    s.countBytes(ptr);
-  } else {
-    s | is_null;
-  }
+template <typename SerializerT, typename T>
+void serialize(SerializerT& s, std::shared_ptr<T>& ptr) {
+  serializeSharedPtr(s, ptr);
+}
 
-  if (not is_null) {
-    T* t = ptr.get();
-    allocateConstructForPointer(s, t);
-    if (s.isUnpacking()) {
-      ptr = std::unique_ptr<T>(t);
-    }
+template <
+  typename SerializerT,
+  typename T,
+  typename = std::enable_if_t<
+    std::is_same<
+      SerializerT,
+      checkpoint::Footprinter
+    >::value
+  >
+>
+void serializeSharedPtr(SerializerT& s, std::shared_ptr<T>& ptr) {
+  s.countBytes(ptr);
+  if (ptr != nullptr) {
     s | *ptr;
   }
 }
 
 } /* end namespace checkpoint */
 
-#endif /*INCLUDED_CHECKPOINT_CONTAINER_UNIQUE_PTR_SERIALIZE_H*/
+#endif /*INCLUDED_CHECKPOINT_CONTAINER_SHARED_PTR_SERIALIZE_H*/

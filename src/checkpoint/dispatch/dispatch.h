@@ -136,6 +136,17 @@ struct Standard {
   static SerialSizeType size(T& target, Args&&... args);
 
   /**
+   * \brief Recursively get the memory footprint of \c T
+   *
+   * \param[in] target the target to measure
+   * \param[in] args arguments to the footprinter's constructor
+   *
+   * \return memory footprint of \c T
+   */
+  template <typename T, typename FootprinterT, typename...Args>
+  static SerialSizeType footprint(T& target, Args&&... args);
+
+  /**
    * \brief Pack \c target that requires \c size number of bytes.
    *
    * \param[in] target the target to pack

@@ -2,11 +2,11 @@
 //@HEADER
 // *****************************************************************************
 //
-//                            unique_ptr_serialize.h
+//                                footprinter.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
-// Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
+// Copyright 2020 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
@@ -42,34 +42,33 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CONTAINER_UNIQUE_PTR_SERIALIZE_H
-#define INCLUDED_CHECKPOINT_CONTAINER_UNIQUE_PTR_SERIALIZE_H
+#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_FOOTPRINTER_H
+#define INCLUDED_CHECKPOINT_SERIALIZERS_FOOTPRINTER_H
 
 #include "checkpoint/common.h"
-#include "checkpoint/dispatch/reconstructor.h"
-#include "checkpoint/dispatch/vrt/virtual_serialize.h"
+#include "checkpoint/serializers/base_serializer.h"
 
 namespace checkpoint {
 
-template <typename Serializer, typename T>
-void serialize(Serializer& s, std::unique_ptr<T>& ptr) {
-  bool is_null = ptr == nullptr;
-  if (s.isFootprinting()) {
-    s.countBytes(ptr);
-  } else {
-    s | is_null;
+struct Footprinter : Serializer {
+  Footprinter() : Serializer(ModeType::Footprinting) { }
+
+  SerialSizeType getMemoryFootprint() const {
+    return num_bytes_;
+  }
+  void contiguousBytes(void*, SerialSizeType size, SerialSizeType num_elms) {
+    num_bytes_ += size * num_elms;
   }
 
-  if (not is_null) {
-    T* t = ptr.get();
-    allocateConstructForPointer(s, t);
-    if (s.isUnpacking()) {
-      ptr = std::unique_ptr<T>(t);
-    }
-    s | *ptr;
+  template<typename T>
+  void countBytes(const T& t) {  // this needs a better name
+    num_bytes_ += sizeof(t);
   }
-}
+
+private:
+  SerialSizeType num_bytes_ = 0;
+};
 
 } /* end namespace checkpoint */
 
-#endif /*INCLUDED_CHECKPOINT_CONTAINER_UNIQUE_PTR_SERIALIZE_H*/
+#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_FOOTPRINTER_H*/

@@ -91,6 +91,14 @@ SerialSizeType Standard::size(T& target, Args&&... args) {
   return sizer.getSize();
 }
 
+template <typename T, typename FootprinterT, typename...Args>
+SerialSizeType Standard::footprint(T& target, Args&&... args) {
+  auto footprinter = Traverse::with<T, FootprinterT>(
+    target, std::forward<Args>(args)...
+  );
+  return footprinter.getMemoryFootprint();
+}
+
 template <typename T, typename PackerT, typename... Args>
 PackerT Standard::pack(T& target, SerialSizeType const& size, Args&&... args) {
   return Traverse::with<T, PackerT>(target, size, std::forward<Args>(args)...);

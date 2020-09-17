@@ -67,6 +67,7 @@ void serialize(Serializer& s, std::tuple<Args...>& tuple) {
 
 template <typename Serializer, typename T, typename U>
 void serialize(Serializer& s, std::pair<T, U>& pair) {
+  s.countBytes(pair);
   s | pair.first;
   s | pair.second;
 }

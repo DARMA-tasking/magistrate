@@ -158,6 +158,16 @@ template <typename T>
 std::size_t getSize(T& target);
 
 /**
+ * \brief Get memory footprint of \c target
+ *
+ * \param[in] target reference to \c T to measure footprint
+ *
+ * \return memory footprint of the \c target
+ */
+template <typename T>
+std::size_t getMemoryFootprint(T& target);
+
+/**
  * \brief Serialize \c T to file with filename \c file
  *
  * Byte-serializes \c T to file, truncating \c file if it already exists. If any

@@ -57,6 +57,7 @@ enum struct eSerializationMode : int8_t {
   Unpacking = 1,
   Packing = 2,
   Sizing = 3,
+  Footprinting = 4,
   Invalid = -1
 };
 
@@ -79,6 +80,10 @@ struct Serializer {
   bool isSizing() const { return cur_mode_ == ModeType::Sizing; }
   bool isPacking() const { return cur_mode_ == ModeType::Packing; }
   bool isUnpacking() const { return cur_mode_ == ModeType::Unpacking; }
+  bool isFootprinting() const { return cur_mode_ == ModeType::Footprinting; }
+
+  template<typename T>
+  void countBytes(const T& t) {}
 
   template <typename SerializerT, typename T>
   void contiguousTyped(SerializerT& serdes, T* ptr, SerialSizeType num_elms) {
