@@ -99,6 +99,15 @@ TEST_F(TestFootprinter, test_fundamental_types) {
   }
 
   {
+    int i = 3;
+    void* ptr = static_cast<void*>(&i);
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(ptr),
+      sizeof(ptr)
+    );
+  }
+
+  {
     int *arr = new int[5];
     EXPECT_EQ(
       checkpoint::getMemoryFootprint(arr),
