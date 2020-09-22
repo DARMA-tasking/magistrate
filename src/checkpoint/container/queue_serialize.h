@@ -48,17 +48,23 @@
 #include "checkpoint/common.h"
 
 #include <queue>
+#include <stack>
 
 namespace checkpoint {
 
 template <typename Serializer, typename T>
 void serialize(Serializer& s, const std::queue<T>& q) {
-  serializeQueue(s, q);
+  serializeQueueLikeContainer(s, q);
 }
 
 template <typename Serializer, typename T>
 void serialize(Serializer& s, const std::priority_queue<T>& q) {
-  serializeQueue(s, q);
+  serializeQueueLikeContainer(s, q);
+}
+
+template <typename Serializer, typename T>
+void serialize(Serializer& s, const std::stack<T>& stack) {
+  serializeQueueLikeContainer(s, stack);
 }
 
 template <
@@ -71,7 +77,7 @@ template <
     >::value
   >
 >
-void serializeQueue(SerializerT& s, const Q& q) {
+void serializeQueueLikeContainer(SerializerT& s, const Q& q) {
   s.countBytes(q);
   s.contiguousBytes(nullptr, sizeof(typename Q::value_type), q.size());
 }

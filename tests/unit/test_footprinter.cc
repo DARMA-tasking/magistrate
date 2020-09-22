@@ -328,6 +328,20 @@ TEST_F(TestFootprinter, test_set) {
   }
 }
 
+TEST_F(TestFootprinter, test_stack) {
+  {
+    std::stack<int> stack;
+    stack.push(1);
+    stack.push(2);
+    stack.push(3);
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(stack),
+      sizeof(stack) + stack.size() * sizeof(stack.top())
+    );
+    EXPECT_EQ(stack.size(), std::size_t{3});
+  }
+}
+
 // does not account for small string optimisation
 TEST_F(TestFootprinter, test_string) {
   std::string s = "123456789";
