@@ -69,7 +69,7 @@ inline void deserializeEmplaceElems(
 #endif
     ElmT elm;
     s | elm;
-    cont.emplace(elm);
+    cont.emplace(std::move(elm));
     #pragma GCC diagnostic pop
   }
 }

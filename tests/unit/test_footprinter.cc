@@ -251,6 +251,23 @@ TEST_F(TestFootprinter, test_map) {
       sizeof(m) + m.size() * (sizeof(p) + sizeof(p.first) + sizeof(p.second))
     );
   }
+
+  {
+    std::unordered_map<int, std::unique_ptr<double>> m;
+    m[1] = std::make_unique<double>(10.0);
+    m[2] = std::make_unique<double>(20.0);
+    m[3] = std::make_unique<double>(30.0);
+
+    auto& elm = *m.begin();
+    auto elm_size = sizeof(elm)                    // std::pair
+      + sizeof(elm.first)                          // int
+      + sizeof(elm.second) + sizeof(*elm.second);  // std::unique_ptr
+
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(m),
+      sizeof(m) + m.size() * elm_size
+    );
+  }
 }
 
 TEST_F(TestFootprinter, test_shared_ptr) {
@@ -324,6 +341,20 @@ TEST_F(TestFootprinter, test_set) {
     EXPECT_EQ(
       checkpoint::getMemoryFootprint(s),
       sizeof(s) + s.size() * sizeof(*s.begin())
+    );
+  }
+
+  {
+    std::set<std::unique_ptr<int>> s;
+    s.insert(std::make_unique<int>(100));
+    s.insert(std::make_unique<int>(200));
+    s.insert(std::make_unique<int>(300));
+
+    auto& elm = *s.begin();
+    auto elm_size = sizeof(elm) + sizeof(*elm);
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(s),
+      sizeof(s) + s.size() * elm_size
     );
   }
 }
