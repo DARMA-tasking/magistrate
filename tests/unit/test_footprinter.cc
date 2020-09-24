@@ -72,10 +72,19 @@ void serialize(Serializer& s, Test2 t) {
 
 TEST_F(TestFootprinter, test_fundamental_types) {
   int i;
+  std::size_t size = 7;
   EXPECT_EQ(checkpoint::getMemoryFootprint(i), sizeof(i));
+  EXPECT_EQ(
+    checkpoint::getMemoryFootprint(i, size),
+    sizeof(i) + size
+  );
 
   double d;
   EXPECT_EQ(checkpoint::getMemoryFootprint(d), sizeof(d));
+  EXPECT_EQ(
+    checkpoint::getMemoryFootprint(d, size),
+    sizeof(d) + size
+  );
 
   auto str = "12345";
   EXPECT_EQ(

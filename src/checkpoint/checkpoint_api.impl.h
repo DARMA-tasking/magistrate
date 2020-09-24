@@ -92,8 +92,8 @@ std::size_t getSize(T& target) {
 }
 
 template <typename T>
-std::size_t getMemoryFootprint(T& target) {
-  return std::max(
+std::size_t getMemoryFootprint(T& target, std::size_t size_offset) {
+  return size_offset + std::max(
     dispatch::Standard::footprint<T, Footprinter>(target),
     sizeof(target)
   );
