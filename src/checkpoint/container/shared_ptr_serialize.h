@@ -56,13 +56,13 @@ void serialize(SerializerT& s, std::shared_ptr<T>& ptr) {
 
 template <
   typename SerializerT,
-  typename T,
-  typename = std::enable_if_t<
-    std::is_same<
-      SerializerT,
-      checkpoint::Footprinter
-    >::value
-  >
+  typename T//,
+  // typename = std::enable_if_t<
+  //   std::is_same<
+  //     SerializerT,
+  //     checkpoint::Footprinter
+  //   >::value
+  // >
 >
 void serializeSharedPtr(SerializerT& s, std::shared_ptr<T>& ptr) {
   s.countBytes(ptr);

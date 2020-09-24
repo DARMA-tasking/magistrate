@@ -65,13 +65,13 @@ void serialize(SerializerT& s, T* ptr) {
 
 template <
   typename SerializerT,
-  typename T,
-  typename = std::enable_if_t<
-    std::is_same<
-      SerializerT,
-      checkpoint::Footprinter
-    >::value
-  >
+  typename T//,
+  // typename = std::enable_if_t<
+  //   std::is_same<
+  //     SerializerT,
+  //     checkpoint::Footprinter
+  //   >::value
+  // >
 >
 void serializeRawPtr(SerializerT& s, T* ptr) {
   s.countBytes(ptr);
