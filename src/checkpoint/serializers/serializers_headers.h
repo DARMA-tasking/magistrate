@@ -53,6 +53,7 @@
 #include "checkpoint/serializers/unpacker.h"
 
 #define checkpoint_serializer_variadic_args()   \
+  checkpoint::Footprinter,                      \
   checkpoint::Packer,                           \
   checkpoint::PackerUserBuf,                    \
   checkpoint::PackerIO,                         \
