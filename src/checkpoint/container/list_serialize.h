@@ -67,7 +67,7 @@ inline void deserializeOrderedElems(
 #endif
     ElmT elm;
     s | elm;
-    cont.push_back(elm);
+    cont.push_back(std::move(elm));
     #pragma GCC diagnostic pop
   }
 }
