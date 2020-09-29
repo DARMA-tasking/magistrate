@@ -51,8 +51,8 @@
 
 namespace checkpoint {
 
-template <typename Serializer, typename T>
-void serialize(Serializer& s, std::unique_ptr<T>& ptr) {
+template <typename Serializer, typename T, typename Deleter>
+void serialize(Serializer& s, std::unique_ptr<T, Deleter>& ptr) {
   bool is_null = ptr == nullptr;
   if (s.isFootprinting()) {
     s.countBytes(ptr);
@@ -64,7 +64,7 @@ void serialize(Serializer& s, std::unique_ptr<T>& ptr) {
     T* t = ptr.get();
     allocateConstructForPointer(s, t);
     if (s.isUnpacking()) {
-      ptr = std::unique_ptr<T>(t);
+      ptr = std::unique_ptr<T, Deleter>(t);
     }
     s | *ptr;
   }
