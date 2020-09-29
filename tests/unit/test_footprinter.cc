@@ -457,4 +457,42 @@ TEST_F(TestFootprinter, test_vector) {
   }
 }
 
+struct TestBase {
+
+  checkpoint_virtual_serialize_base(TestBase)
+
+  virtual ~TestBase() = default;
+
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    s | a;
+  }
+
+private:
+  int a = 0;
+};
+
+struct TestDerived2 : TestBase {
+
+  checkpoint_virtual_serialize_derived(TestDerived2, TestBase)
+
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    s | raw_pointer;
+    s | shared_pointer;
+  }
+
+
+private:
+  std::shared_ptr<int> shared_pointer = std::make_shared<int>(5);
+  int* raw_pointer = nullptr;
+};
+
+
+TEST_F(TestFootprinter, test_virtual_serialize) {
+  std::unique_ptr<TestBase> ptr = std::make_unique<TestDerived2>();
+  checkpoint::getMemoryFootprint(ptr);
+}
+
+
 }}} // end namespace checkpoint::tests::unit

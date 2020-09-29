@@ -505,8 +505,6 @@ struct TestDerived2 : TestBase {
   template <typename SerializerT>
   void serialize(SerializerT& s) {
     s | recur_vec;
-    s | raw_pointer;
-    s | shared_pointer;
   }
 
   void init() {
@@ -539,8 +537,6 @@ struct TestDerived2 : TestBase {
 
 private:
   std::vector<std::unique_ptr<test_2::TestBase>> recur_vec;
-  std::shared_ptr<int> shared_pointer = std::make_shared<int>(5);
-  int* raw_pointer = nullptr;
 };
 
 struct TestWrapper {
