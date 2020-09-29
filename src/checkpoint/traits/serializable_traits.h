@@ -84,7 +84,7 @@ struct isByteCopyableImpl {
 template <typename T>
 struct isByteCopyable : detail::isByteCopyableImpl<T>::has_byteCopyTraitTrue {};
 
-template <typename T>
+template <typename T, typename S>
 struct SerializableTraits {
   /**
    * Start with detection of "serialize" overloads, intrusive and non-intrusive.
@@ -96,30 +96,30 @@ struct SerializableTraits {
    */
 
   // Regular serialize detection
-  template <typename U>
+  template <typename U, typename V>
   using serialize_t = decltype(
-    std::declval<U>().serialize(std::declval<Serializer&>())
+    std::declval<U>().serialize(std::declval<V&>())
   );
-  using has_serialize = detection::is_detected<serialize_t, T>;
+  using has_serialize = detection::is_detected<serialize_t, T, S>;
 
-  template <typename U>
+  template <typename U, typename V>
   using nonintrustive_serialize_t = decltype(serialize(
-    std::declval<Serializer&>(),
+    std::declval<V&>(),
     std::declval<U&>()
   ));
   using has_nonintrustive_serialize =
-    detection::is_detected<nonintrustive_serialize_t, T>;
+    detection::is_detected<nonintrustive_serialize_t, T, S>;
 
   // serialize{Parent,This} detection
-  template <typename U>
+  template <typename U, typename V>
   using serializeParent_t =
-    decltype(std::declval<U>().serializeParent(std::declval<Serializer&>()));
-  using has_serializeParent = detection::is_detected<serializeParent_t, T>;
+    decltype(std::declval<U>().serializeParent(std::declval<V&>()));
+  using has_serializeParent = detection::is_detected<serializeParent_t, T, S>;
 
-  template <typename U>
+  template <typename U, typename V>
   using serializeThis_t =
-    decltype(std::declval<U>().serializeThis(std::declval<Serializer&>()));
-  using has_serializeThis = detection::is_detected<serializeThis_t, T>;
+    decltype(std::declval<U>().serializeThis(std::declval<V&>()));
+  using has_serializeThis = detection::is_detected<serializeThis_t, T, S>;
 
   // This defines what it means to have an intrusive serialize
   static constexpr auto const has_serialize_instrusive = has_serialize::value;

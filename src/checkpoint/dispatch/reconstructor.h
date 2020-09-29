@@ -71,34 +71,34 @@ struct Reconstructor {
     template <typename U>
     using isReconstructibleType =
     typename std::enable_if<
-      SerializableTraits<U>::is_intrusive_reconstructible, T
+      SerializableTraits<U,void>::is_intrusive_reconstructible, T
     >::type;
 
     template <typename U>
     using isNonIntReconstructibleType =
     typename std::enable_if<
-      SerializableTraits<U>::is_nonintrusive_reconstructible, T
+      SerializableTraits<U,void>::is_nonintrusive_reconstructible, T
     >::type;
 
     template <typename U>
     using isNotReconstructibleType =
-    typename std::enable_if<not SerializableTraits<U>::is_reconstructible, T>::type;
+    typename std::enable_if<not SerializableTraits<U,void>::is_reconstructible, T>::type;
 
     template <typename U>
     using isTaggedConstructibleType =
-    typename std::enable_if<SerializableTraits<U>::is_tagged_constructible, T>::type;
+    typename std::enable_if<SerializableTraits<U,void>::is_tagged_constructible, T>::type;
 
     template <typename U>
     using isNotTaggedConstructibleType =
-    typename std::enable_if<not SerializableTraits<U>::is_tagged_constructible, T>::type;
+    typename std::enable_if<not SerializableTraits<U,void>::is_tagged_constructible, T>::type;
 
     template <typename U>
     using isConstructible =
-    typename std::enable_if<SerializableTraits<U>::is_constructible, T>::type;
+    typename std::enable_if<SerializableTraits<U,void>::is_constructible, T>::type;
 
     template <typename U>
     using isNotConstructible =
-    typename std::enable_if<not SerializableTraits<U>::is_constructible, T>::type;
+    typename std::enable_if<not SerializableTraits<U,void>::is_constructible, T>::type;
   #else
     template <typename U>
     using isConstructible = isDefaultConsType<U>;
@@ -120,8 +120,8 @@ struct Reconstructor {
   static T* constructDefault(void* buf, isNotDefaultConsType<U>* = nullptr) {
     #if HAS_DETECTION_COMPONENT
     static_assert(
-      SerializableTraits<U>::is_tagged_constructible or
-      SerializableTraits<U>::is_reconstructible or
+      SerializableTraits<U,void>::is_tagged_constructible or
+      SerializableTraits<U,void>::is_reconstructible or
       std::is_default_constructible<U>::value,
       "Either a default constructor, reconstruct() function, or tagged "
       "constructor are required for de-serialization"
