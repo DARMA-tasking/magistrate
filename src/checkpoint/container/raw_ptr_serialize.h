@@ -58,20 +58,23 @@ namespace checkpoint {
  * \param[in] serializer serializer to use
  * \param[in] ptr pointer to serialize
  */
-template <typename SerializerT, typename T>
+template <
+  typename SerializerT,
+  typename T,
+  typename = std::enable_if_t<
+    std::is_same<
+      SerializerT,
+      checkpoint::Footprinter
+    >::value
+  >
+>
 void serialize(SerializerT& s, T* ptr) {
   serializeRawPtr(s, ptr);
 }
 
 template <
   typename SerializerT,
-  typename T//,
-  // typename = std::enable_if_t<
-  //   std::is_same<
-  //     SerializerT,
-  //     checkpoint::Footprinter
-  //   >::value
-  // >
+  typename T
 >
 void serializeRawPtr(SerializerT& s, T* ptr) {
   s.countBytes(ptr);
@@ -84,13 +87,7 @@ void serializeRawPtr(SerializerT& s, T* ptr) {
  * Note: do not follow void pointer.
  */
 template <
-  typename SerializerT,
-  typename = std::enable_if_t<
-    std::is_same<
-      SerializerT,
-      checkpoint::Footprinter
-    >::value
-  >
+  typename SerializerT
 >
 void serializeRawPtr(SerializerT& s, void* ptr) {
   s.countBytes(ptr);
@@ -101,13 +98,7 @@ void serializeRawPtr(SerializerT& s, void* ptr) {
  * platforms.
  */
 template <
-  typename SerializerT,
-  typename = std::enable_if_t<
-    std::is_same<
-      SerializerT,
-      checkpoint::Footprinter
-    >::value
-  >
+  typename SerializerT
 >
 void serializeRawPtr(SerializerT& s, FILE* ptr) {
   s.countBytes(ptr);
