@@ -473,6 +473,8 @@ private:
 };
 
 struct TestDerived2 : TestBase {
+  explicit TestDerived2(int i) {}
+  explicit TestDerived2(SERIALIZE_CONSTRUCT_TAG) {}
 
   checkpoint_virtual_serialize_derived(TestDerived2, TestBase)
 
@@ -490,7 +492,6 @@ struct TestDerived2 : TestBase {
     s | shared_pointer;
   }
 
-
 private:
   std::shared_ptr<int> shared_pointer = std::make_shared<int>(5);
   int* raw_pointer = nullptr;
@@ -498,9 +499,15 @@ private:
 
 
 TEST_F(TestFootprinter, test_virtual_serialize) {
-  std::unique_ptr<TestBase> ptr = std::make_unique<TestDerived2>();
-  checkpoint::getMemoryFootprint(ptr);
-}
+  {
+    std::unique_ptr<TestBase> ptr = std::make_unique<TestDerived2>(0);
+    checkpoint::getMemoryFootprint(ptr);
+  }
 
+  {
+    std::shared_ptr<TestBase> ptr = std::make_shared<TestDerived2>(0);
+    checkpoint::getMemoryFootprint(ptr);
+  }
+}
 
 }}} // end namespace checkpoint::tests::unit
