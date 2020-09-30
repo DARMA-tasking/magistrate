@@ -102,19 +102,31 @@ struct TestNoSerialize {
   using namespace examples;
 
   static_assert(
-    SerializableTraits<TestReconstruct>::is_serializable,
+    SerializableTraits<
+      TestReconstruct,
+      checkpoint::Serializer
+    >::is_serializable,
     "Should be serializable"
   );
   static_assert(
-    ! SerializableTraits<TestShouldFailReconstruct>::is_serializable,
+    ! SerializableTraits<
+      TestShouldFailReconstruct,
+      checkpoint::Serializer
+    >::is_serializable,
     "Should not be serializable"
   );
   static_assert(
-    SerializableTraits<TestDefaultCons>::is_serializable,
+    SerializableTraits<
+      TestDefaultCons,
+      checkpoint::Serializer
+    >::is_serializable,
     "Should be serializable"
   );
   static_assert(
-    ! SerializableTraits<TestNoSerialize>::is_serializable,
+    ! SerializableTraits<
+      TestNoSerialize,
+      checkpoint::Serializer
+    >::is_serializable,
     "Should not be serializable"
   );
 
