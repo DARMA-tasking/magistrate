@@ -476,7 +476,15 @@ struct TestDerived2 : TestBase {
 
   checkpoint_virtual_serialize_derived(TestDerived2, TestBase)
 
-  template <typename SerializerT>
+  template <
+    typename SerializerT,
+    typename = std::enable_if_t<
+      std::is_same<
+        SerializerT,
+        checkpoint::Footprinter
+      >::value
+    >
+  >
   void serialize(SerializerT& s) {
     s | raw_pointer;
     s | shared_pointer;
