@@ -522,25 +522,109 @@ inline void serialize(SerializerT& s, Kokkos::DynRankView<T,Args...>& view) {
   SerializeConst<ViewType>::apply(s,view);
 }
 
-template< typename SerializerT, typename T, typename... Ts >
-void serializeExtentOnly(SerializerT& s, Kokkos::View<T*,Ts...>& v, std::string label ) {
-  // Pass label explicitly to reduce network transfer bytes
-  auto view_extent_0 = v.extent(0);
-  s | view_extent_0;
-  if (s.isUnpacking()) {
-    v = Kokkos::View<T*>(label, view_extent_0);
-  }
-}
+template <
+  typename ViewType,
+  typename T = typename ViewGetType<ViewType>::DataType
+>
+struct CountStaticDims {
+  static constexpr int ndims = 0;
+};
 
-template< typename SerializerT, typename T, typename... Ts >
-void serializeExtentOnly(SerializerT& s, Kokkos::View<T**,Ts...>& v, std::string label ) {
-  // Pass label explicitly to reduce network transfer bytes
-  auto view_extent_0 = v.extent(0);
-  auto view_extent_1 = v.extent(1);
-  s | view_extent_0 | view_extent_1;
-  if (s.isUnpacking()) {
-    v = Kokkos::View<T**>(label, view_extent_0, view_extent_1);
+template <
+  typename ViewType,
+  typename T
+>
+struct CountStaticDims<ViewType, T*> {
+  static constexpr int ndims = CountStaticDims<ViewType, T>::ndims + 1;
+};
+
+template <
+  typename ViewType,
+  typename T,
+  std::size_t N
+>
+struct CountStaticDims<ViewType, T[N]> {
+  static constexpr int ndims = CountStaticDims<ViewType, T>::ndims + 1;
+};
+
+template <typename SerializerT, typename ViewType, typename = void>
+struct SerializeExtentOnlyImpl;
+
+template <typename SerializerT, typename ViewType>
+struct SerializeExtentOnlyImpl<
+  SerializerT,
+  ViewType,
+  typename std::enable_if_t<CountStaticDims<ViewType>::ndims == 1>
+> {
+  static void apply(SerializerT& s, ViewType& v, std::string label) {
+    // Pass label explicitly to reduce network transfer bytes
+    auto view_extent_0 = v.extent(0);
+    s | view_extent_0;
+    if (s.isUnpacking()) {
+      v = ViewType(label, view_extent_0);
+    }
   }
+};
+
+template <typename SerializerT, typename ViewType>
+struct SerializeExtentOnlyImpl<
+  SerializerT,
+  ViewType,
+  typename std::enable_if_t<CountStaticDims<ViewType>::ndims == 2>
+> {
+  static void apply(SerializerT& s, ViewType& v, std::string label) {
+    // Pass label explicitly to reduce network transfer bytes
+    auto view_extent_0 = v.extent(0);
+    auto view_extent_1 = v.extent(1);
+    s | view_extent_0 | view_extent_1;
+    if (s.isUnpacking()) {
+      v = ViewType(label, view_extent_0, view_extent_1);
+    }
+  }
+};
+
+template <typename SerializerT, typename ViewType>
+struct SerializeExtentOnlyImpl<
+  SerializerT,
+  ViewType,
+  typename std::enable_if_t<CountStaticDims<ViewType>::ndims == 3>
+> {
+  static void apply(SerializerT& s, ViewType& v, std::string label) {
+    // Pass label explicitly to reduce network transfer bytes
+    auto view_extent_0 = v.extent(0);
+    auto view_extent_1 = v.extent(1);
+    auto view_extent_2 = v.extent(2);
+    s | view_extent_0 | view_extent_1 | view_extent_2;
+    if (s.isUnpacking()) {
+      v = ViewType(label, view_extent_0, view_extent_1, view_extent_2);
+    }
+  }
+};
+
+template <typename SerializerT, typename ViewType>
+struct SerializeExtentOnlyImpl<
+  SerializerT,
+  ViewType,
+  typename std::enable_if_t<CountStaticDims<ViewType>::ndims == 4>
+> {
+  static void apply(SerializerT& s, ViewType& v, std::string label) {
+    // Pass label explicitly to reduce network transfer bytes
+    auto view_extent_0 = v.extent(0);
+    auto view_extent_1 = v.extent(1);
+    auto view_extent_2 = v.extent(2);
+    auto view_extent_3 = v.extent(3);
+    s | view_extent_0 | view_extent_1 | view_extent_2 | view_extent_3;
+    if (s.isUnpacking()) {
+      v = ViewType(
+        label, view_extent_0, view_extent_1, view_extent_2, view_extent_3
+      );
+    }
+  }
+};
+
+template <typename SerializerT, typename ViewType>
+void serializeExtentOnly(SerializerT& s, ViewType& v, std::string label) {
+  SerializeExtentOnlyImpl<SerializerT, ViewType>::apply(s, v, label);
 }
 
 template< typename SerializerT, typename T, typename... Ts >

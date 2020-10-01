@@ -108,4 +108,85 @@ TEST_F(KokkosViewExtentTest, test_view_extent) {
   EXPECT_EQ(12345, target.extent(0));
 }
 
+TEST_F(KokkosViewExtentTest, test_view_extent_2d) {
+  using ViewType = Kokkos::View<int**>;
+
+  ViewType original = ViewType("v", 12345, 5);
+
+  using namespace checkpoint;
+
+  auto sizer = Sizer();
+  serializeExtentOnly(sizer, original, "v");
+
+  EXPECT_LE(sizer.getSize(), 1000);
+
+  auto packer = Packer(sizer.getSize());
+  serializeExtentOnly(packer, original, "v");
+
+  auto buffer = packer.extractPackedBuffer();
+  auto unpacker = Unpacker(buffer->getBuffer());
+
+  ViewType target = ViewType("w", 10);
+
+  serializeExtentOnly(unpacker, target, "v");
+
+  EXPECT_EQ(12345, target.extent(0));
+  EXPECT_EQ(5, target.extent(1));
+}
+
+TEST_F(KokkosViewExtentTest, test_view_extent_3d) {
+  using ViewType = Kokkos::View<int***>;
+
+  ViewType original = ViewType("v", 12345, 5, 4);
+
+  using namespace checkpoint;
+
+  auto sizer = Sizer();
+  serializeExtentOnly(sizer, original, "v");
+
+  EXPECT_LE(sizer.getSize(), 1000);
+
+  auto packer = Packer(sizer.getSize());
+  serializeExtentOnly(packer, original, "v");
+
+  auto buffer = packer.extractPackedBuffer();
+  auto unpacker = Unpacker(buffer->getBuffer());
+
+  ViewType target = ViewType("w", 10);
+
+  serializeExtentOnly(unpacker, target, "v");
+
+  EXPECT_EQ(12345, target.extent(0));
+  EXPECT_EQ(5, target.extent(1));
+  EXPECT_EQ(4, target.extent(2));
+}
+
+TEST_F(KokkosViewExtentTest, test_view_extent_4d) {
+  using ViewType = Kokkos::View<int****>;
+
+  ViewType original = ViewType("v", 9, 23, 5, 4);
+
+  using namespace checkpoint;
+
+  auto sizer = Sizer();
+  serializeExtentOnly(sizer, original, "v");
+
+  EXPECT_LE(sizer.getSize(), 1000);
+
+  auto packer = Packer(sizer.getSize());
+  serializeExtentOnly(packer, original, "v");
+
+  auto buffer = packer.extractPackedBuffer();
+  auto unpacker = Unpacker(buffer->getBuffer());
+
+  ViewType target = ViewType("w", 10);
+
+  serializeExtentOnly(unpacker, target, "v");
+
+  EXPECT_EQ(9, target.extent(0));
+  EXPECT_EQ(23, target.extent(1));
+  EXPECT_EQ(5, target.extent(2));
+  EXPECT_EQ(4, target.extent(3));
+}
+
 #endif
