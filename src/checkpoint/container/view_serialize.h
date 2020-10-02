@@ -547,14 +547,14 @@ struct CountStaticDims<ViewType, T[N]> {
   static constexpr int ndims = CountStaticDims<ViewType, T>::ndims + 1;
 };
 
-template <typename SerializerT, typename ViewType, typename = void>
+template <typename SerializerT, typename ViewType, int N_DIMS>
 struct SerializeExtentOnlyImpl;
 
 template <typename SerializerT, typename ViewType>
 struct SerializeExtentOnlyImpl<
   SerializerT,
   ViewType,
-  typename std::enable_if_t<CountStaticDims<ViewType>::ndims == 1>
+  1
 > {
   static void apply(SerializerT& s, ViewType& v, std::string label) {
     // Pass label explicitly to reduce network transfer bytes
@@ -570,7 +570,7 @@ template <typename SerializerT, typename ViewType>
 struct SerializeExtentOnlyImpl<
   SerializerT,
   ViewType,
-  typename std::enable_if_t<CountStaticDims<ViewType>::ndims == 2>
+  2
 > {
   static void apply(SerializerT& s, ViewType& v, std::string label) {
     // Pass label explicitly to reduce network transfer bytes
@@ -587,7 +587,7 @@ template <typename SerializerT, typename ViewType>
 struct SerializeExtentOnlyImpl<
   SerializerT,
   ViewType,
-  typename std::enable_if_t<CountStaticDims<ViewType>::ndims == 3>
+  3
 > {
   static void apply(SerializerT& s, ViewType& v, std::string label) {
     // Pass label explicitly to reduce network transfer bytes
@@ -605,7 +605,7 @@ template <typename SerializerT, typename ViewType>
 struct SerializeExtentOnlyImpl<
   SerializerT,
   ViewType,
-  typename std::enable_if_t<CountStaticDims<ViewType>::ndims == 4>
+  4
 > {
   static void apply(SerializerT& s, ViewType& v, std::string label) {
     // Pass label explicitly to reduce network transfer bytes
@@ -624,7 +624,8 @@ struct SerializeExtentOnlyImpl<
 
 template <typename SerializerT, typename ViewType>
 void serializeExtentOnly(SerializerT& s, ViewType& v, std::string label) {
-  SerializeExtentOnlyImpl<SerializerT, ViewType>::apply(s, v, label);
+  constexpr int N_DIMS = CountStaticDims<ViewType>::ndims;
+  SerializeExtentOnlyImpl<SerializerT, ViewType, N_DIMS>::apply(s, v, label);
 }
 
 template< typename SerializerT, typename T, typename... Ts >
