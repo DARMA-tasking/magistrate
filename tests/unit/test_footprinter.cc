@@ -222,12 +222,7 @@ TEST_F(TestFootprinter, test_list) {
     checkpoint::getMemoryFootprint(l),
     sizeof(l) + l.size() * sizeof(l.front())
   );
-
-  std::list<int>::iterator it = l.begin();
-  EXPECT_EQ(
-    checkpoint::getMemoryFootprint(it),
-    sizeof(it)
-  );}
+}
 
 TEST_F(TestFootprinter, test_map) {
   {

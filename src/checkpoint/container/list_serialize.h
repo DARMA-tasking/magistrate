@@ -95,11 +95,6 @@ inline void serialize(Serializer& s, std::deque<T>& lst) {
   serializeOrderedContainer(s, lst);
 }
 
-template <typename Serializer, typename T>
-inline void serialize(Serializer& s, std::_List_iterator<T>& it) {
-  s.countBytes(it);
-}
-
 } /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_LIST_SERIALIZE_H*/
