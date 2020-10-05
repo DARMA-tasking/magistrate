@@ -52,12 +52,22 @@
 
 namespace checkpoint {
 
-template <typename Serializer, typename T, typename VectorAllocator>
-void serializeVectorMeta(Serializer& s, std::vector<T, VectorAllocator>& vec) {
+template <typename SerializerT, typename T, typename VectorAllocator>
+typename std::enable_if_t<
+  not std::is_same<SerializerT, checkpoint::Footprinter>::value,
+  void
+> serializeVectorMeta(SerializerT& s, std::vector<T, VectorAllocator>& vec) {
   SerialSizeType vec_size = vec.size();
   s | vec_size;
   vec.resize(vec_size);
 }
+
+template <typename SerializerT, typename T, typename VectorAllocator>
+typename std::enable_if_t<
+  std::is_same<SerializerT, checkpoint::Footprinter>::value,
+  void
+> serializeVectorMeta(SerializerT& s, std::vector<T, VectorAllocator>& vec) { }
+
 
 template <typename Serializer, typename T, typename VectorAllocator>
 void serialize(Serializer& s, std::vector<T, VectorAllocator>& vec) {

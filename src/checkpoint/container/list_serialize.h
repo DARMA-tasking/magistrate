@@ -55,7 +55,10 @@
 namespace checkpoint {
 
 template <typename Serializer, typename ContainerT, typename ElmT>
-inline void deserializeOrderedElems(
+inline typename std::enable_if_t<
+  not std::is_same<Serializer, checkpoint::Footprinter>::value,
+  void
+> deserializeOrderedElems(
   Serializer& s, ContainerT& cont, typename ContainerT::size_type size
 ) {
   for (typename ContainerT::size_type i = 0; i < size; i++) {
@@ -71,6 +74,14 @@ inline void deserializeOrderedElems(
     #pragma GCC diagnostic pop
   }
 }
+
+template <typename Serializer, typename ContainerT, typename ElmT>
+inline typename std::enable_if_t<
+  std::is_same<Serializer, checkpoint::Footprinter>::value,
+  void
+> deserializeOrderedElems(
+  Serializer& s, ContainerT& cont, typename ContainerT::size_type size
+) { }
 
 template <typename Serializer, typename ContainerT>
 inline void serializeOrderedContainer(Serializer& s, ContainerT& cont) {

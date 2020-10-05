@@ -87,7 +87,8 @@ struct SerializeAsVirtualIfNeeded<
   T,
   SerializerT,
   typename std::enable_if_t<
-    dispatch::vrt::VirtualSerializeTraits<T>::has_not_virtual_serialize
+    dispatch::vrt::VirtualSerializeTraits<T>::has_not_virtual_serialize and
+    not std::is_same<SerializerT, checkpoint::Footprinter>::value
   >
 > {
   static void apply(SerializerT& s, T*& target) {
@@ -95,6 +96,18 @@ struct SerializeAsVirtualIfNeeded<
     auto t = std::allocator<T>{}.allocate(1);
     target = dispatch::Reconstructor<T>::construct(t);
   }
+};
+
+template <typename T, typename SerializerT>
+struct SerializeAsVirtualIfNeeded<
+  T,
+  SerializerT,
+  typename std::enable_if_t<
+    dispatch::vrt::VirtualSerializeTraits<T>::has_not_virtual_serialize and
+    std::is_same<SerializerT, checkpoint::Footprinter>::value
+  >
+> {
+  static void apply(SerializerT& s, T*& target) { }
 };
 
 template <typename T, typename SerializerT>
