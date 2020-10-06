@@ -2,11 +2,11 @@
 //@HEADER
 // *****************************************************************************
 //
-//                              vector_serialize.h
+//                             thread_serialize.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
-// Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
+// Copyright 2020 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
@@ -42,64 +42,25 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CONTAINER_VECTOR_SERIALIZE_H
-#define INCLUDED_CHECKPOINT_CONTAINER_VECTOR_SERIALIZE_H
+#if !defined INCLUDED_CHECKPOINT_CONTAINER_THREAD_SERIALIZE_H
+#define INCLUDED_CHECKPOINT_CONTAINER_THREAD_SERIALIZE_H
+
+#include <thread>
 
 #include "checkpoint/common.h"
-#include "checkpoint/serializers/serializers_headers.h"
-
-#include <vector>
 
 namespace checkpoint {
 
-template <typename SerializerT, typename T, typename VectorAllocator>
-typename std::enable_if_t<
-  not std::is_same<SerializerT, checkpoint::Footprinter>::value,
-  void
-> serializeVectorMeta(SerializerT& s, std::vector<T, VectorAllocator>& vec) {
-  SerialSizeType vec_size = vec.size();
-  s | vec_size;
-  vec.resize(vec_size);
-}
-
-template <typename SerializerT, typename T, typename VectorAllocator>
-typename std::enable_if_t<
-  std::is_same<SerializerT, checkpoint::Footprinter>::value,
-  void
-> serializeVectorMeta(SerializerT& s, std::vector<T, VectorAllocator>& vec) {
-  s.countBytes(vec);
-}
-
-
-template <typename Serializer, typename T, typename VectorAllocator>
-void serialize(Serializer& s, std::vector<T, VectorAllocator>& vec) {
-  serializeVectorMeta(s, vec);
-  std::size_t num_elements = s.isFootprinting() ? vec.capacity() : vec.size();
-  dispatch::serializeArray(s, &vec[0], num_elements);
-}
-
-template <typename Serializer, typename VectorAllocator>
-void serialize(Serializer& s, std::vector<bool, VectorAllocator>& vec) {
-  if (s.isFootprinting()) {
-    s.countBytes(vec);
-    return;
-  }
-
-  serializeVectorMeta(s, vec);
-
-  if (!s.isUnpacking()) {
-    for (bool elt : vec) {
-      s | elt;
-    }
-  } else {
-    for (size_t i = 0; i < vec.size(); ++i) {
-      bool elt = false;
-      s | elt;
-      vec[i] = elt;
-    }
-  }
+template <
+  typename SerializerT,
+  typename = std::enable_if_t<
+    std::is_same<SerializerT, checkpoint::Footprinter>::value
+  >
+>
+void serialize(SerializerT& s, const std::thread& t) {
+  s.countBytes(t);
 }
 
 } /* end namespace checkpoint */
 
-#endif /*INCLUDED_CHECKPOINT_CONTAINER_VECTOR_SERIALIZE_H*/
+#endif /*INCLUDED_CHECKPOINT_CONTAINER_THREAD_SERIALIZE_H*/

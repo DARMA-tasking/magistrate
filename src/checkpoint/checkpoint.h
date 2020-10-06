@@ -50,6 +50,7 @@
 #include "checkpoint/traits/serializable_traits.h"
 
 #include "checkpoint/container/array_serialize.h"
+#include "checkpoint/container/atomic_serialize.h"
 #include "checkpoint/container/chrono_serialize.h"
 #include "checkpoint/container/enum_serialize.h"
 #include "checkpoint/container/function_serialize.h"
@@ -59,6 +60,7 @@
 #include "checkpoint/container/raw_ptr_serialize.h"
 #include "checkpoint/container/shared_ptr_serialize.h"
 #include "checkpoint/container/string_serialize.h"
+#include "checkpoint/container/thread_serialize.h"
 #include "checkpoint/container/tuple_serialize.h"
 #include "checkpoint/container/vector_serialize.h"
 #include "checkpoint/container/unique_ptr_serialize.h"

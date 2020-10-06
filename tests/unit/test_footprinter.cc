@@ -46,11 +46,15 @@
 
 #include "test_harness.h"
 
+#include <atomic>
+#include <thread>
 #include <checkpoint/checkpoint.h>
 
 namespace checkpoint { namespace tests { namespace unit {
 
 struct TestFootprinter : TestHarness { };
+
+const std::size_t sample_size = 5;
 
 struct Test1 {
   double d;
@@ -58,6 +62,8 @@ struct Test1 {
   template <typename Serializer>
   void serialize(Serializer& s) {
     s | d;
+
+    s.addBytes(sample_size);
   }
 };
 
@@ -72,10 +78,19 @@ void serialize(Serializer& s, Test2 t) {
 
 TEST_F(TestFootprinter, test_fundamental_types) {
   int i;
+  std::size_t size = 7;
   EXPECT_EQ(checkpoint::getMemoryFootprint(i), sizeof(i));
+  EXPECT_EQ(
+    checkpoint::getMemoryFootprint(i, size),
+    sizeof(i) + size
+  );
 
   double d;
   EXPECT_EQ(checkpoint::getMemoryFootprint(d), sizeof(d));
+  EXPECT_EQ(
+    checkpoint::getMemoryFootprint(d, size),
+    sizeof(d) + size
+  );
 
   auto str = "12345";
   EXPECT_EQ(
@@ -96,6 +111,15 @@ TEST_F(TestFootprinter, test_fundamental_types) {
       sizeof(ptr) + sizeof(*ptr)
     );
     delete ptr;
+  }
+
+  {
+    int i = 3;
+    void* ptr = static_cast<void*>(&i);
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(ptr),
+      sizeof(ptr)
+    );
   }
 
   {
@@ -123,6 +147,14 @@ TEST_F(TestFootprinter, test_array) {
   EXPECT_EQ(
     checkpoint::getMemoryFootprint(a),
     a.size() * sizeof(a[0])
+  );
+}
+
+TEST_F(TestFootprinter, test_atomic) {
+  std::atomic<bool> atomic_bool{false};
+  EXPECT_EQ(
+    checkpoint::getMemoryFootprint(atomic_bool),
+    sizeof(bool)
   );
 }
 
@@ -242,6 +274,23 @@ TEST_F(TestFootprinter, test_map) {
       sizeof(m) + m.size() * (sizeof(p) + sizeof(p.first) + sizeof(p.second))
     );
   }
+
+  {
+    std::unordered_map<int, std::unique_ptr<double>> m;
+    m[1] = std::make_unique<double>(10.0);
+    m[2] = std::make_unique<double>(20.0);
+    m[3] = std::make_unique<double>(30.0);
+
+    auto& elm = *m.begin();
+    auto elm_size = sizeof(elm)                    // std::pair
+      + sizeof(elm.first)                          // int
+      + sizeof(elm.second) + sizeof(*elm.second);  // std::unique_ptr
+
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(m),
+      sizeof(m) + m.size() * elm_size
+    );
+  }
 }
 
 TEST_F(TestFootprinter, test_shared_ptr) {
@@ -317,6 +366,34 @@ TEST_F(TestFootprinter, test_set) {
       sizeof(s) + s.size() * sizeof(*s.begin())
     );
   }
+
+  {
+    std::set<std::unique_ptr<int>> s;
+    s.insert(std::make_unique<int>(100));
+    s.insert(std::make_unique<int>(200));
+    s.insert(std::make_unique<int>(300));
+
+    auto& elm = *s.begin();
+    auto elm_size = sizeof(elm) + sizeof(*elm);
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(s),
+      sizeof(s) + s.size() * elm_size
+    );
+  }
+}
+
+TEST_F(TestFootprinter, test_stack) {
+  {
+    std::stack<int> stack;
+    stack.push(1);
+    stack.push(2);
+    stack.push(3);
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(stack),
+      sizeof(stack) + stack.size() * sizeof(stack.top())
+    );
+    EXPECT_EQ(stack.size(), std::size_t{3});
+  }
 }
 
 // does not account for small string optimisation
@@ -324,7 +401,17 @@ TEST_F(TestFootprinter, test_string) {
   std::string s = "123456789";
   EXPECT_EQ(
     checkpoint::getMemoryFootprint(s),
-    sizeof(s) + s.capacity() * sizeof(s[0]));
+    sizeof(s) + s.capacity() * sizeof(s[0])
+  );
+}
+
+TEST_F(TestFootprinter, test_thread) {
+  std::thread t(fn);
+  EXPECT_EQ(
+    checkpoint::getMemoryFootprint(t),
+    sizeof(t)
+  );
+  t.detach();
 }
 
 // naive approach, just sum memory usage of all elements
@@ -349,7 +436,7 @@ TEST_F(TestFootprinter, test_unique_ptr) {
     auto ptr = std::make_unique<Test1>();
     EXPECT_EQ(
       checkpoint::getMemoryFootprint(ptr),
-      sizeof(ptr) + sizeof(*ptr)
+      sizeof(ptr) + sizeof(*ptr) + sample_size
     );
   }
 
@@ -375,7 +462,7 @@ TEST_F(TestFootprinter, test_vector) {
     std::vector<Test1*> v = { new Test1(), nullptr };
     EXPECT_EQ(
       checkpoint::getMemoryFootprint(v),
-      sizeof(v) + v.capacity() * sizeof(v[0]) + sizeof(*v[0])
+      sizeof(v) + v.capacity() * sizeof(v[0]) + sizeof(*v[0]) + sample_size
     );
     delete v[0];
   }
@@ -386,6 +473,59 @@ TEST_F(TestFootprinter, test_vector) {
       checkpoint::getMemoryFootprint(v),
       sizeof(v)
     );
+  }
+}
+
+struct TestBase {
+
+  checkpoint_virtual_serialize_base(TestBase)
+
+  virtual ~TestBase() = default;
+
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    s | a;
+  }
+
+private:
+  int a = 0;
+};
+
+struct TestDerived2 : TestBase {
+  explicit TestDerived2(int i) {}
+  explicit TestDerived2(SERIALIZE_CONSTRUCT_TAG) {}
+
+  checkpoint_virtual_serialize_derived(TestDerived2, TestBase)
+
+  template <
+    typename SerializerT,
+    typename = std::enable_if_t<
+      std::is_same<
+        SerializerT,
+        checkpoint::Footprinter
+      >::value
+    >
+  >
+  void serialize(SerializerT& s) {
+    s | raw_pointer;
+    s | shared_pointer;
+  }
+
+private:
+  std::shared_ptr<int> shared_pointer = std::make_shared<int>(5);
+  int* raw_pointer = nullptr;
+};
+
+
+TEST_F(TestFootprinter, test_virtual_serialize) {
+  {
+    std::unique_ptr<TestBase> ptr = std::make_unique<TestDerived2>(0);
+    checkpoint::getMemoryFootprint(ptr);
+  }
+
+  {
+    std::shared_ptr<TestBase> ptr = std::make_shared<TestDerived2>(0);
+    checkpoint::getMemoryFootprint(ptr);
   }
 }
 

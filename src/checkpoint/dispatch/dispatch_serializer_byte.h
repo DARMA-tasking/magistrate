@@ -73,11 +73,11 @@ struct SerializerDispatchByte {
   #if HAS_DETECTION_COMPONENT
     template <typename U>
     using isByteCopyType =
-    typename std::enable_if<SerializableTraits<U>::is_bytecopyable, T>::type;
+    typename std::enable_if<SerializableTraits<U,void>::is_bytecopyable, T>::type;
 
     template <typename U>
     using isNotByteCopyType =
-    typename std::enable_if<not SerializableTraits<U>::is_bytecopyable, T>::type;
+    typename std::enable_if<not SerializableTraits<U,void>::is_bytecopyable, T>::type;
   #else
     template <typename U>
     using isByteCopyType =

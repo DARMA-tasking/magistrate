@@ -93,6 +93,8 @@ template <
   typename Dispatcher = BasicDispatcher<SerializerT, T>
 >
 struct SerializerDispatchNonByte {
+  using S = SerializerT;
+
 
   template <typename U = T>
   void operator()(SerializerT& s, T* val, SerialSizeType num) {
@@ -104,19 +106,19 @@ struct SerializerDispatchNonByte {
   #if HAS_DETECTION_COMPONENT
     template <typename U>
     using hasSplitSerialize =
-    typename std::enable_if<SerializableTraits<U>::has_split_serialize, T>::type;
+    typename std::enable_if<SerializableTraits<U,S>::has_split_serialize, T>::type;
 
     template <typename U>
     using hasNotSplitSerialize =
-    typename std::enable_if<!SerializableTraits<U>::has_split_serialize && !std::is_enum<U>::value, T>::type;
+    typename std::enable_if<!SerializableTraits<U,S>::has_split_serialize && !std::is_enum<U>::value, T>::type;
 
     template <typename U>
     using hasInSerialize =
-    typename std::enable_if<SerializableTraits<U>::has_serialize_instrusive, T>::type;
+    typename std::enable_if<SerializableTraits<U,S>::has_serialize_instrusive, T>::type;
 
     template <typename U>
     using hasNoninSerialize =
-    typename std::enable_if<SerializableTraits<U>::has_serialize_noninstrusive, T>::type;
+    typename std::enable_if<SerializableTraits<U,S>::has_serialize_noninstrusive, T>::type;
 
     template <typename U>
     using hasVirtualSerialize =

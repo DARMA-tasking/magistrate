@@ -58,11 +58,6 @@ namespace checkpoint {
  * \param[in] serializer serializer to use
  * \param[in] ptr pointer to serialize
  */
-template <typename SerializerT, typename T>
-void serialize(SerializerT& s, T* ptr) {
-  serializeRawPtr(s, ptr);
-}
-
 template <
   typename SerializerT,
   typename T,
@@ -73,6 +68,14 @@ template <
     >::value
   >
 >
+void serialize(SerializerT& s, T* ptr) {
+  serializeRawPtr(s, ptr);
+}
+
+template <
+  typename SerializerT,
+  typename T
+>
 void serializeRawPtr(SerializerT& s, T* ptr) {
   s.countBytes(ptr);
   if (ptr != nullptr) {
@@ -81,29 +84,23 @@ void serializeRawPtr(SerializerT& s, T* ptr) {
 }
 
 /**
- * \brief Serialize FILE pointer \c ptr
- *
- * Only footprinting mode is supported at the moment. Counts the pointer size
- * without following it.
- *
- * \param[in] serializer serializer to use
- * \param[in] ptr pointer to serialize
+ * Note: do not follow void pointer.
  */
-template <typename SerializerT>
-void serialize(SerializerT& s, FILE* ptr) {
-  serializeFilePtr(s, ptr);
+template <
+  typename SerializerT
+>
+void serializeRawPtr(SerializerT& s, void* ptr) {
+  s.countBytes(ptr);
 }
 
+/**
+ * Note: do not follow FILE pointer as it might be an incomplete type on some
+ * platforms.
+ */
 template <
-  typename SerializerT,
-  typename = std::enable_if_t<
-    std::is_same<
-      SerializerT,
-      checkpoint::Footprinter
-    >::value
-  >
+  typename SerializerT
 >
-void serializeFilePtr(SerializerT& s, FILE* ptr) {
+void serializeRawPtr(SerializerT& s, FILE* ptr) {
   s.countBytes(ptr);
 }
 

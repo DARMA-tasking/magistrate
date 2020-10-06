@@ -61,8 +61,12 @@ struct Footprinter : Serializer {
   }
 
   template<typename T>
-  void countBytes(const T& t) {  // this needs a better name
+  void countBytes(const T& t) {
     num_bytes_ += sizeof(t);
+  }
+
+  void addBytes(std::size_t s) {
+    num_bytes_ += s;
   }
 
 private:

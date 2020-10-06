@@ -50,18 +50,49 @@
 
 namespace checkpoint { namespace dispatch { namespace vrt {
 
+template <typename ObjT, typename SerializerT, typename=void>
+struct InstantiateIfPossible;
+
+template <typename ObjT, typename SerializerT>
+struct InstantiateIfPossible<
+  ObjT,
+  SerializerT,
+  typename std::enable_if_t<
+    SerializableTraits<ObjT, SerializerT>::is_serializable
+  >
+> {
+  static void registerIt() {
+    dispatch::vrt::serializer_registry::makeObjIdx<ObjT, SerializerT>();
+
+    // If the \c SerializerT static registrations order happen differently for a
+    // given \c BaseT and \c DerviedT , you will get the wrong serializer when
+    // using the base_idx in the derived class. Thus, link the correct base
+    // serialize type idx with a given derived type idx during
+    // sizing/packing. Then, when it unpacks, it can find the right one when
+    // running on the derived type using the base idx.
+    // using BaseType = typename ObjT::_CheckpointVirtualSerializerBaseType;
+    // linkDerivedToBase<SerializerT, ObjT, BaseType>();
+    using BaseType = typename ObjT::_CheckpointVirtualSerializerBaseType;
+    linkDerivedToBase<SerializerT, ObjT, BaseType>();
+  }
+};
+
+template <typename ObjT, typename SerializerT>
+struct InstantiateIfPossible<
+  ObjT,
+  SerializerT,
+  typename std::enable_if_t<
+    not SerializableTraits<ObjT, SerializerT>::is_serializable
+  >
+> {
+  static void registerIt() {
+    // do nothing; this object is not compatible with this serializer!
+  }
+};
+
 template <typename ObjT, typename SerializerT>
 static inline void instantiateObjSerializerImpl() {
-  dispatch::vrt::serializer_registry::makeObjIdx<ObjT, SerializerT>();
-
-  // If the \c SerializerT static registrations order happen differently for a
-  // given \c BaseT and \c DerviedT , you will get the wrong serializer when
-  // using the base_idx in the derived class. Thus, link the correct base
-  // serialize type idx with a given derived type idx during
-  // sizing/packing. Then, when it unpacks, it can find the right one when
-  // running on the derived type using the base idx.
-  using BaseType = typename ObjT::_CheckpointVirtualSerializerBaseType;
-  linkDerivedToBase<SerializerT, ObjT, BaseType>();
+  InstantiateIfPossible<ObjT, SerializerT>::registerIt();
 }
 
 template <typename ObjT, typename... Ts>

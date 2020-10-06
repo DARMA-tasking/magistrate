@@ -49,11 +49,6 @@
 
 namespace checkpoint {
 
-template <typename SerializerT, typename T>
-void serialize(SerializerT& s, std::shared_ptr<T>& ptr) {
-  serializeSharedPtr(s, ptr);
-}
-
 template <
   typename SerializerT,
   typename T,
@@ -64,9 +59,14 @@ template <
     >::value
   >
 >
-void serializeSharedPtr(SerializerT& s, std::shared_ptr<T>& ptr) {
-  s.countBytes(ptr);
-  if (ptr != nullptr) {
+void serialize(SerializerT& s, std::shared_ptr<T>& ptr) {
+  if (s.isFootprinting()) {
+    s.countBytes(ptr);
+  }
+
+  bool is_null = ptr == nullptr;
+
+  if (not is_null) {
     s | *ptr;
   }
 }

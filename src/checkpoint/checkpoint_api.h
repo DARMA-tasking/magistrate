@@ -161,11 +161,12 @@ std::size_t getSize(T& target);
  * \brief Get memory footprint of \c target
  *
  * \param[in] target reference to \c T to measure footprint
+ * \param[in] size_offset add an arbitrary \c size_offset to the footprint
  *
  * \return memory footprint of the \c target
  */
 template <typename T>
-std::size_t getMemoryFootprint(T& target);
+std::size_t getMemoryFootprint(T& target, std::size_t size_offset = 0);
 
 /**
  * \brief Serialize \c T to file with filename \c file
