@@ -66,18 +66,16 @@ template <typename SerializerT, typename T, typename VectorAllocator>
 typename std::enable_if_t<
   std::is_same<SerializerT, checkpoint::Footprinter>::value,
   void
-> serializeVectorMeta(SerializerT& s, std::vector<T, VectorAllocator>& vec) { }
+> serializeVectorMeta(SerializerT& s, std::vector<T, VectorAllocator>& vec) {
+  s.countBytes(vec);
+}
 
 
 template <typename Serializer, typename T, typename VectorAllocator>
 void serialize(Serializer& s, std::vector<T, VectorAllocator>& vec) {
-  if (s.isFootprinting()) {
-    s.countBytes(vec);
-    dispatch::serializeArray(s, &vec[0], vec.capacity());
-  } else {
-    serializeVectorMeta(s, vec);
-    dispatch::serializeArray(s, &vec[0], vec.size());
-  }
+  serializeVectorMeta(s, vec);
+  std::size_t num_elements = s.isFootprinting() ? vec.capacity() : vec.size();
+  dispatch::serializeArray(s, &vec[0], num_elements);
 }
 
 template <typename Serializer, typename VectorAllocator>
