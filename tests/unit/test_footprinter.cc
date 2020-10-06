@@ -47,6 +47,7 @@
 #include "test_harness.h"
 
 #include <atomic>
+#include <thread>
 #include <checkpoint/checkpoint.h>
 
 namespace checkpoint { namespace tests { namespace unit {
@@ -396,7 +397,17 @@ TEST_F(TestFootprinter, test_string) {
   std::string s = "123456789";
   EXPECT_EQ(
     checkpoint::getMemoryFootprint(s),
-    sizeof(s) + s.capacity() * sizeof(s[0]));
+    sizeof(s) + s.capacity() * sizeof(s[0])
+  );
+}
+
+TEST_F(TestFootprinter, test_thread) {
+  std::thread t(fn);
+  EXPECT_EQ(
+    checkpoint::getMemoryFootprint(t),
+    sizeof(t)
+  );
+  t.detach();
 }
 
 // naive approach, just sum memory usage of all elements
