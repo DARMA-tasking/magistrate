@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                footprinter.h
+//                             atomic_serialize.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,33 +42,26 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_FOOTPRINTER_H
-#define INCLUDED_CHECKPOINT_SERIALIZERS_FOOTPRINTER_H
+#if !defined INCLUDED_CHECKPOINT_CONTAINER_ATOMIC_SERIALIZE_H
+#define INCLUDED_CHECKPOINT_CONTAINER_ATOMIC_SERIALIZE_H
+
+#include <atomic>
 
 #include "checkpoint/common.h"
-#include "checkpoint/serializers/base_serializer.h"
 
 namespace checkpoint {
 
-struct Footprinter : Serializer {
-  Footprinter() : Serializer(ModeType::Footprinting) { }
-
-  SerialSizeType getMemoryFootprint() const {
-    return num_bytes_;
-  }
-  void contiguousBytes(void*, SerialSizeType size, SerialSizeType num_elms) {
-    num_bytes_ += size * num_elms;
-  }
-
-  template<typename T>
-  void countBytes(const T& t) {
-    num_bytes_ += sizeof(t);
-  }
-
-private:
-  SerialSizeType num_bytes_ = 0;
-};
+template <
+  typename SerializerT,
+  typename T,
+  typename = std::enable_if_t<
+    std::is_same<SerializerT, checkpoint::Footprinter>::value
+  >
+>
+void serialize(SerializerT& s, const std::atomic<T>& atomic) {
+  s.countBytes(atomic);
+}
 
 } /* end namespace checkpoint */
 
-#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_FOOTPRINTER_H*/
+#endif /*INCLUDED_CHECKPOINT_CONTAINER_ATOMIC_SERIALIZE_H*/

@@ -46,6 +46,7 @@
 
 #include "test_harness.h"
 
+#include <atomic>
 #include <checkpoint/checkpoint.h>
 
 namespace checkpoint { namespace tests { namespace unit {
@@ -141,6 +142,14 @@ TEST_F(TestFootprinter, test_array) {
   EXPECT_EQ(
     checkpoint::getMemoryFootprint(a),
     a.size() * sizeof(a[0])
+  );
+}
+
+TEST_F(TestFootprinter, test_atomic) {
+  std::atomic<bool> atomic_bool{false};
+  EXPECT_EQ(
+    checkpoint::getMemoryFootprint(atomic_bool),
+    sizeof(bool)
   );
 }
 
