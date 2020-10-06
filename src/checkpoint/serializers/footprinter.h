@@ -65,6 +65,10 @@ struct Footprinter : Serializer {
     num_bytes_ += sizeof(t);
   }
 
+  void addBytes(std::size_t s) {
+    num_bytes_ += s;
+  }
+
 private:
   SerialSizeType num_bytes_ = 0;
 };

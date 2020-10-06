@@ -54,12 +54,16 @@ namespace checkpoint { namespace tests { namespace unit {
 
 struct TestFootprinter : TestHarness { };
 
+const std::size_t sample_size = 5;
+
 struct Test1 {
   double d;
 
   template <typename Serializer>
   void serialize(Serializer& s) {
     s | d;
+
+    s.addBytes(sample_size);
   }
 };
 
@@ -432,7 +436,7 @@ TEST_F(TestFootprinter, test_unique_ptr) {
     auto ptr = std::make_unique<Test1>();
     EXPECT_EQ(
       checkpoint::getMemoryFootprint(ptr),
-      sizeof(ptr) + sizeof(*ptr)
+      sizeof(ptr) + sizeof(*ptr) + sample_size
     );
   }
 
@@ -458,7 +462,7 @@ TEST_F(TestFootprinter, test_vector) {
     std::vector<Test1*> v = { new Test1(), nullptr };
     EXPECT_EQ(
       checkpoint::getMemoryFootprint(v),
-      sizeof(v) + v.capacity() * sizeof(v[0]) + sizeof(*v[0])
+      sizeof(v) + v.capacity() * sizeof(v[0]) + sizeof(*v[0]) + sample_size
     );
     delete v[0];
   }
