@@ -57,7 +57,7 @@
     ::checkpoint::dispatch::vrt::TypeIdx base_ser_idx,                               \
     ::checkpoint::dispatch::vrt::TypeIdx expected_idx                                \
   ) override {                                                                       \
-    using _CheckpointDerivedType = ::checkpoint::dispatch::vrt::checkpoint_derived_type_t<decltype(*this)>; \
+    using _CheckpointDerivedType = ::checkpoint::dispatch::vrt::checkpoint_derived_type_t<decltype(this)>; \
     ::checkpoint::instantiateObjSerializer<                                          \
       _CheckpointDerivedType,                                                                       \
       checkpoint_serializer_variadic_args()                                          \
@@ -80,7 +80,7 @@
     );                                                                               \
   }                                                                                  \
   ::checkpoint::dispatch::vrt::TypeIdx _checkpointDynamicTypeIndex() override {      \
-    using _CheckpointDerivedType = ::checkpoint::dispatch::vrt::checkpoint_derived_type_t<decltype(*this)>; \
+    using _CheckpointDerivedType = ::checkpoint::dispatch::vrt::checkpoint_derived_type_t<decltype(this)>; \
     return ::checkpoint::dispatch::vrt::objregistry::makeObjIdx<_CheckpointDerivedType>();          \
   }                                                                                  \
 
@@ -92,15 +92,18 @@ template <typename DerivedT, typename BaseT>
 struct SerializableDerived;
 
 template <typename DerivedT>
-struct _CheckpointDerivedType {
+struct _CheckpointDerivedType;
+
+template <typename DerivedT>
+struct _CheckpointDerivedType<DerivedT*> {
   using type = DerivedT;
 };
 template <typename DerivedT, typename BaseT>
-struct _CheckpointDerivedType<SerializableDerived<DerivedT, BaseT>> {
+struct _CheckpointDerivedType<SerializableDerived<DerivedT, BaseT>*> {
   using type = DerivedT;
 };
 template <typename DerivedT>
-using checkpoint_derived_type_t = typename _CheckpointDerivedType<std::remove_reference_t<DerivedT>>::type;
+using checkpoint_derived_type_t = typename _CheckpointDerivedType<DerivedT>::type;
 
 /**
  * \brief A derived class of an inheritance hierarchy should inherit from this
