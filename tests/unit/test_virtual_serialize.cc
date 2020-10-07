@@ -216,7 +216,7 @@ struct TestBase {
   explicit TestBase(TEST_CONSTRUCT) { init();  }
   explicit TestBase(SERIALIZE_CONSTRUCT_TAG) {}
 
-  checkpoint_virtual_serialize_base()
+  checkpoint_virtual_serialize_root()
 
   virtual ~TestBase() = default;
 
@@ -425,7 +425,7 @@ struct TestBase {
   explicit TestBase(TEST_CONSTRUCT) { init();  }
   explicit TestBase(SERIALIZE_CONSTRUCT_TAG) {}
 
-  checkpoint_virtual_serialize_base()
+  checkpoint_virtual_serialize_root()
 
   virtual ~TestBase() = default;
 
@@ -455,7 +455,7 @@ struct TestDerived1 : TestBase {
   explicit TestDerived1(TEST_CONSTRUCT tag) : Parent(tag) { init();  }
   explicit TestDerived1(SERIALIZE_CONSTRUCT_TAG tag) : Parent(tag)  {}
 
-  checkpoint_virtual_serialize_derived(TestDerived1, TestBase)
+  checkpoint_virtual_serialize_derived_from(Parent)
 
   template <typename SerializerT>
   void serialize(SerializerT& s) {
@@ -500,7 +500,7 @@ struct TestDerived2 : TestBase {
   explicit TestDerived2(TEST_CONSTRUCT tag) : Parent(tag) { init();  }
   explicit TestDerived2(SERIALIZE_CONSTRUCT_TAG tag) : Parent(tag) {}
 
-  checkpoint_virtual_serialize_derived(TestDerived2, TestBase)
+  checkpoint_virtual_serialize_derived_from(Parent)
 
   template <typename SerializerT>
   void serialize(SerializerT& s) {

@@ -478,7 +478,7 @@ TEST_F(TestFootprinter, test_vector) {
 
 struct TestBase {
 
-  checkpoint_virtual_serialize_base()
+  checkpoint_virtual_serialize_root()
 
   virtual ~TestBase() = default;
 

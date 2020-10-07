@@ -51,7 +51,7 @@
 #include "checkpoint/dispatch/vrt/inheritance_assert_helpers.h"
 #include "checkpoint/dispatch/vrt/serialize_instantiator.h"
 
-#define checkpoint_virtual_serialize_base()                                   \
+#define checkpoint_virtual_serialize_root()                                   \
   auto _CheckpointVSBaseTypeFn() -> decltype(auto) { return this; }     \
   virtual void _checkpointDynamicSerialize(                                       \
     void* s,                                                                      \
@@ -73,6 +73,8 @@
     return ::checkpoint::dispatch::vrt::objregistry::makeObjIdx<_CheckpointVirtualSerializerBaseType>();          \
   }                                                                               \
 
+#define checkpoint_virtual_serialize_base(BASE) checkpoint_virtual_serialize_root()
+
 namespace checkpoint { namespace dispatch { namespace vrt {
 
 /**
@@ -83,7 +85,7 @@ namespace checkpoint { namespace dispatch { namespace vrt {
  */
 template <typename BaseT>
 struct SerializableBase {
-  checkpoint_virtual_serialize_base()
+  checkpoint_virtual_serialize_root()
 };
 
 }}} /* end namespace checkpoint::dispatch::vrt */
