@@ -57,15 +57,18 @@ template <typename BaseT>
 struct SerializableBase;
 
 template <typename BaseT>
-struct _CheckpointBaseType {
+struct _CheckpointBaseType;
+
+template <typename BaseT>
+struct _CheckpointBaseType<BaseT*> {
   using type = BaseT;
 };
 template <typename BaseT>
-struct _CheckpointBaseType<SerializableBase<BaseT>> {
+struct _CheckpointBaseType<SerializableBase<BaseT>*> {
   using type = BaseT;
 };
 template <typename ObjT>
-using checkpoint_base_type_t = typename _CheckpointBaseType<std::remove_pointer_t<decltype(std::declval<ObjT>()._CheckpointVSBaseTypeFn())>>::type;
+using checkpoint_base_type_t = typename _CheckpointBaseType<decltype(std::declval<ObjT>()._CheckpointVSBaseTypeFn())>::type;
 
 }}} /* end namespace checkpoint::dispatch::vrt */
 
