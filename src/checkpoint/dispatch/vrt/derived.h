@@ -51,38 +51,56 @@
 #include "checkpoint/dispatch/vrt/inheritance_assert_helpers.h"
 #include "checkpoint/dispatch/vrt/serialize_instantiator.h"
 
-#define checkpoint_virtual_serialize_derived(DERIVED, BASE)                          \
+#define checkpoint_virtual_serialize_derived_from(PARENT)                          \
   void _checkpointDynamicSerialize(                                                  \
     void* s,                                                                         \
     ::checkpoint::dispatch::vrt::TypeIdx base_ser_idx,                               \
     ::checkpoint::dispatch::vrt::TypeIdx expected_idx                                \
   ) override {                                                                       \
+    using _CheckpointDerivedType = ::checkpoint::dispatch::vrt::checkpoint_derived_type_t<decltype(*this)>; \
     ::checkpoint::instantiateObjSerializer<                                          \
-      DERIVED,                                                                       \
+      _CheckpointDerivedType,                                                                       \
       checkpoint_serializer_variadic_args()                                          \
     >();                                                                             \
     debug_checkpoint(                                                                \
       "%s: BEGIN: _checkpointDynamicSerialize: serializer_idx=%d {\n",               \
       typeid(DERIVED).name(), base_ser_idx                                           \
     );                                                                               \
-    ::checkpoint::dispatch::vrt::assertTypeIdxMatch<DERIVED>(expected_idx);          \
-    auto base_idx = ::checkpoint::dispatch::vrt::objregistry::makeObjIdx<BASE>();    \
-    BASE::_checkpointDynamicSerialize(s, base_ser_idx, base_idx);                    \
+    ::checkpoint::dispatch::vrt::assertTypeIdxMatch<_CheckpointDerivedType>(expected_idx);          \
+    auto base_idx = ::checkpoint::dispatch::vrt::objregistry::makeObjIdx<PARENT>();    \
+    PARENT::_checkpointDynamicSerialize(s, base_ser_idx, base_idx);                    \
     auto dispatcher =                                                                \
-      ::checkpoint::dispatch::vrt::serializer_registry::getBaseIdx<DERIVED>(         \
+      ::checkpoint::dispatch::vrt::serializer_registry::getBaseIdx<_CheckpointDerivedType>(         \
         base_ser_idx                                                                 \
       );                                                                             \
-    dispatcher(s, *static_cast<DERIVED*>(this));                                     \
+    dispatcher(s, *static_cast<_CheckpointDerivedType*>(this));                                     \
     debug_checkpoint(                                                                \
       "%s: END: _checkpointDynamicSerialize: serializer_idx=%d }\n",                 \
-      typeid(DERIVED).name(), base_ser_idx                                           \
+      typeid(_CheckpointDerivedType).name(), base_ser_idx                                           \
     );                                                                               \
   }                                                                                  \
   ::checkpoint::dispatch::vrt::TypeIdx _checkpointDynamicTypeIndex() override {      \
-    return ::checkpoint::dispatch::vrt::objregistry::makeObjIdx<DERIVED>();          \
+    using _CheckpointDerivedType = ::checkpoint::dispatch::vrt::checkpoint_derived_type_t<decltype(*this)>; \
+    return ::checkpoint::dispatch::vrt::objregistry::makeObjIdx<_CheckpointDerivedType>();          \
   }                                                                                  \
 
+#define checkpoint_virtual_serialize_derived(DERIVED, PARENT) checkpoint_virtual_serialize_derived_from(PARENT)
+
 namespace checkpoint { namespace dispatch { namespace vrt {
+
+template <typename DerivedT, typename BaseT>
+struct SerializableDerived;
+
+template <typename DerivedT>
+struct _CheckpointDerivedType {
+  using type = DerivedT;
+};
+template <typename DerivedT, typename BaseT>
+struct _CheckpointDerivedType<SerializableDerived<DerivedT, BaseT>> {
+  using type = DerivedT;
+};
+template <typename DerivedT>
+using checkpoint_derived_type_t = typename _CheckpointDerivedType<std::remove_reference_t<DerivedT>>::type;
 
 /**
  * \brief A derived class of an inheritance hierarchy should inherit from this

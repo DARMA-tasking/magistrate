@@ -59,16 +59,16 @@
     ::checkpoint::dispatch::vrt::TypeIdx expected_idx                             \
   ) {                                                                             \
     ::checkpoint::instantiateObjSerializer<                                       \
-      BASE,                                                                       \
+      _CheckpointVirtualSerializerBaseType,                                                                       \
       checkpoint_serializer_variadic_args()                                       \
     >();                                                                          \
-    ::checkpoint::dispatch::vrt::assertTypeIdxMatch<BASE>(expected_idx);          \
+    ::checkpoint::dispatch::vrt::assertTypeIdxMatch<_CheckpointVirtualSerializerBaseType>(expected_idx);          \
     auto dispatcher =                                                             \
-      ::checkpoint::dispatch::vrt::serializer_registry::getObjIdx<BASE>(ser_idx); \
-    dispatcher(s, *static_cast<BASE*>(this));                                     \
+      ::checkpoint::dispatch::vrt::serializer_registry::getObjIdx<_CheckpointVirtualSerializerBaseType>(ser_idx); \
+    dispatcher(s, *static_cast<_CheckpointVirtualSerializerBaseType*>(this));                                     \
   }                                                                               \
   virtual ::checkpoint::dispatch::vrt::TypeIdx _checkpointDynamicTypeIndex() {    \
-    return ::checkpoint::dispatch::vrt::objregistry::makeObjIdx<BASE>();          \
+    return ::checkpoint::dispatch::vrt::objregistry::makeObjIdx<_CheckpointVirtualSerializerBaseType>();          \
   }                                                                               \
 
 namespace checkpoint { namespace dispatch { namespace vrt {
