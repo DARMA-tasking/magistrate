@@ -216,7 +216,7 @@ struct TestBase {
   explicit TestBase(TEST_CONSTRUCT) { init();  }
   explicit TestBase(SERIALIZE_CONSTRUCT_TAG) {}
 
-  checkpoint_virtual_serialize_base(TestBase)
+  checkpoint_virtual_serialize_base()
 
   virtual ~TestBase() = default;
 
@@ -425,7 +425,7 @@ struct TestBase {
   explicit TestBase(TEST_CONSTRUCT) { init();  }
   explicit TestBase(SERIALIZE_CONSTRUCT_TAG) {}
 
-  checkpoint_virtual_serialize_base(TestBase)
+  checkpoint_virtual_serialize_base()
 
   virtual ~TestBase() = default;
 

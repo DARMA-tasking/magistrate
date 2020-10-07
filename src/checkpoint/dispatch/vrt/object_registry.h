@@ -99,7 +99,7 @@ inline RegistryType<T>& getRegistry() {
 
 template <typename ObjT>
 Registrar<ObjT>::Registrar() {
-  using BaseType = typename ObjT::_CheckpointVirtualSerializerBaseType;
+  using BaseType = ::checkpoint::dispatch::vrt::checkpoint_base_type_t<ObjT>;
 
   auto& reg = getRegistry<BaseType>();
   index = static_cast<TypeIdx>(reg.size());

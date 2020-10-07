@@ -61,7 +61,7 @@ namespace checkpoint { namespace dispatch { namespace vrt {
 template <typename T, typename SerializerT>
 void virtualSerialize(T*& base, SerializerT& s) {
   // Get the real base in case this is called on a derived type
-  using BaseT = typename T::_CheckpointVirtualSerializerBaseType;
+  using BaseT = ::checkpoint::dispatch::vrt::checkpoint_base_type_t<T>;
   auto serializer_idx = serializer_registry::makeObjIdx<BaseT, SerializerT>();
   base->_checkpointDynamicSerialize(&s, serializer_idx, no_type_idx);
 }
@@ -130,7 +130,7 @@ struct SerializeAsVirtualIfNeeded<
     s | entry;
 
     if (s.isUnpacking()) {
-      using BaseT = typename T::_CheckpointVirtualSerializerBaseType;
+      using BaseT = ::checkpoint::dispatch::vrt::checkpoint_base_type_t<T>;
 
       // use type idx here, registration needed for proper type re-construction
       auto t = dispatch::vrt::objregistry::allocateConcreteType<BaseT>(entry);

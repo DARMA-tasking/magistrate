@@ -66,7 +66,7 @@ struct VirtualSerializeTraits {
    *  using _CheckpointVirtualSerializerBaseType = T;
    */
   template <typename U>
-  using has_base_typedef_t = typename U::_CheckpointVirtualSerializerBaseType;
+  using has_base_typedef_t = ::checkpoint::dispatch::vrt::checkpoint_base_type_t<U>;
 
   using has_base_typedef = detection::is_detected<has_base_typedef_t, T>;
 

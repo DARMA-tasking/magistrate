@@ -68,8 +68,8 @@
  *
  *   - Insert checkpoint macros in your virtual class hierarchy for derived and
  *     base classes with the corresponding macros:
- *     - \c checkpoint_virtual_serialize_base(T)
- *     - \c checkpoint_virtual_serialize_dervied(T,BaseT)
+ *     - \c checkpoint_virtual_serialize_base()
+ *     - \c checkpoint_virtual_serialize_derived_from(ParentT)
  *
  * Invoking the virtual serializer:
  *
