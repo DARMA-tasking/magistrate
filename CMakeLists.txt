@@ -26,6 +26,12 @@ option(
 option(
   CHECKPOINT_BUILD_EXAMPLES "Option for turning on checkpoint examples" OFF
 )
+option(
+  CHECKPOINT_WARNINGS_AS_ERRORS "Option for turning all warnings into errors" OFF
+)
+if (CHECKPOINT_WARNINGS_AS_ERRORS)
+  enable_cxx_compiler_flag_if_supported("-Werror")
+endif(CHECKPOINT_WARNINGS_AS_ERRORS)
 
 option(
   KOKKOS_KERNELS_ENABLED "Option for enabling kokkos kernels serializer" ON
