@@ -114,8 +114,8 @@ TEST_F(TestFootprinter, test_fundamental_types) {
   }
 
   {
-    int i = 3;
-    void* ptr = static_cast<void*>(&i);
+    int j = 3;
+    void* ptr = static_cast<void*>(&j);
     EXPECT_EQ(
       checkpoint::getMemoryFootprint(ptr),
       sizeof(ptr)
