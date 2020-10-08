@@ -45,11 +45,31 @@
 #if !defined INCLUDED_CHECKPOINT_DISPATCH_VRT_REGISTRY_COMMON_H
 #define INCLUDED_CHECKPOINT_DISPATCH_VRT_REGISTRY_COMMON_H
 
+#include <type_traits>
+
 namespace checkpoint { namespace dispatch { namespace vrt {
 
 using TypeIdx = int;
 
 static constexpr TypeIdx const no_type_idx = -1;
+
+template <typename BaseT>
+struct SerializableBase;
+
+template <typename BaseT>
+struct _CheckpointBaseType;
+
+template <typename BaseT>
+struct _CheckpointBaseType<BaseT*> {
+  using type = BaseT;
+};
+template <typename BaseT>
+struct _CheckpointBaseType<SerializableBase<BaseT>*> {
+  using type = BaseT;
+};
+template <typename ObjT>
+using checkpoint_base_type_t =
+  typename _CheckpointBaseType<decltype(std::declval<ObjT>()._CheckpointVSBaseTypeFn())>::type;
 
 }}} /* end namespace checkpoint::dispatch::vrt */
 

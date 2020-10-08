@@ -72,7 +72,7 @@ struct InstantiateIfPossible<
     // running on the derived type using the base idx.
     // using BaseType = typename ObjT::_CheckpointVirtualSerializerBaseType;
     // linkDerivedToBase<SerializerT, ObjT, BaseType>();
-    using BaseType = typename ObjT::_CheckpointVirtualSerializerBaseType;
+    using BaseType = ::checkpoint::dispatch::vrt::checkpoint_base_type_t<ObjT>;
     linkDerivedToBase<SerializerT, ObjT, BaseType>();
   }
 };
