@@ -117,9 +117,9 @@ REGISTER_TYPED_TEST_CASE_P(KokkosDynRankViewTest3D, test_3d_any);
 
 #if DO_UNIT_TESTS_FOR_VIEW
 
-INSTANTIATE_TYPED_TEST_CASE_P(test_dynrank_1, KokkosDynRankViewTest1D, DynRankViewTestTypes);
-INSTANTIATE_TYPED_TEST_CASE_P(test_dynrank_2, KokkosDynRankViewTest2D, DynRankViewTestTypes);
-INSTANTIATE_TYPED_TEST_CASE_P(test_dynrank_3, KokkosDynRankViewTest3D, DynRankViewTestTypes);
+INSTANTIATE_TYPED_TEST_CASE_P(test_dynrank_1, KokkosDynRankViewTest1D, DynRankViewTestTypes, );
+INSTANTIATE_TYPED_TEST_CASE_P(test_dynrank_2, KokkosDynRankViewTest2D, DynRankViewTestTypes, );
+INSTANTIATE_TYPED_TEST_CASE_P(test_dynrank_3, KokkosDynRankViewTest3D, DynRankViewTestTypes, );
 
 #endif
 

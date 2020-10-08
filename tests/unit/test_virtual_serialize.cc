@@ -609,7 +609,7 @@ using ConstructTypes = ::testing::Types<
 REGISTER_TYPED_TEST_CASE_P(TestVirtualSerialize, test_virtual_serialize);
 
 INSTANTIATE_TYPED_TEST_CASE_P(
-  test_virtual_serialize_inst, TestVirtualSerialize, ConstructTypes
+  test_virtual_serialize_inst, TestVirtualSerialize, ConstructTypes,
 );
 
 }}} // end namespace checkpoint::tests::unit

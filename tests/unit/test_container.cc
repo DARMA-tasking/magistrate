@@ -136,21 +136,21 @@ using ContUnorderedTypes = ::testing::Types<
 
 REGISTER_TYPED_TEST_CASE_P(TestContainer, test_single_ordered_container);
 
-INSTANTIATE_TYPED_TEST_CASE_P(Test_int, TestContainer, ContOrderedTypes<int>);
-INSTANTIATE_TYPED_TEST_CASE_P(Test_int16_t, TestContainer, ContOrderedTypes<int16_t>);
-INSTANTIATE_TYPED_TEST_CASE_P(Test_int32_t, TestContainer, ContOrderedTypes<int32_t>);
-INSTANTIATE_TYPED_TEST_CASE_P(Test_int64_t, TestContainer, ContOrderedTypes<int64_t>);
-INSTANTIATE_TYPED_TEST_CASE_P(Test_double, TestContainer, ContOrderedTypes<double>);
-INSTANTIATE_TYPED_TEST_CASE_P(Test_float, TestContainer, ContOrderedTypes<float>);
+INSTANTIATE_TYPED_TEST_CASE_P(Test_int, TestContainer, ContOrderedTypes<int>,);
+INSTANTIATE_TYPED_TEST_CASE_P(Test_int16_t, TestContainer, ContOrderedTypes<int16_t>,);
+INSTANTIATE_TYPED_TEST_CASE_P(Test_int32_t, TestContainer, ContOrderedTypes<int32_t>,);
+INSTANTIATE_TYPED_TEST_CASE_P(Test_int64_t, TestContainer, ContOrderedTypes<int64_t>,);
+INSTANTIATE_TYPED_TEST_CASE_P(Test_double, TestContainer, ContOrderedTypes<double>,);
+INSTANTIATE_TYPED_TEST_CASE_P(Test_float, TestContainer, ContOrderedTypes<float>,);
 
 REGISTER_TYPED_TEST_CASE_P(TestContainerUnordered, test_single_unordered_container);
 
-INSTANTIATE_TYPED_TEST_CASE_P(Test_int, TestContainerUnordered, ContUnorderedTypes<int>);
-INSTANTIATE_TYPED_TEST_CASE_P(Test_int16_t, TestContainerUnordered, ContUnorderedTypes<int16_t>);
-INSTANTIATE_TYPED_TEST_CASE_P(Test_int32_t, TestContainerUnordered, ContUnorderedTypes<int32_t>);
-INSTANTIATE_TYPED_TEST_CASE_P(Test_int64_t, TestContainerUnordered, ContUnorderedTypes<int64_t>);
-INSTANTIATE_TYPED_TEST_CASE_P(Test_double, TestContainerUnordered, ContUnorderedTypes<double>);
-INSTANTIATE_TYPED_TEST_CASE_P(Test_float, TestContainerUnordered, ContUnorderedTypes<float>);
+INSTANTIATE_TYPED_TEST_CASE_P(Test_int, TestContainerUnordered, ContUnorderedTypes<int>,);
+INSTANTIATE_TYPED_TEST_CASE_P(Test_int16_t, TestContainerUnordered, ContUnorderedTypes<int16_t>,);
+INSTANTIATE_TYPED_TEST_CASE_P(Test_int32_t, TestContainerUnordered, ContUnorderedTypes<int32_t>,);
+INSTANTIATE_TYPED_TEST_CASE_P(Test_int64_t, TestContainerUnordered, ContUnorderedTypes<int64_t>,);
+INSTANTIATE_TYPED_TEST_CASE_P(Test_double, TestContainerUnordered, ContUnorderedTypes<double>,);
+INSTANTIATE_TYPED_TEST_CASE_P(Test_float, TestContainerUnordered, ContUnorderedTypes<float>,);
 
 template <typename ContainerT>
 struct TestMultiContainer : TestHarness { };
@@ -232,27 +232,27 @@ using ContainerMultiTypesUnorderedDouble = ContainerMultiTypesUnordered<T, doubl
 REGISTER_TYPED_TEST_CASE_P(TestMultiContainer, test_multi_container);
 REGISTER_TYPED_TEST_CASE_P(TestMultiContainerUnordered, test_multi_container_unordered);
 
-INSTANTIATE_TYPED_TEST_CASE_P(TestMulti_int, TestMultiContainer, ContainerMultiTypes<int>);
-INSTANTIATE_TYPED_TEST_CASE_P(TestMulti_double, TestMultiContainer, ContainerMultiTypes<double>);
-INSTANTIATE_TYPED_TEST_CASE_P(TestMulti_int64_t, TestMultiContainer, ContainerMultiTypes<int64_t>);
-INSTANTIATE_TYPED_TEST_CASE_P(TestMulti_int16_t, TestMultiContainer, ContainerMultiTypes<int16_t>);
-INSTANTIATE_TYPED_TEST_CASE_P(TestMulti_float, TestMultiContainer, ContainerMultiTypes<float>);
+INSTANTIATE_TYPED_TEST_CASE_P(TestMulti_int, TestMultiContainer, ContainerMultiTypes<int>, );
+INSTANTIATE_TYPED_TEST_CASE_P(TestMulti_double, TestMultiContainer, ContainerMultiTypes<double>, );
+INSTANTIATE_TYPED_TEST_CASE_P(TestMulti_int64_t, TestMultiContainer, ContainerMultiTypes<int64_t>, );
+INSTANTIATE_TYPED_TEST_CASE_P(TestMulti_int16_t, TestMultiContainer, ContainerMultiTypes<int16_t>, );
+INSTANTIATE_TYPED_TEST_CASE_P(TestMulti_float, TestMultiContainer, ContainerMultiTypes<float>, );
 
-INSTANTIATE_TYPED_TEST_CASE_P(TestMultiDouble_int, TestMultiContainer, ContainerMultiTypesDouble<int>);
-INSTANTIATE_TYPED_TEST_CASE_P(TestMultiDouble_int64_t, TestMultiContainer, ContainerMultiTypesDouble<int64_t>);
-INSTANTIATE_TYPED_TEST_CASE_P(TestMultiDouble_int16_t, TestMultiContainer, ContainerMultiTypesDouble<int16_t>);
-INSTANTIATE_TYPED_TEST_CASE_P(TestMultiDouble_float, TestMultiContainer, ContainerMultiTypesDouble<float>);
+INSTANTIATE_TYPED_TEST_CASE_P(TestMultiDouble_int, TestMultiContainer, ContainerMultiTypesDouble<int>, );
+INSTANTIATE_TYPED_TEST_CASE_P(TestMultiDouble_int64_t, TestMultiContainer, ContainerMultiTypesDouble<int64_t>, );
+INSTANTIATE_TYPED_TEST_CASE_P(TestMultiDouble_int16_t, TestMultiContainer, ContainerMultiTypesDouble<int16_t>, );
+INSTANTIATE_TYPED_TEST_CASE_P(TestMultiDouble_float, TestMultiContainer, ContainerMultiTypesDouble<float>, );
 
 
-INSTANTIATE_TYPED_TEST_CASE_P(TestMulti_int, TestMultiContainerUnordered, ContainerMultiTypesUnordered<int>);
-INSTANTIATE_TYPED_TEST_CASE_P(TestMulti_double, TestMultiContainerUnordered, ContainerMultiTypesUnordered<double>);
-INSTANTIATE_TYPED_TEST_CASE_P(TestMulti_int64_t, TestMultiContainerUnordered, ContainerMultiTypesUnordered<int64_t>);
-INSTANTIATE_TYPED_TEST_CASE_P(TestMulti_int16_t, TestMultiContainerUnordered, ContainerMultiTypesUnordered<int16_t>);
-INSTANTIATE_TYPED_TEST_CASE_P(TestMulti_float, TestMultiContainerUnordered, ContainerMultiTypesUnordered<float>);
+INSTANTIATE_TYPED_TEST_CASE_P(TestMulti_int, TestMultiContainerUnordered, ContainerMultiTypesUnordered<int>, );
+INSTANTIATE_TYPED_TEST_CASE_P(TestMulti_double, TestMultiContainerUnordered, ContainerMultiTypesUnordered<double>, );
+INSTANTIATE_TYPED_TEST_CASE_P(TestMulti_int64_t, TestMultiContainerUnordered, ContainerMultiTypesUnordered<int64_t>, );
+INSTANTIATE_TYPED_TEST_CASE_P(TestMulti_int16_t, TestMultiContainerUnordered, ContainerMultiTypesUnordered<int16_t>, );
+INSTANTIATE_TYPED_TEST_CASE_P(TestMulti_float, TestMultiContainerUnordered, ContainerMultiTypesUnordered<float>, );
 
-INSTANTIATE_TYPED_TEST_CASE_P(TestMultiDouble_int, TestMultiContainerUnordered, ContainerMultiTypesUnorderedDouble<int>);
-INSTANTIATE_TYPED_TEST_CASE_P(TestMultiDouble_int64_t, TestMultiContainerUnordered, ContainerMultiTypesUnorderedDouble<int64_t>);
-INSTANTIATE_TYPED_TEST_CASE_P(TestMultiDouble_int16_t, TestMultiContainerUnordered, ContainerMultiTypesUnorderedDouble<int16_t>);
-INSTANTIATE_TYPED_TEST_CASE_P(TestMultiDouble_float, TestMultiContainerUnordered, ContainerMultiTypesUnorderedDouble<float>);
+INSTANTIATE_TYPED_TEST_CASE_P(TestMultiDouble_int, TestMultiContainerUnordered, ContainerMultiTypesUnorderedDouble<int>, );
+INSTANTIATE_TYPED_TEST_CASE_P(TestMultiDouble_int64_t, TestMultiContainerUnordered, ContainerMultiTypesUnorderedDouble<int64_t>, );
+INSTANTIATE_TYPED_TEST_CASE_P(TestMultiDouble_int16_t, TestMultiContainerUnordered, ContainerMultiTypesUnorderedDouble<int16_t>, );
+INSTANTIATE_TYPED_TEST_CASE_P(TestMultiDouble_float, TestMultiContainerUnordered, ContainerMultiTypesUnorderedDouble<float>, );
 
 }}} // end namespace checkpoint::tests::unit

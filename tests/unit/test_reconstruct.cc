@@ -263,6 +263,6 @@ using ConstructTypes = ::testing::Types<
 >;
 
 REGISTER_TYPED_TEST_CASE_P(TestReconstruct, test_reconstruct_multi_type);
-INSTANTIATE_TYPED_TEST_CASE_P(Test_reconstruct, TestReconstruct, ConstructTypes);
+INSTANTIATE_TYPED_TEST_CASE_P(Test_reconstruct, TestReconstruct, ConstructTypes, );
 
 }}} // end namespace checkpoint::tests::unit

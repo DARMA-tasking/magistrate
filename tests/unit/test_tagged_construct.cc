@@ -134,6 +134,6 @@ using ConstructTypes = ::testing::Types<
 >;
 
 REGISTER_TYPED_TEST_CASE_P(TestTaggedConstruct, test_tagged_construct);
-INSTANTIATE_TYPED_TEST_CASE_P(test_tagged, TestTaggedConstruct, ConstructTypes);
+INSTANTIATE_TYPED_TEST_CASE_P(test_tagged, TestTaggedConstruct, ConstructTypes, );
 
 }}} // end namespace checkpoint::tests::unit

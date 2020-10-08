@@ -81,12 +81,12 @@ REGISTER_TYPED_TEST_CASE_P(KokkosViewTest1D, test_1d_any);
 
 #if DO_UNIT_TESTS_FOR_VIEW
 
-INSTANTIATE_TYPED_TEST_CASE_P(test_1d_L, KokkosViewTest1D, Test1DTypesLeft);
-INSTANTIATE_TYPED_TEST_CASE_P(test_1d_R, KokkosViewTest1D, Test1DTypesRight);
-INSTANTIATE_TYPED_TEST_CASE_P(test_1d_S, KokkosViewTest1D, Test1DTypesStride);
-INSTANTIATE_TYPED_TEST_CASE_P(test_1d_L_C, KokkosViewTest1D, Test1DConstTypesLeft);
-INSTANTIATE_TYPED_TEST_CASE_P(test_1d_R_C, KokkosViewTest1D, Test1DConstTypesRight);
-INSTANTIATE_TYPED_TEST_CASE_P(test_1d_S_C, KokkosViewTest1D, Test1DConstTypesStride);
+INSTANTIATE_TYPED_TEST_CASE_P(test_1d_L, KokkosViewTest1D, Test1DTypesLeft,);
+INSTANTIATE_TYPED_TEST_CASE_P(test_1d_R, KokkosViewTest1D, Test1DTypesRight,);
+INSTANTIATE_TYPED_TEST_CASE_P(test_1d_S, KokkosViewTest1D, Test1DTypesStride,);
+INSTANTIATE_TYPED_TEST_CASE_P(test_1d_L_C, KokkosViewTest1D, Test1DConstTypesLeft,);
+INSTANTIATE_TYPED_TEST_CASE_P(test_1d_R_C, KokkosViewTest1D, Test1DConstTypesRight,);
+INSTANTIATE_TYPED_TEST_CASE_P(test_1d_S_C, KokkosViewTest1D, Test1DConstTypesStride,);
 
 #endif
 
@@ -120,7 +120,7 @@ TYPED_TEST_P(KokkosDynamicViewTest, test_dynamic_1d) {
 REGISTER_TYPED_TEST_CASE_P(KokkosDynamicViewTest, test_dynamic_1d);
 
 INSTANTIATE_TYPED_TEST_CASE_P(
-  test_dynamic_view_1, KokkosDynamicViewTest, DynamicTestTypes
+  test_dynamic_view_1, KokkosDynamicViewTest, DynamicTestTypes,
 );
 
 

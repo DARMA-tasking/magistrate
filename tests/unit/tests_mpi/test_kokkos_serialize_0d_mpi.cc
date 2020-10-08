@@ -76,7 +76,7 @@ REGISTER_TYPED_TEST_CASE_P(KokkosViewTest0DMPI, test_0d_any);
 
 #if DO_UNIT_TESTS_FOR_VIEW
 
-INSTANTIATE_TYPED_TEST_CASE_P(test_0d, KokkosViewTest0DMPI, Test0DTypes);
+INSTANTIATE_TYPED_TEST_CASE_P(test_0d, KokkosViewTest0DMPI, Test0DTypes, );
 
 #endif
 #endif
