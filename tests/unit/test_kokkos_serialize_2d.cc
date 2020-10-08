@@ -82,12 +82,12 @@ REGISTER_TYPED_TEST_CASE_P(KokkosViewTest2D, test_2d_any);
 
 #if DO_UNIT_TESTS_FOR_VIEW
 
-INSTANTIATE_TYPED_TEST_CASE_P(test_2d_L,   KokkosViewTest2D, Test2DTypesLeft);
-INSTANTIATE_TYPED_TEST_CASE_P(test_2d_R,   KokkosViewTest2D, Test2DTypesRight);
-INSTANTIATE_TYPED_TEST_CASE_P(test_2d_S,   KokkosViewTest2D, Test2DTypesStride);
-INSTANTIATE_TYPED_TEST_CASE_P(test_2d_L_C, KokkosViewTest2D, Test2DConstTypesLeft);
-INSTANTIATE_TYPED_TEST_CASE_P(test_2d_R_C, KokkosViewTest2D, Test2DConstTypesRight);
-INSTANTIATE_TYPED_TEST_CASE_P(test_2d_S_C, KokkosViewTest2D, Test2DConstTypesStride);
+INSTANTIATE_TYPED_TEST_CASE_P(test_2d_L,   KokkosViewTest2D, Test2DTypesLeft, );
+INSTANTIATE_TYPED_TEST_CASE_P(test_2d_R,   KokkosViewTest2D, Test2DTypesRight, );
+INSTANTIATE_TYPED_TEST_CASE_P(test_2d_S,   KokkosViewTest2D, Test2DTypesStride, );
+INSTANTIATE_TYPED_TEST_CASE_P(test_2d_L_C, KokkosViewTest2D, Test2DConstTypesLeft, );
+INSTANTIATE_TYPED_TEST_CASE_P(test_2d_R_C, KokkosViewTest2D, Test2DConstTypesRight, );
+INSTANTIATE_TYPED_TEST_CASE_P(test_2d_S_C, KokkosViewTest2D, Test2DConstTypesStride, );
 
 #endif
 #endif

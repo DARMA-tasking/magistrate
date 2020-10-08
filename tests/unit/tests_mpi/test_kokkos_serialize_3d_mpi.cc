@@ -81,12 +81,12 @@ REGISTER_TYPED_TEST_CASE_P(KokkosViewTest3DMPI, test_3d_any);
 
 #if DO_UNIT_TESTS_FOR_VIEW
 
-INSTANTIATE_TYPED_TEST_CASE_P(test_3d_L, KokkosViewTest3DMPI, Test3DTypesLeft);
-INSTANTIATE_TYPED_TEST_CASE_P(test_3d_R, KokkosViewTest3DMPI, Test3DTypesRight);
-INSTANTIATE_TYPED_TEST_CASE_P(test_3d_S, KokkosViewTest3DMPI, Test3DTypesStride);
-INSTANTIATE_TYPED_TEST_CASE_P(test_3d_L_C, KokkosViewTest3DMPI, Test3DConstTypesLeft);
-INSTANTIATE_TYPED_TEST_CASE_P(test_3d_R_C, KokkosViewTest3DMPI, Test3DConstTypesRight);
-INSTANTIATE_TYPED_TEST_CASE_P(test_3d_S_C, KokkosViewTest3DMPI, Test3DConstTypesStride);
+INSTANTIATE_TYPED_TEST_CASE_P(test_3d_L, KokkosViewTest3DMPI, Test3DTypesLeft, );
+INSTANTIATE_TYPED_TEST_CASE_P(test_3d_R, KokkosViewTest3DMPI, Test3DTypesRight, );
+INSTANTIATE_TYPED_TEST_CASE_P(test_3d_S, KokkosViewTest3DMPI, Test3DTypesStride, );
+INSTANTIATE_TYPED_TEST_CASE_P(test_3d_L_C, KokkosViewTest3DMPI, Test3DConstTypesLeft, );
+INSTANTIATE_TYPED_TEST_CASE_P(test_3d_R_C, KokkosViewTest3DMPI, Test3DConstTypesRight, );
+INSTANTIATE_TYPED_TEST_CASE_P(test_3d_S_C, KokkosViewTest3DMPI, Test3DConstTypesStride, );
 
 #endif
 

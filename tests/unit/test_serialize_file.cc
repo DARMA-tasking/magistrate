@@ -165,7 +165,7 @@ using ConstructTypes = ::testing::Types<
 REGISTER_TYPED_TEST_CASE_P(TestSerializeFile, test_serialize_file_multi);
 REGISTER_TYPED_TEST_CASE_P(TestSerializeFileInPlace, test_serialize_file_multi_in_place);
 
-INSTANTIATE_TYPED_TEST_CASE_P(test_file, TestSerializeFile, ConstructTypes);
-INSTANTIATE_TYPED_TEST_CASE_P(test_file_in_place, TestSerializeFileInPlace, ConstructTypes);
+INSTANTIATE_TYPED_TEST_CASE_P(test_file, TestSerializeFile, ConstructTypes, );
+INSTANTIATE_TYPED_TEST_CASE_P(test_file_in_place, TestSerializeFileInPlace, ConstructTypes, );
 
 }}} // end namespace checkpoint::tests::unit
