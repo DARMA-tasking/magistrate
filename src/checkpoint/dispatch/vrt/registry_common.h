@@ -68,7 +68,8 @@ struct _CheckpointBaseType<SerializableBase<BaseT>*> {
   using type = BaseT;
 };
 template <typename ObjT>
-using checkpoint_base_type_t = typename _CheckpointBaseType<decltype(std::declval<ObjT>()._CheckpointVSBaseTypeFn())>::type;
+using checkpoint_base_type_t =
+  typename _CheckpointBaseType<decltype(std::declval<ObjT>()._CheckpointVSBaseTypeFn())>::type;
 
 }}} /* end namespace checkpoint::dispatch::vrt */
 
