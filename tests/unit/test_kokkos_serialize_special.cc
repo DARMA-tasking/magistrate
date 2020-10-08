@@ -93,7 +93,7 @@ TEST_F(KokkosViewExtentTest, test_view_extent) {
   auto sizer = Sizer();
   serializeExtentOnly(sizer, original, "v");
 
-  EXPECT_LE(sizer.getSize(), 1000);
+  EXPECT_LE(sizer.getSize(), std::size_t(1000));
 
   auto packer = Packer(sizer.getSize());
   serializeExtentOnly(packer, original, "v");
@@ -105,7 +105,7 @@ TEST_F(KokkosViewExtentTest, test_view_extent) {
 
   serializeExtentOnly(unpacker, target, "v");
 
-  EXPECT_EQ(12345, target.extent(0));
+  EXPECT_EQ(std::size_t(12345), target.extent(0));
 }
 
 TEST_F(KokkosViewExtentTest, test_view_extent_2d) {
@@ -118,7 +118,7 @@ TEST_F(KokkosViewExtentTest, test_view_extent_2d) {
   auto sizer = Sizer();
   serializeExtentOnly(sizer, original, "v");
 
-  EXPECT_LE(sizer.getSize(), 1000);
+  EXPECT_LE(sizer.getSize(), std::size_t(1000));
 
   auto packer = Packer(sizer.getSize());
   serializeExtentOnly(packer, original, "v");
@@ -130,8 +130,8 @@ TEST_F(KokkosViewExtentTest, test_view_extent_2d) {
 
   serializeExtentOnly(unpacker, target, "v");
 
-  EXPECT_EQ(12345, target.extent(0));
-  EXPECT_EQ(5, target.extent(1));
+  EXPECT_EQ(std::size_t(12345), target.extent(0));
+  EXPECT_EQ(std::size_t(5), target.extent(1));
 }
 
 TEST_F(KokkosViewExtentTest, test_view_extent_3d) {
@@ -144,7 +144,7 @@ TEST_F(KokkosViewExtentTest, test_view_extent_3d) {
   auto sizer = Sizer();
   serializeExtentOnly(sizer, original, "v");
 
-  EXPECT_LE(sizer.getSize(), 1000);
+  EXPECT_LE(sizer.getSize(), std::size_t(1000));
 
   auto packer = Packer(sizer.getSize());
   serializeExtentOnly(packer, original, "v");
@@ -156,9 +156,9 @@ TEST_F(KokkosViewExtentTest, test_view_extent_3d) {
 
   serializeExtentOnly(unpacker, target, "v");
 
-  EXPECT_EQ(12345, target.extent(0));
-  EXPECT_EQ(5, target.extent(1));
-  EXPECT_EQ(4, target.extent(2));
+  EXPECT_EQ(std::size_t(12345), target.extent(0));
+  EXPECT_EQ(std::size_t(5), target.extent(1));
+  EXPECT_EQ(std::size_t(4), target.extent(2));
 }
 
 TEST_F(KokkosViewExtentTest, test_view_extent_4d) {
@@ -171,7 +171,7 @@ TEST_F(KokkosViewExtentTest, test_view_extent_4d) {
   auto sizer = Sizer();
   serializeExtentOnly(sizer, original, "v");
 
-  EXPECT_LE(sizer.getSize(), 1000);
+  EXPECT_LE(sizer.getSize(), std::size_t(1000));
 
   auto packer = Packer(sizer.getSize());
   serializeExtentOnly(packer, original, "v");
@@ -183,10 +183,10 @@ TEST_F(KokkosViewExtentTest, test_view_extent_4d) {
 
   serializeExtentOnly(unpacker, target, "v");
 
-  EXPECT_EQ(9, target.extent(0));
-  EXPECT_EQ(23, target.extent(1));
-  EXPECT_EQ(5, target.extent(2));
-  EXPECT_EQ(4, target.extent(3));
+  EXPECT_EQ(std::size_t(9), target.extent(0));
+  EXPECT_EQ(std::size_t(23), target.extent(1));
+  EXPECT_EQ(std::size_t(5), target.extent(2));
+  EXPECT_EQ(std::size_t(4), target.extent(3));
 }
 
 #endif
