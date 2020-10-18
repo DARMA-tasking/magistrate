@@ -53,7 +53,7 @@
 #include <utility>
 #include <cassert>
 
-#define DEBUG_CHECKPOINT 0
+#define DEBUG_CHECKPOINT 1
 
 #if DEBUG_CHECKPOINT
 #define debug_checkpoint(...)        \
