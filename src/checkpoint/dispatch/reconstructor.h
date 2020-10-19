@@ -210,11 +210,15 @@ struct Reconstructor {
 
   template <typename U = T>
   static T* constructAllowFailImpl(void* buf, isNotConstructible<U>* = nullptr) {
-    checkpointAssert(
-      false,
-      "Checkpoint is wrongly trying to reconstruct an abstract base "
-      "class instance"
+    std::unique_ptr<char[]> msg = std::make_unique<char[]>(32768);
+    sprintf(
+      &msg[0],
+      "Checkpoint is failing to reconstruct a class %s, due to it being "
+      "abstract or the absence of a suitable constructor (default or tagged) "
+      "or reconstruct()",
+      typeid(T).name()
     );
+    checkpointAssert(false, msg.get());
     return nullptr;
   }
 

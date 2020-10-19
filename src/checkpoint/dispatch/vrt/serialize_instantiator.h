@@ -58,7 +58,8 @@ struct InstantiateIfPossible<
   ObjT,
   SerializerT,
   typename std::enable_if_t<
-    SerializableTraits<ObjT, SerializerT>::is_serializable
+    SerializableTraits<ObjT, SerializerT>::has_serialize_function or
+    SerializableTraits<ObjT, SerializerT>::is_bytecopyable
   >
 > {
   static void registerIt() {
@@ -82,7 +83,8 @@ struct InstantiateIfPossible<
   ObjT,
   SerializerT,
   typename std::enable_if_t<
-    not SerializableTraits<ObjT, SerializerT>::is_serializable
+    not (SerializableTraits<ObjT, SerializerT>::has_serialize_function or
+         SerializableTraits<ObjT, SerializerT>::is_bytecopyable)
   >
 > {
   static void registerIt() {
