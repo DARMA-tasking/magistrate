@@ -612,4 +612,47 @@ INSTANTIATE_TYPED_TEST_CASE_P(
   test_virtual_serialize_inst, TestVirtualSerialize, ConstructTypes,
 );
 
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+// Test for virtual serialize with an abstract class
+
+using TestVirtualSerializeTemplated = TestHarness;
+
+struct HolderBase {
+  checkpoint_virtual_serialize_root()
+
+  virtual ~HolderBase() = default;
+
+  template <typename Serializer>
+  void serialize(Serializer& s) {}
+};
+
+template <typename ObjT>
+struct HolderObjBase : HolderBase {
+  checkpoint_virtual_serialize_derived_from(HolderBase)
+
+  virtual ObjT* get() = 0;
+
+  template <typename Serializer>
+  void serialize(Serializer& s) {}
+};
+
+template <typename ObjT>
+struct HolderBasic final : HolderObjBase<ObjT> {
+  checkpoint_virtual_serialize_derived_from(HolderObjBase<ObjT>)
+
+  ObjT* get() override { return obj_; }
+  ObjT* obj_ = nullptr;
+
+  template <typename Serializer>
+  void serialize(Serializer& s) {}
+};
+
+TEST_F(TestVirtualSerializeTemplated, test_virtual_serialize_templated) {
+  std::unique_ptr<HolderBase> ptr = std::make_unique<HolderBasic<int>>();
+  checkpoint::getSize(ptr);
+}
+
 }}} // end namespace checkpoint::tests::unit
