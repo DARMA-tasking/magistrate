@@ -652,7 +652,7 @@ struct HolderBasic final : HolderObjBase<ObjT> {
 
 TEST_F(TestVirtualSerializeTemplated, test_virtual_serialize_templated) {
   using TestType = std::unique_ptr<HolderBase>;
-  TestType ptr = std::make_unique<HolderBasic<int>>(10);
+  TestType ptr = std::make_unique<HolderBasic<int>>();
 
   auto ret = checkpoint::serialize(ptr);
   checkpoint::deserialize<TestType>(std::move(ret));
