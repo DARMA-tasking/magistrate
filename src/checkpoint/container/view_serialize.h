@@ -319,7 +319,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
 
   bool init = false;
   if (!s.isUnpacking()) {
-     init = view.use_count() > 0;
+    init = (view.use_count() > 0 || view.data() != nullptr);
   }
   s | init;
 
@@ -435,7 +435,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
 
   bool init = false;
   if (!s.isUnpacking()) {
-     init = view.use_count() > 0;
+    init = (view.use_count() > 0 || view.data() != nullptr);
   }
   s | init;
 
