@@ -348,7 +348,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
       } else {
         checkpointAssert(
           false,
-          "Serializing Kokkos::DynRankView is only supported up to 4 dimensions"
+          "Serializing Kokkos::DynRankView is only supported up to 8 dimensions"
           " for non-contiguous views"
         );
       }
