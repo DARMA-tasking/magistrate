@@ -337,6 +337,14 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
         TraverseManual<SerializerT,ViewType,3>::apply(s,view);
       } else if (dims == 4) {
         TraverseManual<SerializerT,ViewType,4>::apply(s,view);
+      } else if (dims == 5) {
+        TraverseManual<SerializerT,ViewType,5>::apply(s,view);
+      } else if (dims == 6) {
+        TraverseManual<SerializerT,ViewType,6>::apply(s,view);
+      } else if (dims == 7) {
+        TraverseManual<SerializerT,ViewType,7>::apply(s,view);
+      } else if (dims == 8) {
+        TraverseManual<SerializerT,ViewType,8>::apply(s,view);
       } else {
         checkpointAssert(
           false,
