@@ -230,6 +230,122 @@ struct TraverseManual<SerializerT,ViewType,4> {
   }
 };
 
+template <typename SerializerT, typename ViewType>
+struct TraverseManual<SerializerT,ViewType,5> {
+  static void apply(SerializerT& s, ViewType const& v) {
+    using BaseType = typename CountDims<ViewType>::BaseT;
+    using SizeType = typename ViewType::size_type;
+    for (SizeType i = 0; i < v.extent(0); i++) {
+      for (SizeType j = 0; j < v.extent(1); j++) {
+        for (SizeType k = 0; k < v.extent(2); k++) {
+          for (SizeType l = 0; l < v.extent(3); l++) {
+            for (SizeType m = 0; m < v.extent(4); m++) {
+              if (s.isUnpacking()) {
+                BaseType val{};
+                s | val;
+                v.operator()(i,j,k,l,m) = val;
+              } else {
+                BaseType const& val = v.operator()(i,j,k,l,m);
+                s | val;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+};
+
+template <typename SerializerT, typename ViewType>
+struct TraverseManual<SerializerT,ViewType,6> {
+  static void apply(SerializerT& s, ViewType const& v) {
+    using BaseType = typename CountDims<ViewType>::BaseT;
+    using SizeType = typename ViewType::size_type;
+    for (SizeType i = 0; i < v.extent(0); i++) {
+      for (SizeType j = 0; j < v.extent(1); j++) {
+        for (SizeType k = 0; k < v.extent(2); k++) {
+          for (SizeType l = 0; l < v.extent(3); l++) {
+            for (SizeType m = 0; m < v.extent(4); m++) {
+              for (SizeType n = 0; n < v.extent(5); n++) {
+                if (s.isUnpacking()) {
+                  BaseType val{};
+                  s | val;
+                  v.operator()(i,j,k,l,m,n) = val;
+                } else {
+                  BaseType const& val = v.operator()(i,j,k,l,m,n);
+                  s | val;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+};
+
+template <typename SerializerT, typename ViewType>
+struct TraverseManual<SerializerT,ViewType,7> {
+  static void apply(SerializerT& s, ViewType const& v) {
+    using BaseType = typename CountDims<ViewType>::BaseT;
+    using SizeType = typename ViewType::size_type;
+    for (SizeType i = 0; i < v.extent(0); i++) {
+      for (SizeType j = 0; j < v.extent(1); j++) {
+        for (SizeType k = 0; k < v.extent(2); k++) {
+          for (SizeType l = 0; l < v.extent(3); l++) {
+            for (SizeType m = 0; m < v.extent(4); m++) {
+              for (SizeType n = 0; n < v.extent(5); n++) {
+                for (SizeType o = 0; o < v.extent(6); o++) {
+                  if (s.isUnpacking()) {
+                    BaseType val{};
+                    s | val;
+                    v.operator()(i,j,k,l,m,n,o) = val;
+                  } else {
+                    BaseType const& val = v.operator()(i,j,k,l,m,n,o);
+                    s | val;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+};
+
+template <typename SerializerT, typename ViewType>
+struct TraverseManual<SerializerT,ViewType,8> {
+  static void apply(SerializerT& s, ViewType const& v) {
+    using BaseType = typename CountDims<ViewType>::BaseT;
+    using SizeType = typename ViewType::size_type;
+    for (SizeType i = 0; i < v.extent(0); i++) {
+      for (SizeType j = 0; j < v.extent(1); j++) {
+        for (SizeType k = 0; k < v.extent(2); k++) {
+          for (SizeType l = 0; l < v.extent(3); l++) {
+            for (SizeType m = 0; m < v.extent(4); m++) {
+              for (SizeType n = 0; n < v.extent(5); n++) {
+                for (SizeType o = 0; o < v.extent(6); o++) {
+                  for (SizeType p = 0; p < v.extent(7); p++) {
+                    if (s.isUnpacking()) {
+                      BaseType val{};
+                      s | val;
+                      v.operator()(i,j,k,l,m,n,o,p) = val;
+                    } else {
+                      BaseType const& val = v.operator()(i,j,k,l,m,n,o,p);
+                      s | val;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+};
+
 } /* end namespace checkpoint */
 
 #endif /*KOKKOS_ENABLED_CHECKPOINT*/

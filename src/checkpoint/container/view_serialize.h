@@ -630,7 +630,7 @@ void serializeExtentOnly(SerializerT& s, ViewType& v, std::string label) {
 
 template< typename SerializerT, typename T, typename... Ts >
 void serializeContentsOnly(SerializerT& s, Kokkos::View<T, Ts...>& v) {
-  Kokkos::View<T> values = v;
+  Kokkos::View<T, Ts...> values = v;
   s | values;
   if (s.isUnpacking())
     Kokkos::deep_copy(v, values);
