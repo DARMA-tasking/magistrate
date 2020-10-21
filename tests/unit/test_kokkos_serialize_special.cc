@@ -80,6 +80,43 @@ TEST_F(KokkosViewContentsTest, test_view_contents) {
   EXPECT_EQ(20, alias(1));
 }
 
+TEST_F(KokkosViewContentsTest, test_view_contents_2d_layout) {
+  using ViewType = Kokkos::View<int**, Kokkos::LayoutLeft>;
+
+  ViewType original = ViewType("my view", 2, 2);
+  ViewType alias = original;
+
+  original(0,0) = 10;
+  original(0,1) = 20;
+  original(1,0) = 30;
+  original(1,1) = 40;
+
+  EXPECT_EQ(10, alias(0,0));
+  EXPECT_EQ(20, alias(0,1));
+  EXPECT_EQ(30, alias(1,0));
+  EXPECT_EQ(40, alias(1,1));
+
+  using namespace checkpoint;
+
+  auto sizer = Sizer();
+  serializeContentsOnly(sizer, original);
+
+  auto packer = Packer(sizer.getSize());
+  serializeContentsOnly(packer, original);
+
+  Kokkos::deep_copy(alias, 0);
+
+  auto buffer = packer.extractPackedBuffer();
+  auto unpacker = Unpacker(buffer->getBuffer());
+
+  serializeContentsOnly(unpacker, original);
+
+  EXPECT_EQ(10, alias(0,0));
+  EXPECT_EQ(20, alias(0,1));
+  EXPECT_EQ(30, alias(1,0));
+  EXPECT_EQ(40, alias(1,1));
+}
+
 struct KokkosViewExtentTest : virtual testing::Test { };
 
 
