@@ -343,12 +343,10 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
         TraverseManual<SerializerT,ViewType,6>::apply(s,view);
       } else if (dims == 7) {
         TraverseManual<SerializerT,ViewType,7>::apply(s,view);
-      } else if (dims == 8) {
-        TraverseManual<SerializerT,ViewType,8>::apply(s,view);
       } else {
         checkpointAssert(
           false,
-          "Serializing Kokkos::DynRankView is only supported up to 8 dimensions"
+          "Serializing Kokkos::DynRankView is only supported up to 7 dimensions"
           " for non-contiguous views"
         );
       }
