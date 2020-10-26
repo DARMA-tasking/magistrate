@@ -77,7 +77,7 @@ struct ObjectEntry {
   std::size_t size_ = 0;                   /**< The registered object size */
   std::function<void*(void)> allocator_;   /**< Do standard allocation for object */
   std::function<T*(void*)> constructor_;   /**< Construct object on memory */
-  std::function<T*(void*)> caster_;        /**< Try to dynamic_cast<ObjT> */
+  std::function<T*(T*)> caster_;           /**< Try to dynamic_cast<ObjT> */
 };
 
 template <typename T>
@@ -115,7 +115,7 @@ Registrar<ObjT>::Registrar() {
       sizeof(ObjT),
       []()          -> void*       { return std::allocator<ObjT>{}.allocate(1); },
       [](void* buf) -> BaseType*   { return dispatch::Reconstructor<ObjT>::constructAllowFail(buf); },
-      [](void* buf) -> ObjT*       { return dynamic_cast<ObjT>(buf); }
+      [](BaseType* buf) -> ObjT*   { return dynamic_cast<ObjT>(buf); }
     }
   );
 }
