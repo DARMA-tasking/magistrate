@@ -115,7 +115,7 @@ Registrar<ObjT>::Registrar() {
       sizeof(ObjT),
       []()          -> void*       { return std::allocator<ObjT>{}.allocate(1); },
       [](void* buf) -> BaseType*   { return dispatch::Reconstructor<ObjT>::constructAllowFail(buf); },
-      [](BaseType* buf) -> ObjT*   { return dynamic_cast<ObjT>(buf); }
+      [](BaseType* buf) -> ObjT*   { return dynamic_cast<ObjT*>(buf); }
     }
   );
 }
