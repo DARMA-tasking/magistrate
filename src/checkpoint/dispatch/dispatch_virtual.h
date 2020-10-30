@@ -58,6 +58,7 @@
  * ----------------------------- API usage: ----------------------------------
  * ---------------------------------------------------------------------------
  *
+ * ----------------------------- Declarations --------------------------------
  * === Option 1 ===
  *
  *   - Make your virtual class hierarchy you want to serialize all inherit from
@@ -71,15 +72,27 @@
  *     - \c checkpoint_virtual_serialize_root()
  *     - \c checkpoint_virtual_serialize_derived_from(ParentT)
  *
- * Invoking the virtual serializer:
+ * --------------------------- Invocation ------------------------------------
  *
  *   - If you have a \c std::unique_ptr<T>, where T is virtually serializable (by
  *     using the macros or inheriting from \c SerializableBase<T> and
  *     \c SerializableDervived<T,BaseT> ), they will automatically be virtually
  *     serialized.
  *
+ *   Example using unique_ptr:
+ *       template <typename T>
+ *       struct MyObjectWithUniquePointer {
+ *         unique_ptr<T> ptr;
+ *
+ *         template <typename SerializerT>
+ *         void serialize(SerializerT& s) {
+ *           s | ptr;
+ *         }
+ *       };
+ *
+ *
  *   - If you have a raw pointer, \c Teuchos::RCP, or \c std::shared_ptr<T>,
- *     you must invoke: \c checkpoint::allocateConstructForPointer<SerializerT,T>
+ *     you must invoke \c checkpoint::reconstructPointedToObjectIfNeeded(s, t);
  *
  *     Example with raw pointer:
  *
@@ -94,7 +107,7 @@
  *           if (!is_null) {
  *             // During size/pack, save the actual derived type of raw_ptr;
  *             // During unpack, allocate/construct raw_ptr with correct virtual type
- *             checkpoint::allocateConstructForPointer(s, raw_ptr);
+ *             checkpoint::reconstructPointedToObjectIfNeeded(s, raw_ptr);
  *             s | *raw_ptr;
  *           }
  *         }

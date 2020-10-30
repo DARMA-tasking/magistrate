@@ -350,7 +350,7 @@ struct TestWrapper {
 
     for (auto&& elm : vec) {
       TestBase* base = elm.get();
-      checkpoint::allocateConstructForPointer(s, base);
+      checkpoint::reconstructPointedToObjectIfNeeded(s, base);
       if (s.isUnpacking()) {
         elm = std::shared_ptr<TestBase>(base);
       }
@@ -359,7 +359,7 @@ struct TestWrapper {
 
     for (auto&& elm : vec_derived) {
       TestDerived2* derived = elm.get();
-      checkpoint::allocateConstructForPointer(s, derived);
+      checkpoint::reconstructPointedToObjectIfNeeded(s, derived);
       if (s.isUnpacking()) {
         elm = std::shared_ptr<TestDerived2>(derived);
       }

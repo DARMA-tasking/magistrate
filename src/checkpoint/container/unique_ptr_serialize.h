@@ -60,14 +60,24 @@ void serialize(Serializer& s, std::unique_ptr<T, Deleter>& ptr) {
     s | is_null;
   }
 
-  if (not is_null) {
-    T* t = ptr.get();
-    allocateConstructForPointer(s, t);
+  if (is_null) {
     if (s.isUnpacking()) {
+      ptr.reset();
+    }
+    return;
+  }
+
+  T* t = ptr.get();
+  reconstructPointedToObjectIfNeeded(s, t);
+
+  if (s.isUnpacking()) {
+    // Support deserialization in place
+    if (ptr.get() != t) {
       ptr = std::unique_ptr<T, Deleter>(t);
     }
-    s | *ptr;
   }
+
+  s | *ptr;
 }
 
 } /* end namespace checkpoint */

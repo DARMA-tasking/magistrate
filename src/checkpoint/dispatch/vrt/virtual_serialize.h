@@ -71,7 +71,63 @@ void virtualSerialize(T*& base, SerializerT& s) {
 namespace checkpoint {
 
 /**
- * \struct SerializeAsVirtualIfNeeded
+ * \struct SerializeVirtualTypeIfNeeded
+ *
+ * \brief Do a static trait test on type to check for virtual
+ * serializability. If virtually serializable, we need to perform some
+ * extra work to register the type, and serialize its index.
+ */
+template <typename T, typename SerializerT, typename _enabled = void>
+struct SerializeVirtualTypeIfNeeded;
+
+template <typename T, typename SerializerT>
+struct SerializeVirtualTypeIfNeeded<
+  T,
+  SerializerT,
+  typename std::enable_if_t<
+    dispatch::vrt::VirtualSerializeTraits<T>::has_not_virtual_serialize
+  >
+>
+{
+  static dispatch::vrt::TypeIdx apply(SerializerT& s, T* target) {
+    // no type idx needed in this case
+    return dispatch::vrt::no_type_idx;
+  }
+};
+
+template <typename T, typename SerializerT>
+struct SerializeVirtualTypeIfNeeded<
+  T,
+  SerializerT,
+  typename std::enable_if_t<
+    dispatch::vrt::VirtualSerializeTraits<T>::has_virtual_serialize
+  >
+>
+{
+  static typename dispatch::vrt::TypeIdx apply(SerializerT& s, T* target) {
+    dispatch::vrt::TypeIdx entry = dispatch::vrt::no_type_idx;
+
+    if (not s.isUnpacking()) {
+      entry = target->_checkpointDynamicTypeIndex();
+    }
+
+    // entry doesn't count as part of a footprint
+    if (not s.isFootprinting()) {
+      s | entry;
+    }
+
+    if (target != nullptr) {
+      // Support deserialization in place, and make sure it's safe
+      checkpointAssert(entry == target->_checkpointDynamicTypeIndex(),
+                       "Trying to deserialize in place over a mismatched type");
+    }
+
+    return entry;
+  }
+};
+
+/**
+ * \struct ReconstructAsVirtualIfNeeded
  *
  * \brief Do a static trait test on type to check for virtual
  * serializability. If virtually serializable, we need to perform some extra
@@ -80,10 +136,10 @@ namespace checkpoint {
  * and serializing what the pointer points to.
  */
 template <typename T, typename SerializerT, typename _enabled = void>
-struct SerializeAsVirtualIfNeeded;
+struct ReconstructAsVirtualIfNeeded;
 
 template <typename T, typename SerializerT>
-struct SerializeAsVirtualIfNeeded<
+struct ReconstructAsVirtualIfNeeded<
   T,
   SerializerT,
   typename std::enable_if_t<
@@ -91,15 +147,15 @@ struct SerializeAsVirtualIfNeeded<
     not std::is_same<SerializerT, checkpoint::Footprinter>::value
   >
 > {
-  static void apply(SerializerT& s, T*& target) {
+  static T* apply(SerializerT& s, dispatch::vrt::TypeIdx entry) {
     // no type idx needed in this case, static construction in default case
     auto t = std::allocator<T>{}.allocate(1);
-    target = dispatch::Reconstructor<T>::construct(t);
+    return dispatch::Reconstructor<T>::construct(t);
   }
 };
 
 template <typename T, typename SerializerT>
-struct SerializeAsVirtualIfNeeded<
+struct ReconstructAsVirtualIfNeeded<
   T,
   SerializerT,
   typename std::enable_if_t<
@@ -107,37 +163,25 @@ struct SerializeAsVirtualIfNeeded<
     std::is_same<SerializerT, checkpoint::Footprinter>::value
   >
 > {
-  static void apply(SerializerT& s, T*& target) { }
+  static T* apply(SerializerT& s, dispatch::vrt::TypeIdx entry) { return nullptr; }
 };
 
 template <typename T, typename SerializerT>
-struct SerializeAsVirtualIfNeeded<
+struct ReconstructAsVirtualIfNeeded<
   T,
   SerializerT,
   typename std::enable_if_t<
     dispatch::vrt::VirtualSerializeTraits<T>::has_virtual_serialize
   >
 > {
-  static void apply(SerializerT& s, T*& target) {
-    using dispatch::vrt::TypeIdx;
+  static T* apply(SerializerT& s, dispatch::vrt::TypeIdx entry) {
+    using BaseT = ::checkpoint::dispatch::vrt::checkpoint_base_type_t<T>;
 
-    TypeIdx entry = dispatch::vrt::no_type_idx;
-
-    if (not s.isUnpacking()) {
-      entry = target->_checkpointDynamicTypeIndex();
-    }
-
-    s | entry;
-
-    if (s.isUnpacking()) {
-      using BaseT = ::checkpoint::dispatch::vrt::checkpoint_base_type_t<T>;
-
-      // use type idx here, registration needed for proper type re-construction
-      auto t = dispatch::vrt::objregistry::allocateConcreteType<BaseT>(entry);
-      target = static_cast<T*>(
-        dispatch::vrt::objregistry::constructConcreteType<BaseT>(entry, t)
-      );
-    }
+    // use type idx here, registration needed for proper type re-construction
+    auto t = dispatch::vrt::objregistry::allocateConcreteType<BaseT>(entry);
+    return static_cast<T*>(
+                           dispatch::vrt::objregistry::constructConcreteType<BaseT>(entry, t)
+                           );
   }
 };
 
@@ -157,7 +201,7 @@ struct SerializeAsVirtualIfNeeded<
  *     template <typename SerializerT>
  *     void serialize(SerializerT& s) {
  *       T* raw = elm.get();
- *       checkpoint::allocateConstructForPointer(s, raw);
+ *       checkpoint::reconstructPointedToObjectIfNeeded(s, raw);
  *       if (s.isUnpacking()) {
  *         a = std::shared_ptr<T>(raw);
  *       }
@@ -165,13 +209,22 @@ struct SerializeAsVirtualIfNeeded<
  *     }
  *   };
  *
- *
  * \param[in] s the serializer
  * \param[in] target a reference to a pointer to the target object
  */
 template <typename SerializerT, typename T>
-void allocateConstructForPointer(SerializerT& s, T*& target) {
-  SerializeAsVirtualIfNeeded<T, SerializerT>::apply(s, target);
+void reconstructPointedToObjectIfNeeded(SerializerT& s, T*& target) {
+  auto entry = SerializeVirtualTypeIfNeeded<T, SerializerT>::apply(s, target);
+
+  if (target != nullptr) {
+    // Support deserialization in place; assumes matching of virtual
+    // types was checked in serializeDynamicTypeIndex()
+    return;
+  }
+
+  if (s.isUnpacking()) {
+    target = ReconstructAsVirtualIfNeeded<T, SerializerT>::apply(s, entry);
+  }
 }
 
 } /* end namespace checkpoint */
