@@ -84,7 +84,6 @@ struct UserObject2 {
     EXPECT_EQ(vec[0], vec_val);
   }
 
-private:
   int x = 0, y = 0;
   std::vector<int> vec;
 };
@@ -101,7 +100,7 @@ struct UserObject1 {
 
   template <typename Serializer>
   void serialize(Serializer& s) {
-    s | z | obj | obj_null;
+    s | z | obj | obj_null | obj_reset_null;
   }
 
   void check() {
@@ -109,11 +108,13 @@ struct UserObject1 {
     EXPECT_NE(obj, nullptr);
     obj->check();
     EXPECT_EQ(obj_null, nullptr);
+    EXPECT_EQ(obj_reset_null, nullptr);
   }
 
   int z = 0;
   std::unique_ptr<UserObject2> obj = nullptr;
   std::unique_ptr<UserObject2> obj_null = nullptr;
+  std::unique_ptr<UserObject2> obj_reset_null = nullptr;
 };
 
 TEST_F(TestUniquePtr, test_unique_ptr_1) {
@@ -122,6 +123,13 @@ TEST_F(TestUniquePtr, test_unique_ptr_1) {
   auto ret = checkpoint::serialize(t);
   auto out = checkpoint::deserialize<UserObject1>(ret->getBuffer());
   out->check();
+
+  UserObject1 u{UserObject1::MakeTag{}};
+  u.obj_reset_null = std::make_unique<UserObject2>();
+  u.obj->x = 1;
+  u.obj->vec.clear();
+  checkpoint::deserializeInPlace(ret->getBuffer(), &u);
+  u.check();
 }
 
 }}} // end namespace checkpoint::tests::unit
