@@ -643,11 +643,11 @@ template <typename ObjT>
 struct HolderBasic final : HolderObjBase<ObjT> {
   checkpoint_virtual_serialize_derived_from(HolderObjBase<ObjT>)
 
-  ObjT* get() override { return obj_; }
-  ObjT* obj_ = nullptr;
+  ObjT* get() override { return obj_.get(); }
+  std::unique_ptr<ObjT> obj_ = nullptr;
 
   template <typename Serializer>
-  void serialize(Serializer& s) {}
+  void serialize(Serializer& s) { s | obj_; }
 };
 
 TEST_F(TestVirtualSerializeTemplated, test_virtual_serialize_templated) {
@@ -656,6 +656,42 @@ TEST_F(TestVirtualSerializeTemplated, test_virtual_serialize_templated) {
 
   auto ret = checkpoint::serialize(ptr);
   checkpoint::deserialize<TestType>(std::move(ret));
+}
+
+// Test for virtual serialize of a raw pointer
+
+using TestVirtualSerializeRaw = TestHarness;
+
+struct Owner {
+  Owner(int i) {
+    HolderBasic<int> *ptr_orig = new HolderBasic<int>;
+    ptr_orig->obj_ = std::make_unique<int>(i);
+    ptr_raw_base_ = ptr_orig;
+  }
+  Owner() = default;
+  ~Owner() { delete ptr_raw_base_; }
+
+  template <typename SerializerT>
+  void serialize(SerializerT &s) {
+    // Mimic the snippet given in dispatch_virtual.h
+    bool is_null = ptr_raw_base_ == nullptr;
+    s | is_null;
+    if (!is_null) {
+      checkpoint::reconstructPointedToObjectIfNeeded(s, ptr_raw_base_);
+      s | *ptr_raw_base_;
+    }
+  }
+
+  HolderObjBase<int> *ptr_raw_base_ = nullptr;
+};
+
+TEST_F(TestVirtualSerializeRaw, test_virtual_serialize_raw) {
+  Owner a{10};
+
+  auto buf = checkpoint::serialize(a);
+  auto b = checkpoint::deserialize<Owner>(std::move(buf));
+
+  EXPECT_EQ(*(b->ptr_raw_base_->get()), 10);
 }
 
 }}} // end namespace checkpoint::tests::unit
