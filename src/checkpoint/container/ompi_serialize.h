@@ -2,11 +2,11 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                 checkpoint.h
+//                              ompi_serialize.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
-// Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
+// Copyright 2020 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 // Government retains certain rights in this software.
 //
@@ -42,32 +42,75 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CHECKPOINT_H
-#define INCLUDED_CHECKPOINT_CHECKPOINT_H
+#if !defined INCLUDED_CHECKPOINT_CONTAINER_OMPI_SERIALIZE_H
+#define INCLUDED_CHECKPOINT_CONTAINER_OMPI_SERIALIZE_H
 
-#include "checkpoint/serializers/serializers_headers.h"
-#include "checkpoint/dispatch/dispatch.h"
-#include "checkpoint/traits/serializable_traits.h"
+#include "checkpoint/common.h"
 
-#include "checkpoint/container/array_serialize.h"
-#include "checkpoint/container/atomic_serialize.h"
-#include "checkpoint/container/chrono_serialize.h"
-#include "checkpoint/container/enum_serialize.h"
-#include "checkpoint/container/function_serialize.h"
-#include "checkpoint/container/list_serialize.h"
-#include "checkpoint/container/map_serialize.h"
-#include "checkpoint/container/ompi_serialize.h"
-#include "checkpoint/container/queue_serialize.h"
-#include "checkpoint/container/raw_ptr_serialize.h"
-#include "checkpoint/container/shared_ptr_serialize.h"
-#include "checkpoint/container/string_serialize.h"
-#include "checkpoint/container/thread_serialize.h"
-#include "checkpoint/container/tuple_serialize.h"
-#include "checkpoint/container/vector_serialize.h"
-#include "checkpoint/container/unique_ptr_serialize.h"
-#include "checkpoint/container/view_serialize.h"
+struct ompi_communicator_t;
+struct ompi_group_t;
+struct ompi_request_t;
+struct ompi_win_t;
 
-#include "checkpoint/checkpoint_api.h"
-#include "checkpoint/checkpoint_api.impl.h"
+namespace checkpoint {
 
-#endif /*INCLUDED_CHECKPOINT_CHECKPOINT_H*/
+/**
+ * Simplified footprinting is supported for certain Open MPI structures to avoid
+ * workarounds in application code.
+ */
+
+template <
+  typename SerializerT,
+  typename = std::enable_if_t<
+    std::is_same<
+      SerializerT,
+      checkpoint::Footprinter
+    >::value
+  >
+>
+void serialize(SerializerT& s, ompi_communicator_t* req) {
+  s.countBytes(req);
+}
+
+template <
+  typename SerializerT,
+  typename = std::enable_if_t<
+    std::is_same<
+      SerializerT,
+      checkpoint::Footprinter
+    >::value
+  >
+>
+void serialize(SerializerT& s, ompi_group_t* req) {
+  s.countBytes(req);
+}
+
+template <
+  typename SerializerT,
+  typename = std::enable_if_t<
+    std::is_same<
+      SerializerT,
+      checkpoint::Footprinter
+    >::value
+  >
+>
+void serialize(SerializerT& s, ompi_request_t* req) {
+  s.countBytes(req);
+}
+
+template <
+  typename SerializerT,
+  typename = std::enable_if_t<
+    std::is_same<
+      SerializerT,
+      checkpoint::Footprinter
+    >::value
+  >
+>
+void serialize(SerializerT& s, ompi_win_t* req) {
+  s.countBytes(req);
+}
+
+} /* end namespace checkpoint */
+
+#endif /*INCLUDED_CHECKPOINT_CONTAINER_OMPI_SERIALIZE_H*/

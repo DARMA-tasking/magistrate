@@ -50,6 +50,11 @@
 #include <thread>
 #include <checkpoint/checkpoint.h>
 
+struct ompi_communicator_t;
+struct ompi_group_t;
+struct ompi_request_t;
+struct ompi_win_t;
+
 namespace checkpoint { namespace tests { namespace unit {
 
 struct TestFootprinter : TestHarness { };
@@ -540,6 +545,44 @@ TEST_F(TestFootprinter, test_virtual_serialize) {
   {
     std::shared_ptr<TestBase> ptr = std::make_shared<TestDerived2>(0);
     checkpoint::getMemoryFootprint(ptr);
+  }
+}
+
+TEST_F(TestFootprinter, test_ompi) {
+  {
+    std::vector<ompi_communicator_t*> v(3);
+
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(v),
+      sizeof(v) + v.capacity() * sizeof(ompi_communicator_t*)
+    );
+  }
+
+  {
+    std::vector<ompi_group_t*> v(5);
+
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(v),
+      sizeof(v) + v.capacity() * sizeof(ompi_group_t*)
+    );
+  }
+
+  {
+    std::vector<ompi_request_t*> v(7);
+
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(v),
+      sizeof(v) + v.capacity() * sizeof(ompi_request_t*)
+    );
+  }
+
+  {
+    std::vector<ompi_win_t*> v(9);
+
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(v),
+      sizeof(v) + v.capacity() * sizeof(ompi_win_t*)
+    );
   }
 }
 
