@@ -73,9 +73,12 @@ namespace checkpoint {
 /**
  * \struct SerializeVirtualTypeIfNeeded
  *
- * \brief Do a static trait test on type to check for virtual
- * serializability. If virtually serializable, we need to perform some
- * extra work to register the type, and serialize its index.
+ * \brief Do a static trait test on type to check for virtual serializability.
+ *
+ * If virtually serializable, we need to perform some extra
+ * work to register the type, allocate, and construct the proper
+ * type. Otherwise, we go through the normal path for allocating memory for T
+ * and serializing what the pointer points to.
  */
 template <typename T, typename SerializerT, typename _enabled = void>
 struct SerializeVirtualTypeIfNeeded;
