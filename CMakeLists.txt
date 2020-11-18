@@ -57,6 +57,15 @@ message (STATUS "Checkpoint build examples: ${CHECKPOINT_BUILD_EXAMPLES}")
 
 include(cmake/load_package.cmake)
 
+option(
+  checkpoint_doxygen_enabled "Build doxygen documentation for checkpoint" OFF
+)
+
+# Doxygen library
+if (${checkpoint_doxygen_enabled})
+  include(cmake/load_doxygen.cmake)
+endif()
+
 set(CHECKPOINT_LIBRARY checkpoint CACHE INTERNAL "" FORCE )
 set(CHECKPOINT_LIBRARY_NS vt::lib::checkpoint "" CACHE INTERNAL "" FORCE )
 
