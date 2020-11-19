@@ -592,4 +592,17 @@ TEST_F(TestFootprinter, test_ompi) {
   }
 }
 
+struct TestNoSerialize {
+  double d;
+  int i;
+};
+
+TEST_F(TestFootprinter, test_no_serialize) {
+  std::vector<TestNoSerialize> v(7);
+
+  EXPECT_EQ(
+    checkpoint::getMemoryFootprint(v),
+    sizeof(v) + v.capacity() * sizeof(TestNoSerialize)
+  );
+}
 }}} // end namespace checkpoint::tests::unit
