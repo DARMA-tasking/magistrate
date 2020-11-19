@@ -518,9 +518,15 @@ TEST_F(TestFootprinter, test_vector) {
 
   {
     std::vector<TestDerived2> v;
-    EXPECT_EQ(
+    EXPECT_GE(
       checkpoint::getMemoryFootprint(v),
       sizeof(v)
+    );
+
+    v.reserve(3);
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(v),
+      sizeof(v) + v.capacity() * sizeof(TestDerived2)
     );
   }
 }
