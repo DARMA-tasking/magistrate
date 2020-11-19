@@ -76,6 +76,47 @@ void serialize(Serializer& s, Test2 t) {
   s | t.f;
 }
 
+struct TestBase {
+
+  checkpoint_virtual_serialize_root()
+
+  virtual ~TestBase() = default;
+
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    s | a;
+  }
+
+private:
+  int a = 0;
+};
+
+struct TestDerived2 : TestBase {
+  explicit TestDerived2(int i) {}
+  explicit TestDerived2(SERIALIZE_CONSTRUCT_TAG) {}
+
+  checkpoint_virtual_serialize_derived_from(TestBase)
+
+  template <
+    typename SerializerT,
+    typename = std::enable_if_t<
+      std::is_same<
+        SerializerT,
+        checkpoint::Footprinter
+      >::value
+    >
+  >
+  void serialize(SerializerT& s) {
+    s | raw_pointer;
+    s | shared_pointer;
+  }
+
+private:
+  std::shared_ptr<int> shared_pointer = std::make_shared<int>(5);
+  int* raw_pointer = nullptr;
+};
+
+
 TEST_F(TestFootprinter, test_fundamental_types) {
   int i;
   std::size_t size = 7;
@@ -474,48 +515,15 @@ TEST_F(TestFootprinter, test_vector) {
       sizeof(v)
     );
   }
+
+  {
+    std::vector<TestDerived2> v;
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(v),
+      sizeof(v)
+    );
+  }
 }
-
-struct TestBase {
-
-  checkpoint_virtual_serialize_root()
-
-  virtual ~TestBase() = default;
-
-  template <typename SerializerT>
-  void serialize(SerializerT& s) {
-    s | a;
-  }
-
-private:
-  int a = 0;
-};
-
-struct TestDerived2 : TestBase {
-  explicit TestDerived2(int i) {}
-  explicit TestDerived2(SERIALIZE_CONSTRUCT_TAG) {}
-
-  checkpoint_virtual_serialize_derived_from(TestBase)
-
-  template <
-    typename SerializerT,
-    typename = std::enable_if_t<
-      std::is_same<
-        SerializerT,
-        checkpoint::Footprinter
-      >::value
-    >
-  >
-  void serialize(SerializerT& s) {
-    s | raw_pointer;
-    s | shared_pointer;
-  }
-
-private:
-  std::shared_ptr<int> shared_pointer = std::make_shared<int>(5);
-  int* raw_pointer = nullptr;
-};
-
 
 TEST_F(TestFootprinter, test_virtual_serialize) {
   {

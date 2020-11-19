@@ -122,7 +122,9 @@ T* Standard::construct(SerialByteType* mem) {
 
 template <typename Serializer, typename T>
 inline void serializeArray(Serializer& s, T* array, SerialSizeType const len) {
-  Traverse::with<T, Serializer>(*array, s, len);
+  if (array) {
+    Traverse::with<T, Serializer>(*array, s, len);
+  }
 }
 
 template <typename T>

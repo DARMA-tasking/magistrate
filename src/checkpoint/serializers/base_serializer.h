@@ -84,6 +84,7 @@ struct Serializer {
 
   template<typename T>
   void countBytes(const T& t) {}
+  void addBytes(std::size_t s) {}
 
   template <typename SerializerT, typename T>
   void contiguousTyped(SerializerT& serdes, T* ptr, SerialSizeType num_elms) {

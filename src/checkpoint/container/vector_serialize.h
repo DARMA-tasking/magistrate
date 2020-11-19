@@ -74,8 +74,10 @@ typename std::enable_if_t<
 template <typename Serializer, typename T, typename VectorAllocator>
 void serialize(Serializer& s, std::vector<T, VectorAllocator>& vec) {
   serializeVectorMeta(s, vec);
-  std::size_t num_elements = s.isFootprinting() ? vec.capacity() : vec.size();
-  dispatch::serializeArray(s, &vec[0], num_elements);
+  dispatch::serializeArray(s, vec.data(), vec.size());
+
+  // make sure to account for reserved space when footprinting
+  s.addBytes(sizeof(T) * (vec.capacity() - vec.size()));
 }
 
 template <typename Serializer, typename VectorAllocator>
