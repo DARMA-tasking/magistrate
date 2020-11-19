@@ -102,20 +102,6 @@ void serialize(Serializer& s, std::vector<bool, VectorAllocator>& vec) {
   }
 }
 
-template <
-  typename SerializerT,
-  typename T,
-  typename VectorAllocator,
-  typename = std::enable_if_t<
-    not SerializableTraits<T, SerializerT>::has_serialize_function and
-    not SerializableTraits<T, SerializerT>::is_bytecopyable
-  >
->
-void serialize(SerializerT& s, std::vector<T, VectorAllocator>& vec) {
-  s.countBytes(vec);
-  s.addBytes(vec.capacity() * sizeof(T));
-}
-
 } /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_VECTOR_SERIALIZE_H*/

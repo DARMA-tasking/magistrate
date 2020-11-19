@@ -49,6 +49,7 @@
 #include <atomic>
 #include <thread>
 #include <checkpoint/checkpoint.h>
+#include <checkpoint/traits/serializable_traits.h>
 
 struct ompi_communicator_t;
 struct ompi_group_t;
@@ -599,6 +600,12 @@ struct TestNoSerialize {
 
 TEST_F(TestFootprinter, test_no_serialize) {
   std::vector<TestNoSerialize> v(7);
+
+  std::cout << std::boolalpha;
+  std::cout << SerializableTraits<int>::is_footprintable_v << std::endl;
+  std::cout << SerializableTraits<Test1>::is_footprintable_v << std::endl;
+  std::cout << SerializableTraits<TestNoSerialize>::is_footprintable_v << std::endl;
+  // all 3 return 'true'
 
   EXPECT_EQ(
     checkpoint::getMemoryFootprint(v),

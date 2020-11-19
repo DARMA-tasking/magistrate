@@ -210,6 +210,14 @@ struct SerializableTraits {
    */
   static constexpr auto const is_serializable =
     has_serialize_function and is_constructible;
+
+  using is_footprintable = std::is_same<
+    std::size_t,
+    decltype(checkpoint::getMemoryFootprint(std::declval<T&>()))
+  >;
+
+  static constexpr auto const is_footprintable_v =
+    is_footprintable::value;
 };
 
 }  // end namespace checkpoint

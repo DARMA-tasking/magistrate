@@ -127,6 +127,17 @@ inline void serializeArray(Serializer& s, T* array, SerialSizeType const len) {
   }
 }
 
+template <
+  typename Serializer,
+  typename T,
+  typename = std::enable_if_t<
+    not SerializableTraits<T>::is_footprintable_v
+  >
+>
+inline void serializeArray(Serializer& s, T* array, SerialSizeType const len) {
+  // count bytes
+}
+
 template <typename T>
 buffer::ImplReturnType packBuffer(
   T& target, SerialSizeType size, BufferObtainFnType fn
