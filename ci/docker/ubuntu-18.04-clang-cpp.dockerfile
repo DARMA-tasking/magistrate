@@ -51,7 +51,7 @@ RUN ./gtest.sh 1.8.1 /build
 ENV GTEST_ROOT=/build/gtest/install
 
 COPY ./ci/deps/kokkos.sh kokkos.sh
-RUN ./kokkos.sh 3.1.01 /build
+RUN ./kokkos.sh 3.1.01 /build 0
 ENV KOKKOS_ROOT=/build/kokkos/install/lib
 
 COPY ./ci/deps/kokkos-kernels.sh kokkos-kernels.sh

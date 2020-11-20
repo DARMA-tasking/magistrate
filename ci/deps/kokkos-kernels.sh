@@ -2,7 +2,7 @@
 
 set -exo pipefail
 
-if test $# -lt 1
+if test $# -lt 2
 then
     echo "usage: ./$0 <kokkos-kernels-version> <build-dir>"
     exit 1

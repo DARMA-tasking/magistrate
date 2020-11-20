@@ -2,16 +2,16 @@
 
 set -exo pipefail
 
-if test $# -lt 1
+if test $# -lt 3
 then
-    echo "usage: ./$0 <kokkos-version> <build-dir>"
+    echo "usage: ./$0 <kokkos-version> <build-dir> <openmp-enabled>"
     exit 1
 fi
 
 kokkos_version=$1
 kokkos_zip_name=${kokkos_version}.zip
-
 build_dir=$2
+openmp=$3
 
 echo "${kokkos_version}"
 echo "${kokkos_zip_name}"
@@ -30,7 +30,7 @@ cd "$kokkos_build"
 mkdir build
 cd build
 cmake -G "${CMAKE_GENERATOR:-Ninja}" \
-      -DKokkos_ENABLE_OPENMP:BOOL=ON \
+      -DKokkos_ENABLE_OPENMP:BOOL="${openmp}" \
       -DCMAKE_INSTALL_PREFIX="$kokkos_build/install" \
       "$kokkos"
 cmake --build . --target install
