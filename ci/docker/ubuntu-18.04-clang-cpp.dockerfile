@@ -47,16 +47,16 @@ ENV PATH=/cmake/bin/:$PATH
 ENV LESSCHARSET=utf-8
 
 COPY ./ci/deps/gtest.sh gtest.sh
-RUN ./gtest.sh 1.8.1 /build
-ENV GTEST_ROOT=/build/gtest/install
+RUN ./gtest.sh 1.8.1 /pkgs
+ENV GTEST_ROOT=/pkgs/gtest/install
 
 COPY ./ci/deps/kokkos.sh kokkos.sh
-RUN ./kokkos.sh 3.1.01 /build 0
-ENV KOKKOS_ROOT=/build/kokkos/install/lib
+RUN ./kokkos.sh 3.1.01 /pkgs 0
+ENV KOKKOS_ROOT=/pkgs/kokkos/install/lib
 
 COPY ./ci/deps/kokkos-kernels.sh kokkos-kernels.sh
-RUN ./kokkos-kernels.sh 3.2.00 /build
-ENV KOKKOS_KERNELS_ROOT=/build/kokkos-kernels/install/lib
+RUN ./kokkos-kernels.sh 3.2.00 /pkgs
+ENV KOKKOS_KERNELS_ROOT=/pkgs/kokkos-kernels/install/lib
 
 ENV MPI_EXTRA_FLAGS="" \
     CMAKE_PREFIX_PATH="/lib/x86_64-linux-gnu/" \
