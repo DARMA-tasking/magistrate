@@ -105,15 +105,16 @@ target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   message(STATUS "Checkpoint: enabling code coverage generation")
   # Add required flags (GCC & LLVM/Clang)
-  target_compile_options(${VIRTUAL_TRANSPORT_LIBRARY} PUBLIC
+  target_compile_options(
+    ${CHECKPOINT_LIBRARY} PUBLIC
     -O0        # no optimization
     -g         # generate debug info
     --coverage # sets all required flags
   )
   if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.13)
-    target_link_options(${VIRTUAL_TRANSPORT_LIBRARY} INTERFACE --coverage)
+    target_link_options(${CHECKPOINT_LIBRARY} INTERFACE --coverage)
   else()
-    target_link_libraries(${VIRTUAL_TRANSPORT_LIBRARY} INTERFACE --coverage)
+    target_link_libraries(${CHECKPOINT_LIBRARY} INTERFACE --coverage)
   endif()
 endif()
 
