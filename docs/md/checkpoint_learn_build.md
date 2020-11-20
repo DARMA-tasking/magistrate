@@ -13,38 +13,25 @@ To build *checkpoint*, one must obtain the following dependencies:
 
   - gtest,   (if testing *checkpoint* is enabled)
      - MPI,   (if MPI tests are enabled)
-  - [Kokkos](https://github.com/kokkos/kokkos),  (if Kokkos kernels need to be serialized)
+  - [Kokkos](https://github.com/kokkos/kokkos),  (if Kokkos views need to be serialized)
+  - [KokkosKernels](https://github.com/kokkos/kokkos-kernels),  (if Kokkos kernel data structures need to be serialized)
 
 \subsection ckpt_use-cmake-directly-vars Using cmake directly
 
-One may use `cmake` as normal on *checkpoint*, with detector installed.
-The following are some custom configuration build options that can be
+One may use `cmake` as normal on *checkpoint* once the dependencies are
+installed.  The following are some configuration build options that can be
 provided to `cmake` to change the build configuration:
 
-
-| CMake Variable                   | Default Value   | Description |
-| ------------------               | --------------- | ----------- |
-| `detector_DIR`                    | | Directory where the *compiled* detector library is installed |
-| `gtest_DIR`                       | | Directory where the *compiled* GoogleTest library is installed |
-| `CHECKPOINT_BUILD_TESTS`          | OFF | Build *checkpoint* tests |
-| `CHECKPOINT_BUILD_TESTS_WITH_MPI` | OFF | Build *checkpoint* tests with MPI |
-| `CHECKPOINT_BUILD_EXAMPLES`       | OFF | Build *checkpoint* examples |
-| `KOKKOS_KERNELS_ENABLED`          | ON | |
-| `checkpoint_doxygen_enabled`      | 0               | Enable doxygen generation |
-
-Here is an example of a custom `cmake` command to configure *checkpoint*:
-
-```bash
-$ cmake ../checkpoint                                                  \
-      -DCMAKE_INSTALL_PREFIX=../checkpoint-install                     \
-      -DCMAKE_CXX_COMPILER=${compiler_cxx}                             \
-      -DCMAKE_C_COMPILER=${compiler_c}                                 \
-      -Ddetector_DIR=${detector_path}                                  \
-      -DCHECKPOINT_BUILD_TESTS:bool=${build_tests}                     \
-      -DCHECKPOINT_BUILD_EXAMPLES:bool=${build_examples}               \
-      -DCHECKPOINT_BUILD_TESTS_WITH_MPI:bool=${build_tests_mpi}        \
-      -DKOKKOS_KERNELS_ENABLED:bool=${enable_kokkos_serializer}        \
-      -Dgtest_DIR=${gtest_directory}                                   \
-      -DCMAKE_BUILD_TYPE=${build_mode}                                 \
-      -DCMAKE_EXPORT_COMPILE_COMMANDS=true
-```
+| CMake Variable                    | Default Value   | Description                           |
+| ------------------                | --------------- | -----------                           |
+| `detector_DIR`                    |                 | Install directory for detector        |
+| `gtest_DIR`                       |                 | Install directory for googletest      |
+| `kokkos_DIR`                      |                 | Install directory for kokkos          |
+| `KokkosKernels_DIR`               |                 | Install directory for kokkoskernels   |
+| `checkpoint_tests_enabled`        | 0               | Build *checkpoint* tests              |
+| `checkpoint_mpi_enabled`          | 0               | Build *checkpoint* with MPI for tests |
+| `checkpoint_examples_enabled`     | 0               | Build *checkpoint* examples           |
+| `checkpoint_warnings_as_errors`   | 0               | Make all warnings errors during build |
+| `checkpoint_doxygen_enabled`      | 0               | Enable doxygen generation             |
+| `checkpoint_asan_enabled`         | 0               | Enable address sanitizer              |
+| `CODE_COVERAGE`                   | 0               | Generate code coverage report         |
