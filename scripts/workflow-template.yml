@@ -1,0 +1,74 @@
+[% warning %]
+
+name: [% test_type %] ([% test_configuration %])
+
+[% triggers %]
+
+jobs:
+
+  [% job_name %]:
+
+    runs-on: [% workflow_runs_on %]
+
+    env:
+      REPO: [% repo %]
+      ARCH: [% arch %]
+[% linux_env %]
+      COMPILER_TYPE: [% compiler_type %]
+      COMPILER: [% compiler %]
+      BUILD_TYPE: [% build_type %]
+      ULIMIT_CORE: [% ulimit_core %]
+      CODE_COVERAGE: [% code_coverage %]
+      CHECKPOINT_TESTS: [% checkpoint_tests %]
+      CHECKPOINT_EXAMPLES: [% checkpoint_examples %]
+      CHECKPOINT_MPI: [% checkpoint_mpi %]
+      CHECKPOINT_WARNINGS_AS_ERRORS: [% checkpoint_warnings_as_errors %]
+      CHECKPOINT_DOCS: [% checkpoint_docs %]
+      CHECKPOINT_ASAN: [% checkpoint_asan %]
+      CACHE: [% cache_dir %]
+
+    steps:
+    - name: Setup Build Root
+      uses: allenevans/set-env@v1.0.0
+      with:
+        BUILD_ROOT: "[% build_root %]"
+    - name: Prepare caching timestamp
+      id: cache_ts
+      shell: cmake -P {0}
+      run: |
+        string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
+        message("::set-output name=timestamp::${current_date}")
+    - uses: actions/cache@v1
+      env:
+        cache-name: [% cache_name %]
+      with:
+        path: ${{ env.BUILD_ROOT }}/ccache
+        key: ${{ runner.os }}-${{ env.cache-name }}-${{ steps.cache_ts.outputs.timestamp }}
+        restore-keys: |
+          ${{ runner.os }}-${{ env.cache-name }}-
+    - uses: actions/checkout@v2
+    - name: Docker Pull Base Image
+      shell: bash
+      run: docker-compose pull --ignore-pull-failures [% docker_target %]
+    - name: Build the Docker image
+      run: docker-compose run [% docker_target %]
+    - name: Docker Push Base Image
+      if: success()
+      continue-on-error: true
+      shell: bash
+      run: |
+        docker login -u ${{ secrets.DOCKER_USERNAME }} \
+                     -p ${{ secrets.DOCKER_PASSWORD }}
+        docker-compose push [% docker_target %]
+    - name: Zip up CMake output
+      run: |
+        zip -j LastTest.log.gz ${{ env.BUILD_ROOT }}/vt/Testing/Temporary/LastTest.log
+        zip -j cmake-output.log.gz ${{ env.BUILD_ROOT }}/vt/cmake-output.log
+    - uses: actions/upload-artifact@v1
+      with:
+        name: CMake test output
+        path: cmake-output.log.gz
+    - uses: actions/upload-artifact@v1
+      with:
+        name: CMake full output
+        path: LastTest.log.gz
