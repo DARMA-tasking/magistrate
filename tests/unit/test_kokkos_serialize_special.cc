@@ -163,7 +163,7 @@ TEST_F(KokkosViewExtentTest, test_view_extent_2d) {
   auto buffer = packer.extractPackedBuffer();
   auto unpacker = Unpacker(buffer->getBuffer());
 
-  ViewType target = ViewType("w", 10);
+  ViewType target = ViewType("w", 10, 2);
 
   serializeExtentOnly(unpacker, target, "v");
 
@@ -189,7 +189,7 @@ TEST_F(KokkosViewExtentTest, test_view_extent_3d) {
   auto buffer = packer.extractPackedBuffer();
   auto unpacker = Unpacker(buffer->getBuffer());
 
-  ViewType target = ViewType("w", 10);
+  ViewType target = ViewType("w", 10, 2, 3);
 
   serializeExtentOnly(unpacker, target, "v");
 
@@ -216,7 +216,7 @@ TEST_F(KokkosViewExtentTest, test_view_extent_4d) {
   auto buffer = packer.extractPackedBuffer();
   auto unpacker = Unpacker(buffer->getBuffer());
 
-  ViewType target = ViewType("w", 10);
+  ViewType target = ViewType("w", 10, 1, 2, 3);
 
   serializeExtentOnly(unpacker, target, "v");
 
