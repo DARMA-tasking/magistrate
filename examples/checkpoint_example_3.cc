@@ -49,17 +49,17 @@
 #include <cstdio>
 
 //
-// This example illustrates requirements for constructor and destructor
-// to accept a custom class as a serializable/deserializable type.
-// Any error will be triggered at compile time.
+// This example illustrates how checkpoint uses traits to determine a
+// reconstruction strategy and shows several mechanisms for reconstructing a
+// class of a serializable/deserializable type.
 //
 
 namespace checkpoint { namespace examples {
 
 // \brief Structure with a variable of built-in type.
 //
-// \note This structure is a serializable / deserializable type.
-// It has a default constructore and a `serialize` function.
+// \note This structure is a serializable / deserializable type. It has a
+// default constructor and a `serialize` function.
 struct TestDefaultCons {
   int a = 29;
 
@@ -73,8 +73,8 @@ struct TestDefaultCons {
 
 // \brief Structure with a variable of built-in type.
 //
-// \note This structure is not a serializable / deserializable type
-// as it does not have the custom `serialize` function.
+// \note This structure is a byte-serializable/deserializable type but doesn't
+// contain any traits to indicate that making it not serializable.
 //
 struct TestNoSerialize {
   int a = 29;
@@ -82,10 +82,10 @@ struct TestNoSerialize {
 
 // \brief Structure with a variable of built-in type.
 //
-// \note This structure is not a serializable / deserializable type.
-// The structure has an explicitly deleted default constructor and
-// a constructor that takes an `int` parameter.
-// Serialization has no way to construct the structure.
+// \note This structure is not a serializable / deserializable type. The
+// structure has an explicitly deleted default constructor and a constructor
+// that takes an `int` parameter.  Serialization has no way to construct the
+// structure.
 struct TestShouldFailReconstruct {
   int a = 29;
 
@@ -100,11 +100,10 @@ struct TestShouldFailReconstruct {
 
 // \brief Structure with a variable of built-in type.
 //
-// \note This structure is a serializable / deserializable type.
-// The structure has an explicitly deleted default constructor and
-// a constructor that takes an `int` parameter.
-// However the structure provides a static reconstructor method that
-// serialization can use to construct the structure.
+// \note This structure is a serializable / deserializable type. The structure
+// has an explicitly deleted default constructor and a constructor that takes an
+// `int` parameter. However, the structure provides a static reconstruct
+// method that serialization can use to construct the structure.
 struct TestReconstruct {
   int a = 29;
 
