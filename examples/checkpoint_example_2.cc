@@ -57,24 +57,13 @@ struct MyTest2 {
 
   // \brief Default constructor
   //
-  // The default constructor is needed for the (de)serialization.
-  // (required for serialization)
+  // The reconstruction strategy is required for deserialization. A default
+  // constructor is one of the reconstruction strategies that checkpoint will
+  // look for.
   MyTest2() = default;
 
   // \brief Templated function for serializing/deserializing
   // a variable of type `MyTest2`
-  //
-  // \tparam <Serializer> { Type for storing the serialized result }
-  // \param[in,out] Variable for storing the serialized result
-  //
-  // \note The routine `serialize` is actually a two-way routine:
-  // - it creates the serialized result `s` by copying
-  //   the variable `c`; this creation phase is run
-  //   when the status of the serializer `s` is `Packing`.
-  // - it can extract from a serialized result `s` the values
-  //   to place in the variable `c`; this extraction phase
-  //   when the status of the serializer `s` is `Unpacking`.
-  //
   template <typename Serializer>
   void serialize(Serializer& s) {
     printf("MyTest2 serialize\n");
@@ -96,8 +85,9 @@ struct MyTest {
 
   // \brief Default constructor
   //
-  // The default constructor is needed for the (de)serialization.
-  // (required for serialization)
+  // The reconstruction strategy is required for deserialization. A default
+  // constructor is one of the reconstruction strategies that checkpoint will
+  // look for.
   MyTest() = default;
 
   // \brief Printing function unto the standard display
@@ -109,24 +99,28 @@ struct MyTest {
   // \brief Templated function for serializing/deserializing
   // a variable of type `MyTest`
   //
-  // \tparam <Serializer> { Type for storing the serialized result }
-  // \param[in,out] Variable for storing the serialized result
+  // \tparam <Serializer> The type of serializer depending on the pass
+  // \param[in,out] s the serializer for traversing this class
   //
-  // \note The routine `serialize` is actually a two-way routine:
-  // - it creates the serialized result `s` by combining
-  //   the variables `a`,`b`, and `my_test_2`; this creation phase is run
-  //   when the status of the serializer `s` is `Packing`.
-  // - it can extract from a serialized result `s` the values
-  //   to place in the variables `a`, `b`, and `my_test_2`; this extraction phase is run
-  //   when the status of the serializer `s` is `Unpacking`.
-  // - the variable `my_test_2` can be directly piped in (or out of) `s`
-  //   as the structure `MyTest2` has its own `serialize` function.
+  // \note The serialize method is typically called three times when
+  // (de-)serializing to a byte buffer:
+  //
+  // 1) Sizing: The first time its called, it sizes all the data it recursively
+  // traverses to generate a final size for the buffer.
+  //
+  // 2) Packing: As the traversal occurs, it copies the data traversed to the
+  // byte buffer in the appropriate location.
+  //
+  // 3) Unpacking: As the byte buffer is traversed, it extracts the bytes from
+  // the buffer to recursively reconstruct the types and setup the class members.
   //
   template <typename Serializer>
   void serialize(Serializer& s) {
     printf("MyTest serialize\n");
     s | a;
     s | b;
+
+    // Recursive dispatch to the `MyTest2` object
     s | my_test_2;
   }
 };
@@ -153,7 +147,7 @@ int main(int, char**) {
     printf("ptr=%p, size=%ld\n", static_cast<void*>(buf), buf_size);
   }
 
-  // De-serialization call to create a new pointer `t` of type `MyTest*`
+  // De-serialization call to create a new unique pointer to `MyTest`
   auto t = checkpoint::deserialize<MyTest>(ret->getBuffer());
   t->print();
 

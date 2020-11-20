@@ -57,8 +57,9 @@ struct MyTest {
 
   // \brief Default constructor
   //
-  // The default constructor is needed for the (de)serialization.
-  // (required for serialization)
+  // The reconstruction strategy is required for deserialization. A default
+  // constructor is one of the reconstruction strategies that checkpoint will
+  // look for.
   MyTest() = default;
 
   // \brief Constructor with two parameters
@@ -76,7 +77,7 @@ struct MyTest {
   // \brief Templated function for serializing/deserializing
   // a variable of type `MyTest`
   //
-  // \tparam <Serializer> { Type for storing the serialized result }
+  // \tparam <Serializer> The type of serializer depending on the pass
   // \param[in,out] s the serializer for traversing this class
   //
   // \note The serialize method is typically called three times when
@@ -126,7 +127,7 @@ int main(int, char**) {
     printf("ptr=%p, size=%ld\n", static_cast<void*>(buf), buf_size);
   }
 
-  // De-serialization call to create a new unique pointer `t` of type `MyTest*`
+  // De-serialization call to create a new unique pointer to `MyTest`
   auto t = checkpoint::deserialize<MyTest>(ret->getBuffer());
 
   // Display the result
