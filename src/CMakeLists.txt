@@ -79,24 +79,43 @@ target_compile_options(${CHECKPOINT_LIBRARY} PUBLIC ${CXX_STANDARD_FLAGS})
 
 target_compile_definitions(${CHECKPOINT_LIBRARY} PUBLIC HAS_DETECTION_COMPONENT=1)
 
+include(CMakePrintHelpers)
+
 if (${kokkos_DIR_FOUND})
-  if (${KOKKOS_KERNELS_ENABLED})
-    message(STATUS "Kokkos kernels enabled")
+  if (KokkosKernels_DIR_FOUND)
+    message(STATUS "Checkpoint: Kokkos kernels enabled")
     set(KERNELS 1)
+    target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC Kokkos::kokkoskernels)
   else()
+    message(STATUS "Checkpoint: Kokkos kernels disabled")
     set(KERNELS 0)
   endif()
   target_compile_definitions(
     ${CHECKPOINT_LIBRARY} PUBLIC
     KOKKOS_ENABLED_CHECKPOINT=1 KOKKOS_KERNELS_ENABLED=${KERNELS}
   )
+  message(STATUS "Checkpoint: Kokkos enabled")
   # This should not have to be done, missing include configuration from kokkos
-  target_include_directories(${CHECKPOINT_LIBRARY} SYSTEM PUBLIC ${Kokkos_INCLUDE_DIRS})
-  target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC ${Kokkos_LIBRARIES})
+  target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC Kokkos::kokkos)
 endif()
 
 target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC vt::lib::detector)
 target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+
+if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  message(STATUS "Checkpoint: enabling code coverage generation")
+  # Add required flags (GCC & LLVM/Clang)
+  target_compile_options(${VIRTUAL_TRANSPORT_LIBRARY} PUBLIC
+    -O0        # no optimization
+    -g         # generate debug info
+    --coverage # sets all required flags
+  )
+  if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.13)
+    target_link_options(${VIRTUAL_TRANSPORT_LIBRARY} INTERFACE --coverage)
+  else()
+    target_link_libraries(${VIRTUAL_TRANSPORT_LIBRARY} INTERFACE --coverage)
+  endif()
+endif()
 
 configure_file(
   ${PROJECT_SOURCE_DIR}/checkpoint/cmake_config.h.in

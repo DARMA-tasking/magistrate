@@ -50,13 +50,22 @@ cd "$CHECKPOINT_BUILD"
 rm -Rf ./*
 cmake -G "${CMAKE_GENERATOR:-Ninja}" \
       -Dcheckpoint_doxygen_enabled="${CHECKPOINT_DOXYGEN_ENABLED:-0}" \
+      -Dcheckpoint_tests_enabled="${CHECKPOINT_TESTS_ENABLED:-1}" \
+      -Dcheckpoint_examples_enabled="${CHECKPOINT_EXAMPLES_ENABLED:-1}" \
+      -Dcheckpoint_warnings_as_errors="${CHECKPOINT_WARNINGS_AS_ERRORS:-0}" \
+      -Dcheckpoint_mpi_enabled="${CHECKPOINT_MPI_ENABLED:-1}" \
+      -Dcheckpoint_asan_enabled="${CHECKPOINT_ASAN_ENABLED:-0}" \
       -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE:-Release}" \
       -DCMAKE_CXX_COMPILER="${CXX:-c++}" \
       -DCMAKE_C_COMPILER="${CC:-cc}" \
       -DCMAKE_EXE_LINKER_FLAGS="${CMAKE_EXE_LINKER_FLAGS:-}" \
+      -DCODE_COVERAGE="${CODE_COVERAGE:-0}" \
       -Ddetector_DIR="$DETECTOR_BUILD/install" \
       -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH:-}" \
       -DCMAKE_INSTALL_PREFIX="$CHECKPOINT_BUILD/install" \
+      -DGTEST_ROOT="${GTEST_ROOT}" \
+      -Dkokkos_DIR="${KOKKOS_ROOT}" \
+      -DKokkosKernels_DIR="${KOKKOS_KERNELS_ROOT}" \
       "$CHECKPOINT"
 
 if test "${CHECKPOINT_DOXYGEN_ENABLED:-0}" -eq 1
