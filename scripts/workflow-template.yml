@@ -62,8 +62,8 @@ jobs:
         docker-compose push [% docker_target %]
     - name: Zip up CMake output
       run: |
-        zip -j LastTest.log.gz ${{ env.BUILD_ROOT }}/vt/Testing/Temporary/LastTest.log
-        zip -j cmake-output.log.gz ${{ env.BUILD_ROOT }}/vt/cmake-output.log
+        zip -j LastTest.log.gz ${{ env.BUILD_ROOT }}/checkpoint/Testing/Temporary/LastTest.log
+        zip -j cmake-output.log.gz ${{ env.BUILD_ROOT }}/checkpoint/cmake-output.log
     - uses: actions/upload-artifact@v1
       with:
         name: CMake test output
