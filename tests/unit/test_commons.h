@@ -99,45 +99,50 @@ using lsType = std::size_t;
 
 // SpliceTypeMeta: zip a set of types with ValueT
 
-template <int N, typename ValueT, typename TypeList>
-struct SpliceTypeMeta {
-  using ResultType = decltype(
-    std::tuple_cat(
-      std::declval<
-        std::tuple<
-          std::tuple<typename std::tuple_element<N-1,TypeList>::type,ValueT>
-        >
-      >(),
-      std::declval<typename SpliceTypeMeta<N-1,ValueT,TypeList>::ResultType>()
-    )
-  );
+template <int N, typename ValueT, typename... List>
+struct SpliceTypeMeta;
+
+template <int N, typename ValueT, typename Type, typename... List>
+struct SpliceTypeMeta<N, ValueT, Type, List...> {
+  using ResultType = std::tuple<
+    std::tuple<Type, ValueT>,
+    typename std::tuple_element<
+      0,
+      typename SpliceTypeMeta<N-1, ValueT, List>::ResultType
+    >::type...
+  >;
 };
 
-template <typename ValueT, typename TypeList>
-struct SpliceTypeMeta<0,ValueT,TypeList> {
-  using ResultType = decltype(std::declval<std::tuple<>>());
+template <typename ValueT, typename Type>
+struct SpliceTypeMeta<1, ValueT, Type> {
+  using ResultType = std::tuple<std::tuple<Type, ValueT>>;
 };
 
-template <typename TypeList, typename ValueT>
-struct SpliceMeta {
+template <typename ValueT, typename Tuple>
+struct SpliceMeta;
+
+template <typename ValueT, typename... Ts>
+struct SpliceMeta<ValueT, std::tuple<Ts...>> {
   using ResultTupleType = typename SpliceTypeMeta<
-    std::tuple_size<TypeList>::value,ValueT,TypeList
+    std::tuple_size<std::tuple<Ts...>>::value,
+    ValueT,
+    Ts...
   >::ResultType;
 };
 
-//
-// Debug code for SpliceTypeMeta
-//
+// //
+// // Debug code for SpliceTypeMeta
+// //
 // struct A { A() = delete; };
 // using TestA = std::tuple<int, float>;
-// using TestB = std::tuple<std::tuple<A,float>, std::tuple<A,int>>;
-// using TestC = typename SpliceMeta<TestA,A>::ResultTupleType;
-// int static_test_of() { TestC{}; }
-//
+// using TestB = std::tuple<std::tuple<int,A>, std::tuple<float,A>>;
+// using TestC = typename SpliceMeta<A, TestA>::ResultTupleType;
+// //int static_test_of() { TestC{}; }
+
 // static_assert(
 //   std::is_same<TestB,TestC>::value, "Not same"
 // );
-//
+// //
 
 // Type conversion from std::tuple<X,Y,Z> to testing::Types<X,Y,Z>
 template <typename Tuple1, template <typename...> class Tuple2>
@@ -151,9 +156,7 @@ struct ConvertTupleType<std::tuple<Args...>,Tuple2> {
 // Factory for constructed generated type param list for testing::Types
 template <typename TypeList, typename ValueT>
 struct TestFactory {
-  static constexpr auto const tup_size = std::tuple_size<TypeList>::value;
-  static constexpr auto const I = std::make_index_sequence<tup_size>{};
-  using ResultTupleType = typename SpliceMeta<TypeList,ValueT>::ResultTupleType;
+  using ResultTupleType = typename SpliceMeta<ValueT, TypeList>::ResultTupleType;
   using ResultType =
     typename ConvertTupleType<ResultTupleType,testing::Types>::ResultType;
 };
