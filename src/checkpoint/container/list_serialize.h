@@ -106,6 +106,22 @@ inline void serialize(Serializer& s, std::deque<T>& lst) {
   serializeOrderedContainer(s, lst);
 }
 
+// FIXME: 'typename std::list<T>::iterator' doesn't work here
+//
+// this depends on the (standard library) implementation details and
+// doesn't work when libc++ is used
+// last resort would be to use '#if defined(_LIBCPP_VERSION)))'
+template <
+  typename SerializerT,
+  typename T,
+  typename = std::enable_if_t<
+    std::is_same<SerializerT, checkpoint::Footprinter>::value
+  >
+>
+inline void serialize(SerializerT& s, std::_List_iterator<T>& iter) {
+  s.countBytes(iter);
+}
+
 } /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_LIST_SERIALIZE_H*/
