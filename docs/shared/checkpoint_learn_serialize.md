@@ -29,7 +29,7 @@ The `|` operator has been overloaded for the STL containers:
 `std::set`, `std::string`,
 `std::unordered_map`, `std::unordered_multimap`,
 `std::unordered_multiset`, `std::unordered_set`,
-`std::vector`.
+`std::vector`, `std::tuple`.
 
 The `|` operator is also overloaded for `std::pair` and `std::unique_ptr`.
 
