@@ -6,11 +6,9 @@ checkpoint can be built with `cmake`.
 
 To build *checkpoint*, one must obtain the following dependencies:
 
-\subsection ckpt_required-deps Required
-  - [detector](https://github.com/DARMA-tasking/detector)
-
 \subsection ckpt_optional-deps Optional
 
+  - [detector](https://github.com/DARMA-tasking/detector)
   - gtest,   (if testing *checkpoint* is enabled)
      - MPI,   (if MPI tests are enabled)
   - [Kokkos](https://github.com/kokkos/kokkos),  (if Kokkos views need to be serialized)
