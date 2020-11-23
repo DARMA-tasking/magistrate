@@ -77,8 +77,9 @@ struct MyTest2 {
 };
 
 // \struct MyTest
-// \brief Structure with two variables of built-in types
-// and one variable of custom type (`MyTest2`)
+//
+// \brief Structure with two variables of built-in types and one variable of
+// custom type (`MyTest2`)
 struct MyTest {
   int a = 29, b = 31;
   MyTest2 my_test_2;
