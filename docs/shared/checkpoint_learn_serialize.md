@@ -31,7 +31,7 @@ The `|` operator has been overloaded for the STL containers:
 `std::unordered_multiset`, `std::unordered_set`,
 `std::vector`.
 
-The `|` operator is also overloaded for `std::pair`, `std::shared_ptr`, `std::unique_ptr`.
+The `|` operator is also overloaded for `std::pair` and `std::unique_ptr`.
 
 When the variable `c` is such an STL object, whose template parameter(s) can
 be directly serialized into a serializer object `s`, we write
