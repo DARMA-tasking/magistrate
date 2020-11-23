@@ -14,6 +14,6 @@ cmake_tar_name=cmake-${cmake_version}-Linux-x86_64.tar.gz
 echo "${cmake_version}"
 echo "${cmake_tar_name}"
 
-wget http://github.com/Kitware/CMake/releases/download/v${cmake_version}/${cmake_tar_name}
+wget http://github.com/Kitware/CMake/releases/download/v"${cmake_version}"/"${cmake_tar_name}"
 
-tar xzf ${cmake_tar_name} --one-top-level=cmake --strip-components 1
+tar xzf "${cmake_tar_name}" --one-top-level=cmake --strip-components 1

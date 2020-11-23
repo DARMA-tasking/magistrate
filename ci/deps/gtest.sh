@@ -16,9 +16,9 @@ build_dir=$2
 echo "${gtest_version}"
 echo "${gtest_zip_name}"
 
-wget http://github.com/google/googletest/archive/${gtest_zip_name}
+wget "http://github.com/google/googletest/archive/${gtest_zip_name}"
 
-unzip ${gtest_zip_name}
+unzip "${gtest_zip_name}"
 
 mkdir -p "${build_dir}"
 pushd "${build_dir}"

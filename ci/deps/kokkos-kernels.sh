@@ -16,9 +16,9 @@ build_dir=$2
 echo "${kokkos_version}"
 echo "${kokkos_zip_name}"
 
-wget http://github.com/kokkos/kokkos-kernels/archive/${kokkos_zip_name}
+wget "http://github.com/kokkos/kokkos-kernels/archive/${kokkos_zip_name}"
 
-unzip ${kokkos_zip_name}
+unzip "${kokkos_zip_name}"
 
 mkdir -p "${build_dir}"
 pushd "${build_dir}"
@@ -29,8 +29,6 @@ mkdir -p "$kokkos_build"
 cd "$kokkos_build"
 mkdir build
 cd build
-ls ${KOKKOS_ROOT}
-ls ${KOKKOS_ROOT}/cmake
 
 cmake -G "${CMAKE_GENERATOR:-Ninja}" \
       -DCMAKE_PREFIX_PATH="${KOKKOS_ROOT}/cmake" \

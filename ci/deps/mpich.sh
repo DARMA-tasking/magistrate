@@ -18,10 +18,10 @@ echo "${mpich_name}"
 echo "${mpich_tar_name}"
 echo "${make_flags}"
 
-wget http://www.mpich.org/static/downloads/${mpich_version}/${mpich_tar_name}
-tar xzf ${mpich_tar_name}
-rm ${mpich_tar_name}
-cd ${mpich_name}
+wget http://www.mpich.org/static/downloads/"${mpich_version}"/"${mpich_tar_name}"
+tar xzf "${mpich_tar_name}"
+rm "${mpich_tar_name}"
+cd "${mpich_name}"
 ./configure \
     --enable-static=false \
     --enable-alloca=true \
@@ -31,7 +31,7 @@ cd ${mpich_name}
     --enable-fast=all \
     --enable-g=none \
     --enable-timing=none
-make ${make_flags}
+make "${make_flags}"
 make install
 cd -
-rm -rf ${mpich_name}
+rm -rf "${mpich_name}"
