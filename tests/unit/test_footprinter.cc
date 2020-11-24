@@ -51,11 +51,6 @@
 #include <checkpoint/checkpoint.h>
 #include <checkpoint/traits/serializable_traits.h>
 
-struct ompi_communicator_t;
-struct ompi_group_t;
-struct ompi_request_t;
-struct ompi_win_t;
-
 namespace checkpoint { namespace tests { namespace unit {
 
 struct TestFootprinter : TestHarness { };
