@@ -210,6 +210,9 @@ struct SerializableTraits {
    */
   static constexpr auto const is_serializable =
     has_serialize_function and is_constructible;
+
+  static constexpr auto const is_traversable =
+    has_serialize_function or is_bytecopyable;
 };
 
 }  // end namespace checkpoint

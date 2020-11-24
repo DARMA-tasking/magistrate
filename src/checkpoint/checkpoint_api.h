@@ -160,6 +160,12 @@ std::size_t getSize(T& target);
 /**
  * \brief Get memory footprint of \c target
  *
+ * Calculates memory footprint for both serializable and non-serializable
+ * objects. Uses serialize functions/methods recursively when they are
+ * available. For non-serializable objects, simplified footprinting is performed
+ * by just applying 'sizeof' operator (note: this means that complex objects
+ * will not be traversed).
+ *
  * \param[in] target reference to \c T to measure footprint
  * \param[in] size_offset add an arbitrary \c size_offset to the footprint
  *

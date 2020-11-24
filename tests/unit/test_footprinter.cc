@@ -49,6 +49,12 @@
 #include <atomic>
 #include <thread>
 #include <checkpoint/checkpoint.h>
+#include <checkpoint/traits/serializable_traits.h>
+
+struct ompi_communicator_t;
+struct ompi_group_t;
+struct ompi_request_t;
+struct ompi_win_t;
 
 namespace checkpoint { namespace tests { namespace unit {
 
@@ -276,6 +282,12 @@ TEST_F(TestFootprinter, test_list) {
   EXPECT_EQ(
     checkpoint::getMemoryFootprint(l),
     sizeof(l) + l.size() * sizeof(l.front())
+  );
+
+  auto it = l.begin();
+  EXPECT_EQ(
+    checkpoint::getMemoryFootprint(it),
+    sizeof(it)
   );
 }
 
@@ -543,4 +555,71 @@ TEST_F(TestFootprinter, test_virtual_serialize) {
   }
 }
 
+TEST_F(TestFootprinter, test_ompi) {
+  {
+    std::vector<ompi_communicator_t*> v(3);
+
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(v),
+      sizeof(v) + v.capacity() * sizeof(ompi_communicator_t*)
+    );
+  }
+
+  {
+    std::vector<ompi_group_t*> v(5);
+
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(v),
+      sizeof(v) + v.capacity() * sizeof(ompi_group_t*)
+    );
+  }
+
+  {
+    std::vector<ompi_request_t*> v(7);
+
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(v),
+      sizeof(v) + v.capacity() * sizeof(ompi_request_t*)
+    );
+  }
+
+  {
+    std::vector<ompi_win_t*> v(9);
+
+    EXPECT_EQ(
+      checkpoint::getMemoryFootprint(v),
+      sizeof(v) + v.capacity() * sizeof(ompi_win_t*)
+    );
+  }
+}
+
+struct TestNoSerialize {
+  double d;
+  int i;
+};
+
+static_assert(
+  not SerializableTraits<TestNoSerialize>::is_traversable,
+  "TestNoSerialize has no serializer defined"
+);
+
+TEST_F(TestFootprinter, test_no_serialize) {
+  std::vector<TestNoSerialize> v(7);
+
+  EXPECT_EQ(
+    checkpoint::getMemoryFootprint(v),
+    sizeof(v) + v.capacity() * sizeof(TestNoSerialize)
+  );
+
+  std::unordered_map<int, TestNoSerialize> m;
+  m[1] = TestNoSerialize();
+  m[2] = TestNoSerialize();
+  m[3] = TestNoSerialize();
+  auto p = *m.begin();
+
+  EXPECT_EQ(
+    checkpoint::getMemoryFootprint(m),
+    sizeof(m) + m.size() * (sizeof(p) + sizeof(p.first) + sizeof(p.second))
+  );
+}
 }}} // end namespace checkpoint::tests::unit

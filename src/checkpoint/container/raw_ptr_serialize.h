@@ -93,17 +93,30 @@ void serializeRawPtr(SerializerT& s, void* ptr) {
   s.countBytes(ptr);
 }
 
-/**
- * Note: do not follow FILE pointer as it might be an incomplete type on some
- * platforms.
- */
-template <
-  typename SerializerT
->
-void serializeRawPtr(SerializerT& s, FILE* ptr) {
-  s.countBytes(ptr);
-}
+#define CHECKPOINT_FOOTPRINT_PIMPL_WITH_SIZEOF_PTR(PIMPL_TYPE) \
+  template < \
+    typename SerializerT, \
+    typename = std::enable_if_t< std::is_same<SerializerT, checkpoint::Footprinter >::value > \
+  > \
+  void serialize(SerializerT &s, PIMPL_TYPE *t) { \
+    s.countBytes(t); \
+  }
 
 } /* end namespace checkpoint */
+
+/**
+ * Note: do not follow pointers to these types, as they might be
+ * incomplete on some platforms.
+ */
+CHECKPOINT_FOOTPRINT_PIMPL_WITH_SIZEOF_PTR(FILE)
+
+struct ompi_communicator_t;
+CHECKPOINT_FOOTPRINT_PIMPL_WITH_SIZEOF_PTR(ompi_communicator_t)
+struct ompi_group_t;
+CHECKPOINT_FOOTPRINT_PIMPL_WITH_SIZEOF_PTR(ompi_group_t)
+struct ompi_request_t;
+CHECKPOINT_FOOTPRINT_PIMPL_WITH_SIZEOF_PTR(ompi_request_t)
+struct ompi_win_t;
+CHECKPOINT_FOOTPRINT_PIMPL_WITH_SIZEOF_PTR(ompi_win_t)
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_RAW_PTR_SERIALIZE_H*/

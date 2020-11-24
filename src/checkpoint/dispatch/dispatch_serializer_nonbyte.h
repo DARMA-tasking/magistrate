@@ -131,6 +131,15 @@ struct SerializerDispatchNonByte {
     template <typename U>
     using isEnum =
     typename std::enable_if<std::is_enum<U>::value, T>::type;
+
+    template <typename U>
+    using justFootprint =
+    typename std::enable_if<
+      std::is_same<S, checkpoint::Footprinter>::value and
+      not SerializableTraits<U, S>::is_traversable and
+      not std::is_enum<U>::value,
+      T
+    >::type;
   #else
     template <typename U>
     using hasInSerialize =
@@ -161,13 +170,47 @@ struct SerializerDispatchNonByte {
     serializeEnum(s, *val);
   }
 
+  /**
+   * \brief Dispatch non-serializable types when footprinting
+   *
+   * Allow simplified footprinting of classes that do not support serialization
+   * by just applying 'sizeof' operator on them.
+   * Note: this means that complex objects will not be traversed further.
+   *
+   * \param[in] s serializer to use
+   * \param[in] val pointer to the array of objects
+   * \param[in] num number of objects in the array
+   */
+  template <typename U = T>
+  void applyStatic(
+    SerializerT& s, T* val, SerialSizeType num, justFootprint<U>* = nullptr
+  ) {
+    debug_checkpoint(
+      "SerializerDispatch: justFootprint: val=%p typeid=%s\n",
+      static_cast<void*>(&val),
+      typeid(val).name()
+    );
+    static bool firstCall = true;
+    if (firstCall) {
+      firstCall = false;
+      debug_checkpoint(
+        "SerializerDispatch: warning: simplified footprinting in use!\n"
+        "Objects of type: typeid=%s will not be traversed\n",
+        typeid(val).name()
+      );
+    }
+
+    s.contiguousBytes(val, sizeof(T), num);
+  }
+
   template <typename U = T>
   void applyStatic(
     SerializerT& s, T* val, SerialSizeType num, hasInSerialize<U>* = nullptr
   ) {
     debug_checkpoint(
-      "SerializerDispatch: intrusive serialize: val=%p\n",
-      static_cast<void*>(&val)
+      "SerializerDispatch: intrusive serialize: val=%p typeid=%s\n",
+      static_cast<void*>(&val),
+      typeid(val).name()
     );
     for (SerialSizeType i = 0; i < num; i++) {
       Dispatcher::serializeIntrusive(s, val[i]);
@@ -180,8 +223,9 @@ struct SerializerDispatchNonByte {
     SerializerT& s, T* val, SerialSizeType num, hasNoninSerialize<U>* = nullptr
   ) {
     debug_checkpoint(
-      "SerializerDispatch: non-intrusive serialize: val=%p\n",
-      static_cast<void*>(&val)
+      "SerializerDispatch: non-intrusive serialize: val=%p typeid=%s\n",
+      static_cast<void*>(&val),
+      typeid(val).name()
     );
     for (SerialSizeType i = 0; i < num; i++) {
       Dispatcher::serializeNonIntrusive(s, val[i]);
@@ -193,8 +237,9 @@ struct SerializerDispatchNonByte {
     SerializerT& s, T* val, SerialSizeType num, isEnum<U>* = nullptr
   ) {
     debug_checkpoint(
-      "SerializerDispatch: enum serialize: val=%p\n",
-      static_cast<void*>(&val)
+      "SerializerDispatch: enum serialize: val=%p typeid=%s\n",
+      static_cast<void*>(&val),
+      typeid(val).name()
     );
     for (SerialSizeType i = 0; i < num; i++) {
       applyElm(s, val+i);
