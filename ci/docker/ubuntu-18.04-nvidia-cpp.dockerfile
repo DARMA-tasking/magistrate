@@ -76,6 +76,10 @@ ENV GTEST_ROOT=/pkgs/gtest/install
 ENV CUDACXX=/usr/local/cuda-versioned/bin/nvcc
 ENV PATH=/usr/local/cuda-versioned/bin/:$PATH
 
+COPY ./ci/deps/kokkos.sh kokkos.sh
+RUN ./kokkos.sh 3.1.01 /pkgs 0
+ENV KOKKOS_ROOT=/pkgs/kokkos/install/lib
+
 RUN git clone https://github.com/kokkos/nvcc_wrapper.git && \
     cd nvcc_wrapper && \
     mkdir build && \
@@ -85,10 +89,6 @@ RUN git clone https://github.com/kokkos/nvcc_wrapper.git && \
 ENV MPI_EXTRA_FLAGS="" \
     CXX=/nvcc_wrapper/build/nvcc_wrapper \
     PATH=/usr/lib/ccache/:$PATH
-
-COPY ./ci/deps/kokkos.sh kokkos.sh
-RUN ./kokkos.sh 3.1.01 /pkgs 1
-ENV KOKKOS_ROOT=/pkgs/kokkos/install/lib
 
 COPY ./ci/deps/kokkos-kernels.sh kokkos-kernels.sh
 RUN ./kokkos-kernels.sh 3.2.00 /pkgs
