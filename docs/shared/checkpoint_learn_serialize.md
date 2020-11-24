@@ -21,7 +21,7 @@ s | a;
 
 \section serialize_stl Serialization of C++ standard library
 
-The `|` operator has been overloaded for the STL containers:
+The `|` operator has been overloaded for many of the C++ STL data structures:
   - `std::array`
   - `std::deque`
   - `std::list`
@@ -51,7 +51,7 @@ s | c;
 
 When a class (or structure) has to be serialized, the user must provide a
 reconstruction method for the class and a serialization method or free function
-to actually performing the serialization.
+to actually perform the serialization.
 
 \subsection reconstruct_class Class reconstruction
 
