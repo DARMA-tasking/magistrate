@@ -178,6 +178,12 @@ struct SerializerDispatchNonByte {
       "SerializerDispatch: justFootprint: val=%p\n",
       static_cast<void*>(&val)
     );
+    static bool firstCall = true;
+    if (firstCall) {
+      firstCall = false;
+      // optionally print a warning here
+    }
+
     s.contiguousBytes(val, sizeof(T), num);
   }
 
