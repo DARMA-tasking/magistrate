@@ -130,9 +130,9 @@ struct SpliceMeta<ValueT, std::tuple<Ts...>> {
   >::ResultType;
 };
 
-// //
-// // Debug code for SpliceTypeMeta
-// //
+//
+// Debug code for SpliceTypeMeta
+//
 // struct A { A() = delete; };
 // using TestA = std::tuple<int, float>;
 // using TestB = std::tuple<std::tuple<int,A>, std::tuple<float,A>>;
@@ -142,7 +142,6 @@ struct SpliceMeta<ValueT, std::tuple<Ts...>> {
 // static_assert(
 //   std::is_same<TestB,TestC>::value, "Not same"
 // );
-// //
 
 // Type conversion from std::tuple<X,Y,Z> to testing::Types<X,Y,Z>
 template <typename Tuple1, template <typename...> class Tuple2>
