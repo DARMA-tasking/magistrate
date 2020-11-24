@@ -95,9 +95,9 @@ void serializeRawPtr(SerializerT& s, void* ptr) {
 
 #define CHECKPOINT_FOOTPRINT_PIMPL_WITH_SIZEOF_PTR(PIMPL_TYPE) \
   template < \
-             typename SerializerT, \
-             typename = std::enable_if_t< std::is_same<SerializerT, checkpoint::Footprinter >::value > \
-           > \
+    typename SerializerT, \
+    typename = std::enable_if_t< std::is_same<SerializerT, checkpoint::Footprinter >::value > \
+  > \
   void serialize(SerializerT &s, PIMPL_TYPE *t) { \
     s.countBytes(t); \
   }

@@ -139,7 +139,7 @@ struct SerializerDispatchNonByte {
       not SerializableTraits<U, S>::is_traversable and
       not std::is_enum<U>::value,
       T
-      >::type;
+    >::type;
   #else
     template <typename U>
     using hasInSerialize =
@@ -195,6 +195,8 @@ struct SerializerDispatchNonByte {
       firstCall = false;
       debug_checkpoint(
         "SerializerDispatch: warning: simplified footprinting in use!\n"
+        "Objects of type: typeid=%s will not be traversed\n",
+        typeid(val).name()
       );
     }
 
