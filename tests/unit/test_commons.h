@@ -176,7 +176,7 @@ std::unique_ptr<T> serializeAny(
   #else
     compare(view, out_view_ref);
   #endif
-  return std::move(out_view);
+  return out_view;
 }
 } //end namespace
 
