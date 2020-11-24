@@ -1,13 +1,12 @@
 \page ckpt_learn_serialize How to Serialize Data
 
-*Serialization* is the process of converting an object into a simple format
-that can be stored or transmitted and reconstructed later.
-checkpoint translates the object into a set of contiguous bits
-and provides the steps to reverse the process, i.e. to reconstitute
-the object from the set of bits.
+*Serialization* is the process of recursively traversing C++ objects into a
+simple format that can be stored or transmitted and reconstructed later.
+*checkpoint* translates the object into a set of contiguous bits and provides
+the steps to reverse the process, i.e. to reconstitute the object from the set
+of bits.
 
-The extraction of the data from a series of bytes is called
-*deserialization*.
+The extraction of the data from a set of bytes is called *deserialization*.
 
 \section serialize_builtin Serialization of built-in types
 
@@ -20,18 +19,26 @@ into the serializer object `s`, we simply write
 s | a;
 \endcode
 
-\section serialize_stl Serialization of STL containers
+\section serialize_stl Serialization of C++ standard library
 
 The `|` operator has been overloaded for the STL containers:
-`std::array`, `std::deque`, `std::list`,
-`std::map`, `std::multimap`, `std::multiset`,
-`std::queue`,
-`std::set`, `std::string`,
-`std::unordered_map`, `std::unordered_multimap`,
-`std::unordered_multiset`, `std::unordered_set`,
-`std::vector`, `std::tuple`.
-
-The `|` operator is also overloaded for `std::pair` and `std::unique_ptr`.
+  - `std::array`
+  - `std::deque`
+  - `std::list`
+  - `std::map`
+  - `std::multimap`
+  - `std::multiset`
+  - `std::queue`
+  - `std::set`
+  - `std::string`
+  - `std::unordered_map`
+  - `std::unordered_multimap`
+  - `std::unordered_multiset`
+  - `std::unordered_set`
+  - `std::vector`
+  - `std::tuple`
+  - `std::pair`
+  - `std::unique_ptr`
 
 When the variable `c` is such an STL object, whose template parameter(s) can
 be directly serialized into a serializer object `s`, we write
@@ -40,79 +47,58 @@ be directly serialized into a serializer object `s`, we write
 s | c;
 \endcode
 
-\section serialize_class Serialization of custom class
+\section serialize_class Serialization of classes
 
-When a class (or structure) has to be serialized, the following steps are recommended:
-- define a default constructor;
-- define a templated function `template< class Serializer > void serialize(Serializer &s)` with
-  - a serialization step for all the member variables that need to be serialized.
+When a class (or structure) has to be serialized, the user must provide a
+reconstruction method for the class and a serialization method or free function
+to actually performing the serialization.
 
-The example in \ref ckpt_learn_ex1 illustrates this situation.
+\subsection reconstruct_class Class reconstruction
 
-When the class (or structure) is not amenable to having a default constructor,
-the class must contains a static reconstructor method that serialization can use
-to construct the class.
-For a class to be serializable, it must have a valid reconstruction method
-(either a default constructor or a static reconstructor method).
+There are several ways to allow *checkpoint* to reconstruct a
+class. *checkpoint* will try to detect a reconstruction strategy in the
+following resolution order:
+  1. Tagged constructor: `MyClass(checkpoint::SERIALIZE_CONSTRUCT_TAG) {}`
+  1. Reconstruction `MyClass::reconstruct(buf)` or `reconstruct(MyClass, buf)`
+  1. Default constructor: `MyClass()`
 
-The example in \ref ckpt_learn_ex1 illustrates this situation.
+If no reconstruct strategy is detected with type traits, *checkpoint* will fail
+at compile-time with a static assertion indicating that *checkpoint* can't
+reconstruct the class.
 
-\section serialize_virtual Serialization of virtual class
+The example in \ref ckpt_learn_ex1 illustrates the reconstruct method.
 
-Consider the situation where the class `BaseVC` is abstract (i.e. it has a pure virtual method)
-and the classe `CI` is one concrete class derived from `BaseVC`.
+\subsection serialize_class Class serializers
 
-\subsection serialize_virtual_prep Preparatory steps
+Users may provide a serializer for a class in one of two forms: a `serialize`
+method on the class (intrusive) or a free function `serialize` that takes a
+reference to the class as an argument (non-intrusive). Note that if a
+free-function serialization strategy is employed, one may be required to friend
+the serialize function so it can access private/protected data from the class,
+depending on what members the function needs to access for correct serialization
+of the class state.
 
-\subsubsection serialize_virtual_prep_macro Macro-based approach (preferred)
+\section serialize_polymorphic Serialization of polymorphic classes
 
-The following steps should be taken:
-- Insert checkpoint macros in your virtual class hierarchy for derived and
-  base classes with the corresponding macros:
-  - \c checkpoint_virtual_serialize_root()
-  - \c checkpoint_virtual_serialize_derived_from( BaseVC )
+To serialize polymorphic class hierarchies, one must write serializers for each
+class in the hierarchy. Then, the user should either insert macros
+`checkpoint_virtual_serialize_root()` and
+`checkpoint_virtual_serialize_derived_from(T)` to inform *checkpoint* of the
+hierarchy so it can automatically traverse the hierarchy. Alternatively, the
+user may use the inheritance wrappers `checkpoint::SerializableBase<T>` and
+`checkpoint::SerializableDerived<T, U>` to achieve the same effect.
 
-The example in \ref ckpt_learn_example_virtual_macro
+The example in \ref ckpt_learn_example_polymorphic_macro illustrates the
+approach uses the macros. The example in \ref ckpt_learn_example_polymorphic
 illustrates this approach.
 
-\subsubsection serialize_virtual_prep_hier Hierarchy-based approach
+\subsection serialize_polymorphic_step Allocation and reconstruction
 
-In this case,
-- Make your virtual class hierarchy you want to serialize all inherit from
-  \c SerializableBase< BaseVC > and \c SerializableDerived< CI, BaseVC > in the whole
-  hierarchy.
+- If one has a `std::unique_ptr<T> x`, where `T` is polymorphic serializable
+  `s | x` will correctly serialize and reconstruct `x` based on the concrete
+  type.
 
-The example in \ref ckpt_learn_example_virtual
-illustrates this approach.
-
-\subsection serialize_virtual_step Actual serialization
-
-- If you have a \c std::unique_ptr< BaseVC >, where `BaseVC` is virtually serializable (by
-  using the macros or inheriting from \c SerializableBase< BaseVC > and
-  \c SerializableDerived< CI, BaseVC > ), they will automatically be virtually
-  serialized.
-
-- If you have a raw pointer, \c Teuchos::RCP, or \c std::shared_ptr<T>,
-  you must invoke: \c checkpoint::allocateConstructForPointer<SerializerT,T>
-
-  Example with raw pointer:
-
-  \code{.cpp}
-     template <typename T>
-     struct MyObjectWithRawPointer {
-       T* raw_ptr;
-
-       template <typename SerializerT>
-       void serialize(SerializerT& s) {
-         bool is_null = raw_ptr == nullptr;
-         s | is_null; // serialize whether we have a null pointer not
-         if (!is_null) {
-           // During size/pack, save the actual derived type of raw_ptr;
-           // During unpack, allocate/construct raw_ptr with correct virtual type
-           checkpoint::allocateConstructForPointer(s, raw_ptr);
-           s | *raw_ptr;
-         }
-       }
-     };
-  \endcode
-
+- If one has a raw pointer, `Teuchos::RCP<T>`, or `std::shared_ptr<T>`,
+   `checkpoint::allocateConstructForPointer<SerializerT,T>(s, ptr)` can be
+   invoked to properly allocate and construct the concrete class depending on
+   runtime type.

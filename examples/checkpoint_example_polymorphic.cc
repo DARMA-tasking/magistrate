@@ -42,7 +42,7 @@
 //@HEADER
 */
 
-/// [Serialize virtual]
+/// [Serialize polymorphic]
 
 #include <checkpoint/checkpoint.h>
 #include "checkpoint/dispatch/dispatch_virtual.h"
@@ -159,4 +159,4 @@ int main(int, char**) {
   return 0;
 }
 
-/// [Serialize virtual]
+/// [Serialize polymorphic]

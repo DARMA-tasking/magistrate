@@ -42,7 +42,7 @@
 //@HEADER
 */
 
-/// [Serialize virtual macro]
+/// [Serialize polymorphic macro]
 
 #include <checkpoint/checkpoint.h>
 #include "checkpoint/dispatch/dispatch_virtual.h"
@@ -178,5 +178,5 @@ int main(int, char**) {
   return 0;
 }
 
-/// [Serialize virtual macro]
+/// [Serialize polymorphic macro]
 

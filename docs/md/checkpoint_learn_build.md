@@ -10,7 +10,7 @@ To build *checkpoint*, one must obtain the following dependencies:
 
   - [detector](https://github.com/DARMA-tasking/detector)
   - gtest,   (if testing *checkpoint* is enabled)
-     - MPI,   (if MPI tests are enabled)
+  - MPI,   (if MPI tests are enabled)
   - [Kokkos](https://github.com/kokkos/kokkos),  (if Kokkos views need to be serialized)
   - [KokkosKernels](https://github.com/kokkos/kokkos-kernels),  (if Kokkos kernel data structures need to be serialized)
 
