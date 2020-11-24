@@ -74,9 +74,9 @@ Users may provide a serializer for a class in one of two forms: a `serialize`
 method on the class (intrusive) or a free function `serialize` that takes a
 reference to the class as an argument (non-intrusive). Note that if a
 free-function serialization strategy is employed, one may be required to friend
-the serialize function so it can access private/protected data from the class,
-depending on what members the function needs to access for correct serialization
-of the class state.
+the serialize function so it can access private/protected data inside the class,
+depending on what data members the function needs to access for correct
+serialization of the class state.
 
 \section serialize_polymorphic Serialization of polymorphic classes
 
