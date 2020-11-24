@@ -58,7 +58,7 @@ struct MyBase {
   virtual ~MyBase() = default;
 
   // Add serializing macro
-  checkpoint_virtual_serialize_base( MyBase )
+  checkpoint_virtual_serialize_root()
 
   int val_ = 0;
 
@@ -74,10 +74,10 @@ struct MyBase {
 struct MyObj : public MyBase {
 
   explicit MyObj(int val) : MyBase() { printf("MyObj cons\n"); val_ = val;}
-  explicit MyObj(SERIALIZE_CONSTRUCT_TAG) : MyBase() {}
+  explicit MyObj(SERIALIZE_CONSTRUCT_TAG) {}
 
   // Add macro for serialization
-  checkpoint_virtual_serialize_derived( MyObj, MyBase )
+  checkpoint_virtual_serialize_derived_from(MyBase)
 
   template <typename SerializerT>
   void serialize(SerializerT& s) {
@@ -91,11 +91,11 @@ struct MyObj : public MyBase {
 };
 
 struct MyObj2 : public MyBase {
-  explicit MyObj2(int val) : MyBase() { printf("MyObj2 cons\n"); val_=val; }
-  explicit MyObj2(SERIALIZE_CONSTRUCT_TAG) : MyBase() {}
+  explicit MyObj2(int val) { printf("MyObj2 cons\n"); val_=val; }
+  explicit MyObj2(SERIALIZE_CONSTRUCT_TAG) {}
 
   // Add macro for serialization
-  checkpoint_virtual_serialize_derived( MyObj2, MyBase )
+  checkpoint_virtual_serialize_derived_from(MyBase)
 
   template <typename SerializerT>
   void serialize(SerializerT& s) {
@@ -115,7 +115,7 @@ struct MyObj3 : public MyBase {
   explicit MyObj3(SERIALIZE_CONSTRUCT_TAG) {}
 
   // Add macro for serialization
-  checkpoint_virtual_serialize_derived( MyObj3, MyBase )
+  checkpoint_virtual_serialize_derived_from(MyBase)
 
   template <typename SerializerT>
   void serialize(SerializerT& s) {
