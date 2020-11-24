@@ -120,29 +120,11 @@ T* Standard::construct(SerialByteType* mem) {
   return Traverse::reconstruct<T>(mem);
 }
 
-template <
-  typename Serializer,
-  typename T
->
-inline std::enable_if_t< SerializableTraits<T, Serializer>::is_traversable, void > serializeArray(Serializer& s, T* array, SerialSizeType const len) {
+template <typename Serializer, typename T>
+inline void serializeArray(Serializer& s, T* array, SerialSizeType const len) {
   if (len > 0) {
     Traverse::with<T, Serializer>(*array, s, len);
   }
-}
-
-template <
-  typename Serializer,
-  typename T
->
-inline
-std::enable_if_t<
-  not SerializableTraits<T, Serializer>::is_traversable
-  and
-  std::is_same<Serializer, checkpoint::Footprinter>::value,
-  void
-  >
-serializeArray(Serializer& s, T* array, SerialSizeType const len) {
-  s.addBytes(sizeof(T) * len);
 }
 
 template <typename T>

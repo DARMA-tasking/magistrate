@@ -194,8 +194,8 @@ buffer::ImplReturnType packBuffer(
   T& target, SerialSizeType size, BufferObtainFnType fn
 );
 
-    //template <typename Serializer, typename T>
-    //inline void serializeArray(Serializer& s, T* array, SerialSizeType const len);
+template <typename Serializer, typename T>
+inline void serializeArray(Serializer& s, T* array, SerialSizeType const len);
 
 template <typename T>
 buffer::ImplReturnType serializeType(T& target, BufferObtainFnType fn = nullptr);

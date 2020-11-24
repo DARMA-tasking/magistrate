@@ -131,6 +131,15 @@ struct SerializerDispatchNonByte {
     template <typename U>
     using isEnum =
     typename std::enable_if<std::is_enum<U>::value, T>::type;
+
+    template <typename U>
+    using justFootprint =
+    typename std::enable_if<
+      std::is_same<S, checkpoint::Footprinter>::value and
+      not SerializableTraits<U, S>::is_traversable and
+      not std::is_enum<U>::value,
+      T
+      >::type;
   #else
     template <typename U>
     using hasInSerialize =
@@ -159,6 +168,17 @@ struct SerializerDispatchNonByte {
     SerializerT& s, T* val, isEnum<U>* = nullptr
   ) {
     serializeEnum(s, *val);
+  }
+
+  template <typename U = T>
+  void applyStatic(
+    SerializerT& s, T* val, SerialSizeType num, justFootprint<U>* = nullptr
+  ) {
+    debug_checkpoint(
+      "SerializerDispatch: justFootprint: val=%p\n",
+      static_cast<void*>(&val)
+    );
+    s.contiguousBytes(val, sizeof(T), num);
   }
 
   template <typename U = T>

@@ -56,7 +56,6 @@
 #include "checkpoint/container/function_serialize.h"
 #include "checkpoint/container/list_serialize.h"
 #include "checkpoint/container/map_serialize.h"
-#include "checkpoint/container/ompi_serialize.h"
 #include "checkpoint/container/queue_serialize.h"
 #include "checkpoint/container/raw_ptr_serialize.h"
 #include "checkpoint/container/shared_ptr_serialize.h"

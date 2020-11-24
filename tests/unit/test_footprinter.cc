@@ -555,55 +555,29 @@ TEST_F(TestFootprinter, test_virtual_serialize) {
   }
 }
 
-TEST_F(TestFootprinter, test_ompi) {
-  {
-    std::vector<ompi_communicator_t*> v(3);
-
-    EXPECT_EQ(
-      checkpoint::getMemoryFootprint(v),
-      sizeof(v) + v.capacity() * sizeof(ompi_communicator_t*)
-    );
-  }
-
-  {
-    std::vector<ompi_group_t*> v(5);
-
-    EXPECT_EQ(
-      checkpoint::getMemoryFootprint(v),
-      sizeof(v) + v.capacity() * sizeof(ompi_group_t*)
-    );
-  }
-
-  {
-    std::vector<ompi_request_t*> v(7);
-
-    EXPECT_EQ(
-      checkpoint::getMemoryFootprint(v),
-      sizeof(v) + v.capacity() * sizeof(ompi_request_t*)
-    );
-  }
-
-  {
-    std::vector<ompi_win_t*> v(9);
-
-    EXPECT_EQ(
-      checkpoint::getMemoryFootprint(v),
-      sizeof(v) + v.capacity() * sizeof(ompi_win_t*)
-    );
-  }
-}
-
 struct TestNoSerialize {
   double d;
   int i;
 };
 
 TEST_F(TestFootprinter, test_no_serialize) {
-  std::vector<TestNoSerialize> v(7);
+  {
+    std::vector<TestNoSerialize> v(7);
 
-  EXPECT_EQ(
-    checkpoint::getMemoryFootprint(v),
-    sizeof(v) + v.capacity() * sizeof(TestNoSerialize)
-  );
+    EXPECT_EQ(
+              checkpoint::getMemoryFootprint(v),
+              sizeof(v) + v.capacity() * sizeof(TestNoSerialize)
+              );
+  }
+
+  {
+    std::vector<std::list<int>::iterator> v(7);
+
+    EXPECT_EQ(
+              checkpoint::getMemoryFootprint(v),
+              sizeof(v) + v.capacity() * sizeof(std::list<int>::iterator)
+              );
+  }
+
 }
 }}} // end namespace checkpoint::tests::unit
