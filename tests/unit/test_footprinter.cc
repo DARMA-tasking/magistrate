@@ -598,12 +598,28 @@ struct TestNoSerialize {
   int i;
 };
 
+static_assert(
+  not SerializableTraits<TestNoSerialize>::is_traversable,
+  "TestNoSerialize has no serializer defined"
+);
+
 TEST_F(TestFootprinter, test_no_serialize) {
   std::vector<TestNoSerialize> v(7);
 
   EXPECT_EQ(
     checkpoint::getMemoryFootprint(v),
     sizeof(v) + v.capacity() * sizeof(TestNoSerialize)
+  );
+
+  std::unordered_map<int, TestNoSerialize> m;
+  m[1] = TestNoSerialize();
+  m[2] = TestNoSerialize();
+  m[3] = TestNoSerialize();
+  auto p = *m.begin();
+
+  EXPECT_EQ(
+    checkpoint::getMemoryFootprint(m),
+    sizeof(m) + m.size() * (sizeof(p) + sizeof(p.first) + sizeof(p.second))
   );
 }
 }}} // end namespace checkpoint::tests::unit
