@@ -159,7 +159,14 @@ TEST_F(TestTraversal, test_traversal) {
 
   auto traverse = checkpoint::dispatch::Traverse::with<TestObject, TestTraverse>(t);
 
-  EXPECT_EQ(traverse.bytes_, std::size_t{10*4 + 10*8 + 4 + 4 + 100*4 + 8*3});
+  constexpr std::size_t si = sizeof(int);
+  constexpr std::size_t sd = sizeof(double);
+  constexpr std::size_t sf = sizeof(float);
+  constexpr std::size_t ss = sizeof(std::size_t);
+  EXPECT_EQ(
+    traverse.bytes_,
+    std::size_t{10*si + 10*sd + si + si + 100*sf + 2*3*ss}
+  );
 }
 
 TEST_F(TestTraversal, test_traversal_dispatcher) {

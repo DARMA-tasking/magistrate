@@ -57,6 +57,10 @@ typename std::enable_if_t<
   not std::is_same<SerializerT, checkpoint::Footprinter>::value,
   void
 > serializeVectorMeta(SerializerT& s, std::vector<T, VectorAllocator>& vec) {
+  SerialSizeType vec_capacity = vec.capacity();
+  s | vec_capacity;
+  vec.reserve(vec_capacity);
+
   SerialSizeType vec_size = vec.size();
   s | vec_size;
   vec.resize(vec_size);
@@ -69,7 +73,6 @@ typename std::enable_if_t<
 > serializeVectorMeta(SerializerT& s, std::vector<T, VectorAllocator>& vec) {
   s.countBytes(vec);
 }
-
 
 template <typename Serializer, typename T, typename VectorAllocator>
 void serialize(Serializer& s, std::vector<T, VectorAllocator>& vec) {

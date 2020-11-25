@@ -97,6 +97,25 @@ static void testContainer(bool is_ordered, std::initializer_list<T> lst) {
   }
 }
 
+template <>
+void testContainer<std::vector<int>, int>(
+  bool /*is_ordered*/, std::initializer_list<int> lst
+) {
+  std::vector<int> c1{lst};
+  std::size_t const reserved_capacity = 1000;
+  c1.reserve(reserved_capacity);
+  auto ret = checkpoint::serialize(c1);
+
+  auto t1 = checkpoint::deserialize<std::vector<int>>(ret->getBuffer());
+
+  EXPECT_EQ(c1.size(), t1->size());
+  // capacity: reserve() can overallocate, so check for greater or equal
+  EXPECT_GE(t1->capacity(), reserved_capacity);
+  EXPECT_GE(t1->capacity(), c1.capacity());
+
+  testEqualityContainerOrdered(c1, *t1);
+}
+
 TYPED_TEST_P(TestContainer, test_single_ordered_container) {
   using namespace checkpoint;
 
