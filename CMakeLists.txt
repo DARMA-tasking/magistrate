@@ -16,26 +16,16 @@ endif()
 include (CTest)
 enable_testing()
 
-option(
-  CHECKPOINT_BUILD_TESTS "Option for turning on checkpoint tests" OFF
-)
-option(
-  CHECKPOINT_BUILD_TESTS_WITH_MPI
-  "Option for turning on checkpoint examples using MPI" OFF
-)
-option(
-  CHECKPOINT_BUILD_EXAMPLES "Option for turning on checkpoint examples" OFF
-)
-option(
-  CHECKPOINT_WARNINGS_AS_ERRORS "Option for turning all warnings into errors" OFF
-)
-if (CHECKPOINT_WARNINGS_AS_ERRORS)
+option(checkpoint_tests_enabled "Enable checkpoint tests" OFF)
+option(checkpoint_mpi_enabled "Enable checkpoint tests with MPI" OFF)
+option(checkpoint_examples_enabled "Enable checkpoint examples" OFF)
+option(checkpoint_warnings_as_errors "Enable warnings to generate errors" OFF)
+if (checkpoint_warnings_as_errors)
   enable_cxx_compiler_flag_if_supported("-Werror")
-endif(CHECKPOINT_WARNINGS_AS_ERRORS)
+endif(checkpoint_warnings_as_errors)
+option(checkpoint_asan_enabled "Enable address sanitizer in Checkpoint" OFF)
 
-option(
-  KOKKOS_KERNELS_ENABLED "Option for enabling kokkos kernels serializer" ON
-)
+option(CODE_COVERAGE "Enable coverage reporting" OFF)
 
 # Try to find ccache to speed up compilation
 find_program(ccache_binary ccache)
@@ -44,7 +34,7 @@ if (ccache_binary)
 endif()
 
 # MPI package
-if(CHECKPOINT_BUILD_TESTS_WITH_MPI)
+if(checkpoint_mpi_enabled)
  include(cmake/load_mpi_package.cmake)
  set(
    CHECK_POINT_MPI_PROC 2 CACHE STRING
@@ -52,10 +42,34 @@ if(CHECKPOINT_BUILD_TESTS_WITH_MPI)
  )
 endif()
 
-message (STATUS "Checkpoint build tests: ${CHECKPOINT_BUILD_TESTS}")
-message (STATUS "Checkpoint build examples: ${CHECKPOINT_BUILD_EXAMPLES}")
+message (STATUS "Checkpoint build tests: ${checkpoint_tests_enabled}")
+message (STATUS "Checkpoint build examples: ${checkpoint_examples_enabled}")
 
 include(cmake/load_package.cmake)
+
+option(
+  checkpoint_doxygen_enabled "Build doxygen documentation for checkpoint" OFF
+)
+
+# Doxygen library
+if (${checkpoint_doxygen_enabled})
+  include(cmake/load_doxygen.cmake)
+endif()
+
+# Optionally enable address sanitizer library in build
+if (checkpoint_asan_enabled)
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR
+     CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR
+     (CMAKE_CXX_COMPILER_ID
+       STREQUAL
+       "GNU"
+       AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "4.8"))
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -DADDRESS_SANITIZER")
+    message(STATUS "Building with address sanitizer enabled")
+  else()
+    message(SEND_ERROR "Cannot use ASAN without clang or gcc >= 4.8")
+  endif()
+endif()
 
 set(CHECKPOINT_LIBRARY checkpoint CACHE INTERNAL "" FORCE )
 set(CHECKPOINT_LIBRARY_NS vt::lib::checkpoint "" CACHE INTERNAL "" FORCE )
@@ -66,7 +80,7 @@ require_pkg_directory(detector "VT detector library")
 find_package_local(detector "${detector_DIR}" detector)
 
 # optional packages
-optional_pkg_directory(kokkos "Kokkos library" 1)
+optional_pkg_directory(kokkos "Kokkos" 1)
 
 if (${kokkos_DIR_FOUND})
   find_package_local(
@@ -78,8 +92,23 @@ else()
   set(CHECKPOINT_HAS_KOKKOS_LIBRARY 0)
 endif()
 
+# optional packages
+optional_pkg_directory(KokkosKernels "Kokkos kernels" 1)
+
+if (KokkosKernels_DIR_FOUND)
+  find_package_local(
+    KokkosKernels "${KokkosKernels_DIR}/" KokkosKernels
+    "CMake/KokkosKernels/" "cmake/KokkosKernels/"
+  )
+  # Used to properly setup transitive dependency in checkpointConfig.cmake.in
+  set(CHECKPOINT_HAS_KOKKOS_KERNELS_LIBRARY 1)
+else()
+  set(CHECKPOINT_HAS_KOKKOS_KERNELS_LIBRARY 0)
+endif()
+
+
 # If checkpoint build tests require the GTest package
-if (${CHECKPOINT_BUILD_TESTS})
+if (${checkpoint_tests_enabled})
   get_directory_property(hasParent PARENT_DIRECTORY)
   if(NOT hasParent)
     find_package(GTest REQUIRED)

@@ -42,12 +42,68 @@
 //@HEADER
 */
 
+/// [Serialize constraints constructor destructor]
+
 #include <checkpoint/checkpoint.h>
 
 #include <cstdio>
 
+//
+// This example illustrates how checkpoint uses traits to determine a
+// reconstruction strategy and shows several mechanisms for reconstructing a
+// class of a serializable/deserializable type.
+//
+
 namespace checkpoint { namespace examples {
 
+// \brief Structure with a variable of built-in type.
+//
+// \note This structure is a serializable / deserializable type. It has a
+// default constructor and a `serialize` function.
+struct TestDefaultCons {
+  int a = 29;
+
+  TestDefaultCons() = default;
+
+  template <typename Serializer>
+  void serialize(Serializer& s) {
+    s | a;
+  }
+};
+
+// \brief Structure with a variable of built-in type.
+//
+// \note This structure is a byte-serializable/deserializable type but doesn't
+// contain any traits to indicate that making it not serializable.
+//
+struct TestNoSerialize {
+  int a = 29;
+};
+
+// \brief Structure with a variable of built-in type.
+//
+// \note This structure is not a serializable / deserializable type. The
+// structure has an explicitly deleted default constructor and a constructor
+// that takes an `int` parameter.  Serialization has no way to construct the
+// structure.
+struct TestShouldFailReconstruct {
+  int a = 29;
+
+  TestShouldFailReconstruct(int const) { }
+  TestShouldFailReconstruct() = delete;
+
+  template <typename Serializer>
+  void serialize(Serializer& s) {
+    s | a;
+  }
+};
+
+// \brief Structure with a variable of built-in type.
+//
+// \note This structure is a serializable / deserializable type. The structure
+// has an explicitly deleted default constructor and a constructor that takes an
+// `int` parameter. However, the structure provides a static reconstruct
+// method that serialization can use to construct the structure.
 struct TestReconstruct {
   int a = 29;
 
@@ -65,33 +121,6 @@ struct TestReconstruct {
   }
 };
 
-struct TestShouldFailReconstruct {
-  int a = 29;
-
-  TestShouldFailReconstruct(int const) { }
-  TestShouldFailReconstruct() = delete;
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
-};
-
-struct TestDefaultCons {
-  int a = 29;
-
-  TestDefaultCons() = default;
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
-};
-
-struct TestNoSerialize {
-  int a = 29;
-};
-
 }} // end namespace checkpoint::examples
 
 #if HAS_DETECTION_COMPONENT
@@ -102,14 +131,6 @@ struct TestNoSerialize {
   using namespace examples;
 
   static_assert(
-    SerializableTraits<TestReconstruct>::is_serializable,
-    "Should be serializable"
-  );
-  static_assert(
-    ! SerializableTraits<TestShouldFailReconstruct>::is_serializable,
-    "Should not be serializable"
-  );
-  static_assert(
     SerializableTraits<TestDefaultCons>::is_serializable,
     "Should be serializable"
   );
@@ -118,6 +139,15 @@ struct TestNoSerialize {
     "Should not be serializable"
   );
 
+  static_assert(
+    ! SerializableTraits<TestShouldFailReconstruct>::is_serializable,
+    "Should not be serializable"
+  );
+
+  static_assert(
+    SerializableTraits<TestReconstruct>::is_serializable,
+    "Should be serializable"
+  );
   } // end namespace checkpoint
 #endif
 
@@ -125,3 +155,5 @@ int main(int, char**) {
   // Example is a compile-time test of serializability traits
   return 0;
 }
+
+/// [Serialize constraints constructor destructor]

@@ -18,7 +18,7 @@ file(
   "${PROJECT_EXAMPLE_DIR}/*.cc"
 )
 
-if (${CHECKPOINT_BUILD_EXAMPLES})
+if (checkpoint_examples_enabled)
   foreach(EXAMPLE_FULL ${PROJECT_EXAMPLES})
     GET_FILENAME_COMPONENT(
       EXAMPLE
@@ -42,16 +42,6 @@ if (${CHECKPOINT_BUILD_EXAMPLES})
       PUBLIC
       ${CHECKPOINT_LIBRARY_NS}
     )
-
-  if (${kokkos_DIR_FOUND})
-    target_include_directories(${EXAMPLE} SYSTEM PUBLIC ${Kokkos_INCLUDE_DIRS})
-    target_link_libraries(${EXAMPLE} PUBLIC ${Kokkos_LIBRARIES})
-
-      find_package(OpenMP)
-      if(OpenMP_CXX_FOUND)
-        target_link_libraries(${EXAMPLE} PUBLIC OpenMP::OpenMP_CXX)
-      endif()
-  endif()
 
   endforeach()
 endif()

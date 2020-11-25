@@ -1,44 +1,37 @@
-###############################################################################
-############## Warning this is a generated file---do not modify ###############
-###############################################################################
+[% warning %]
 
-name: PR tests (gcc-5, ubuntu, mpich)
+name: [% test_type %] ([% test_configuration %])
 
-on:
-  push:
-    branches:
-      - develop
-      - 1.*
-  pull_request:
+[% triggers %]
 
 jobs:
 
-  build:
+  [% job_name %]:
 
-    runs-on: ubuntu-latest
+    runs-on: [% workflow_runs_on %]
 
     env:
-      REPO: lifflander1/checkpoint
-      ARCH: amd64
-      UBUNTU: 18.04
-      COMPILER_TYPE: gnu
-      COMPILER: gcc-5
-      BUILD_TYPE: release
-      ULIMIT_CORE: 0
-      CODE_COVERAGE: 0
-      CHECKPOINT_TESTS: 1
-      CHECKPOINT_EXAMPLES: 1
-      CHECKPOINT_MPI: 1
-      CHECKPOINT_WARNINGS_AS_ERRORS: 0
-      CHECKPOINT_DOCS: 0
-      CHECKPOINT_ASAN: 0
-      CACHE: ~/.local/cache/
+      REPO: [% repo %]
+      ARCH: [% arch %]
+[% linux_env %]
+      COMPILER_TYPE: [% compiler_type %]
+      COMPILER: [% compiler %]
+      BUILD_TYPE: [% build_type %]
+      ULIMIT_CORE: [% ulimit_core %]
+      CODE_COVERAGE: [% code_coverage %]
+      CHECKPOINT_TESTS: [% checkpoint_tests %]
+      CHECKPOINT_EXAMPLES: [% checkpoint_examples %]
+      CHECKPOINT_MPI: [% checkpoint_mpi %]
+      CHECKPOINT_WARNINGS_AS_ERRORS: [% checkpoint_warnings_as_errors %]
+      CHECKPOINT_DOCS: [% checkpoint_docs %]
+      CHECKPOINT_ASAN: [% checkpoint_asan %]
+      CACHE: [% cache_dir %]
 
     steps:
     - name: Setup Build Root
       uses: allenevans/set-env@v2.0.0
       with:
-        BUILD_ROOT: "~/.local/cache/${{ env.ARCH }}-ubuntu-${{ env.UBUNTU }}-${{ env.COMPILER }}-cache/"
+        BUILD_ROOT: "[% build_root %]"
     - name: Prepare caching timestamp
       id: cache_ts
       shell: cmake -P {0}
@@ -47,7 +40,7 @@ jobs:
         message("::set-output name=timestamp::${current_date}")
     - uses: actions/cache@v1
       env:
-        cache-name: ubuntu-gcc-5-cache
+        cache-name: [% cache_name %]
       with:
         path: ${{ env.BUILD_ROOT }}/ccache
         key: ${{ runner.os }}-${{ env.cache-name }}-${{ steps.cache_ts.outputs.timestamp }}
@@ -56,9 +49,9 @@ jobs:
     - uses: actions/checkout@v2
     - name: Docker Pull Base Image
       shell: bash
-      run: docker-compose pull --ignore-pull-failures ubuntu-cpp
+      run: docker-compose pull --ignore-pull-failures [% docker_target %]
     - name: Build the Docker image
-      run: docker-compose run ubuntu-cpp
+      run: docker-compose run [% docker_target %]
     - name: Docker Push Base Image
       if: success()
       continue-on-error: true
@@ -66,7 +59,7 @@ jobs:
       run: |
         docker login -u ${{ secrets.DOCKER_USERNAME }} \
                      -p ${{ secrets.DOCKER_PASSWORD }}
-        docker-compose push ubuntu-cpp
+        docker-compose push [% docker_target %]
     - name: Zip up CMake output
       run: |
         zip -j LastTest.log.gz ${{ env.BUILD_ROOT }}/checkpoint/Testing/Temporary/LastTest.log

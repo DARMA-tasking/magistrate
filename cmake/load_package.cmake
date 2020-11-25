@@ -65,12 +65,13 @@ macro(find_package_local pkg_name pkg_directory pkg_other_name)
           NO_CMAKE_BUILDS_PATH
           NO_CMAKE_SYSTEM_PATH
           NO_CMAKE_SYSTEM_PACKAGE_REGISTRY
+          NO_SYSTEM_ENVIRONMENT_PATH
           QUIET
         )
 
         # Break out of the search loop now that we have found the path
         if (${${pkg_name}_FOUND})
-          message(STATUS "find_package_local: found with prefix: ${prefix}")
+          message(STATUS "find_package_local: found with prefix: ${prefix}: ${${pkg_name}_DIR}")
           set(${pkg_name}_PACKAGE_LOADED 1)
           break()
         endif()

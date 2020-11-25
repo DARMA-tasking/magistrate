@@ -2,7 +2,7 @@
 set(PROJECT_TEST_UNIT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/unit)
 set(PROJECT_TEST_MPI_UNIT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/unit/tests_mpi)
 
-if(CHECKPOINT_BUILD_TESTS_WITH_MPI)
+if(checkpoint_mpi_enabled)
   message(STATUS "Building unit tests with MPI")
   file(
       GLOB
@@ -30,15 +30,6 @@ macro(checkpoint_link_target target has_mpi)
   target_include_directories(${target} PRIVATE ${GTEST_INCLUDE_DIRS})
   target_link_libraries(${target} PRIVATE ${GTEST_BOTH_LIBRARIES})
   target_link_libraries(${target} PUBLIC ${CHECKPOINT_LIBRARY})
-  if (${kokkos_DIR_FOUND})
-    target_include_directories(${target} SYSTEM PUBLIC ${Kokkos_INCLUDE_DIRS})
-    target_link_libraries(${target} PUBLIC ${Kokkos_LIBRARIES})
-
-      find_package(OpenMP)
-      if(OpenMP_CXX_FOUND)
-        target_link_libraries(${target} PUBLIC OpenMP::OpenMP_CXX)
-      endif()
-  endif()
 
   if (${has_mpi})
     target_link_libraries(${target} PUBLIC ${MPI_LIBRARIES})
@@ -47,7 +38,7 @@ macro(checkpoint_link_target target has_mpi)
   endif()
 endmacro()
 
-if (${CHECKPOINT_BUILD_TESTS})
+if (checkpoint_tests_enabled)
   if (NOT CHECKPOINT_HAS_GTEST)
     message(
       STATUS
@@ -67,7 +58,7 @@ if (${CHECKPOINT_BUILD_TESTS})
       ${PROJECT_TEST_UNIT_DIR}/test_harness.h
     )
 
-   if(CHECKPOINT_BUILD_TESTS_WITH_MPI)
+   if(checkpoint_mpi_enabled)
       set(
         TEST_HEADER_FILES ${TEST_HEADER_FILES}
         ${PROJECT_TEST_MPI_UNIT_DIR}/mpi-init.h
@@ -108,7 +99,7 @@ if (${CHECKPOINT_BUILD_TESTS})
       )
     endforeach()
 
-    if(CHECKPOINT_BUILD_TESTS_WITH_MPI)
+    if(checkpoint_mpi_enabled)
       foreach(TEST_FULL ${PROJECT_TEST_LIST_MPI})
         GET_FILENAME_COMPONENT(
           TEST

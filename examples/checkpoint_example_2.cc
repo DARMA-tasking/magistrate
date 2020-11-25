@@ -42,33 +42,87 @@
 //@HEADER
 */
 
+/// [Serialize custom structure]
+
 #include <checkpoint/checkpoint.h>
 
 #include <cstdio>
 
 namespace checkpoint { namespace examples {
 
+// \struct MyTest2
+// \brief Simple structure with one variable of built-in type
+struct MyTest2 {
+  int c = 41;
+
+  // \brief Default constructor
+  //
+  // The reconstruction strategy is required for deserialization. A default
+  // constructor is one of the reconstruction strategies that checkpoint will
+  // look for.
+  MyTest2() = default;
+
+  // \brief Templated function for serializing/deserializing
+  // a variable of type `MyTest2`
+  template <typename Serializer>
+  void serialize(Serializer& s) {
+    printf("MyTest2 serialize\n");
+    s | c;
+  }
+
+  // \brief Printing function unto the standard display
+  void print() {
+    printf("\t MyTest2: c=%d\n", c);
+  }
+};
+
+// \struct MyTest
+//
+// \brief Structure with two variables of built-in types and one variable of
+// custom type (`MyTest2`)
 struct MyTest {
   int a = 29, b = 31;
+  MyTest2 my_test_2;
 
-  MyTest(int const) { }
-  MyTest() = delete;
+  // \brief Default constructor
+  //
+  // The reconstruction strategy is required for deserialization. A default
+  // constructor is one of the reconstruction strategies that checkpoint will
+  // look for.
+  MyTest() = default;
 
-  static MyTest& reconstruct(void* buf) {
-    printf("MyTest reconstruct\n");
-    MyTest* a = new (buf) MyTest(100);
-    return *a;
-  }
-
+  // \brief Printing function unto the standard display
   void print() {
     printf("MyTest: a=%d, b=%d\n", a, b);
+    my_test_2.print();
   }
 
+  // \brief Templated function for serializing/deserializing
+  // a variable of type `MyTest`
+  //
+  // \tparam <Serializer> The type of serializer depending on the pass
+  // \param[in,out] s the serializer for traversing this class
+  //
+  // \note The serialize method is typically called three times when
+  // (de-)serializing to a byte buffer:
+  //
+  // 1) Sizing: The first time its called, it sizes all the data it recursively
+  // traverses to generate a final size for the buffer.
+  //
+  // 2) Packing: As the traversal occurs, it copies the data traversed to the
+  // byte buffer in the appropriate location.
+  //
+  // 3) Unpacking: As the byte buffer is traversed, it extracts the bytes from
+  // the buffer to recursively reconstruct the types and setup the class members.
+  //
   template <typename Serializer>
   void serialize(Serializer& s) {
     printf("MyTest serialize\n");
     s | a;
     s | b;
+
+    // Recursive dispatch to the `MyTest2` object
+    s | my_test_2;
   }
 };
 
@@ -77,19 +131,28 @@ struct MyTest {
 int main(int, char**) {
   using namespace checkpoint::examples;
 
-  MyTest my_test_inst(10);
-
+  // Define a variable of custom type `MyTest`
+  MyTest my_test_inst;
+  my_test_inst.a = 10;
   my_test_inst.print();
 
+  // Call the serialization routine for the variable `my_test_inst`
+  // The output is a unique pointer: `std::unique_ptr<SerializedInfo>`
+  // (defined in `src/checkpoint_api.h`)
   auto ret = checkpoint::serialize(my_test_inst);
 
-  auto const& buf = ret->getBuffer();
-  auto const& buf_size = ret->getSize();
+  {
+    // Display information about the serialization "message"
+    auto const& buf = ret->getBuffer();
+    auto const& buf_size = ret->getSize();
+    printf("ptr=%p, size=%ld\n", static_cast<void*>(buf), buf_size);
+  }
 
-  printf("ptr=%p, size=%ld\n", static_cast<void*>(buf), buf_size);
-
-  auto t = checkpoint::deserialize<MyTest>(buf);
+  // De-serialization call to create a new unique pointer to `MyTest`
+  auto t = checkpoint::deserialize<MyTest>(ret->getBuffer());
   t->print();
 
   return 0;
 }
+
+/// [Serialize custom structure]

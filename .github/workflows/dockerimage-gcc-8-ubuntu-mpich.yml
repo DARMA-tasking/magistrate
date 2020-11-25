@@ -2,7 +2,7 @@
 ############## Warning this is a generated file---do not modify ###############
 ###############################################################################
 
-name: PR tests (gcc-5, ubuntu, mpich)
+name: PR tests (gcc-8, ubuntu, mpich, address sanitizer)
 
 on:
   push:
@@ -22,7 +22,7 @@ jobs:
       ARCH: amd64
       UBUNTU: 18.04
       COMPILER_TYPE: gnu
-      COMPILER: gcc-5
+      COMPILER: gcc-8
       BUILD_TYPE: release
       ULIMIT_CORE: 0
       CODE_COVERAGE: 0
@@ -31,7 +31,7 @@ jobs:
       CHECKPOINT_MPI: 1
       CHECKPOINT_WARNINGS_AS_ERRORS: 0
       CHECKPOINT_DOCS: 0
-      CHECKPOINT_ASAN: 0
+      CHECKPOINT_ASAN: 1
       CACHE: ~/.local/cache/
 
     steps:
@@ -47,7 +47,7 @@ jobs:
         message("::set-output name=timestamp::${current_date}")
     - uses: actions/cache@v1
       env:
-        cache-name: ubuntu-gcc-5-cache
+        cache-name: ubuntu-gcc-8-cache
       with:
         path: ${{ env.BUILD_ROOT }}/ccache
         key: ${{ runner.os }}-${{ env.cache-name }}-${{ steps.cache_ts.outputs.timestamp }}
