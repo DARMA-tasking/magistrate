@@ -1,6 +1,6 @@
 
 ARG arch=amd64
-FROM ${arch}/ubuntu:18.04 as base
+FROM ${arch}/ubuntu:20.04 as base
 
 ARG proxy=""
 ARG compiler=gcc-7
@@ -25,6 +25,7 @@ RUN apt-get update -y -q && \
     zlib1g-dev \
     ninja-build \
     doxygen \
+    unzip \
     python3 \
     python3-jinja2 \
     python3-pygments \
@@ -33,6 +34,24 @@ RUN apt-get update -y -q && \
     ccache && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+COPY ./ci/deps/cmake.sh cmake.sh
+RUN ./cmake.sh 3.18.4
+
+ENV PATH=/cmake/bin/:$PATH
+ENV LESSCHARSET=utf-8
+
+COPY ./ci/deps/gtest.sh gtest.sh
+RUN ./gtest.sh 1.8.1 /pkgs
+ENV GTEST_ROOT=/pkgs/gtest/install
+
+COPY ./ci/deps/kokkos.sh kokkos.sh
+RUN ./kokkos.sh 3.1.01 /pkgs 1
+ENV KOKKOS_ROOT=/pkgs/kokkos/install/lib
+
+COPY ./ci/deps/kokkos-kernels.sh kokkos-kernels.sh
+RUN ./kokkos-kernels.sh 3.2.00 /pkgs
+ENV KOKKOS_KERNELS_ROOT=/pkgs/kokkos-kernels/install/lib
 
 ENV MPI_EXTRA_FLAGS="" \
     CMAKE_PREFIX_PATH="/lib/x86_64-linux-gnu/" \
