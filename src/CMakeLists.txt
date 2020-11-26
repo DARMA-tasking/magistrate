@@ -140,6 +140,8 @@ target_include_directories(
   $<INSTALL_INTERFACE:include>
 )
 
+install(TARGETS detector EXPORT ${CHECKPOINT_LIBRARY})
+
 install(
   TARGETS                   ${CHECKPOINT_LIBRARY}
   EXPORT                    ${CHECKPOINT_LIBRARY}
@@ -159,6 +161,7 @@ install(
 
 export(
   TARGETS                   ${CHECKPOINT_LIBRARY}
+                            detector
   FILE                      "checkpointTargets.cmake"
   NAMESPACE                 vt::lib::
 )
