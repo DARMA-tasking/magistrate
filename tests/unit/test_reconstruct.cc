@@ -265,4 +265,16 @@ using ConstructTypes = ::testing::Types<
 REGISTER_TYPED_TEST_CASE_P(TestReconstruct, test_reconstruct_multi_type);
 INSTANTIATE_TYPED_TEST_CASE_P(Test_reconstruct, TestReconstruct, ConstructTypes, );
 
+struct TestReconstructVector : TestHarness { };
+
+TEST_F(TestReconstructVector, test_vector) {
+  std::vector<UserObjectB> v;
+
+  namespace ser = checkpoint;
+
+  auto ret = ser::serialize<std::vector<UserObjectB>>(v);
+  auto out = ser::deserialize<std::vector<UserObjectB>>(std::move(ret));
+
+}
+
 }}} // end namespace checkpoint::tests::unit
