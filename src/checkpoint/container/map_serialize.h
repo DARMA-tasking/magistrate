@@ -85,6 +85,23 @@ inline typename std::enable_if_t<
   Serializer& s, ContainerT& cont, typename ContainerT::size_type size
 ) { }
 
+template <typename SerializerT, typename ContainerT>
+inline void serializeUnorderedAssociativeContainer(
+  SerializerT& s, ContainerT& cont
+) {
+  if (not s.isFootprinting()) {
+    auto max_load_factor = cont.max_load_factor();
+    s | max_load_factor;
+    cont.max_load_factor(max_load_factor);
+
+    auto bucket_count = cont.bucket_count();
+    s | bucket_count;
+    cont.rehash(bucket_count);
+  }
+
+  serializeMapLikeContainer(s, cont);
+}
+
 template <typename Serializer, typename ContainerT>
 inline void serializeMapLikeContainer(Serializer& s, ContainerT& cont) {
   using ValueT = typename ContainerT::value_type;
@@ -120,22 +137,22 @@ inline void serialize(Serializer& s, std::multiset<T, Comp>& set) {
 
 template <typename Serializer, typename T, typename U, typename Hash, typename Eq>
 inline void serialize(Serializer& s, std::unordered_map<T, U, Hash, Eq>& map) {
-  serializeMapLikeContainer(s, map);
+  serializeUnorderedAssociativeContainer(s, map);
 }
 
 template <typename Serializer, typename T, typename U, typename Hash, typename Eq>
 inline void serialize(Serializer& s, std::unordered_multimap<T, U, Hash, Eq>& map) {
-  serializeMapLikeContainer(s, map);
+  serializeUnorderedAssociativeContainer(s, map);
 }
 
 template <typename Serializer, typename T, typename Hash, typename Eq>
 inline void serialize(Serializer& s, std::unordered_set<T, Hash, Eq>& set) {
-  serializeMapLikeContainer(s, set);
+  serializeUnorderedAssociativeContainer(s, set);
 }
 
 template <typename Serializer, typename T, typename Hash, typename Eq>
 inline void serialize(Serializer& s, std::unordered_multiset<T, Hash, Eq>& set) {
-  serializeMapLikeContainer(s, set);
+  serializeUnorderedAssociativeContainer(s, set);
 }
 
 } /* end namespace checkpoint */

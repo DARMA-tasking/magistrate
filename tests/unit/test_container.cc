@@ -82,7 +82,7 @@ static void testEqualityContainerUnordered(ContainerT& c1, ContainerT& t1) {
 }
 
 template <typename ContainerT, typename T>
-static void testContainer(bool is_ordered, std::initializer_list<T> lst) {
+static void testContainerOrdered(std::initializer_list<T> lst) {
   ContainerT c1{lst};
   auto ret = checkpoint::serialize(c1);
 
@@ -90,11 +90,46 @@ static void testContainer(bool is_ordered, std::initializer_list<T> lst) {
 
   EXPECT_EQ(c1.size(), t1->size());
 
-  if (is_ordered) {
-    testEqualityContainerOrdered(c1, *t1);
-  } else {
-    testEqualityContainerUnordered(c1, *t1);
-  }
+  testEqualityContainerOrdered(c1, *t1);
+}
+
+template <>
+void testContainerOrdered<std::vector<int>, int>(
+  std::initializer_list<int> lst
+) {
+  std::vector<int> c1{lst};
+  std::size_t const reserved_capacity = 1000;
+  c1.reserve(reserved_capacity);
+  auto ret = checkpoint::serialize(c1);
+
+  auto t1 = checkpoint::deserialize<std::vector<int>>(ret->getBuffer());
+
+  EXPECT_EQ(c1.size(), t1->size());
+  // capacity: reserve() can overallocate, so check for greater or equal
+  EXPECT_GE(t1->capacity(), reserved_capacity);
+  EXPECT_GE(t1->capacity(), c1.capacity());
+
+  testEqualityContainerOrdered(c1, *t1);
+}
+
+template <typename ContainerT, typename T>
+static void testContainerUnordered(std::initializer_list<T> lst) {
+  ContainerT c1{lst};
+  float const custom_max_load_factor = .75;
+  c1.max_load_factor(custom_max_load_factor);
+  std::size_t const custom_bucket_count = 1000;
+  c1.rehash(custom_bucket_count);
+
+  auto ret = checkpoint::serialize(c1);
+  auto t1 = checkpoint::deserialize<ContainerT>(ret->getBuffer());
+
+  EXPECT_EQ(c1.size(), t1->size());
+  EXPECT_EQ(t1->max_load_factor(), custom_max_load_factor);
+  EXPECT_EQ(t1->max_load_factor(), c1.max_load_factor());
+  EXPECT_GE(t1->bucket_count(), custom_bucket_count);
+  EXPECT_GE(t1->bucket_count(), c1.bucket_count());
+
+  testEqualityContainerUnordered(c1, *t1);
 }
 
 TYPED_TEST_P(TestContainer, test_single_ordered_container) {
@@ -102,8 +137,7 @@ TYPED_TEST_P(TestContainer, test_single_ordered_container) {
 
   using ContainerT = TypeParam;
   using ValueT = typename ContainerT::value_type;
-  testContainer<ContainerT, ValueT>(
-    true,
+  testContainerOrdered<ContainerT, ValueT>(
     {(ValueT)1, (ValueT)2, (ValueT)3, (ValueT)4, (ValueT)5}
   );
 }
@@ -113,8 +147,7 @@ TYPED_TEST_P(TestContainerUnordered, test_single_unordered_container) {
 
   using ContainerT = TypeParam;
   using ValueT = typename ContainerT::value_type;
-  testContainer<ContainerT, ValueT>(
-    false,
+  testContainerUnordered<ContainerT, ValueT>(
     {(ValueT)1, (ValueT)2, (ValueT)3, (ValueT)4, (ValueT)5}
   );
 }
@@ -162,7 +195,7 @@ TYPED_TEST_CASE_P(TestMultiContainer);
 TYPED_TEST_CASE_P(TestMultiContainerUnordered);
 
 template <typename ContainerT, typename Pair>
-static void testMultiContainer(bool is_ordered, std::initializer_list<Pair> lst) {
+static void testMultiContainerOrdered(std::initializer_list<Pair> lst) {
   ContainerT c1{lst};
   auto ret = checkpoint::serialize(c1);
 
@@ -170,11 +203,27 @@ static void testMultiContainer(bool is_ordered, std::initializer_list<Pair> lst)
 
   EXPECT_EQ(c1.size(), t1->size());
 
-  if (is_ordered) {
-    testEqualityContainerOrdered(c1, *t1);
-  } else {
-    testEqualityContainerUnordered(c1, *t1);
-  }
+  testEqualityContainerOrdered(c1, *t1);
+}
+
+template <typename ContainerT, typename Pair>
+static void testMultiContainerUnordered(std::initializer_list<Pair> lst) {
+  ContainerT c1{lst};
+  float const custom_max_load_factor = .75;
+  c1.max_load_factor(custom_max_load_factor);
+  std::size_t const custom_bucket_count = 1000;
+  c1.rehash(custom_bucket_count);
+
+  auto ret = checkpoint::serialize(c1);
+  auto t1 = checkpoint::deserialize<ContainerT>(ret->getBuffer());
+
+  EXPECT_EQ(c1.size(), t1->size());
+  EXPECT_EQ(t1->max_load_factor(), custom_max_load_factor);
+  EXPECT_EQ(t1->max_load_factor(), c1.max_load_factor());
+  EXPECT_GE(t1->bucket_count(), custom_bucket_count);
+  EXPECT_GE(t1->bucket_count(), c1.bucket_count());
+
+  testEqualityContainerUnordered(c1, *t1);
 }
 
 TYPED_TEST_P(TestMultiContainer, test_multi_container) {
@@ -185,7 +234,7 @@ TYPED_TEST_P(TestMultiContainer, test_multi_container) {
   using FstValueT = typename ContainerT::value_type::first_type;
   using SndValueT = typename ContainerT::value_type::second_type;
 
-  testMultiContainer<ContainerT, ValueT>(true, {
+  testMultiContainerOrdered<ContainerT, ValueT>({
     {(FstValueT)1, (SndValueT)2},
     {(FstValueT)3, (SndValueT)4},
     {(FstValueT)5, (SndValueT)6},
@@ -202,7 +251,7 @@ TYPED_TEST_P(TestMultiContainerUnordered, test_multi_container_unordered) {
   using FstValueT = typename ContainerT::value_type::first_type;
   using SndValueT = typename ContainerT::value_type::second_type;
 
-  testMultiContainer<ContainerT, ValueT>(false, {
+  testMultiContainerUnordered<ContainerT, ValueT>({
     {(FstValueT)1, (SndValueT)2},
     {(FstValueT)3, (SndValueT)4},
     {(FstValueT)5, (SndValueT)6},
