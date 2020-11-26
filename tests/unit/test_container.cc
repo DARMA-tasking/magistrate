@@ -181,7 +181,7 @@ TYPED_TEST_CASE_P(TestMultiContainer);
 TYPED_TEST_CASE_P(TestMultiContainerUnordered);
 
 template <typename ContainerT, typename Pair>
-static void testMultiContainer(bool is_ordered, std::initializer_list<Pair> lst) {
+static void testMultiContainerOrdered(std::initializer_list<Pair> lst) {
   ContainerT c1{lst};
   auto ret = checkpoint::serialize(c1);
 
@@ -189,11 +189,23 @@ static void testMultiContainer(bool is_ordered, std::initializer_list<Pair> lst)
 
   EXPECT_EQ(c1.size(), t1->size());
 
-  if (is_ordered) {
-    testEqualityContainerOrdered(c1, *t1);
-  } else {
-    testEqualityContainerUnordered(c1, *t1);
-  }
+  testEqualityContainerOrdered(c1, *t1);
+}
+
+template <typename ContainerT, typename Pair>
+static void testMultiContainerUnordered(std::initializer_list<Pair> lst) {
+  ContainerT c1{lst};
+  std::size_t const reserved_bucket_count = 1000;
+  c1.rehash(reserved_bucket_count);
+
+  auto ret = checkpoint::serialize(c1);
+  auto t1 = checkpoint::deserialize<ContainerT>(ret->getBuffer());
+
+  EXPECT_EQ(c1.size(), t1->size());
+  EXPECT_GE(t1->bucket_count(), reserved_bucket_count);
+  EXPECT_GE(t1->bucket_count(), c1.bucket_count());
+
+  testEqualityContainerUnordered(c1, *t1);
 }
 
 TYPED_TEST_P(TestMultiContainer, test_multi_container) {
@@ -204,7 +216,7 @@ TYPED_TEST_P(TestMultiContainer, test_multi_container) {
   using FstValueT = typename ContainerT::value_type::first_type;
   using SndValueT = typename ContainerT::value_type::second_type;
 
-  testMultiContainer<ContainerT, ValueT>(true, {
+  testMultiContainerOrdered<ContainerT, ValueT>({
     {(FstValueT)1, (SndValueT)2},
     {(FstValueT)3, (SndValueT)4},
     {(FstValueT)5, (SndValueT)6},
@@ -221,7 +233,7 @@ TYPED_TEST_P(TestMultiContainerUnordered, test_multi_container_unordered) {
   using FstValueT = typename ContainerT::value_type::first_type;
   using SndValueT = typename ContainerT::value_type::second_type;
 
-  testMultiContainer<ContainerT, ValueT>(false, {
+  testMultiContainerUnordered<ContainerT, ValueT>({
     {(FstValueT)1, (SndValueT)2},
     {(FstValueT)3, (SndValueT)4},
     {(FstValueT)5, (SndValueT)6},
