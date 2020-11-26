@@ -140,8 +140,10 @@ target_include_directories(
   $<INSTALL_INTERFACE:include>
 )
 
-if (vt_find_checkpoint_dep)
-  message(STATUS "Checkpoint: building in the context of a VT lib directory")
+if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+  message(STATUS "Checkpoint: building as top-level")
+else()
+  message(STATUS "Checkpoint: building as a sub-directory")
   install(TARGETS detector EXPORT ${CHECKPOINT_LIBRARY})
   set(DETECTOR_EXPORT detector)
 endif()
