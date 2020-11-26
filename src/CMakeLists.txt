@@ -140,7 +140,12 @@ target_include_directories(
   $<INSTALL_INTERFACE:include>
 )
 
-install(TARGETS detector EXPORT ${CHECKPOINT_LIBRARY})
+if (vt_find_checkpoint_dep)
+  message(STATUS "Checkpoint: building in the context of a VT lib directory")
+else()
+  install(TARGETS detector EXPORT ${CHECKPOINT_LIBRARY})
+  set(DETECTOR_EXPORT detector)
+endif()
 
 install(
   TARGETS                   ${CHECKPOINT_LIBRARY}
@@ -161,7 +166,7 @@ install(
 
 export(
   TARGETS                   ${CHECKPOINT_LIBRARY}
-                            detector
+                            ${DETECTOR_EXPORT}
   FILE                      "checkpointTargets.cmake"
   NAMESPACE                 vt::lib::
 )
