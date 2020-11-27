@@ -45,6 +45,7 @@
 #if !defined INCLUDED_CHECKPOINT_DISPATCH_VRT_VIRTUAL_SERIALIZE_H
 #define INCLUDED_CHECKPOINT_DISPATCH_VRT_VIRTUAL_SERIALIZE_H
 
+#include "checkpoint/dispatch/reconstructor.h"
 #include "checkpoint/dispatch/vrt/base.h"
 #include "checkpoint/dispatch/vrt/derived.h"
 

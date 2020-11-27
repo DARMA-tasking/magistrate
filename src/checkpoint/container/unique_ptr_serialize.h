@@ -46,7 +46,6 @@
 #define INCLUDED_CHECKPOINT_CONTAINER_UNIQUE_PTR_SERIALIZE_H
 
 #include "checkpoint/common.h"
-#include "checkpoint/dispatch/reconstructor.h"
 #include "checkpoint/dispatch/vrt/virtual_serialize.h"
 
 namespace checkpoint {
