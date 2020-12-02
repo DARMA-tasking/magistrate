@@ -50,14 +50,37 @@
 
 namespace checkpoint {
 
+/**
+ * \struct Sizer
+ *
+ * \brief Sizer serializers for sizing the contents of classes as a
+ * preprocessing pass before packing content so a properly sized buffer can be
+ * allocated.
+ */
 struct Sizer : Serializer {
+  /**
+   * \internal \brief Construct a sizer
+   */
   Sizer();
 
+  /**
+   * \brief Get the current size
+   *
+   * \return The current size
+   */
   SerialSizeType getSize() const;
-  void contiguousBytes(void*, SerialSizeType size, SerialSizeType num_elms);
+
+  /**
+   * \brief Add contiguous bytes to the sizer
+   *
+   * \param[in] ptr the element being serialized (not used)
+   * \param[in] size the number of bytes for each element
+   * \param[in] num_elms the number of elements
+   */
+  void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms);
 
 private:
-  SerialSizeType num_bytes_ = 0;
+  SerialSizeType num_bytes_ = 0; /**< Count of bytes */
 };
 
 } /* end namespace checkpoint */
