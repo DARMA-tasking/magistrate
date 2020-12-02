@@ -140,7 +140,7 @@ target_include_directories(
   $<INSTALL_INTERFACE:include>
 )
 
-if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+if("${CMAKE_SOURCE_DIR}/src" STREQUAL PROJECT_SOURCE_DIR)
   message(STATUS "Checkpoint: building as top-level")
 else()
   message(STATUS "Checkpoint: building as a sub-directory")
