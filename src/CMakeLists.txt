@@ -140,6 +140,14 @@ target_include_directories(
   $<INSTALL_INTERFACE:include>
 )
 
+if("${CMAKE_SOURCE_DIR}/src" STREQUAL PROJECT_SOURCE_DIR)
+  message(STATUS "Checkpoint: building as top-level")
+else()
+  message(STATUS "Checkpoint: building as a sub-directory")
+  install(TARGETS detector EXPORT ${CHECKPOINT_LIBRARY})
+  set(DETECTOR_EXPORT detector)
+endif()
+
 install(
   TARGETS                   ${CHECKPOINT_LIBRARY}
   EXPORT                    ${CHECKPOINT_LIBRARY}
@@ -159,6 +167,7 @@ install(
 
 export(
   TARGETS                   ${CHECKPOINT_LIBRARY}
+                            ${DETECTOR_EXPORT}
   FILE                      "checkpointTargets.cmake"
   NAMESPACE                 vt::lib::
 )
