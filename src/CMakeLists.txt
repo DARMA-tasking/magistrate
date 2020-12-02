@@ -147,7 +147,10 @@ else()
 
   if(CMAKE_VERSION VERSION_LESS "3.13.0")
     message(
-      WARNING "Checkpoint: Install targets skipped, effects packages built with a Checkpoint install"
+      WARNING
+      "Checkpoint: Install targets skipped because CMake version ${CMAKE_VERSION}<3.13; "
+      "affects packages built with a Checkpoint install. "
+      "CMake <3.13 does not support exporting targets from subdirectories"
     )
   else()
     install(TARGETS detector EXPORT ${CHECKPOINT_LIBRARY})
