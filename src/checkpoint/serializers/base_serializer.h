@@ -68,38 +68,120 @@ struct BasicDispatcher;
 
 } /* end namespace dispatch */
 
+/**
+ * \struct Serializer
+ *
+ * \brief General base class for serialiers
+ */
 struct Serializer {
   using ModeType = eSerializationMode;
 
   template <typename SerializerT, typename T>
   using DispatcherType = dispatch::BasicDispatcher<SerializerT, T>;
 
+  /**
+   * \brief Construct a base serializer
+   *
+   * \param[in] in_mode The serializer mode
+   */
   explicit Serializer(ModeType const& in_mode) : cur_mode_(in_mode) {}
 
+  /**
+   * \brief Get the serializer mode
+   *
+   * \return the serializer mode
+   */
   ModeType getMode() const { return cur_mode_; }
+
+  /**
+   * \brief Check if the serializer is sizing
+   *
+   * \return if it is sizing
+   */
   bool isSizing() const { return cur_mode_ == ModeType::Sizing; }
+
+  /**
+   * \brief Check if the serializer is packing
+   *
+   * \return if it is packing
+   */
   bool isPacking() const { return cur_mode_ == ModeType::Packing; }
+
+  /**
+   * \brief Check if the serializer is unpacking
+   *
+   * \return if it is unpacking
+   */
   bool isUnpacking() const { return cur_mode_ == ModeType::Unpacking; }
+
+  /**
+   * \brief Check if the serializer is footprinting
+   *
+   * \return if it is footprinting
+   */
   bool isFootprinting() const { return cur_mode_ == ModeType::Footprinting; }
 
+  /**
+   * \brief Count bytes for footprinting---default empty implementation
+   *
+   * \param[in] t an element
+   */
   template<typename T>
   void countBytes(const T& t) {}
+
+  /**
+   * \brief Add bytes for footprinting---default empty implementation
+   *
+   * \param[in] s the amount of bytes to add
+   */
   void addBytes(std::size_t s) {}
 
+  /**
+   * \brief Serialize a contiguous set of typed bytes
+   *
+   * \param[in] serdes the serializer
+   * \param[in] ptr pointer to a typed element \c T
+   * \param[in] num_elms the number of elements
+   */
   template <typename SerializerT, typename T>
   void contiguousTyped(SerializerT& serdes, T* ptr, SerialSizeType num_elms) {
     serdes.contiguousBytes(static_cast<void*>(ptr), sizeof(T), num_elms);
   }
 
+  /**
+   * \brief Get a buffer if it is associated with the serializer
+   *
+   * \return pointer to the \c char* buffer
+   */
   SerialByteType* getBuffer() const { return nullptr; }
+
+  /**
+   * \brief Get the current spot in the buffer and then increment by some number
+   * of bytes
+   *
+   * \param[in] inc the number of bytes to incremenet
+   *
+   * \return the current spot
+   */
   SerialByteType* getSpotIncrement(SerialSizeType const inc) { return nullptr; }
 
+  /**
+   * \brief Check if virtual serialization is disabled
+   *
+   * \return whether virtual serialization is disabled
+   */
   bool isVirtualDisabled() const { return virtual_disabled_; }
+
+  /**
+   * \brief Set whether virtual serialization is enabled/disabled
+   *
+   * \param[in] val whether virtual serialization is disabled
+   */
   void setVirtualDisabled(bool val) { virtual_disabled_ = val; }
 
 protected:
-  ModeType cur_mode_ = ModeType::Invalid;
-  bool virtual_disabled_ = false;
+  ModeType cur_mode_ = ModeType::Invalid; /**< The current mode */
+  bool virtual_disabled_ = false;         /**< Virtual serialization disabled */
 };
 
 } /* end namespace checkpoint */
