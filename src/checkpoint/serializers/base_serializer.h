@@ -59,6 +59,7 @@ enum struct eSerializationMode : int8_t {
   Packing = 2,
   Sizing = 3,
   Footprinting = 4,
+  Sanitizing = 5,
   Invalid = -1
 };
 
@@ -149,11 +150,15 @@ struct Serializer {
     serdes.contiguousBytes(static_cast<void*>(ptr), sizeof(T), num_elms);
   }
 
-  template <typename T>
-  void check(T& t, std::string name) { }
-
-  template <typename T>
-  void ignore(T& t, std::string name = "") { }
+  /**
+   * \brief Tell the serializer that some data is skipped in the traversal.
+   *
+   * \note Used/implemented in serialization sanitizer.
+   *
+   * \return pointer to the \c char* buffer
+   */
+  template <typename... Args>
+  void skip(Args&&... args) { }
 
   /**
    * \brief Get a buffer if it is associated with the serializer
