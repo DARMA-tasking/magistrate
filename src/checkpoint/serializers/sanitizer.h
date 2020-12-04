@@ -49,6 +49,7 @@
 #include "checkpoint/serializers/base_serializer.h"
 
 #include <memory>
+#include <string>
 
 namespace checkpoint { namespace sanitizer {
 

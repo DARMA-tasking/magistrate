@@ -49,7 +49,6 @@
 
 #include <type_traits>
 #include <cstdlib>
-#include <string>
 
 namespace checkpoint {
 
