@@ -104,7 +104,7 @@ struct Runtime {
 };
 
 /// pimpl to runtime that contains runtime sanitizer logic
-std::unique_ptr<Runtime> rt_ = nullptr;
+extern std::unique_ptr<Runtime> rt_;
 
 }} /* end namespace checkpoint::sanitizer*/
 
