@@ -47,9 +47,21 @@
 
 #include "checkpoint/serializers/sanitizer.h"
 
+#include <memory>
+
 namespace checkpoint { namespace sanitizer {
 
-std::unique_ptr<Runtime> rt_ = nullptr;
+Runtime* rt() {
+  static std::unique_ptr<sanitizer::Runtime> base_rt;
+  if (base_rt == nullptr) {
+    base_rt = std::make_unique<sanitizer::Runtime>();
+  }
+  return base_rt.get();
+}
+
+bool enabled() {
+  return false;
+}
 
 }} /* end namespace checkpoint::sanitizer */
 

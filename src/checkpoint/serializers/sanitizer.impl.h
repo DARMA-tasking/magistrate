@@ -53,17 +53,21 @@
 namespace checkpoint { namespace serializers {
 
 template <typename T>
-/*static*/ void* BaseSanitizer::cleanTypeToVoid(T&& t) {
+void* cleanTypeToVoid(T&& t) {
   return reinterpret_cast<void*>(dispatch::cleanType(&t));
 }
 
 template <typename SerT, typename T>
 void SanitizerDispatch<SerT,T>::serializeIntrusive(SerT& s, T& t) {
+  if (not sanitizer::enabled()) {
+    return;
+  }
+
   // Declare this member as serialized
-  sanitizer::rt_->isSerialized(cleanTypeToVoid(t), 1, typeid(T).name());
+  sanitizer::rt()->isSerialized(cleanTypeToVoid(t), 1, typeid(T).name());
 
   // Push this type on the stack since we are about to traverse it
-  sanitizer::rt_->push(typeid(T).name());
+  sanitizer::rt()->push(typeid(T).name());
 
   // Recurse with the current serializer (a sanitizing pass)
   t.serialize(s);
@@ -75,22 +79,30 @@ void SanitizerDispatch<SerT,T>::serializeIntrusive(SerT& s, T& t) {
   t.serialize(nss);
 
   // Pop off of stack
-  sanitizer::rt_->pop(typeid(T).name());
+  sanitizer::rt()->pop(typeid(T).name());
 }
 
 template <typename SerT, typename T>
 void SanitizerDispatch<SerT,T>::serializeNonIntrusiveEnum(SerT& s, T& t) {
+  if (not sanitizer::enabled()) {
+    return;
+  }
+
   // Declare this enum as serialized
-  sanitizer::rt_->isSerialized(cleanTypeToVoid(t), 1, typeid(T).name());
+  sanitizer::rt()->isSerialized(cleanTypeToVoid(t), 1, typeid(T).name());
 }
 
 template <typename SerT, typename T>
 void SanitizerDispatch<SerT,T>::serializeNonIntrusive(SerT& s, T& t) {
+  if (not sanitizer::enabled()) {
+    return;
+  }
+
   // Declare this enum as serialized
-  sanitizer::rt_->isSerialized(cleanTypeToVoid(t), 1, typeid(T).name());
+  sanitizer::rt()->isSerialized(cleanTypeToVoid(t), 1, typeid(T).name());
 
   // Push this type on the stack since we are about to traverse it
-  sanitizer::rt_->push(typeid(T).name());
+  sanitizer::rt()->push(typeid(T).name());
 
   // Recurse with the current serializer (a sanitizing pass)
   serialize(s, t);
@@ -102,22 +114,22 @@ void SanitizerDispatch<SerT,T>::serializeNonIntrusive(SerT& s, T& t) {
   serialize(nss, t);
 
   // Pop off of stack
-  sanitizer::rt_->pop(typeid(T).name());
+  sanitizer::rt()->pop(typeid(T).name());
 }
 
 template <typename T>
 void BaseSanitizer::check(T& t, std::string t_name) {
-  sanitizer::rt_->checkMember(cleanTypeToVoid(t), t_name, typeid(T).name());
+  sanitizer::rt()->checkMember(cleanTypeToVoid(t), t_name, typeid(T).name());
 }
 
 template <typename T>
 void BaseSanitizer::skip(T& t, std::string t_name) {
-  sanitizer::rt_->skipMember(cleanTypeToVoid(t), t_name, typeid(T).name());
+  sanitizer::rt()->skipMember(cleanTypeToVoid(t), t_name, typeid(T).name());
 }
 
 template <typename SerializerT, typename T>
 void BaseSanitizer::contiguousTyped(SerializerT&, T* t, std::size_t num_elms) {
-  sanitizer::rt_->isSerialized(
+  sanitizer::rt()->isSerialized(
     reinterpret_cast<void*>(t), num_elms, typeid(t).name()
   );
 }

@@ -60,6 +60,8 @@ namespace checkpoint { namespace sanitizer {
  */
 struct Runtime {
 
+  virtual ~Runtime() = default;
+
   /**
    * \brief Check that a member is serialized
    *
@@ -104,7 +106,10 @@ struct Runtime {
 };
 
 /// pimpl to runtime that contains runtime sanitizer logic
-extern std::unique_ptr<Runtime> rt_;
+extern Runtime* rt();
+
+/// function that informs sanitizer if its enabled
+extern bool enabled();
 
 }} /* end namespace checkpoint::sanitizer*/
 
@@ -173,6 +178,14 @@ struct BaseSanitizer : checkpoint::Serializer {
   { }
 
   /**
+   * \internal \brief Construct from other sanitizer-like class
+   */
+  template <typename U>
+  explicit BaseSanitizer(U& cl)
+    : checkpoint::Serializer(cl.getMode())
+  { }
+
+  /**
    * \brief Check that member is actually serialized
    *
    * \param[in] t address of the element
@@ -206,16 +219,6 @@ struct BaseSanitizer : checkpoint::Serializer {
    * \brief Do nothing on contiguous bytes
    */
   void contiguousBytes(void*, std::size_t, std::size_t) { }
-
-  /**
-   * \internal \brief Clean \c t and cast to \c void*
-   *
-   * \param[in] t the element
-   *
-   * \return untyped pointer to the element
-   */
-  template <typename T>
-  static void* cleanTypeToVoid(T&& t);
 };
 
 /**
@@ -234,7 +237,14 @@ struct Sanitizer : BaseSanitizer { };
  * specialization to purposely invoke the regular serialization method on a
  * class.
  */
-struct NonSanitizingSanitizer : BaseSanitizer { };
+struct NonSanitizingSanitizer : BaseSanitizer {
+  /**
+   * \internal \brief Construct from normal sanitizer
+   */
+  explicit NonSanitizingSanitizer(Sanitizer& s)
+    : BaseSanitizer(s)
+  { }
+};
 
 }} /* end namespace checkpoint::serializers */
 
