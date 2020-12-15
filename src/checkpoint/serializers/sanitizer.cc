@@ -49,20 +49,21 @@
 
 #include <memory>
 
-namespace checkpoint { namespace sanitizer {
+extern "C" {
 
-Runtime* rt() {
-  static std::unique_ptr<sanitizer::Runtime> base_rt;
+checkpoint::sanitizer::Runtime* checkpoint_sanitizer_rt() {
+  static std::unique_ptr<checkpoint::sanitizer::Runtime> base_rt;
   if (base_rt == nullptr) {
-    base_rt = std::make_unique<sanitizer::Runtime>();
+    base_rt = std::make_unique<checkpoint::sanitizer::Runtime>();
   }
   return base_rt.get();
 }
 
-bool enabled() {
+/// function that informs sanitizer if its enabled
+bool checkpoint_sanitizer_enabled() {
   return false;
 }
 
-}} /* end namespace checkpoint::sanitizer */
+} /* end extern "C" */
 
 #endif /*INCLUDED_CHECKPOINT_SERIALIZERS_SANITIZER_CC*/

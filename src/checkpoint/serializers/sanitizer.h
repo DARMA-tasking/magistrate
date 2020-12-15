@@ -105,13 +105,17 @@ struct Runtime {
 
 };
 
+}} /* end namespace checkpoint::sanitizer */
+
+extern "C" {
+
 /// pimpl to runtime that contains runtime sanitizer logic
-extern Runtime* rt();
+checkpoint::sanitizer::Runtime* checkpoint_sanitizer_rt();
 
 /// function that informs sanitizer if its enabled
-extern bool enabled();
+bool checkpoint_sanitizer_enabled();
 
-}} /* end namespace checkpoint::sanitizer*/
+} /* end extern "C" */
 
 namespace checkpoint { namespace serializers {
 
