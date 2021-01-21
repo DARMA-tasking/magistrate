@@ -107,6 +107,9 @@ struct CustomDispatch {
   static void serializeNonIntrusive(SerializerT& s, T& t) {
     serialize(s, t);
   }
+  static void serializeNonIntrusiveEnum(SerializerT& s, T& t) {
+    checkpoint::serializeEnum(s, t);
+  }
 };
 
 // std::vector specialization for dispatcher, vector is always non-intrusive so

@@ -47,6 +47,7 @@
 
 #include "checkpoint/common.h"
 #include "checkpoint/dispatch/dispatch.h"
+#include "checkpoint/serializers/sanitizer.h"
 
 namespace checkpoint {
 
@@ -87,6 +88,8 @@ T* Traverse::reconstruct(SerialByteType* mem) {
 
 template <typename T, typename SizerT, typename...Args>
 SerialSizeType Standard::size(T& target, Args&&... args) {
+  Traverse::with<T, serializers::Sanitizer>(target);
+
   auto sizer = Traverse::with<T, SizerT>(target, std::forward<Args>(args)...);
   return sizer.getSize();
 }

@@ -124,6 +124,9 @@ struct CustomDispatch {
     printf("dispatch non-intrusive\n");
     serialize(s, t);
   }
+  static void serializeNonIntrusiveEnum(SerializerT& s, T& t) {
+    checkpoint::serializeEnum(s, t);
+  }
 };
 
 template <typename SerializerT, typename U>
