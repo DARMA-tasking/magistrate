@@ -110,10 +110,10 @@ struct Runtime {
 extern "C" {
 
 /// pimpl to runtime that contains runtime sanitizer logic
-checkpoint::sanitizer::Runtime* checkpoint_sanitizer_rt();
+__attribute__((weak)) checkpoint::sanitizer::Runtime* checkpoint_sanitizer_rt();
 
 /// function that informs sanitizer if its enabled
-bool checkpoint_sanitizer_enabled();
+__attribute__((weak)) bool checkpoint_sanitizer_enabled();
 
 } /* end extern "C" */
 

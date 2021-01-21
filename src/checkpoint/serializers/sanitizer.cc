@@ -51,7 +51,7 @@
 
 extern "C" {
 
-checkpoint::sanitizer::Runtime* checkpoint_sanitizer_rt() {
+__attribute__((weak)) checkpoint::sanitizer::Runtime* checkpoint_sanitizer_rt() {
   static std::unique_ptr<checkpoint::sanitizer::Runtime> base_rt;
   if (base_rt == nullptr) {
     base_rt = std::make_unique<checkpoint::sanitizer::Runtime>();
@@ -60,7 +60,7 @@ checkpoint::sanitizer::Runtime* checkpoint_sanitizer_rt() {
 }
 
 /// function that informs sanitizer if its enabled
-bool checkpoint_sanitizer_enabled() {
+__attribute__((weak)) bool checkpoint_sanitizer_enabled() {
   return false;
 }
 
