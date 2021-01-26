@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - 173-documentation-fails-to-build
 
 jobs:
 
