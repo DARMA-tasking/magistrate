@@ -13,7 +13,7 @@ if (${checkpoint_doxygen_enabled})
     set(DOXYGEN_DOCS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/docs/")
     set(DOXYGEN_EXAMPLE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/examples/")
     set(DOXYGEN_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/docs/")
-    set(DOXYGEN_MAIN_PAGE "${CMAKE_CURRENT_SOURCE_DIR}/src/vt.md")
+    set(DOXYGEN_MAIN_PAGE "${CMAKE_CURRENT_SOURCE_DIR}/src/mainpage.md")
     set(DOXYGEN_INDEX_FILE ${DOXYGEN_OUTPUT_DIR}/xml/index.xml)
 
     configure_file(${doxygen_in} ${doxygen_out} @ONLY)
