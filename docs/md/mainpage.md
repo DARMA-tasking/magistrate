@@ -2,9 +2,9 @@
 
 \tableofcontents
 
-\section ckpt_what_is What is *checkpoint*?
+\section ckpt_what_is What is checkpoint?
 
-*checkpoint* is a serialization and checkpointing library written in C++14. It
+\checkpoint is a serialization and checkpointing library written in C++14. It
 allows any C++ type that has a serialize method or free function associated with
 it to be recursively traversed and transformed by the library. For instance, if
 the user wants to send over the network, the traversal will create a byte buffer
@@ -12,12 +12,12 @@ that contains all the data for a message. `DARMA/checkpoint` is a general
 library that can also be used for other purposes such as I/O---creating
 snapshots of objects to disk.
 
-\section ckpt_license License
+\section License
 
 @m_class{m-note m-dim}
 
 @parblock
-Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
+Copyright 2021 National Technology & Engineering Solutions of Sandia, LLC
 (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.
 
