@@ -149,6 +149,14 @@ struct Serializer {
   }
 
   /**
+   * \brief Tell the serializer that some data is skipped in the traversal.
+   *
+   * \note Used/implemented in serialization sanitizer.
+   */
+  template <typename... Args>
+  void skip(Args&&... args) { }
+
+  /**
    * \brief Get a buffer if it is associated with the serializer
    *
    * \return pointer to the \c char* buffer
