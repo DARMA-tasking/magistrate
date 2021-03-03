@@ -96,7 +96,9 @@ inline void serializeUnorderedAssociativeContainer(
 
     auto bucket_count = cont.bucket_count();
     s | bucket_count;
-    cont.rehash(bucket_count);
+    if (s.isUnpacking() and bucket_count > cont.bucket_count()) {
+      cont.rehash(bucket_count);
+    }
   }
 
   serializeMapLikeContainer(s, cont);
