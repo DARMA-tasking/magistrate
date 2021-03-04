@@ -137,6 +137,9 @@ TYPED_TEST_P(TestContainer, test_single_ordered_container) {
 
   using ContainerT = TypeParam;
   using ValueT = typename ContainerT::value_type;
+
+  testContainerOrdered<ContainerT, ValueT>({});
+
   testContainerOrdered<ContainerT, ValueT>(
     {(ValueT)1, (ValueT)2, (ValueT)3, (ValueT)4, (ValueT)5}
   );
@@ -147,6 +150,9 @@ TYPED_TEST_P(TestContainerUnordered, test_single_unordered_container) {
 
   using ContainerT = TypeParam;
   using ValueT = typename ContainerT::value_type;
+
+  testContainerUnordered<ContainerT, ValueT>({});
+
   testContainerUnordered<ContainerT, ValueT>(
     {(ValueT)1, (ValueT)2, (ValueT)3, (ValueT)4, (ValueT)5}
   );
@@ -234,6 +240,8 @@ TYPED_TEST_P(TestMultiContainer, test_multi_container) {
   using FstValueT = typename ContainerT::value_type::first_type;
   using SndValueT = typename ContainerT::value_type::second_type;
 
+  testMultiContainerOrdered<ContainerT, ValueT>({});
+
   testMultiContainerOrdered<ContainerT, ValueT>({
     {(FstValueT)1, (SndValueT)2},
     {(FstValueT)3, (SndValueT)4},
@@ -250,6 +258,8 @@ TYPED_TEST_P(TestMultiContainerUnordered, test_multi_container_unordered) {
   using ValueT = typename ContainerT::value_type;
   using FstValueT = typename ContainerT::value_type::first_type;
   using SndValueT = typename ContainerT::value_type::second_type;
+
+  testMultiContainerUnordered<ContainerT, ValueT>({});
 
   testMultiContainerUnordered<ContainerT, ValueT>({
     {(FstValueT)1, (SndValueT)2},
