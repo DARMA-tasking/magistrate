@@ -95,6 +95,7 @@
   ::checkpoint::dispatch::vrt::TypeIdx _checkpointDynamicTypeIndex() override;
 
 #define checkpoint_virtual_serialize_derived_from_def(CLASS, PARENT)                        \
+  template <>                                                                               \
   void CLASS::_checkpointDynamicSerialize(                                                  \
     void* s,                                                                                \
     ::checkpoint::dispatch::vrt::TypeIdx base_ser_idx,                                      \
@@ -123,6 +124,7 @@
       typeid(_CheckpointDerivedType).name(), base_ser_idx                                   \
     );                                                                                      \
   }                                                                                         \
+  template <>                                                                               \
   ::checkpoint::dispatch::vrt::TypeIdx CLASS::_checkpointDynamicTypeIndex() {               \
     using _CheckpointDerivedType =                                                          \
       ::checkpoint::dispatch::vrt::checkpoint_derived_type_t<decltype(this)>;               \
