@@ -75,6 +75,38 @@
     return ::checkpoint::dispatch::vrt::objregistry::makeObjIdx<_CheckpointBaseType>();          \
   }
 
+#define checkpoint_virtual_serialize_root_decl()                              \
+  auto _CheckpointVSBaseTypeFn() -> decltype(auto) { return this; }           \
+  virtual void _checkpointDynamicSerialize(                                   \
+    void* s,                                                                  \
+    ::checkpoint::dispatch::vrt::TypeIdx ser_idx,                             \
+    ::checkpoint::dispatch::vrt::TypeIdx expected_idx                         \
+  );                                                                          \
+  virtual ::checkpoint::dispatch::vrt::TypeIdx _checkpointDynamicTypeIndex();
+
+#define checkpoint_virtual_serialize_root_def(CLASS)                                             \
+  void CLASS::_checkpointDynamicSerialize(                                                       \
+    void* s,                                                                                     \
+    ::checkpoint::dispatch::vrt::TypeIdx ser_idx,                                                \
+    ::checkpoint::dispatch::vrt::TypeIdx expected_idx                                            \
+  ) {                                                                                            \
+    using _CheckpointBaseType =                                                                  \
+      ::checkpoint::dispatch::vrt::checkpoint_base_type_t<decltype(*this)>;                      \
+    ::checkpoint::instantiateObjSerializer<                                                      \
+      _CheckpointBaseType,                                                                       \
+      checkpoint_serializer_variadic_args()                                                      \
+    >();                                                                                         \
+    ::checkpoint::dispatch::vrt::assertTypeIdxMatch<_CheckpointBaseType>(expected_idx);          \
+    auto dispatcher =                                                                            \
+      ::checkpoint::dispatch::vrt::serializer_registry::getObjIdx<_CheckpointBaseType>(ser_idx); \
+    dispatcher(s, *static_cast<_CheckpointBaseType*>(this));                                     \
+  }                                                                                              \
+  ::checkpoint::dispatch::vrt::TypeIdx CLASS::_checkpointDynamicTypeIndex() {                    \
+    using _CheckpointBaseType =                                                                  \
+      ::checkpoint::dispatch::vrt::checkpoint_base_type_t<decltype(*this)>;                      \
+    return ::checkpoint::dispatch::vrt::objregistry::makeObjIdx<_CheckpointBaseType>();          \
+  }
+
 #define checkpoint_virtual_serialize_base(BASE) checkpoint_virtual_serialize_root()
 
 namespace checkpoint { namespace dispatch { namespace vrt {
