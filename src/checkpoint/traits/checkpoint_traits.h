@@ -49,11 +49,7 @@
 
 #include "checkpoint/common.h"
 
-#if HAS_DETECTION_COMPONENT
 #include "detector_headers.h"
-#endif  /*HAS_DETECTION_COMPONENT*/
-
-#if HAS_DETECTION_COMPONENT
 
 namespace checkpoint {
 
@@ -96,7 +92,5 @@ struct SerializerTraits {
 };
 
 }  // end namespace checkpoint
-
-#endif  /*HAS_DETECTION_COMPONENT*/
 
 #endif /*INCLUDED_CHECKPOINT_TRAITS_CHECKPOINT_TRAITS_H*/

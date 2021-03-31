@@ -57,25 +57,6 @@
 
 namespace checkpoint { namespace dispatch {
 
-// Implement a lightweight simple detection mechanism (when full detector is not
-// present) to detect type of serialize() method: intrusive/non-intrusive
-// variants
-#if !HAS_DETECTION_COMPONENT
-template <typename SerializerT, typename T>
-struct hasSerialize {
-  template <
-    typename C,
-    typename = decltype(std::declval<C>().serialize(std::declval<SerializerT&>()))
-  >
-  static std::true_type test(int);
-
-  template <typename C>
-  static std::false_type test(...);
-
-  static constexpr bool value = decltype(test<T>(0))::value;
-};
-#endif
-
 template <typename SerializerT, typename T>
 struct BasicDispatcher {
   static void serializeIntrusive(SerializerT& s, T& t) {
@@ -101,54 +82,42 @@ struct SerializerDispatchNonByte {
     apply(s, val, num);
   }
 
-  // If we have the detection component, we can more precisely check for
-  // serializability
-  #if HAS_DETECTION_COMPONENT
-    template <typename U>
-    using hasSplitSerialize =
-    typename std::enable_if<SerializableTraits<U,S>::has_split_serialize, T>::type;
+  template <typename U>
+  using hasSplitSerialize =
+  typename std::enable_if<SerializableTraits<U,S>::has_split_serialize, T>::type;
 
-    template <typename U>
-    using hasNotSplitSerialize =
-    typename std::enable_if<!SerializableTraits<U,S>::has_split_serialize && !std::is_enum<U>::value, T>::type;
+  template <typename U>
+  using hasNotSplitSerialize =
+  typename std::enable_if<!SerializableTraits<U,S>::has_split_serialize && !std::is_enum<U>::value, T>::type;
 
-    template <typename U>
-    using hasInSerialize =
-    typename std::enable_if<SerializableTraits<U,S>::has_serialize_instrusive, T>::type;
+  template <typename U>
+  using hasInSerialize =
+  typename std::enable_if<SerializableTraits<U,S>::has_serialize_instrusive, T>::type;
 
-    template <typename U>
-    using hasNoninSerialize =
-    typename std::enable_if<SerializableTraits<U,S>::has_serialize_noninstrusive, T>::type;
+  template <typename U>
+  using hasNoninSerialize =
+  typename std::enable_if<SerializableTraits<U,S>::has_serialize_noninstrusive, T>::type;
 
-    template <typename U>
-    using hasVirtualSerialize =
-    typename std::enable_if<vrt::VirtualSerializeTraits<U>::has_virtual_serialize, T>::type;
+  template <typename U>
+  using hasVirtualSerialize =
+  typename std::enable_if<vrt::VirtualSerializeTraits<U>::has_virtual_serialize, T>::type;
 
-    template <typename U>
-    using hasNotVirtualSerialize =
-    typename std::enable_if<vrt::VirtualSerializeTraits<U>::has_not_virtual_serialize, T>::type;
+  template <typename U>
+  using hasNotVirtualSerialize =
+  typename std::enable_if<vrt::VirtualSerializeTraits<U>::has_not_virtual_serialize, T>::type;
 
-    template <typename U>
-    using isEnum =
-    typename std::enable_if<std::is_enum<U>::value, T>::type;
+  template <typename U>
+  using isEnum =
+  typename std::enable_if<std::is_enum<U>::value, T>::type;
 
-    template <typename U>
-    using justFootprint =
-    typename std::enable_if<
-      std::is_same<S, checkpoint::Footprinter>::value and
-      not SerializableTraits<U, S>::is_traversable and
-      not std::is_enum<U>::value,
-      T
-    >::type;
-  #else
-    template <typename U>
-    using hasInSerialize =
-    typename std::enable_if<hasSerialize<SerializerT, U>::value, T>::type;
-
-    template <typename U>
-    using hasNoninSerialize =
-    typename std::enable_if<!hasSerialize<SerializerT, U>::value, T>::type;
-  #endif
+  template <typename U>
+  using justFootprint =
+  typename std::enable_if<
+    std::is_same<S, checkpoint::Footprinter>::value and
+    not SerializableTraits<U, S>::is_traversable and
+    not std::is_enum<U>::value,
+    T
+  >::type;
 
   template <typename U = T>
   void applyElm(

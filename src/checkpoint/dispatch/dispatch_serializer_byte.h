@@ -55,42 +55,15 @@
 
 namespace checkpoint { namespace dispatch {
 
-#if !HAS_DETECTION_COMPONENT
-template <typename T>
-struct hasByteCopy {
-  template <typename C, typename = typename C::isByteCopyable>
-  static typename C::isByteCopyable test(int);
-
-  template <typename C>
-  static std::false_type test(...);
-
-  static constexpr bool value = decltype(test<T>(0))::value;
-};
-#endif
-
 template <typename SerializerT, typename T, typename Dispatcher>
 struct SerializerDispatchByte {
-  #if HAS_DETECTION_COMPONENT
-    template <typename U>
-    using isByteCopyType =
-    typename std::enable_if<SerializableTraits<U,void>::is_bytecopyable, T>::type;
+  template <typename U>
+  using isByteCopyType =
+  typename std::enable_if<SerializableTraits<U,void>::is_bytecopyable, T>::type;
 
-    template <typename U>
-    using isNotByteCopyType =
-    typename std::enable_if<not SerializableTraits<U,void>::is_bytecopyable, T>::type;
-  #else
-    template <typename U>
-    using isByteCopyType =
-    typename std::enable_if<
-      std::is_arithmetic<U>::value or hasByteCopy<U>::value, T
-    >::type;
-
-    template <typename U>
-    using isNotByteCopyType =
-    typename std::enable_if<
-      not std::is_arithmetic<U>::value and not hasByteCopy<U>::value, T
-    >::type;
-  #endif
+  template <typename U>
+  using isNotByteCopyType =
+  typename std::enable_if<not SerializableTraits<U,void>::is_bytecopyable, T>::type;
 
   template <typename U = T>
   void operator()(

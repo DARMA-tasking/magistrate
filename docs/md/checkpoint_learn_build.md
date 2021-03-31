@@ -6,9 +6,12 @@ checkpoint can be built with `cmake`.
 
 To build *checkpoint*, one must obtain the following dependencies:
 
-\subsection ckpt_optional-deps Optional
+\subsection ckpt_required-deps Required
 
   - [detector](https://github.com/DARMA-tasking/detector)
+
+\subsection ckpt_optional-deps Optional
+
   - gtest,   (if testing *checkpoint* is enabled)
   - MPI,   (if MPI tests are enabled)
   - [Kokkos](https://github.com/kokkos/kokkos),  (if Kokkos views need to be serialized)
@@ -16,9 +19,9 @@ To build *checkpoint*, one must obtain the following dependencies:
 
 \subsection ckpt_use-cmake-directly-vars Using cmake directly
 
-One may use `cmake` as normal on *checkpoint* once the dependencies are
-installed.  The following are some configuration build options that can be
-provided to `cmake` to change the build configuration:
+One may use `cmake` to build *checkpoint* once the dependencies are installed.
+The following are some options that can be provided to `cmake` to change the
+build configuration:
 
 | CMake Variable                    | Default Value   | Description                           |
 | ------------------                | --------------- | -----------                           |

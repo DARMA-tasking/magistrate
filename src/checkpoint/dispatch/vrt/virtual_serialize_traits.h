@@ -48,15 +48,11 @@
 #include "checkpoint/common.h"
 #include "checkpoint/dispatch/vrt/registry_common.h"
 
+#include "detector_headers.h"
+
 #include <type_traits>
 
-#if HAS_DETECTION_COMPONENT
-#include "detector_headers.h"
-#endif /*HAS_DETECTION_COMPONENT*/
-
 namespace checkpoint { namespace dispatch { namespace vrt {
-
-#if HAS_DETECTION_COMPONENT
 
 template <typename T>
 struct VirtualSerializeTraits {
@@ -107,30 +103,6 @@ struct VirtualSerializeTraits {
   static constexpr auto const has_not_virtual_serialize =
     not has_virtual_serialize;
 };
-
-#else
-
-template <typename T>
-struct VirtualSerializeTraits {
-  template <
-    typename C,
-    typename = decltype(
-      std::declval<U>()._checkpointDynamicSerialize(
-        std::declval<void*>(),
-        std::declval<TypeIdx>(),
-        std::declval<TypeIdx>()
-      )
-    )
-  >
-  static std::true_type test(int);
-
-  template <typename C>
-  static std::false_type test(...);
-
-  static constexpr bool is_virtual_serializable = decltype(test<T>(0))::value;
-};
-
-#endif
 
 }}} /* end namespace checkpoint::dispatch::vrt */
 
