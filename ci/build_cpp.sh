@@ -38,6 +38,7 @@ else
     mkdir build
     cd build
     cmake -G "${CMAKE_GENERATOR:-Ninja}" \
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
           -DCMAKE_INSTALL_PREFIX="$DETECTOR_BUILD/install" \
           "$DETECTOR"
     cmake --build . --target install
@@ -49,6 +50,7 @@ mkdir -p "$CHECKPOINT_BUILD"
 cd "$CHECKPOINT_BUILD"
 rm -Rf ./*
 cmake -G "${CMAKE_GENERATOR:-Ninja}" \
+      -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
       -Dcheckpoint_doxygen_enabled="${CHECKPOINT_DOXYGEN_ENABLED:-0}" \
       -Dcheckpoint_tests_enabled="${CHECKPOINT_TESTS_ENABLED:-1}" \
       -Dcheckpoint_examples_enabled="${CHECKPOINT_EXAMPLES_ENABLED:-1}" \
