@@ -77,8 +77,6 @@ add_library(${CHECKPOINT_LIBRARY_NS} ALIAS ${CHECKPOINT_LIBRARY})
 target_compile_options(${CHECKPOINT_LIBRARY} PUBLIC "-fPIC")
 target_compile_options(${CHECKPOINT_LIBRARY} PUBLIC ${CXX_STANDARD_FLAGS})
 
-target_compile_definitions(${CHECKPOINT_LIBRARY} PUBLIC HAS_DETECTION_COMPONENT=1)
-
 include(CMakePrintHelpers)
 
 if (${kokkos_DIR_FOUND})

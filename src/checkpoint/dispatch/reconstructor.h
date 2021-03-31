@@ -65,47 +65,37 @@ struct Reconstructor {
   using isNotDefaultConsType =
   typename std::enable_if<not std::is_default_constructible<U>::value, T>::type;
 
-  // If we have the detection component, we can more precisely check for
-  // reconstuctibility
-  #if HAS_DETECTION_COMPONENT
-    template <typename U>
-    using isReconstructibleType =
-    typename std::enable_if<
-      SerializableTraits<U,void>::is_intrusive_reconstructible, T
-    >::type;
+  template <typename U>
+  using isReconstructibleType =
+  typename std::enable_if<
+    SerializableTraits<U,void>::is_intrusive_reconstructible, T
+  >::type;
 
-    template <typename U>
-    using isNonIntReconstructibleType =
-    typename std::enable_if<
-      SerializableTraits<U,void>::is_nonintrusive_reconstructible, T
-    >::type;
+  template <typename U>
+  using isNonIntReconstructibleType =
+  typename std::enable_if<
+    SerializableTraits<U,void>::is_nonintrusive_reconstructible, T
+  >::type;
 
-    template <typename U>
-    using isNotReconstructibleType =
-    typename std::enable_if<not SerializableTraits<U,void>::is_reconstructible, T>::type;
+  template <typename U>
+  using isNotReconstructibleType =
+  typename std::enable_if<not SerializableTraits<U,void>::is_reconstructible, T>::type;
 
-    template <typename U>
-    using isTaggedConstructibleType =
-    typename std::enable_if<SerializableTraits<U,void>::is_tagged_constructible, T>::type;
+  template <typename U>
+  using isTaggedConstructibleType =
+  typename std::enable_if<SerializableTraits<U,void>::is_tagged_constructible, T>::type;
 
-    template <typename U>
-    using isNotTaggedConstructibleType =
-    typename std::enable_if<not SerializableTraits<U,void>::is_tagged_constructible, T>::type;
+  template <typename U>
+  using isNotTaggedConstructibleType =
+  typename std::enable_if<not SerializableTraits<U,void>::is_tagged_constructible, T>::type;
 
-    template <typename U>
-    using isConstructible =
-    typename std::enable_if<SerializableTraits<U,void>::is_constructible, T>::type;
+  template <typename U>
+  using isConstructible =
+  typename std::enable_if<SerializableTraits<U,void>::is_constructible, T>::type;
 
-    template <typename U>
-    using isNotConstructible =
-    typename std::enable_if<not SerializableTraits<U,void>::is_constructible, T>::type;
-  #else
-    template <typename U>
-    using isConstructible = isDefaultConsType<U>;
-
-    template <typename U>
-    using isNotConstructible = isNotDefaultConsType<U>;
-  #endif
+  template <typename U>
+  using isNotConstructible =
+  typename std::enable_if<not SerializableTraits<U,void>::is_constructible, T>::type;
 
   // Default-construct as lowest priority in reconstruction preference
   template <typename U = T>
@@ -118,7 +108,6 @@ struct Reconstructor {
   // Fail, no valid option to constructing T
   template <typename U = T>
   static T* constructDefault(void* buf, isNotDefaultConsType<U>* = nullptr) {
-    #if HAS_DETECTION_COMPONENT
     static_assert(
       SerializableTraits<U,void>::is_tagged_constructible or
       SerializableTraits<U,void>::is_reconstructible or
@@ -126,18 +115,8 @@ struct Reconstructor {
       "Either a default constructor, reconstruct() function, or tagged "
       "constructor are required for de-serialization"
     );
-    #else
-    static_assert(
-      std::is_default_constructible<U>::value,
-      "A default constructor is required for de-serialization. To enable "
-      "reconstruct or tagged constructors, you must compile with the "
-      "detection component."
-    );
-    #endif
     return nullptr;
   }
-
-  #if HAS_DETECTION_COMPONENT
 
   /*
    * Try to reconstruct with the following precedence:
@@ -191,15 +170,6 @@ struct Reconstructor {
   static T* construct(void* buf) {
     return constructTag<U>(buf);
   }
-
-  #else
-
-  template <typename U = T>
-  static T* construct(void* buf) {
-    return constructDefault<U>(buf);
-  }
-
-  #endif
 
   /// Overloads that allow failure to reconstruct so SFINAE overloads don't
   /// static assert out

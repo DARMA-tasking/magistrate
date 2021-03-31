@@ -123,33 +123,32 @@ struct TestReconstruct {
 
 }} // end namespace checkpoint::examples
 
-#if HAS_DETECTION_COMPONENT
-  #include "checkpoint/traits/serializable_traits.h"
+#include "checkpoint/traits/serializable_traits.h"
 
-  namespace checkpoint {
+namespace checkpoint {
 
-  using namespace examples;
+using namespace examples;
 
-  static_assert(
-    SerializableTraits<TestDefaultCons>::is_serializable,
-    "Should be serializable"
-  );
-  static_assert(
-    ! SerializableTraits<TestNoSerialize>::is_serializable,
-    "Should not be serializable"
-  );
+static_assert(
+  SerializableTraits<TestDefaultCons>::is_serializable,
+  "Should be serializable"
+);
+static_assert(
+  ! SerializableTraits<TestNoSerialize>::is_serializable,
+  "Should not be serializable"
+);
 
-  static_assert(
-    ! SerializableTraits<TestShouldFailReconstruct>::is_serializable,
-    "Should not be serializable"
-  );
+static_assert(
+  ! SerializableTraits<TestShouldFailReconstruct>::is_serializable,
+  "Should not be serializable"
+);
 
-  static_assert(
-    SerializableTraits<TestReconstruct>::is_serializable,
-    "Should be serializable"
-  );
-  } // end namespace checkpoint
-#endif
+static_assert(
+  SerializableTraits<TestReconstruct>::is_serializable,
+  "Should be serializable"
+);
+} // end namespace checkpoint
+
 
 int main(int, char**) {
   // Example is a compile-time test of serializability traits
