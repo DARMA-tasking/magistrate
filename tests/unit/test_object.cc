@@ -157,4 +157,43 @@ TEST_F(TestObject, test_bytecopy_trait) {
   t_final.check();
 }
 
+struct FailureObj1 {
+  int a;
+
+  template <typename Serializer> void serialize(Serializer &s) { s | a; }
+};
+
+struct FailureObj2 {
+  int b;
+  FailureObj1 fo1;
+  int c;
+
+  template <typename Serializer> void serialize(Serializer &s) {
+    s | b | fo1 | c;
+  }
+};
+
+struct FailureObj3 {
+  int d;
+  FailureObj2 fo2;
+  int e;
+  FailureObj1 fo1;
+  int f;
+
+  template <typename Serializer> void serialize(Serializer &s) {
+    s | d | fo2 | e | fo1 | f;
+  }
+};
+
+TEST_F(TestObject, test_bytecopy_trait_failure) {
+  using namespace ::checkpoint;
+
+  FailureObj1 fo1{1};
+  FailureObj2 fo2{2, fo1, 3};
+  FailureObj3 fo3{5, fo2, 8, fo1, 13};
+
+  auto ret = checkpoint::serialize<FailureObj3>(fo3);
+  auto tptr = checkpoint::deserialize<FailureObj1>(ret->getBuffer());
+  EXPECT_NE(tptr->a, 1);
+}
 }}} // end namespace checkpoint::tests::unit
