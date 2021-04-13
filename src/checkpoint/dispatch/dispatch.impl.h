@@ -47,6 +47,7 @@
 
 #include "checkpoint/common.h"
 #include "checkpoint/dispatch/dispatch.h"
+#include "checkpoint/dispatch/vrt/type_registry.h"
 
 namespace checkpoint {
 
@@ -76,6 +77,21 @@ TraverserT& Traverse::with(T& target, TraverserT& t, SerialSizeType len) {
 template <typename T, typename TraverserT, typename... Args>
 TraverserT Traverse::with(T& target, Args&&... args) {
   TraverserT t(std::forward<Args>(args)...);
+
+  auto const thisTypeIdx = vrt::typeregistry::makeTypeIdx<T>();
+  if (t.isPacking() || t.isSizing()) {
+    with(thisTypeIdx, t);
+  } else if (t.isUnpacking()) {
+    vrt::TypeIdx serTypeIdx;
+    with(serTypeIdx, t);
+
+    // TODO (STRZ) - what to do, if they're different?
+    // how to report an error?
+    if (thisTypeIdx != serTypeIdx) {
+      return t;
+    }
+  }
+
   with(target, t);
   return t;
 }

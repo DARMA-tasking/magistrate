@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                test_sizer.cc
+//                              object_registry.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,79 +42,37 @@
 //@HEADER
 */
 
-#include <gtest/gtest.h>
+#if !defined INCLUDED_CHECKPOINT_DISPATCH_VRT_TYPE_REGISTRY_H
+#define INCLUDED_CHECKPOINT_DISPATCH_VRT_TYPE_REGISTRY_H
 
-#include "test_harness.h"
+#include "checkpoint/dispatch/vrt/registry_common.h"
 
-#include <checkpoint/checkpoint.h>
+#include <cstddef>
 
-namespace checkpoint { namespace tests { namespace unit {
+namespace checkpoint { namespace dispatch { namespace vrt {
+namespace typeregistry {
 
-struct TestSizer : TestHarness { };
-
-struct Test1 {
-  int a;
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
+struct Register {
+  static TypeIdx getIdx() {
+    static TypeIdx idx = 0;
+    return idx++;
   }
 };
 
-struct Test2 {
-  int a, b;
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-    s | b;
-  }
+template <typename ObjT>
+struct Type {
+  static TypeIdx const idx;
 };
 
-struct Test3 {
-  int a, b, c;
+template <typename ObjT>
+TypeIdx const Type<ObjT>::idx = Register::getIdx();
 
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-    s | b;
-    s | c;
-  }
-};
-
-struct Test4 {
-  int a, b, c;
-};
-
-template <typename Serializer>
-void serialize(Serializer& s, Test4 t) {
-  s | t.a;
-  s | t.b;
-  s | t.c;
+template <typename ObjT>
+inline TypeIdx makeTypeIdx() {
+  return Type<ObjT>::idx;
 }
 
-TEST_F(TestSizer, test_sizer_1) {
-  Test1 t;
-  auto const& size = checkpoint::getSize(t);
-  EXPECT_EQ(size, sizeof(int) + sizeof(dispatch::vrt::TypeIdx));
-}
 
-TEST_F(TestSizer, test_sizer_2) {
-  Test2 t;
-  auto const& size = checkpoint::getSize(t);
-  EXPECT_EQ(size, sizeof(int)*2 + sizeof(dispatch::vrt::TypeIdx));
-}
+}}}} /* end namespace checkpoint::dispatch::vrt::typeregistry */
 
-TEST_F(TestSizer, test_sizer_3) {
-  Test3 t;
-  auto const& size = checkpoint::getSize(t);
-  EXPECT_EQ(size, sizeof(int)*3 + sizeof(dispatch::vrt::TypeIdx));
-}
-
-TEST_F(TestSizer, test_sizer_4) {
-  Test4 t;
-  auto const& size = checkpoint::getSize(t);
-  EXPECT_EQ(size, sizeof(int)*3 + sizeof(dispatch::vrt::TypeIdx));
-}
-
-}}} // end namespace checkpoint::tests::unit
+#endif /*INCLUDED_CHECKPOINT_DISPATCH_VRT_TYPE_REGISTRY_H*/
