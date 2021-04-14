@@ -76,7 +76,7 @@ TraverserT& withTypeIdx(TraverserT& t) {
     auto val = cleanType(&thisTypeIdx);
     ap(t, val, len);
   } else if (t.isUnpacking()) {
-    std::size_t serTypeIdx;
+    std::size_t serTypeIdx = 0;
     auto val = cleanType(&serTypeIdx);
     ap(t, val, len);
 
