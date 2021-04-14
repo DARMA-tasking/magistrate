@@ -45,33 +45,52 @@
 #if !defined INCLUDED_CHECKPOINT_DISPATCH_VRT_TYPE_REGISTRY_H
 #define INCLUDED_CHECKPOINT_DISPATCH_VRT_TYPE_REGISTRY_H
 
-#include "checkpoint/dispatch/vrt/registry_common.h"
-
 #include <cstddef>
+#include <string>
+#include <typeindex>
+#include <unordered_map>
 
-namespace checkpoint { namespace dispatch { namespace vrt {
-namespace typeregistry {
+namespace checkpoint { namespace dispatch { namespace vrt { namespace typeregistry {
 
-struct Register {
-  static TypeIdx getIdx() {
-    static TypeIdx idx = 0;
-    return idx++;
+using TypeNames = std::unordered_map<std::size_t, std::string>;
+
+inline TypeNames& getRegisteredNames() {
+  static TypeNames registered_names;
+  return registered_names;
+}
+
+template <typename ObjT>
+struct Registrar {
+  Registrar() {
+    auto const ti = std::type_index(typeid(ObjT));
+    index = ti.hash_code();
+    getRegisteredNames()[index] = ti.name();
   }
+
+  std::size_t index;
 };
 
 template <typename ObjT>
 struct Type {
-  static TypeIdx const idx;
+  static std::size_t const idx;
 };
 
 template <typename ObjT>
-TypeIdx const Type<ObjT>::idx = Register::getIdx();
+std::size_t const Type<ObjT>::idx = Registrar<ObjT>().index;
 
 template <typename ObjT>
-inline TypeIdx makeTypeIdx() {
+inline std::size_t getTypeIdx() {
   return Type<ObjT>::idx;
 }
 
+inline std::string const& getTypeNameForIdx(const std::size_t typeIdx) {
+  return getRegisteredNames()[typeIdx];
+}
+
+template <typename ObjT>
+inline std::string const& getTypeName() {
+  return getTypeNameForIdx(getTypeIdx<ObjT>());
+}
 
 }}}} /* end namespace checkpoint::dispatch::vrt::typeregistry */
 

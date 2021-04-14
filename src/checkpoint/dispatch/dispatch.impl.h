@@ -49,6 +49,8 @@
 #include "checkpoint/dispatch/dispatch.h"
 #include "checkpoint/dispatch/vrt/type_registry.h"
 
+#include <stdexcept>
+
 namespace checkpoint {
 
 template <typename Serializer, typename T>
@@ -61,7 +63,38 @@ inline Serializer& operator|(Serializer& s, T& target) {
 namespace checkpoint { namespace dispatch {
 
 template <typename T, typename TraverserT>
+TraverserT& withTypeIdx(TraverserT& t) {
+  using CleanT = typename CleanType<std::size_t>::CleanT;
+  using DispatchType =
+      typename TraverserT::template DispatcherType<TraverserT, CleanT>;
+
+  SerializerDispatch<TraverserT, CleanT, DispatchType> ap;
+  auto const thisTypeIdx = vrt::typeregistry::getTypeIdx<T>();
+  constexpr SerialSizeType len = 1;
+
+  if (t.isPacking() || t.isSizing()) {
+    auto val = cleanType(&thisTypeIdx);
+    ap(t, val, len);
+  } else if (t.isUnpacking()) {
+    std::size_t serTypeIdx;
+    auto val = cleanType(&serTypeIdx);
+    ap(t, val, len);
+
+    if (thisTypeIdx != serTypeIdx) {
+      auto err =
+          std::string("Unpacking wrong type, got=") +
+          vrt::typeregistry::getTypeNameForIdx(thisTypeIdx) +
+          ", expected=" + vrt::typeregistry::getTypeNameForIdx(serTypeIdx);
+      throw std::runtime_error(err);
+    }
+  }
+
+  return t;
+}
+
+template <typename T, typename TraverserT>
 TraverserT& Traverse::with(T& target, TraverserT& t, SerialSizeType len) {
+  withTypeIdx<T>(t);
 
   using CleanT = typename CleanType<T>::CleanT;
   using DispatchType = typename TraverserT::template DispatcherType<TraverserT, CleanT>;
@@ -78,19 +111,19 @@ template <typename T, typename TraverserT, typename... Args>
 TraverserT Traverse::with(T& target, Args&&... args) {
   TraverserT t(std::forward<Args>(args)...);
 
-  auto const thisTypeIdx = vrt::typeregistry::makeTypeIdx<T>();
-  if (t.isPacking() || t.isSizing()) {
-    with(thisTypeIdx, t);
-  } else if (t.isUnpacking()) {
-    vrt::TypeIdx serTypeIdx;
-    with(serTypeIdx, t);
+  // auto const thisTypeIdx = vrt::typeregistry::makeTypeIdx<T>();
+  // if (t.isPacking() || t.isSizing()) {
+  //   with(thisTypeIdx, t);
+  // } else if (t.isUnpacking()) {
+  //   std::size_t serTypeIdx;
+  //   with(serTypeIdx, t);
 
-    // TODO (STRZ) - what to do, if they're different?
-    // how to report an error?
-    if (thisTypeIdx != serTypeIdx) {
-      return t;
-    }
-  }
+  //   if (thisTypeIdx != serTypeIdx) {
+  //     auto err = std::string("Unpacking wrong type, got=") + thisTypeIdx +
+  //                ", expected=" + serTypeIdx;
+  //     throw std::runtime_error(err);
+  //   }
+  // }
 
   with(target, t);
   return t;
