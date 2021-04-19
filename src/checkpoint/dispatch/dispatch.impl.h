@@ -50,6 +50,7 @@
 #include "checkpoint/dispatch/vrt/type_registry.h"
 
 #include <stdexcept>
+#include <type_traits>
 
 namespace checkpoint {
 
@@ -61,6 +62,25 @@ inline Serializer& operator|(Serializer& s, T& target) {
 } /* end namespace checkpoint */
 
 namespace checkpoint { namespace dispatch {
+
+// Only temporary BEGIN
+//
+
+template <typename T>
+struct DoNothing {
+  template <typename U = T>
+  static typename std::enable_if<std::is_same<U, int>::value>::type doNothing() {
+      throw std::runtime_error("err");
+   }
+
+  template <typename U = T>
+  static typename std::enable_if<not std::is_same<U, int>::value>::type doNothing() {
+    return;
+  }
+};
+
+//
+// Only temporary END
 
 template <typename T, typename TraverserT>
 TraverserT& withTypeIdx(TraverserT& t) {
@@ -79,6 +99,22 @@ TraverserT& withTypeIdx(TraverserT& t) {
     std::size_t serTypeIdx = 0;
     auto val = cleanType(&serTypeIdx);
     ap(t, val, len);
+
+    // Only temporary BEGIN
+    //
+
+    try {
+      DoNothing<T>::doNothing();
+    } catch(...) {
+      auto err =
+          std::string("Unpacking wrong type, got=") +
+          vrt::typeregistry::getTypeNameForIdx(thisTypeIdx) +
+          ", expected=" + vrt::typeregistry::getTypeNameForIdx(serTypeIdx);
+      throw std::runtime_error(err);
+    }
+
+    //
+    // Only temporary END
 
     if (thisTypeIdx != serTypeIdx) {
       auto err =
@@ -102,7 +138,13 @@ TraverserT& Traverse::with(T& target, TraverserT& t, SerialSizeType len) {
   auto val = cleanType(&target);
 
   SerializerDispatch<TraverserT, CleanT, DispatchType> ap;
-  ap(t, val, len);
+  try {
+    ap(t, val, len);
+  } catch (std::runtime_error &err) {
+    auto const what = std::string{err.what()} +
+                      "\npath: " + vrt::typeregistry::getTypeName<T>();
+    throw std::runtime_error(what);
+  }
 
   return t;
 }

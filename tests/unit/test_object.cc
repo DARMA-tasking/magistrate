@@ -196,4 +196,55 @@ TEST_F(TestObject, test_bytecopy_trait_failure) {
   auto tptr = checkpoint::deserialize<FailureObj1>(ret->getBuffer());
   EXPECT_NE(tptr->a, 1);
 }
+
+// Only temporary BEGIN
+//
+
+struct AA {
+  int aa{0};
+
+  template <typename Serializer> void serialize(Serializer &s) { s | aa; }
+};
+
+struct BB {
+  double bb{1.0};
+  AA aa;
+
+  template <typename Serializer> void serialize(Serializer &s) { s | bb | aa; }
+};
+
+struct CC {
+  double cc{2.0};
+  BB bb;
+
+  template <typename Serializer> void serialize(Serializer &s) { s | cc | bb; }
+};
+
+struct DD {
+  double dd{3.0};
+  CC cc;
+
+  template <typename Serializer> void serialize(Serializer &s) { s | dd | cc; }
+};
+
+struct EE {
+  double ee{4.0};
+  DD dd;
+
+  template <typename Serializer> void serialize(Serializer &s) { s | ee | dd; }
+};
+
+TEST_F(TestObject, test_struct_ee) {
+  using namespace ::checkpoint;
+
+  struct EE ee;
+  auto ret = checkpoint::serialize<EE>(ee);
+  auto ptr = checkpoint::deserialize<EE>(ret->getBuffer());
+
+  EXPECT_EQ(ptr->ee, 4.0);
+}
+
+//
+// Only temporary END
+
 }}} // end namespace checkpoint::tests::unit
