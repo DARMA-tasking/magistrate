@@ -96,25 +96,25 @@ void serialize(Serializer& s, Test4 t) {
 TEST_F(TestSizer, test_sizer_1) {
   Test1 t;
   auto const& size = checkpoint::getSize(t);
-  EXPECT_EQ(size, sizeof(int) + sizeof(dispatch::vrt::TypeIdx));
+  EXPECT_EQ(size, sizeof(int));
 }
 
 TEST_F(TestSizer, test_sizer_2) {
   Test2 t;
   auto const& size = checkpoint::getSize(t);
-  EXPECT_EQ(size, sizeof(int)*2 + sizeof(dispatch::vrt::TypeIdx));
+  EXPECT_EQ(size, sizeof(int)*2);
 }
 
 TEST_F(TestSizer, test_sizer_3) {
   Test3 t;
   auto const& size = checkpoint::getSize(t);
-  EXPECT_EQ(size, sizeof(int)*3 + sizeof(dispatch::vrt::TypeIdx));
+  EXPECT_EQ(size, sizeof(int)*3);
 }
 
 TEST_F(TestSizer, test_sizer_4) {
   Test4 t;
   auto const& size = checkpoint::getSize(t);
-  EXPECT_EQ(size, sizeof(int)*3 + sizeof(dispatch::vrt::TypeIdx));
+  EXPECT_EQ(size, sizeof(int)*3);
 }
 
 }}} // end namespace checkpoint::tests::unit
