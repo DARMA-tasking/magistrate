@@ -31,7 +31,7 @@ jobs:
       CHECKPOINT_MPI: 1
       CHECKPOINT_WARNINGS_AS_ERRORS: 1
       CHECKPOINT_DOCS: 0
-      CHECKPOINT_ASAN: 0
+      CHECKPOINT_ASAN: 1
       CACHE: ~/.local/cache/
 
     steps:
