@@ -50,7 +50,7 @@
 #include <string>
 #include <unordered_map>
 
-#ifdef __GNUG__
+#if defined __GNUG__
 #include <cstdlib>
 #include <cxxabi.h>
 #include <memory>
@@ -58,7 +58,7 @@
 
 namespace checkpoint { namespace dispatch { namespace vrt { namespace typeregistry {
 
-#ifdef __GNUG__
+#if defined __GNUG__
 
 inline std::string demangle(const char *name) {
   int status;

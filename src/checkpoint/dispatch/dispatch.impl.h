@@ -67,18 +67,18 @@ namespace checkpoint { namespace dispatch {
 // Only temporary BEGIN
 //
 
-template <typename T>
-struct DoNothing {
-  template <typename U = T>
-  static typename std::enable_if<std::is_same<U, int>::value>::type doNothing() {
-      throw std::runtime_error("err");
-   }
+// template <typename T>
+// struct DoNothing {
+//   template <typename U = T>
+//   static typename std::enable_if<std::is_same<U, int>::value>::type doNothing() {
+//       throw std::runtime_error("err");
+//    }
 
-  template <typename U = T>
-  static typename std::enable_if<not std::is_same<U, int>::value>::type doNothing() {
-    return;
-  }
-};
+//   template <typename U = T>
+//   static typename std::enable_if<not std::is_same<U, int>::value>::type doNothing() {
+//     return;
+//   }
+// };
 
 //
 // Only temporary END
@@ -104,15 +104,15 @@ TraverserT& withTypeIdx(TraverserT& t) {
     // Only temporary BEGIN
     //
 
-    try {
-      DoNothing<T>::doNothing();
-    } catch(...) {
-      auto err =
-          std::string("Unpacking wrong type, got=") +
-          vrt::typeregistry::getTypeNameForIdx(thisTypeIdx) +
-          ", expected=" + vrt::typeregistry::getTypeNameForIdx(serTypeIdx);
-      throw std::runtime_error(err);
-    }
+    // try {
+    //   DoNothing<T>::doNothing();
+    // } catch (...) {
+    //   auto err =
+    //       std::string("Unpacking wrong type, got=") +
+    //       vrt::typeregistry::getTypeNameForIdx(thisTypeIdx) +
+    //       ", expected=" + vrt::typeregistry::getTypeNameForIdx(serTypeIdx);
+    //   throw std::runtime_error(err);
+    // }
 
     //
     // Only temporary END
