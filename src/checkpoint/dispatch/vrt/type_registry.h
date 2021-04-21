@@ -46,11 +46,35 @@
 #define INCLUDED_CHECKPOINT_DISPATCH_VRT_TYPE_REGISTRY_H
 
 #include <cstddef>
+#include <cstdint>
 #include <string>
-#include <typeindex>
 #include <unordered_map>
 
+#ifdef __GNUG__
+#include <cstdlib>
+#include <cxxabi.h>
+#include <memory>
+#endif
+
 namespace checkpoint { namespace dispatch { namespace vrt { namespace typeregistry {
+
+#ifdef __GNUG__
+
+inline std::string demangle(const char *name) {
+  int status;
+  std::unique_ptr<char, void (*)(void *)> res{
+      abi::__cxa_demangle(name, NULL, NULL, &status), std::free};
+
+  constexpr int success = 0;
+  return (status == success) ? res.get() : name;
+}
+
+#else
+
+// Temporary commented out to find out problematic compilers
+// inline std::string demangle(const char *name) { return name; }
+
+#endif
 
 using TypeNames = std::unordered_map<std::size_t, std::string>;
 
@@ -59,15 +83,31 @@ inline TypeNames& getRegisteredNames() {
   return registered_names;
 }
 
+using TypeIndex = std::uint16_t;
+
+inline TypeIndex getIndex() {
+  static TypeIndex index = 0;
+  return index++;
+}
+
+using DeadType = std::uint32_t;
+static constexpr DeadType dead_mask = 0xFF0000FF;
+static constexpr DeadType dead_mark = 0xDE0000AD;
+
+using DecodedIndex = std::uint32_t;
+
+inline bool validateIndex(const DecodedIndex index) {
+  return dead_mark == (index & dead_mask);
+}
+
 template <typename ObjT>
 struct Registrar {
   Registrar() {
-    auto const ti = std::type_index(typeid(ObjT));
-    index = ti.hash_code();
-    getRegisteredNames()[index] = ti.name();
+    index = (getIndex() << 8) | dead_mark;
+    getRegisteredNames()[index] = demangle(typeid(ObjT).name());
   }
 
-  std::size_t index;
+  DecodedIndex index;
 };
 
 template <typename ObjT>
@@ -83,7 +123,7 @@ inline std::size_t getTypeIdx() {
   return Type<ObjT>::idx;
 }
 
-inline std::string const& getTypeNameForIdx(const std::size_t typeIdx) {
+inline std::string const& getTypeNameForIdx(std::size_t const typeIdx) {
   return getRegisteredNames()[typeIdx];
 }
 

@@ -50,6 +50,7 @@
 #include "checkpoint/dispatch/vrt/type_registry.h"
 
 #include <stdexcept>
+#include <string>
 #include <type_traits>
 
 namespace checkpoint {
@@ -116,11 +117,13 @@ TraverserT& withTypeIdx(TraverserT& t) {
     //
     // Only temporary END
 
-    if (thisTypeIdx != serTypeIdx) {
-      auto err =
-          std::string("Unpacking wrong type, got=") +
-          vrt::typeregistry::getTypeNameForIdx(thisTypeIdx) +
-          ", expected=" + vrt::typeregistry::getTypeNameForIdx(serTypeIdx);
+    if (vrt::typeregistry::validateIndex(serTypeIdx) == false ||
+        thisTypeIdx != serTypeIdx) {
+      auto err = std::string("Unpacking wrong type, got=") +
+                 vrt::typeregistry::getTypeNameForIdx(thisTypeIdx) +
+                 " idx=" + std::to_string(thisTypeIdx) + ", expected=" +
+                 vrt::typeregistry::getTypeNameForIdx(serTypeIdx) +
+                 " idx=" + std::to_string(serTypeIdx);
       throw std::runtime_error(err);
     }
   }
@@ -130,10 +133,10 @@ TraverserT& withTypeIdx(TraverserT& t) {
 
 template <typename T, typename TraverserT>
 TraverserT& Traverse::with(T& target, TraverserT& t, SerialSizeType len) {
-  withTypeIdx<T>(t);
-
   using CleanT = typename CleanType<T>::CleanT;
   using DispatchType = typename TraverserT::template DispatcherType<TraverserT, CleanT>;
+
+  withTypeIdx<CleanT>(t);
 
   auto val = cleanType(&target);
 
