@@ -134,13 +134,17 @@ TraverserT& withTypeIdx(TraverserT& t) {
 template <typename T, typename TraverserT>
 TraverserT& Traverse::with(T& target, TraverserT& t, SerialSizeType len) {
   using CleanT = typename CleanType<T>::CleanT;
-  using DispatchType = typename TraverserT::template DispatcherType<TraverserT, CleanT>;
+  using DispatchType =
+      typename TraverserT::template DispatcherType<TraverserT, CleanT>;
 
+#if defined SERIALIZATION_ERROR_CHECKING
   withTypeIdx<CleanT>(t);
+#endif
 
   auto val = cleanType(&target);
-
   SerializerDispatch<TraverserT, CleanT, DispatchType> ap;
+
+#if defined SERIALIZATION_ERROR_CHECKING
   try {
     ap(t, val, len);
   } catch (std::runtime_error &err) {
@@ -148,6 +152,9 @@ TraverserT& Traverse::with(T& target, TraverserT& t, SerialSizeType len) {
                       "\npath: " + vrt::typeregistry::getTypeName<T>();
     throw std::runtime_error(what);
   }
+#else
+  ap(t, val, len);
+#endif
 
   return t;
 }
@@ -156,19 +163,25 @@ template <typename T, typename TraverserT, typename... Args>
 TraverserT Traverse::with(T& target, Args&&... args) {
   TraverserT t(std::forward<Args>(args)...);
 
-  // auto const thisTypeIdx = vrt::typeregistry::makeTypeIdx<T>();
-  // if (t.isPacking() || t.isSizing()) {
-  //   with(thisTypeIdx, t);
-  // } else if (t.isUnpacking()) {
-  //   std::size_t serTypeIdx;
-  //   with(serTypeIdx, t);
+#if !defined SERIALIZATION_ERROR_CHECKING
+  auto const thisTypeIdx = vrt::typeregistry::getTypeIdx<T>();
+  if (t.isPacking() || t.isSizing()) {
+    with(thisTypeIdx, t);
+  } else if (t.isUnpacking()) {
+    std::size_t serTypeIdx;
+    with(serTypeIdx, t);
 
-  //   if (thisTypeIdx != serTypeIdx) {
-  //     auto err = std::string("Unpacking wrong type, got=") + thisTypeIdx +
-  //                ", expected=" + serTypeIdx;
-  //     throw std::runtime_error(err);
-  //   }
-  // }
+    if (vrt::typeregistry::validateIndex(serTypeIdx) == false ||
+        thisTypeIdx != serTypeIdx) {
+      auto err = std::string("Unpacking wrong type, got=") +
+                 vrt::typeregistry::getTypeNameForIdx(thisTypeIdx) +
+                 " idx=" + std::to_string(thisTypeIdx) + ", expected=" +
+                 vrt::typeregistry::getTypeNameForIdx(serTypeIdx) +
+                 " idx=" + std::to_string(serTypeIdx);
+      throw std::runtime_error(err);
+    }
+  }
+#endif
 
   with(target, t);
   return t;
