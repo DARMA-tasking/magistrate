@@ -55,14 +55,16 @@ if (${checkpoint_doxygen_enabled})
 endif()
 
 # Optionally enable address sanitizer library in build
-if (checkpoint_asan_enabled)
+if (checkpoint_asan_enabled) # FIXME: change the flag
   if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR
      CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR
      (CMAKE_CXX_COMPILER_ID
-       STREQUAL
-       "GNU"
-       AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "4.8"))
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -DADDRESS_SANITIZER")
+       STREQUAL "GNU"
+       AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "4.8"))
+    set(
+      CMAKE_CXX_FLAGS
+      "${CMAKE_CXX_FLAGS} -fsanitize=address,undefined -DADDRESS_SANITIZER"
+    )
     message(STATUS "Building with address sanitizer enabled")
   else()
     message(SEND_ERROR "Cannot use ASAN without clang or gcc >= 4.8")
