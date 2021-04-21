@@ -168,7 +168,7 @@ TraverserT Traverse::with(T& target, Args&&... args) {
   if (t.isPacking() || t.isSizing()) {
     with(thisTypeIdx, t);
   } else if (t.isUnpacking()) {
-    std::size_t serTypeIdx;
+    std::size_t serTypeIdx = 0;
     with(serTypeIdx, t);
 
     if (vrt::typeregistry::validateIndex(serTypeIdx) == false ||
