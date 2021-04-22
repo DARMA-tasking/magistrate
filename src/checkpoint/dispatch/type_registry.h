@@ -42,8 +42,8 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_DISPATCH_VRT_TYPE_REGISTRY_H
-#define INCLUDED_CHECKPOINT_DISPATCH_VRT_TYPE_REGISTRY_H
+#if !defined INCLUDED_CHECKPOINT_DISPATCH_TYPE_REGISTRY_H
+#define INCLUDED_CHECKPOINT_DISPATCH_TYPE_REGISTRY_H
 
 #include <cstddef>
 #include <cstdint>
@@ -56,14 +56,14 @@
 #include <memory>
 #endif
 
-namespace checkpoint { namespace dispatch { namespace vrt { namespace typeregistry {
+namespace checkpoint { namespace dispatch { namespace typeregistry {
 
 #if defined __GNUG__
 
-inline std::string demangle(const char *name) {
+inline std::string demangle(const char* name) {
   int status;
-  std::unique_ptr<char, void (*)(void *)> res{
-      abi::__cxa_demangle(name, NULL, NULL, &status), std::free};
+  std::unique_ptr<char, void (*)(void*)> res{
+    abi::__cxa_demangle(name, NULL, NULL, &status), std::free};
 
   constexpr int success = 0;
   return (status == success) ? res.get() : name;
@@ -71,8 +71,7 @@ inline std::string demangle(const char *name) {
 
 #else
 
-// Temporary commented out to find out problematic compilers
-// inline std::string demangle(const char *name) { return name; }
+inline std::string demangle(const char* name) { return name; }
 
 #endif
 
@@ -132,6 +131,6 @@ inline std::string const& getTypeName() {
   return getTypeNameForIdx(getTypeIdx<ObjT>());
 }
 
-}}}} /* end namespace checkpoint::dispatch::vrt::typeregistry */
+}}} /* end namespace checkpoint::dispatch::typeregistry */
 
-#endif /*INCLUDED_CHECKPOINT_DISPATCH_VRT_TYPE_REGISTRY_H*/
+#endif /*INCLUDED_CHECKPOINT_DISPATCH_TYPE_REGISTRY_H*/

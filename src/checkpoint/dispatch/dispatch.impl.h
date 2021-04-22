@@ -47,7 +47,7 @@
 
 #include "checkpoint/common.h"
 #include "checkpoint/dispatch/dispatch.h"
-#include "checkpoint/dispatch/vrt/type_registry.h"
+#include "checkpoint/dispatch/type_registry.h"
 
 #include <stdexcept>
 #include <string>
@@ -90,7 +90,7 @@ TraverserT& withTypeIdx(TraverserT& t) {
       typename TraverserT::template DispatcherType<TraverserT, CleanT>;
 
   SerializerDispatch<TraverserT, CleanT, DispatchType> ap;
-  auto const thisTypeIdx = vrt::typeregistry::getTypeIdx<T>();
+  auto const thisTypeIdx = typeregistry::getTypeIdx<T>();
   constexpr SerialSizeType len = 1;
 
   if (t.isPacking() || t.isSizing()) {
@@ -117,12 +117,12 @@ TraverserT& withTypeIdx(TraverserT& t) {
     //
     // Only temporary END
 
-    if (vrt::typeregistry::validateIndex(serTypeIdx) == false ||
+    if (typeregistry::validateIndex(serTypeIdx) == false ||
         thisTypeIdx != serTypeIdx) {
       auto err = std::string("Unpacking wrong type, got=") +
-                 vrt::typeregistry::getTypeNameForIdx(thisTypeIdx) +
+                 typeregistry::getTypeNameForIdx(thisTypeIdx) +
                  " idx=" + std::to_string(thisTypeIdx) + ", expected=" +
-                 vrt::typeregistry::getTypeNameForIdx(serTypeIdx) +
+                 typeregistry::getTypeNameForIdx(serTypeIdx) +
                  " idx=" + std::to_string(serTypeIdx);
       throw std::runtime_error(err);
     }
@@ -149,7 +149,7 @@ TraverserT& Traverse::with(T& target, TraverserT& t, SerialSizeType len) {
     ap(t, val, len);
   } catch (std::runtime_error &err) {
     auto const what = std::string{err.what()} +
-                      "\npath: " + vrt::typeregistry::getTypeName<T>();
+                      "\npath: " + typeregistry::getTypeName<T>();
     throw std::runtime_error(what);
   }
 #else
@@ -164,19 +164,19 @@ TraverserT Traverse::with(T& target, Args&&... args) {
   TraverserT t(std::forward<Args>(args)...);
 
 #if !defined SERIALIZATION_ERROR_CHECKING
-  auto const thisTypeIdx = vrt::typeregistry::getTypeIdx<T>();
+  auto const thisTypeIdx = typeregistry::getTypeIdx<T>();
   if (t.isPacking() || t.isSizing()) {
     with(thisTypeIdx, t);
   } else if (t.isUnpacking()) {
     std::size_t serTypeIdx = 0;
     with(serTypeIdx, t);
 
-    if (vrt::typeregistry::validateIndex(serTypeIdx) == false ||
+    if (typeregistry::validateIndex(serTypeIdx) == false ||
         thisTypeIdx != serTypeIdx) {
       auto err = std::string("Unpacking wrong type, got=") +
-                 vrt::typeregistry::getTypeNameForIdx(thisTypeIdx) +
+                 typeregistry::getTypeNameForIdx(thisTypeIdx) +
                  " idx=" + std::to_string(thisTypeIdx) + ", expected=" +
-                 vrt::typeregistry::getTypeNameForIdx(serTypeIdx) +
+                 typeregistry::getTypeNameForIdx(serTypeIdx) +
                  " idx=" + std::to_string(serTypeIdx);
       throw std::runtime_error(err);
     }
