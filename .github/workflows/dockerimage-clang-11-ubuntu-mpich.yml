@@ -33,6 +33,7 @@ jobs:
       CHECKPOINT_DOCS: 0
       CHECKPOINT_ASAN: 1
       CHECKPOINT_UBSAN: 0
+      CHECKPOINT_SERIALIZATION_ERROR_CHECKING: 0
       CACHE: ~/.local/cache/
 
     steps:
@@ -60,6 +61,8 @@ jobs:
       run: docker-compose pull --ignore-pull-failures ubuntu-cpp
     - name: Build the Docker image
       run: docker-compose run ubuntu-cpp
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     - name: Docker Push Base Image
       if: ${{ success() && github.ref == 'refs/heads/develop' }}
       continue-on-error: true

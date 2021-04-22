@@ -27,12 +27,12 @@ option(
 option(CODE_COVERAGE "Enable coverage reporting" OFF)
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug" OR "${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
-  option(checkpoint_serialization_error_checking "Enable extensive serialization error checking" ON)
+  option(checkpoint_serialization_error_checking_enabled "Enable extensive serialization error checking" ON)
 else()
-  option(checkpoint_serialization_error_checking "Enable extensive serialization error checking" OFF)
+  option(checkpoint_serialization_error_checking_enabled "Enable extensive serialization error checking" OFF)
 endif()
 
-if(checkpoint_serialization_error_checking)
+if(checkpoint_serialization_error_checking_enabled)
   add_definitions(-DSERIALIZATION_ERROR_CHECKING)
   message(STATUS "Building with serialization error checking enabled")
 endif()

@@ -26,6 +26,7 @@ jobs:
       CHECKPOINT_DOCS: [% checkpoint_docs %]
       CHECKPOINT_ASAN: [% checkpoint_asan %]
       CHECKPOINT_UBSAN: [% checkpoint_ubsan %]
+      CHECKPOINT_SERIALIZATION_ERROR_CHECKING: [% checkpoint_serialization_error_checking %]
       CACHE: [% cache_dir %]
 
     steps:

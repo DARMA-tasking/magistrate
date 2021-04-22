@@ -33,6 +33,7 @@ jobs:
       CHECKPOINT_DOCS: 0
       CHECKPOINT_ASAN: 0
       CHECKPOINT_UBSAN: 0
+      CHECKPOINT_SERIALIZATION_ERROR_CHECKING: 0
       CACHE: ~/.local/cache/
 
     steps:

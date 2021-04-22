@@ -49,6 +49,14 @@ export CHECKPOINT_BUILD=${build_dir}/checkpoint
 mkdir -p "$CHECKPOINT_BUILD"
 cd "$CHECKPOINT_BUILD"
 rm -Rf ./*
+
+cmake_build_type="${CMAKE_BUILD_TYPE:-Release}"
+is_debug=0
+if test cmake_build_type = "Debug" || test cmake_build_type = "RelWithDebInfo"
+then
+    is_debug=1
+fi
+
 cmake -G "${CMAKE_GENERATOR:-Ninja}" \
       -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
       -Dcheckpoint_doxygen_enabled="${CHECKPOINT_DOXYGEN_ENABLED:-0}" \
@@ -58,8 +66,9 @@ cmake -G "${CMAKE_GENERATOR:-Ninja}" \
       -Dcheckpoint_mpi_enabled="${CHECKPOINT_MPI_ENABLED:-1}" \
       -Dcheckpoint_asan_enabled="${CHECKPOINT_ASAN_ENABLED:-0}" \
       -Dcheckpoint_ubsan_enabled="${CHECKPOINT_UBSAN_ENABLED:-0}" \
+      -Dcheckpoint_serialization_error_checking_enabled="${CHECKPOINT_SERIALIZATION_ERROR_CHECKING_ENABLED:-$is_debug}" \
       -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
-      -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE:-Release}" \
+      -DCMAKE_BUILD_TYPE="${cmake_build_type}" \
       -DCMAKE_CXX_COMPILER="${CXX:-c++}" \
       -DCMAKE_C_COMPILER="${CC:-cc}" \
       -DCMAKE_EXE_LINKER_FLAGS="${CMAKE_EXE_LINKER_FLAGS:-}" \
