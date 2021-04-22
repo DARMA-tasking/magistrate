@@ -582,7 +582,7 @@ struct TestWrapper {
 template <typename T>
 struct TestVirtualSerialize : TestHarness { };
 
-TYPED_TEST_CASE_P(TestVirtualSerialize);
+TYPED_TEST_SUITE_P(TestVirtualSerialize);
 
 /*
  * General test of serialization/deserialization for input object types
@@ -606,9 +606,9 @@ using ConstructTypes = ::testing::Types<
   test_3::TestWrapper
 >;
 
-REGISTER_TYPED_TEST_CASE_P(TestVirtualSerialize, test_virtual_serialize);
+REGISTER_TYPED_TEST_SUITE_P(TestVirtualSerialize, test_virtual_serialize);
 
-INSTANTIATE_TYPED_TEST_CASE_P(
+INSTANTIATE_TYPED_TEST_SUITE_P(
   test_virtual_serialize_inst, TestVirtualSerialize, ConstructTypes,
 );
 
