@@ -446,10 +446,15 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
   s | init;
 
   if (init) {
+    auto host_view = Kokkos::create_mirror_view(view);
+    if (s.isPacking()) {
+      Kokkos::deep_copy(host_view, view);
+    }
+
     // Serialize the actual data owned by the Kokkos::View
     if (is_contig) {
       // Serialize the data directly out of the data buffer
-      dispatch::serializeArray(s, view.data(), num_elms);
+      dispatch::serializeArray(s, host_view.data(), num_elms);
     } else {
       // Serialize manually traversing the data with Kokkos::View::operator()(...)
 
@@ -462,10 +467,14 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
         s | elm;
       };
 
-      TraverseRecursive<ViewType,T,dims,decltype(fn)>::apply(view,fn);
+      TraverseRecursive<ViewType,T,dims,decltype(fn)>::apply(host_view,fn);
 #else
-      TraverseManual<SerializerT,ViewType,rank_val>::apply(s,view);
+      TraverseManual<SerializerT,ViewType,rank_val>::apply(s,host_view);
 #endif
+    }
+
+    if (s.isUnpacking()) {
+      Kokkos::deep_copy(view, host_view);
     }
   }
 }
