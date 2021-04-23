@@ -66,22 +66,18 @@ namespace checkpoint { namespace dispatch {
 
 template <typename T, typename TraverserT>
 TraverserT& withTypeIdx(TraverserT& t) {
-  auto const thisTypeIdx = typeregistry::getTypeIdx<T>();
-
-  using TypeIndex = decltype(thisTypeIdx);
-  using CleanT = typename CleanType<TypeIndex>::CleanT;
+  using CleanT = typename CleanType<typeregistry::DecodedIndex>::CleanT;
   using DispatchType =
     typename TraverserT::template DispatcherType<TraverserT, CleanT>;
 
+  auto const thisTypeIdx = typeregistry::getTypeIdx<T>();
   SerializerDispatch<TraverserT, CleanT, DispatchType> ap;
-
   constexpr SerialSizeType len = 1;
-
   if (t.isPacking() || t.isSizing()) {
     auto val = cleanType(&thisTypeIdx);
     ap(t, val, len);
   } else if (t.isUnpacking()) {
-    TypeIndex serTypeIdx = 0;
+    typeregistry::DecodedIndex serTypeIdx = 0;
     auto val = cleanType(&serTypeIdx);
     ap(t, val, len);
 
@@ -138,7 +134,7 @@ TraverserT Traverse::with(T& target, Args&&... args) {
   if (t.isPacking() || t.isSizing()) {
     with(thisTypeIdx, t);
   } else if (t.isUnpacking()) {
-    std::size_t serTypeIdx = 0;
+    typeregistry::DecodedIndex serTypeIdx = 0;
     with(serTypeIdx, t);
 
     if (
@@ -206,9 +202,8 @@ inline void serializeArray(Serializer& s, T* array, SerialSizeType const len) {
 }
 
 template <typename T>
-buffer::ImplReturnType packBuffer(
-  T& target, SerialSizeType size, BufferObtainFnType fn
-) {
+buffer::ImplReturnType
+packBuffer(T& target, SerialSizeType size, BufferObtainFnType fn) {
   SerialByteType* user_buf = fn ? fn(size) : nullptr;
   if (user_buf == nullptr) {
     auto p =
@@ -216,8 +211,7 @@ buffer::ImplReturnType packBuffer(
     return std::make_tuple(std::move(p.extractPackedBuffer()), size);
   } else {
     auto p = Standard::pack<T, PackerBuffer<buffer::UserBuffer>>(
-      target, size, std::make_unique<buffer::UserBuffer>(user_buf, size)
-    );
+      target, size, std::make_unique<buffer::UserBuffer>(user_buf, size));
     return std::make_tuple(std::move(p.extractPackedBuffer()), size);
   }
 }

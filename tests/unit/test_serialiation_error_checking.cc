@@ -44,117 +44,113 @@
 
 #include <gtest/gtest.h>
 
+#include "checkpoint/checkpoint.h"
+#include "checkpoint/container/map_serialize.h"
 #include "test_harness.h"
 
-#include <checkpoint/checkpoint.h>
-
+#include <stdexcept>
 #include <vector>
 #include <cstdio>
+#include <memory>
 
 namespace checkpoint { namespace tests { namespace unit {
 
 struct TestObject : TestHarness { };
 
-enum Enum8  : std::uint8_t  { a, b, c, d };
-enum Enum64 : std::uint64_t { e, f, g };
-enum Enum0                  { h, i, j };
-
-static constexpr int const x_val = 29;
-static constexpr int const y_val = 31;
-static constexpr int const z_val = 37;
-static constexpr int const u_val = 43;
-static constexpr int const vec_val = 41;
-static constexpr Enum8 const e8_val = c;
-static constexpr Enum64 const e64_val = g;
-static constexpr Enum0 const e0_val = j;
-
-struct UserObject3 {
-  using isByteCopyable = std::true_type;
-
-  int u;
-
-  void init() {
-    u = u_val;
-  }
-
-  void check() {
-    EXPECT_EQ(u, u_val);
-  }
-};
-
-struct UserObject2 {
-  using isByteCopyable = std::false_type;
-
-  int x, y;
-  std::vector<int> vec;
-  UserObject3 obj;
-  Enum8 e8;
-  Enum64 e64;
-  Enum0 e0;
+struct AA {
+  int aa{0};
 
   template <typename Serializer>
   void serialize(Serializer& s) {
-    s | x | y | vec | obj | e8 | e64 | e0;
-  }
-
-  void init() {
-    x = x_val;
-    y = y_val;
-    vec.push_back(vec_val);
-    obj.init();
-    e8 = e8_val;
-    e64 = e64_val;
-    e0 = e0_val;
-  }
-
-  void check() {
-    EXPECT_EQ(x, x_val);
-    EXPECT_EQ(y, y_val);
-    EXPECT_EQ(vec.size(), 1UL);
-    EXPECT_EQ(vec[0], vec_val);
-    obj.check();
-    EXPECT_EQ(e8, e8_val);
-    EXPECT_EQ(e64, e64_val);
-    EXPECT_EQ(e0, e0_val);
+    s | aa;
   }
 };
 
-struct UserObject1 {
-  using isByteCopyable = std::false_type;
-
-  int z;
-  UserObject2 obj;
+struct BB {
+  double bb{1.0};
+  AA aa;
 
   template <typename Serializer>
   void serialize(Serializer& s) {
-    s | z | obj;
-  }
-
-  void init() {
-    z = z_val;
-    obj.init();
-  }
-
-  void check() {
-    EXPECT_EQ(z, z_val);
-    obj.check();
+    s | bb | aa;
   }
 };
 
-TEST_F(TestObject, test_bytecopy_trait) {
-  using namespace ::checkpoint;
+struct CC {
+  double cc{2.0};
+  BB bb;
 
-  using TestType = UserObject1;
-  TestType t;
-  t.init();
-  t.check();
+  template <typename Serializer>
+  void serialize(Serializer& s) {
+    s | cc | bb;
+  }
+};
 
-  auto ret = checkpoint::serialize<TestType>(t);
+struct DD {
+  double dd{3.0};
+  CC cc;
 
-  auto tptr = checkpoint::deserialize<TestType>(ret->getBuffer());
-  auto& t_final = *tptr;
+  template <typename Serializer>
+  void serialize(Serializer& s) {
+    s | dd | cc;
+  }
+};
 
-  t_final.check();
+struct EE {
+  double ee{4.0};
+  DD dd;
+
+  template <typename Serializer>
+  void serialize(Serializer& s) {
+    s | ee | dd;
+  }
+};
+
+TEST_F(TestObject, test_serialization_error_checking) {
+  struct EE ee;
+  auto ret = checkpoint::serialize<EE>(ee);
+  EXPECT_NO_THROW(checkpoint::deserialize<EE>(ret->getBuffer()));
+  EXPECT_THROW(
+    checkpoint::deserialize<DD>(ret->getBuffer()), std::runtime_error);
+}
+
+struct Base {
+  checkpoint_virtual_serialize_root()
+
+  virtual ~Base() = default;
+
+  int bb{3};
+
+  template <typename Serializer>
+  void serialize(Serializer& s) {
+    s | bb;
+  }
+};
+
+struct Derived : public Base {
+  checkpoint_virtual_serialize_derived_from(Base)
+
+  int dd{4};
+
+  template <typename Serializer>
+  void serialize(Serializer& s) {
+    s | dd;
+  }
+};
+
+TEST_F(TestObject, test_serialization_error_checking_polymorphic) {
+  using BasePtr = std::unique_ptr<Base>;
+  using DerivedPtr = std::unique_ptr<Derived>;
+
+  BasePtr const ptr = std::make_unique<Derived>();
+  auto ret = checkpoint::serialize(ptr);
+  EXPECT_NO_THROW(checkpoint::deserialize<BasePtr>(ret->getBuffer()));
+  EXPECT_THROW(
+    checkpoint::deserialize<DerivedPtr>(ret->getBuffer()), std::runtime_error);
+  EXPECT_THROW(
+    checkpoint::deserialize<Base>(ret->getBuffer()), std::runtime_error);
+  EXPECT_THROW(
+    checkpoint::deserialize<Derived>(ret->getBuffer()), std::runtime_error);
 }
 
 }}} // end namespace checkpoint::tests::unit

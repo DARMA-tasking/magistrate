@@ -63,7 +63,8 @@ namespace checkpoint { namespace dispatch { namespace typeregistry {
 inline std::string demangle(const char* name) {
   int status;
   std::unique_ptr<char, void (*)(void*)> res{
-    abi::__cxa_demangle(name, NULL, NULL, &status), std::free};
+    abi::__cxa_demangle(name, NULL, NULL, &status), std::free
+  };
 
   constexpr int success = 0;
   return (status == success) ? res.get() : name;
@@ -77,7 +78,8 @@ inline std::string demangle(const char* name) {
 
 #endif
 
-using TypeNames = std::unordered_map<std::size_t, std::string>;
+using DecodedIndex = std::uint32_t;
+using TypeNames = std::unordered_map<DecodedIndex, std::string>;
 
 inline TypeNames& getRegisteredNames() {
   static TypeNames registered_names;
@@ -94,8 +96,6 @@ inline TypeIndex getIndex() {
 using DeadType = std::uint32_t;
 static constexpr DeadType dead_mask = 0xFF0000FF;
 static constexpr DeadType dead_mark = 0xDE0000AD;
-
-using DecodedIndex = std::uint32_t;
 
 inline bool validateIndex(const DecodedIndex index) {
   return dead_mark == (index & dead_mask);
