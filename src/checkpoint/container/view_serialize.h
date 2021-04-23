@@ -404,7 +404,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
   // get propagate to the View from the layout
   //
   // Note: enabling this option will *not* work with Kokkos::LayoutStride. It
-  // will fail to compile with aa static_assert: because LayoutStide is not
+  // will fail to compile with a static_assert: because LayoutStide is not
   // extent constructible: traits::array_layout::is_extent_constructible!
   //
   constexpr auto dyn_dims = CountDims<ViewType, T>::dynamic;
