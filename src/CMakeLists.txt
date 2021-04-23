@@ -75,7 +75,7 @@ add_library(
 add_library(${CHECKPOINT_LIBRARY_NS} ALIAS ${CHECKPOINT_LIBRARY})
 
 target_compile_options(${CHECKPOINT_LIBRARY} PUBLIC "-fPIC")
-target_compile_options(${CHECKPOINT_LIBRARY} PUBLIC ${CXX_STANDARD_FLAGS})
+target_compile_features(${CHECKPOINT_LIBRARY} PUBLIC cxx_std_14)
 
 include(CMakePrintHelpers)
 

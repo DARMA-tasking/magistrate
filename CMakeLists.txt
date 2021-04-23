@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 project(checkpoint)
 
-set(CMAKE_CXX_STANDARD 14)
-
 include(cmake/turn_on_warnings.cmake)
 
 include(cmake/check_system_functions.cmake)
