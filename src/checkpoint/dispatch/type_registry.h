@@ -51,9 +51,9 @@
 #include <unordered_map>
 
 #if defined __GNUG__
-#include <cstdlib>
-#include <cxxabi.h>
-#include <memory>
+  #include <cstdlib>
+  #include <cxxabi.h>
+  #include <memory>
 #endif
 
 namespace checkpoint { namespace dispatch { namespace typeregistry {
@@ -71,7 +71,9 @@ inline std::string demangle(const char* name) {
 
 #else
 
-inline std::string demangle(const char* name) { return name; }
+inline std::string demangle(const char* name) {
+  return name;
+}
 
 #endif
 
@@ -111,18 +113,18 @@ struct Registrar {
 
 template <typename ObjT>
 struct Type {
-  static std::size_t const idx;
+  static DecodedIndex const idx;
 };
 
 template <typename ObjT>
-std::size_t const Type<ObjT>::idx = Registrar<ObjT>().index;
+DecodedIndex const Type<ObjT>::idx = Registrar<ObjT>().index;
 
 template <typename ObjT>
-inline std::size_t getTypeIdx() {
+inline DecodedIndex getTypeIdx() {
   return Type<ObjT>::idx;
 }
 
-inline std::string const& getTypeNameForIdx(std::size_t const typeIdx) {
+inline std::string const& getTypeNameForIdx(DecodedIndex const typeIdx) {
   return getRegisteredNames()[typeIdx];
 }
 

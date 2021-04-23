@@ -64,66 +64,36 @@ inline Serializer& operator|(Serializer& s, T& target) {
 
 namespace checkpoint { namespace dispatch {
 
-// Only temporary BEGIN
-//
-
-// template <typename T>
-// struct DoNothing {
-//   template <typename U = T>
-//   static typename std::enable_if<std::is_same<U, int>::value>::type doNothing() {
-//       throw std::runtime_error("err");
-//    }
-
-//   template <typename U = T>
-//   static typename std::enable_if<not std::is_same<U, int>::value>::type doNothing() {
-//     return;
-//   }
-// };
-
-//
-// Only temporary END
-
 template <typename T, typename TraverserT>
 TraverserT& withTypeIdx(TraverserT& t) {
-  using CleanT = typename CleanType<std::size_t>::CleanT;
+  auto const thisTypeIdx = typeregistry::getTypeIdx<T>();
+
+  using TypeIndex = decltype(thisTypeIdx);
+  using CleanT = typename CleanType<TypeIndex>::CleanT;
   using DispatchType =
-      typename TraverserT::template DispatcherType<TraverserT, CleanT>;
+    typename TraverserT::template DispatcherType<TraverserT, CleanT>;
 
   SerializerDispatch<TraverserT, CleanT, DispatchType> ap;
-  auto const thisTypeIdx = typeregistry::getTypeIdx<T>();
+
   constexpr SerialSizeType len = 1;
 
   if (t.isPacking() || t.isSizing()) {
     auto val = cleanType(&thisTypeIdx);
     ap(t, val, len);
   } else if (t.isUnpacking()) {
-    std::size_t serTypeIdx = 0;
+    TypeIndex serTypeIdx = 0;
     auto val = cleanType(&serTypeIdx);
     ap(t, val, len);
 
-    // Only temporary BEGIN
-    //
-
-    // try {
-    //   DoNothing<T>::doNothing();
-    // } catch (...) {
-    //   auto err =
-    //       std::string("Unpacking wrong type, got=") +
-    //       vrt::typeregistry::getTypeNameForIdx(thisTypeIdx) +
-    //       ", expected=" + vrt::typeregistry::getTypeNameForIdx(serTypeIdx);
-    //   throw std::runtime_error(err);
-    // }
-
-    //
-    // Only temporary END
-
-    if (typeregistry::validateIndex(serTypeIdx) == false ||
-        thisTypeIdx != serTypeIdx) {
+    if (
+      typeregistry::validateIndex(serTypeIdx) == false ||
+      thisTypeIdx != serTypeIdx
+    ) {
       auto err = std::string("Unpacking wrong type, got=") +
-                 typeregistry::getTypeNameForIdx(thisTypeIdx) +
-                 " idx=" + std::to_string(thisTypeIdx) + ", expected=" +
-                 typeregistry::getTypeNameForIdx(serTypeIdx) +
-                 " idx=" + std::to_string(serTypeIdx);
+        typeregistry::getTypeNameForIdx(thisTypeIdx) +
+        " idx=" + std::to_string(thisTypeIdx) +
+        ", expected=" + typeregistry::getTypeNameForIdx(serTypeIdx) +
+        " idx=" + std::to_string(serTypeIdx);
       throw std::runtime_error(err);
     }
   }
@@ -135,26 +105,26 @@ template <typename T, typename TraverserT>
 TraverserT& Traverse::with(T& target, TraverserT& t, SerialSizeType len) {
   using CleanT = typename CleanType<T>::CleanT;
   using DispatchType =
-      typename TraverserT::template DispatcherType<TraverserT, CleanT>;
+    typename TraverserT::template DispatcherType<TraverserT, CleanT>;
 
-#if defined SERIALIZATION_ERROR_CHECKING
+  #if defined(SERIALIZATION_ERROR_CHECKING)
   withTypeIdx<CleanT>(t);
-#endif
+  #endif
 
   auto val = cleanType(&target);
   SerializerDispatch<TraverserT, CleanT, DispatchType> ap;
 
-#if defined SERIALIZATION_ERROR_CHECKING
+  #if defined(SERIALIZATION_ERROR_CHECKING)
   try {
     ap(t, val, len);
-  } catch (std::runtime_error &err) {
-    auto const what = std::string{err.what()} +
-                      "\npath: " + typeregistry::getTypeName<T>();
+  } catch (std::runtime_error& err) {
+    auto const what =
+      std::string{err.what()} + "\npath: " + typeregistry::getTypeName<T>();
     throw std::runtime_error(what);
   }
-#else
+  #else
   ap(t, val, len);
-#endif
+  #endif
 
   return t;
 }
@@ -163,7 +133,7 @@ template <typename T, typename TraverserT, typename... Args>
 TraverserT Traverse::with(T& target, Args&&... args) {
   TraverserT t(std::forward<Args>(args)...);
 
-#if !defined SERIALIZATION_ERROR_CHECKING
+  #if !defined(SERIALIZATION_ERROR_CHECKING)
   auto const thisTypeIdx = typeregistry::getTypeIdx<T>();
   if (t.isPacking() || t.isSizing()) {
     with(thisTypeIdx, t);
@@ -171,17 +141,19 @@ TraverserT Traverse::with(T& target, Args&&... args) {
     std::size_t serTypeIdx = 0;
     with(serTypeIdx, t);
 
-    if (typeregistry::validateIndex(serTypeIdx) == false ||
-        thisTypeIdx != serTypeIdx) {
+    if (
+      typeregistry::validateIndex(serTypeIdx) == false ||
+      thisTypeIdx != serTypeIdx
+    ) {
       auto err = std::string("Unpacking wrong type, got=") +
-                 typeregistry::getTypeNameForIdx(thisTypeIdx) +
-                 " idx=" + std::to_string(thisTypeIdx) + ", expected=" +
-                 typeregistry::getTypeNameForIdx(serTypeIdx) +
-                 " idx=" + std::to_string(serTypeIdx);
+        typeregistry::getTypeNameForIdx(thisTypeIdx) +
+        " idx=" + std::to_string(thisTypeIdx) +
+        ", expected=" + typeregistry::getTypeNameForIdx(serTypeIdx) +
+        " idx=" + std::to_string(serTypeIdx);
       throw std::runtime_error(err);
     }
   }
-#endif
+  #endif
 
   with(target, t);
   return t;
@@ -192,17 +164,16 @@ T* Traverse::reconstruct(SerialByteType* mem) {
   return Reconstructor<typename CleanType<T>::CleanT>::construct(mem);
 }
 
-template <typename T, typename SizerT, typename...Args>
+template <typename T, typename SizerT, typename... Args>
 SerialSizeType Standard::size(T& target, Args&&... args) {
   auto sizer = Traverse::with<T, SizerT>(target, std::forward<Args>(args)...);
   return sizer.getSize();
 }
 
-template <typename T, typename FootprinterT, typename...Args>
+template <typename T, typename FootprinterT, typename... Args>
 SerialSizeType Standard::footprint(T& target, Args&&... args) {
-  auto footprinter = Traverse::with<T, FootprinterT>(
-    target, std::forward<Args>(args)...
-  );
+  auto footprinter =
+    Traverse::with<T, FootprinterT>(target, std::forward<Args>(args)...);
   return footprinter.getMemoryFootprint();
 }
 
@@ -240,7 +211,8 @@ buffer::ImplReturnType packBuffer(
 ) {
   SerialByteType* user_buf = fn ? fn(size) : nullptr;
   if (user_buf == nullptr) {
-    auto p = Standard::pack<T, PackerBuffer<buffer::ManagedBuffer>>(target, size);
+    auto p =
+      Standard::pack<T, PackerBuffer<buffer::ManagedBuffer>>(target, size);
     return std::make_tuple(std::move(p.extractPackedBuffer()), size);
   } else {
     auto p = Standard::pack<T, PackerBuffer<buffer::UserBuffer>>(
