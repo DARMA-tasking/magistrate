@@ -448,7 +448,10 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
   if (init) {
     auto host_view = Kokkos::create_mirror_view(view);
     if (s.isPacking()) {
-      Kokkos::deep_copy(host_view, view);
+      // Create and use an execution space to avoid a global Kokkos::fence()
+      auto exec_space = Kokkos::HostSpace{};
+      Kokkos::deep_copy(exec_space, host_view, view);
+      exec_space.fence();
     }
 
     // Serialize the actual data owned by the Kokkos::View
@@ -474,7 +477,10 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
     }
 
     if (s.isUnpacking()) {
-      Kokkos::deep_copy(view, host_view);
+      // Create and use an execution space to avoid a global Kokkos::fence()
+      auto exec_space = Kokkos::HostSpace{};
+      Kokkos::deep_copy(exec_space, view, host_view);
+      exec_space.fence();
     }
   }
 }
