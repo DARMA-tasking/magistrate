@@ -228,7 +228,7 @@ inline void serialize(
   auto host_view = Kokkos::create_mirror_view(view);
   if (s.isPacking()) {
     // Create and use an execution space to avoid a global Kokkos::fence()
-    auto exec_space = Kokkos::HostSpace{};
+    auto exec_space = Kokkos::HostSpace::execution_space{};
     Kokkos::deep_copy(exec_space, host_view, view);
     exec_space.fence();
   }
@@ -253,7 +253,7 @@ inline void serialize(
 #endif
     if (s.isUnpacking()) {
       // Create and use an execution space to avoid a global Kokkos::fence()
-      auto exec_space = Kokkos::HostSpace{};
+      auto exec_space = Kokkos::HostSpace::execution_space{};
       Kokkos::deep_copy(exec_space, view, host_view);
       exec_space.fence();
     }
@@ -341,7 +341,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
     auto host_view = Kokkos::create_mirror_view(view);
     if (s.isPacking()) {
       // Create and use an execution space to avoid a global Kokkos::fence()
-      auto exec_space = Kokkos::HostSpace{};
+      auto exec_space = Kokkos::HostSpace::execution_space{};
       Kokkos::deep_copy(exec_space, host_view, view);
       exec_space.fence();
     }
@@ -376,7 +376,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
 
     if (s.isUnpacking()) {
       // Create and use an execution space to avoid a global Kokkos::fence()
-      auto exec_space = Kokkos::HostSpace{};
+      auto exec_space = Kokkos::HostSpace::execution_space{};
       Kokkos::deep_copy(exec_space, view, host_view);
       exec_space.fence();
     }
@@ -478,7 +478,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
     auto host_view = Kokkos::create_mirror_view(view);
     if (s.isPacking()) {
       // Create and use an execution space to avoid a global Kokkos::fence()
-      auto exec_space = Kokkos::HostSpace{};
+      auto exec_space = Kokkos::HostSpace::execution_space{};
       Kokkos::deep_copy(exec_space, host_view, view);
       exec_space.fence();
     }
@@ -507,7 +507,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
 
     if (s.isUnpacking()) {
       // Create and use an execution space to avoid a global Kokkos::fence()
-      auto exec_space = Kokkos::HostSpace{};
+      auto exec_space = Kokkos::HostSpace::execution_space{};
       Kokkos::deep_copy(exec_space, view, host_view);
       exec_space.fence();
     }
