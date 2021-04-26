@@ -18,7 +18,7 @@ if(NOT hasParent)
   enable_cxx_compiler_flag_if_supported("-Wno-unknown-pragmas")
 endif()
 
-if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6)
     enable_cxx_compiler_flag_if_supported("-Wno-missing-braces")
   endif()

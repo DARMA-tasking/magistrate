@@ -35,6 +35,7 @@ build configuration:
 | `checkpoint_warnings_as_errors`   | 0               | Make all warnings errors during build |
 | `checkpoint_doxygen_enabled`      | 0               | Enable doxygen generation             |
 | `checkpoint_asan_enabled`         | 0               | Enable address sanitizer              |
+| `checkpoint_ubsan_enabled`        | 0               | Enable undefined behavior sanitizer   |
 | `CODE_COVERAGE`                   | 0               | Generate code coverage report         |
 
 \subsection using-the-build-script Using the Build Script
@@ -54,6 +55,7 @@ most configuration parameters.
 | `KOKKOS_KERNELS_ROOT`            | <empty>         | Install directory for kokkos-kernels   |
 | `CHECKPOINT_DOXYGEN_ENABLED`     | 0               | Enable doxygen generation              |
 | `CHECKPOINT_ASAN_ENABLED`        | 0               | Enable building with address sanitizer |
+| `CHECKPOINT_UBSAN_ENABLED`       | 0               | Enable building with undefined behavior sanitizer |
 | `CHECKPOINT_TESTS_ENABLED`       | 1               | Enable checkpoint tests                |
 | `CHECKPOINT_EXAMPLES_ENABLED`    | 1               | Enable checkpoint examples             |
 | `CHECKPOINT_WARNINGS_AS_ERRORS`  | 0               | Make all warnings errors during build  |
@@ -106,6 +108,7 @@ The default set of the docker configuration options is located in
 #   CHECKPOINT_MPI=1                 # Enable checkpoint MPI tests
 #   CHECKPOINT_WARNINGS_AS_ERRORS=0  # Treat warnings as errors in compilation
 #   CHECKPOINT_ASAN=0                # Enable address sanitizer in build
+#   CHECKPOINT_UBSAN=0               # Enable undefined behavior sanitizer in build
 #   CHECKPOINT_DOCS=0                # Enable doxygen build
 #   BUILD_TYPE=release               # CMake build type
 #   CODE_COVERAGE=0                  # Enable generation of code coverage reports

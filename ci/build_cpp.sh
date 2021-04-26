@@ -55,6 +55,7 @@ cmake -G "${CMAKE_GENERATOR:-Ninja}" \
       -Dcheckpoint_warnings_as_errors="${CHECKPOINT_WARNINGS_AS_ERRORS:-0}" \
       -Dcheckpoint_mpi_enabled="${CHECKPOINT_MPI_ENABLED:-1}" \
       -Dcheckpoint_asan_enabled="${CHECKPOINT_ASAN_ENABLED:-0}" \
+      -Dcheckpoint_ubsan_enabled="${CHECKPOINT_UBSAN_ENABLED:-0}" \
       -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
       -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE:-Release}" \
       -DCMAKE_CXX_COMPILER="${CXX:-c++}" \
