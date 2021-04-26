@@ -130,25 +130,8 @@ TraverserT Traverse::with(T& target, Args&&... args) {
   TraverserT t(std::forward<Args>(args)...);
 
   #if !defined(SERIALIZATION_ERROR_CHECKING)
-  auto const thisTypeIdx = typeregistry::getTypeIdx<T>();
-  if (t.isPacking() || t.isSizing()) {
-    with(thisTypeIdx, t);
-  } else if (t.isUnpacking()) {
-    typeregistry::DecodedIndex serTypeIdx = 0;
-    with(serTypeIdx, t);
-
-    if (
-      typeregistry::validateIndex(serTypeIdx) == false ||
-      thisTypeIdx != serTypeIdx
-    ) {
-      auto err = std::string("Unpacking wrong type, got=") +
-        typeregistry::getTypeNameForIdx(thisTypeIdx) +
-        " idx=" + std::to_string(thisTypeIdx) +
-        ", expected=" + typeregistry::getTypeNameForIdx(serTypeIdx) +
-        " idx=" + std::to_string(serTypeIdx);
-      throw std::runtime_error(err);
-    }
-  }
+  using CleanT = typename CleanType<T>::CleanT;
+  withTypeIdx<CleanT>(t);
   #endif
 
   with(target, t);
