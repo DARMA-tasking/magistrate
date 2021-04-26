@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                test_object.cc
+//                    test_serialiation_error_checking.cc
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //

@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                              object_registry.h
+//                              type_registry.h
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //

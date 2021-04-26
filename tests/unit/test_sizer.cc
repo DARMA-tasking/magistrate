@@ -91,14 +91,14 @@ TEST_F(TestSizer, test_sizer_2) {
   Test2 t;
   auto const& size = checkpoint::getSize(t);
 #if defined(SERIALIZATION_ERROR_CHECKING)
-  // Expected is sizeof(int) +
+  // Expected is sizeof(int)*2 +
   // sizeof(DecodedIndex) for Test2 +
   // sizeof(DecodedIndex) for Test2::a +
   // sizeof(DecodedIndex) for Test2::b
   EXPECT_EQ(
     size, sizeof(int) * 2 + sizeof(dispatch::typeregistry::DecodedIndex) * 3);
 #else
-  // Expected is sizeof(int) + sizeof(DecodedIndex) for Test2
+  // Expected is sizeof(int)*2 + sizeof(DecodedIndex) for Test2
   EXPECT_EQ(
     size, sizeof(int) * 2 + sizeof(dispatch::typeregistry::DecodedIndex));
 #endif
@@ -120,7 +120,7 @@ TEST_F(TestSizer, test_sizer_3) {
   auto const& size = checkpoint::getSize(t);
 #if defined(SERIALIZATION_ERROR_CHECKING)
   // Expected is
-  // sizeof(int) +
+  // sizeof(int)*3 +
   // sizeof(DecodedIndex) for Test3 +
   // sizeof(DecodedIndex) for Test3::a +
   // sizeof(DecodedIndex) for Test3::b +
@@ -128,7 +128,7 @@ TEST_F(TestSizer, test_sizer_3) {
   EXPECT_EQ(
     size, sizeof(int) * 3 + sizeof(dispatch::typeregistry::DecodedIndex) * 4);
 #else
-  // Expected is sizeof(int) + sizeof(DecodedIndex) for Test3
+  // Expected is sizeof(int)*3 + sizeof(DecodedIndex) for Test3
   EXPECT_EQ(
     size, sizeof(int) * 3 + sizeof(dispatch::typeregistry::DecodedIndex));
 #endif
@@ -151,7 +151,7 @@ TEST_F(TestSizer, test_sizer_4) {
   auto const& size = checkpoint::getSize(t);
 #if defined(SERIALIZATION_ERROR_CHECKING)
   // Expected is
-  // sizeof(int) +
+  // sizeof(int)*4 +
   // sizeof(DecodedIndex) for Test4 +
   // sizeof(DecodedIndex) for Test4::a +
   // sizeof(DecodedIndex) for Test4::b +
@@ -160,7 +160,7 @@ TEST_F(TestSizer, test_sizer_4) {
   EXPECT_EQ(
     size, sizeof(int) * 4 + sizeof(dispatch::typeregistry::DecodedIndex) * 5);
 #else
-  // Expected is sizeof(int)*3 + sizeof(DecodedIndex) for Test4
+  // Expected is sizeof(int)*4 + sizeof(DecodedIndex) for Test4
   EXPECT_EQ(
     size, sizeof(int) * 4 + sizeof(dispatch::typeregistry::DecodedIndex));
 #endif
