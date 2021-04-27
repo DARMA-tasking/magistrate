@@ -1,6 +1,5 @@
 build/
 CMakeFiles/
-.vscode/
 
 .dir-locals.el
 
