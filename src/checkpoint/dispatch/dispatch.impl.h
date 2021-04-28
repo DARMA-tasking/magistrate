@@ -50,8 +50,6 @@
 #include "checkpoint/dispatch/type_registry.h"
 
 #include <stdexcept>
-#include <string>
-#include <type_traits>
 
 namespace checkpoint {
 
@@ -63,6 +61,14 @@ inline Serializer& operator|(Serializer& s, T& target) {
 } /* end namespace checkpoint */
 
 namespace checkpoint { namespace dispatch {
+
+struct serialization_error : public std::runtime_error {
+  explicit serialization_error(std::string const& msg, int const depth = 0)
+    : std::runtime_error(msg),
+      depth_(depth) { }
+
+  int const depth_ = 0;
+};
 
 template <typename T, typename TraverserT>
 TraverserT& withTypeIdx(TraverserT& t) {
@@ -85,12 +91,13 @@ TraverserT& withTypeIdx(TraverserT& t) {
       typeregistry::validateIndex(serTypeIdx) == false ||
       thisTypeIdx != serTypeIdx
     ) {
-      auto err = std::string("Unpacking wrong type, got=") +
+      auto const err = std::string("Unpacking wrong type, got=") +
         typeregistry::getTypeNameForIdx(thisTypeIdx) +
-        " idx=" + std::to_string(thisTypeIdx) +
-        ", expected=" + typeregistry::getTypeNameForIdx(serTypeIdx) +
-        " idx=" + std::to_string(serTypeIdx);
-      throw std::runtime_error(err);
+        " (idx=" + std::to_string(thisTypeIdx) +
+        "), expected=" + typeregistry::getTypeNameForIdx(serTypeIdx) +
+        " (idx=" + std::to_string(serTypeIdx) + ")\n#0 " +
+        typeregistry::getTypeName<T>();
+      throw serialization_error(err);
     }
   }
 
@@ -113,10 +120,11 @@ TraverserT& Traverse::with(T& target, TraverserT& t, SerialSizeType len) {
   #if defined(SERIALIZATION_ERROR_CHECKING)
   try {
     ap(t, val, len);
-  } catch (std::runtime_error& err) {
-    auto const what =
-      std::string{err.what()} + "\npath: " + typeregistry::getTypeName<T>();
-    throw std::runtime_error(what);
+  } catch (serialization_error const& err) {
+    auto const depth = err.depth_ + 1;
+    auto const what = std::string(err.what()) + "\n#" + std::to_string(depth) +
+      " " + typeregistry::getTypeName<T>();
+    throw serialization_error(what, depth);
   }
   #else
   ap(t, val, len);
@@ -194,7 +202,8 @@ packBuffer(T& target, SerialSizeType size, BufferObtainFnType fn) {
     return std::make_tuple(std::move(p.extractPackedBuffer()), size);
   } else {
     auto p = Standard::pack<T, PackerBuffer<buffer::UserBuffer>>(
-      target, size, std::make_unique<buffer::UserBuffer>(user_buf, size));
+      target, size, std::make_unique<buffer::UserBuffer>(user_buf, size)
+    );
     return std::make_tuple(std::move(p.extractPackedBuffer()), size);
   }
 }

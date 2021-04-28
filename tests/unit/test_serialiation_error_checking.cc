@@ -111,7 +111,8 @@ TEST_F(TestObject, test_serialization_error_checking) {
   auto ret = checkpoint::serialize<EE>(ee);
   EXPECT_NO_THROW(checkpoint::deserialize<EE>(ret->getBuffer()));
   EXPECT_THROW(
-    checkpoint::deserialize<DD>(ret->getBuffer()), std::runtime_error);
+    checkpoint::deserialize<DD>(ret->getBuffer()), checkpoint::dispatch::serialization_error
+  );
 }
 
 struct Base {
@@ -146,11 +147,14 @@ TEST_F(TestObject, test_serialization_error_checking_polymorphic) {
   auto ret = checkpoint::serialize(ptr);
   EXPECT_NO_THROW(checkpoint::deserialize<BasePtr>(ret->getBuffer()));
   EXPECT_THROW(
-    checkpoint::deserialize<DerivedPtr>(ret->getBuffer()), std::runtime_error);
+    checkpoint::deserialize<DerivedPtr>(ret->getBuffer()), checkpoint::dispatch::serialization_error
+  );
   EXPECT_THROW(
-    checkpoint::deserialize<Base>(ret->getBuffer()), std::runtime_error);
+    checkpoint::deserialize<Base>(ret->getBuffer()), checkpoint::dispatch::serialization_error
+  );
   EXPECT_THROW(
-    checkpoint::deserialize<Derived>(ret->getBuffer()), std::runtime_error);
+    checkpoint::deserialize<Derived>(ret->getBuffer()), checkpoint::dispatch::serialization_error
+  );
 }
 
 }}} // end namespace checkpoint::tests::unit
