@@ -77,7 +77,7 @@ With these set, invoke the script with two arguments: the path to the
 $ checkpoint/ci/build_cpp.sh <full-path-to-checkpoint-source> <full-path-to-build-dir>
 ```
 
-\subsection docker-build Building with `docker` containerization
+\subsection docker-build Building with docker containerization
 
 The easiest way to build *checkpoint* is by using `docker` with the available
 containers that contain the proper compilers, MPI, and all other
