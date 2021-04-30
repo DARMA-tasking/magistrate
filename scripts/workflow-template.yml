@@ -52,6 +52,8 @@ jobs:
       run: docker-compose pull --ignore-pull-failures [% docker_target %]
     - name: Build the Docker image
       run: docker-compose run [% docker_target %]
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     - name: Docker Push Base Image
       if: success()
       continue-on-error: true

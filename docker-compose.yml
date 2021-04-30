@@ -90,6 +90,7 @@ x-checkpointopts: &checkpointopts
   CODE_COVERAGE: ${CODE_COVERAGE:-0}
   https_proxy: ${PROXY-}
   http_proxy: ${PROXY-}
+  CODECOV_TOKEN: ${CODECOV_TOKEN:-}
 
 services:
   ##############################################################################
