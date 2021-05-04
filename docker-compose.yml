@@ -25,6 +25,7 @@
 #   CHECKPOINT_MPI=1                 # Enable checkpoint MPI tests
 #   CHECKPOINT_WARNINGS_AS_ERRORS=0  # Treat warnings as errors in compilation
 #   CHECKPOINT_ASAN=0                # Enable address sanitizer in build
+#   CHECKPOINT_UBSAN=0               # Enable undefined behavior sanitizer in build
 #   CHECKPOINT_DOCS=0                # Enable doxygen build
 #   BUILD_TYPE=release               # CMake build type
 #   CODE_COVERAGE=0                  # Enable generation of code coverage reports
@@ -84,6 +85,7 @@ x-checkpointopts: &checkpointopts
   CHECKPOINT_EXAMPLES_ENABLED: ${CHECKPOINT_EXAMPLES:-1}
   CHECKPOINT_MPI_ENABLED: ${CHECKPOINT_MPI:-1}
   CHECKPOINT_ASAN_ENABLED: ${CHECKPOINT_ASAN:-0}
+  CHECKPOINT_UBSAN_ENABLED: ${CHECKPOINT_UBSAN:-0}
   CHECKPOINT_WARNINGS_AS_ERRORS: ${CHECKPOINT_WARNINGS_AS_ERRORS:-0}
   CHECKPOINT_DOXYGEN_ENABLED: ${CHECKPOINT_DOCS:-0}
   CMAKE_BUILD_TYPE: ${BUILD_TYPE:-release}

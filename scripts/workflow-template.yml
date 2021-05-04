@@ -25,6 +25,7 @@ jobs:
       CHECKPOINT_WARNINGS_AS_ERRORS: [% checkpoint_warnings_as_errors %]
       CHECKPOINT_DOCS: [% checkpoint_docs %]
       CHECKPOINT_ASAN: [% checkpoint_asan %]
+      CHECKPOINT_UBSAN: [% checkpoint_ubsan %]
       CACHE: [% cache_dir %]
 
     steps:
@@ -55,7 +56,7 @@ jobs:
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     - name: Docker Push Base Image
-      if: success()
+      if: ${{ success() && github.ref == 'refs/heads/develop' }}
       continue-on-error: true
       shell: bash
       run: |

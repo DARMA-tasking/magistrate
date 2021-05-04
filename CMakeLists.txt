@@ -18,10 +18,11 @@ option(checkpoint_tests_enabled "Enable checkpoint tests" OFF)
 option(checkpoint_mpi_enabled "Enable checkpoint tests with MPI" OFF)
 option(checkpoint_examples_enabled "Enable checkpoint examples" OFF)
 option(checkpoint_warnings_as_errors "Enable warnings to generate errors" OFF)
-if (checkpoint_warnings_as_errors)
-  enable_cxx_compiler_flag_if_supported("-Werror")
-endif(checkpoint_warnings_as_errors)
 option(checkpoint_asan_enabled "Enable address sanitizer in Checkpoint" OFF)
+option(
+  checkpoint_ubsan_enabled
+  "Enable undefined behavior sanitizer in Checkpoint" OFF
+)
 
 option(CODE_COVERAGE "Enable coverage reporting" OFF)
 
@@ -58,14 +59,30 @@ endif()
 if (checkpoint_asan_enabled)
   if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR
      CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR
-     (CMAKE_CXX_COMPILER_ID
-       STREQUAL
-       "GNU"
-       AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "4.8"))
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -DADDRESS_SANITIZER")
+     (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
+       AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "4.8"))
+    set(
+      CMAKE_CXX_FLAGS
+      "${CMAKE_CXX_FLAGS} -fsanitize=address"
+    )
     message(STATUS "Building with address sanitizer enabled")
   else()
-    message(SEND_ERROR "Cannot use ASAN without clang or gcc >= 4.8")
+    message(SEND_ERROR "Cannot use ASan without clang or gcc >= 4.8")
+  endif()
+endif()
+
+if (checkpoint_ubsan_enabled)
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR
+     CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR
+     (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
+       AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "4.8"))
+    set(
+      CMAKE_CXX_FLAGS
+      "${CMAKE_CXX_FLAGS} -fsanitize=undefined"
+    )
+    message(STATUS "Building with undefined behavior sanitizer enabled")
+  else()
+    message(SEND_ERROR "Cannot use UBSan without clang or gcc >= 4.8")
   endif()
 endif()
 
