@@ -13,7 +13,7 @@ ctest --output-on-failure | tee cmake-output.log
 
 if test "${CODE_COVERAGE:-0}" -eq 1
 then
-    export CODECOV_TOKEN="33a2f0dd-2962-48fa-807f-1a861e432596"
+    export CODECOV_TOKEN="$CODECOV_TOKEN"
     lcov --capture --directory . --output-file coverage.info
     lcov --remove coverage.info '/usr/*' --output-file coverage.info
     lcov --list coverage.info
