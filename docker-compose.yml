@@ -20,15 +20,16 @@
 #   ULIMIT_CORE=0
 #
 # DARMA/checkpoint Configuration Variables:
-#   CHECKPOINT_TESTS=1               # Enable checkpoint tests
-#   CHECKPOINT_EXAMPLES=1            # Enable checkpoint examples
-#   CHECKPOINT_MPI=1                 # Enable checkpoint MPI tests
-#   CHECKPOINT_WARNINGS_AS_ERRORS=0  # Treat warnings as errors in compilation
-#   CHECKPOINT_ASAN=0                # Enable address sanitizer in build
-#   CHECKPOINT_UBSAN=0               # Enable undefined behavior sanitizer in build
-#   CHECKPOINT_DOCS=0                # Enable doxygen build
-#   BUILD_TYPE=release               # CMake build type
-#   CODE_COVERAGE=0                  # Enable generation of code coverage reports
+#   CHECKPOINT_TESTS=1                        # Enable checkpoint tests
+#   CHECKPOINT_EXAMPLES=1                     # Enable checkpoint examples
+#   CHECKPOINT_MPI=1                          # Enable checkpoint MPI tests
+#   CHECKPOINT_WARNINGS_AS_ERRORS=0           # Treat warnings as errors in compilation
+#   CHECKPOINT_ASAN=0                         # Enable address sanitizer in build
+#   CHECKPOINT_UBSAN=0                        # Enable undefined behavior sanitizer in build
+#   CHECKPOINT_DOCS=0                         # Enable doxygen build
+#   CHECKPOINT_SERIALIZATION_ERROR_CHECKING=0 # Enable extensive serialization error checking
+#   BUILD_TYPE=release                        # CMake build type
+#   CODE_COVERAGE=0                           # Enable generation of code coverage reports
 #
 # In order to run in the container, there are two stages. First, one must build
 # or pull the base container with the variables exported (or using the defaults
@@ -89,6 +90,7 @@ x-checkpointopts: &checkpointopts
   CHECKPOINT_WARNINGS_AS_ERRORS: ${CHECKPOINT_WARNINGS_AS_ERRORS:-0}
   CHECKPOINT_DOXYGEN_ENABLED: ${CHECKPOINT_DOCS:-0}
   CMAKE_BUILD_TYPE: ${BUILD_TYPE:-release}
+  CHECKPOINT_SERIALIZATION_ERROR_CHECKING_ENABLED: ${CHECKPOINT_SERIALIZATION_ERROR_CHECKING:-0}
   CODE_COVERAGE: ${CODE_COVERAGE:-0}
   https_proxy: ${PROXY-}
   http_proxy: ${PROXY-}
