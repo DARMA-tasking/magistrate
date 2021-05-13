@@ -129,6 +129,13 @@ void PackerBuffer<BufferT>::contiguousBytes(
 #endif
   std::memcpy(spot, ptr, len);
   #pragma GCC diagnostic pop
+
+  usedSize_ += len;
+}
+
+template <typename BufferT>
+SerialSizeType PackerBuffer<BufferT>::usedBufferSize() const {
+  return usedSize_;
 }
 
 } /* end namespace checkpoint */

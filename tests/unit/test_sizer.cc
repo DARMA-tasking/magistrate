@@ -65,16 +65,25 @@ struct Test1 {
 TEST_F(TestSizer, test_sizer_1) {
   Test1 t;
   auto const& size = checkpoint::getSize(t);
+
 #if defined(SERIALIZATION_ERROR_CHECKING)
-  // Expected is sizeof(int) +
+  // Expected is
+  // sizeof(int) +
   // sizeof(DecodedIndex) for Test1 +
-  // sizeof(DecodedIndex) for Test1::a
-  EXPECT_EQ(
-    size, sizeof(int) + sizeof(dispatch::typeregistry::DecodedIndex) * 2);
+  // sizeof(DecodedIndex) for Test1::a +
+  // sizeof(SerialSizeType)
+  auto const expectedSize = sizeof(int) +
+    sizeof(dispatch::typeregistry::DecodedIndex) * 2 + sizeof(SerialSizeType);
 #else
-  // Expected is sizeof(int) + sizeof(DecodedIndex) for Test1
-  EXPECT_EQ(size, sizeof(int) + sizeof(dispatch::typeregistry::DecodedIndex));
+  // Expected is
+  // sizeof(int) +
+  // sizeof(DecodedIndex) for Test1 +
+  // sizeof(SerialSizeType)
+  auto const expectedSize = sizeof(int) +
+    sizeof(dispatch::typeregistry::DecodedIndex) + sizeof(SerialSizeType);
 #endif
+
+  EXPECT_EQ(size, expectedSize);
 }
 
 struct Test2 {
@@ -90,18 +99,26 @@ struct Test2 {
 TEST_F(TestSizer, test_sizer_2) {
   Test2 t;
   auto const& size = checkpoint::getSize(t);
+
 #if defined(SERIALIZATION_ERROR_CHECKING)
-  // Expected is sizeof(int)*2 +
+  // Expected is
+  // sizeof(int)*2 +
   // sizeof(DecodedIndex) for Test2 +
   // sizeof(DecodedIndex) for Test2::a +
-  // sizeof(DecodedIndex) for Test2::b
-  EXPECT_EQ(
-    size, sizeof(int) * 2 + sizeof(dispatch::typeregistry::DecodedIndex) * 3);
+  // sizeof(DecodedIndex) for Test2::b +
+  // sizeof(SerialSizeType)
+  auto const expectedSize = sizeof(int) * 2 +
+    sizeof(dispatch::typeregistry::DecodedIndex) * 3 + sizeof(SerialSizeType);
 #else
-  // Expected is sizeof(int)*2 + sizeof(DecodedIndex) for Test2
-  EXPECT_EQ(
-    size, sizeof(int) * 2 + sizeof(dispatch::typeregistry::DecodedIndex));
+  // Expected is
+  // sizeof(int)*2 +
+  // sizeof(DecodedIndex) for Test2 +
+  // sizeof(SerialSizeType)
+  auto const expectedSize = sizeof(int) * 2 +
+    sizeof(dispatch::typeregistry::DecodedIndex) + sizeof(SerialSizeType);
 #endif
+
+  EXPECT_EQ(size, expectedSize);
 }
 
 struct Test3 {
@@ -118,20 +135,27 @@ struct Test3 {
 TEST_F(TestSizer, test_sizer_3) {
   Test3 t;
   auto const& size = checkpoint::getSize(t);
+
 #if defined(SERIALIZATION_ERROR_CHECKING)
   // Expected is
   // sizeof(int)*3 +
   // sizeof(DecodedIndex) for Test3 +
   // sizeof(DecodedIndex) for Test3::a +
   // sizeof(DecodedIndex) for Test3::b +
-  // sizeof(DecodedIndex) for Test3::c
-  EXPECT_EQ(
-    size, sizeof(int) * 3 + sizeof(dispatch::typeregistry::DecodedIndex) * 4);
+  // sizeof(DecodedIndex) for Test3::c +
+  // sizeof(SerialSizeType)
+  auto const expectedSize = sizeof(int) * 3 +
+    sizeof(dispatch::typeregistry::DecodedIndex) * 4 + sizeof(SerialSizeType);
 #else
-  // Expected is sizeof(int)*3 + sizeof(DecodedIndex) for Test3
-  EXPECT_EQ(
-    size, sizeof(int) * 3 + sizeof(dispatch::typeregistry::DecodedIndex));
+  // Expected is
+  // sizeof(int)*3 +
+  // sizeof(DecodedIndex) for Test3 +
+  // sizeof(SerialSizeType)
+  auto const expectedSize = sizeof(int) * 3 +
+    sizeof(dispatch::typeregistry::DecodedIndex) + sizeof(SerialSizeType);
 #endif
+
+  EXPECT_EQ(size, expectedSize);
 }
 
 struct Test4 {
@@ -149,6 +173,7 @@ void serialize(Serializer& s, Test4 t) {
 TEST_F(TestSizer, test_sizer_4) {
   Test4 t;
   auto const& size = checkpoint::getSize(t);
+
 #if defined(SERIALIZATION_ERROR_CHECKING)
   // Expected is
   // sizeof(int)*4 +
@@ -156,14 +181,20 @@ TEST_F(TestSizer, test_sizer_4) {
   // sizeof(DecodedIndex) for Test4::a +
   // sizeof(DecodedIndex) for Test4::b +
   // sizeof(DecodedIndex) for Test4::c +
-  // sizeof(DecodedIndex) for Test4::d
-  EXPECT_EQ(
-    size, sizeof(int) * 4 + sizeof(dispatch::typeregistry::DecodedIndex) * 5);
+  // sizeof(DecodedIndex) for Test4::d +
+  // sizeof(SerialSizeType)
+  auto const expectedSize = sizeof(int) * 4 +
+    sizeof(dispatch::typeregistry::DecodedIndex) * 5 + sizeof(SerialSizeType);
 #else
-  // Expected is sizeof(int)*4 + sizeof(DecodedIndex) for Test4
-  EXPECT_EQ(
-    size, sizeof(int) * 4 + sizeof(dispatch::typeregistry::DecodedIndex));
+  // Expected is
+  // sizeof(int)*4 +
+  // sizeof(DecodedIndex) for Test4 +
+  // sizeof(SerialSizeType)
+  auto const expectedSize = sizeof(int) * 4 +
+    sizeof(dispatch::typeregistry::DecodedIndex) + sizeof(SerialSizeType);
 #endif
+
+  EXPECT_EQ(size, expectedSize);
 }
 
 }}} // end namespace checkpoint::tests::unit

@@ -50,6 +50,7 @@
 #include "checkpoint/dispatch/type_registry.h"
 
 #include <stdexcept>
+#include <string>
 
 namespace checkpoint {
 
@@ -68,6 +69,11 @@ struct serialization_error : public std::runtime_error {
       depth_(depth) { }
 
   int const depth_ = 0;
+};
+
+struct buffer_size_error : public std::runtime_error {
+  explicit buffer_size_error(std::string const& msg)
+    : std::runtime_error(msg) { }
 };
 
 template <typename T, typename TraverserT>
@@ -143,6 +149,29 @@ TraverserT Traverse::with(T& target, Args&&... args) {
   #endif
 
   with(target, t);
+
+  if (t.isSizing()) {
+    SerialSizeType const usedBufferSize = 0;
+    with(usedBufferSize, t);
+  } else if (t.isPacking()) {
+    // sizeof(SerialSizeType) needs to be added because it's not serializing
+    // until next step
+    auto const usedBufferSize = t.usedBufferSize() + sizeof(SerialSizeType);
+    with(usedBufferSize, t);
+  } else if (t.isUnpacking()) {
+    SerialSizeType serBufSize = 0;
+    with(serBufSize, t);
+    auto const deserBufSize = t.usedBufferSize();
+    if (serBufSize != deserBufSize) {
+      using CleanT = typename CleanType<T>::CleanT;
+      std::string msg = "For type '" + typeregistry::getTypeName<CleanT>() +
+        "' serialization used " + std::to_string(serBufSize) +
+        "B, but deserialization used " + std::to_string(deserBufSize) + "B";
+
+      throw buffer_size_error(msg);
+    }
+  }
+
   return t;
 }
 
@@ -192,6 +221,20 @@ inline void serializeArray(Serializer& s, T* array, SerialSizeType const len) {
   }
 }
 
+template <typename TargetT, typename PackerT>
+inline void
+validatePackerBufferSize(PackerT const& p, SerialSizeType bufferSize) {
+  auto const usedBufferSize = p.usedBufferSize();
+  if (usedBufferSize != bufferSize) {
+    using CleanT = typename CleanType<TargetT>::CleanT;
+
+    std::string msg = "For type '" + typeregistry::getTypeName<CleanT>() +
+      "' Sizer reported " + std::to_string(bufferSize) + "B, but Packer used " +
+      std::to_string(usedBufferSize) + "B";
+    throw buffer_size_error(msg);
+  }
+}
+
 template <typename T>
 buffer::ImplReturnType
 packBuffer(T& target, SerialSizeType size, BufferObtainFnType fn) {
@@ -199,11 +242,13 @@ packBuffer(T& target, SerialSizeType size, BufferObtainFnType fn) {
   if (user_buf == nullptr) {
     auto p =
       Standard::pack<T, PackerBuffer<buffer::ManagedBuffer>>(target, size);
+    validatePackerBufferSize<T>(p, size);
     return std::make_tuple(std::move(p.extractPackedBuffer()), size);
   } else {
     auto p = Standard::pack<T, PackerBuffer<buffer::UserBuffer>>(
       target, size, std::make_unique<buffer::UserBuffer>(user_buf, size)
     );
+    validatePackerBufferSize<T>(p, size);
     return std::make_tuple(std::move(p.extractPackedBuffer()), size);
   }
 }

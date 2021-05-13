@@ -95,6 +95,13 @@ void UnpackerBuffer<BufferT>::contiguousBytes(
   SerialSizeType const len = size * num_elms;
   SerialByteType* spot = this->getSpotIncrement(len);
   std::memcpy(ptr, spot, len);
+
+  usedSize_ += len;
+}
+
+template <typename BufferT>
+SerialSizeType UnpackerBuffer<BufferT>::usedBufferSize() const {
+  return usedSize_;
 }
 
 } /* end namespace checkpoint */

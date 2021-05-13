@@ -67,10 +67,14 @@ struct PackerBuffer : MemorySerializer {
 
   void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms);
   BufferTPtrType extractPackedBuffer();
+  SerialSizeType usedBufferSize() const;
 
 private:
   // Size of the buffer we are packing (Sizer should have run already)
   SerialSizeType const size_;
+
+  // Size of the actually used memory (for error checking)
+  SerialSizeType usedSize_ = 0;
 
   // The abstract buffer that may manage the memory in various ways
   BufferTPtrType buffer_ = nullptr;
