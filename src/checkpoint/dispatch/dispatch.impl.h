@@ -154,9 +154,15 @@ TraverserT Traverse::with(T& target, Args&&... args) {
     SerialSizeType const usedBufferSize = 0;
     with(usedBufferSize, t);
   } else if (t.isPacking()) {
-    // sizeof(SerialSizeType) needs to be added because it's not serializing
-    // until next step
-    auto const usedBufferSize = t.usedBufferSize() + sizeof(SerialSizeType);
+    // Size of buffer is serialized in next step, so actual memory usage
+    // needs to be calculated in advance
+    auto const usedBufferSize =
+  #if !defined(SERIALIZATION_ERROR_CHECKING)
+      t.usedBufferSize() + sizeof(SerialSizeType);
+  #else
+      t.usedBufferSize() + sizeof(SerialSizeType) +
+      sizeof(typeregistry::DecodedIndex);
+  #endif
     with(usedBufferSize, t);
   } else if (t.isUnpacking()) {
     SerialSizeType serBufSize = 0;

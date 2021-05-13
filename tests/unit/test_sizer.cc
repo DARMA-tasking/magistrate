@@ -71,9 +71,11 @@ TEST_F(TestSizer, test_sizer_1) {
   // sizeof(int) +
   // sizeof(DecodedIndex) for Test1 +
   // sizeof(DecodedIndex) for Test1::a +
-  // sizeof(SerialSizeType)
+  // sizeof(SerialSizeType) +
+  // sizeof(DecodedIndex) for SerialSizeType
   auto const expectedSize = sizeof(int) +
-    sizeof(dispatch::typeregistry::DecodedIndex) * 2 + sizeof(SerialSizeType);
+    sizeof(dispatch::typeregistry::DecodedIndex) * 2 + sizeof(SerialSizeType) +
+    sizeof(dispatch::typeregistry::DecodedIndex);
 #else
   // Expected is
   // sizeof(int) +
@@ -106,9 +108,11 @@ TEST_F(TestSizer, test_sizer_2) {
   // sizeof(DecodedIndex) for Test2 +
   // sizeof(DecodedIndex) for Test2::a +
   // sizeof(DecodedIndex) for Test2::b +
-  // sizeof(SerialSizeType)
+  // sizeof(SerialSizeType) +
+  // sizeof(DecodedIndex) for SerialSizeType
   auto const expectedSize = sizeof(int) * 2 +
-    sizeof(dispatch::typeregistry::DecodedIndex) * 3 + sizeof(SerialSizeType);
+    sizeof(dispatch::typeregistry::DecodedIndex) * 3 + sizeof(SerialSizeType) +
+    sizeof(dispatch::typeregistry::DecodedIndex);
 #else
   // Expected is
   // sizeof(int)*2 +
@@ -143,9 +147,11 @@ TEST_F(TestSizer, test_sizer_3) {
   // sizeof(DecodedIndex) for Test3::a +
   // sizeof(DecodedIndex) for Test3::b +
   // sizeof(DecodedIndex) for Test3::c +
-  // sizeof(SerialSizeType)
+  // sizeof(SerialSizeType) +
+  // sizeof(DecodedIndex) for SerialSizeType
   auto const expectedSize = sizeof(int) * 3 +
-    sizeof(dispatch::typeregistry::DecodedIndex) * 4 + sizeof(SerialSizeType);
+    sizeof(dispatch::typeregistry::DecodedIndex) * 4 + sizeof(SerialSizeType) +
+    sizeof(dispatch::typeregistry::DecodedIndex);
 #else
   // Expected is
   // sizeof(int)*3 +
@@ -182,9 +188,11 @@ TEST_F(TestSizer, test_sizer_4) {
   // sizeof(DecodedIndex) for Test4::b +
   // sizeof(DecodedIndex) for Test4::c +
   // sizeof(DecodedIndex) for Test4::d +
-  // sizeof(SerialSizeType)
+  // sizeof(SerialSizeType) +
+  // sizeof(DecodedIndex) for SerialSizeType
   auto const expectedSize = sizeof(int) * 4 +
-    sizeof(dispatch::typeregistry::DecodedIndex) * 5 + sizeof(SerialSizeType);
+    sizeof(dispatch::typeregistry::DecodedIndex) * 5 + sizeof(SerialSizeType) +
+    sizeof(dispatch::typeregistry::DecodedIndex);
 #else
   // Expected is
   // sizeof(int)*4 +
