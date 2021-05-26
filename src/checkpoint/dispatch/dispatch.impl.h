@@ -46,6 +46,7 @@
 #define INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_IMPL_H
 
 #include "checkpoint/common.h"
+#include "checkpoint/dispatch/buffer_size_error.h"
 #include "checkpoint/dispatch/dispatch.h"
 #include "checkpoint/dispatch/type_registry.h"
 
@@ -69,11 +70,6 @@ struct serialization_error : public std::runtime_error {
       depth_(depth) { }
 
   int const depth_ = 0;
-};
-
-struct buffer_size_error : public std::runtime_error {
-  explicit buffer_size_error(std::string const& msg)
-    : std::runtime_error(msg) { }
 };
 
 template <typename T, typename TraverserT>

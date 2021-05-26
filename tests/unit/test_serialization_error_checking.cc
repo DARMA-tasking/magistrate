@@ -157,4 +157,69 @@ TEST_F(TestObject, test_serialization_error_checking_polymorphic) {
   );
 }
 
+struct CorrectMemUsage {
+  SerialSizeType a{123};
+  SerialSizeType b{456};
+
+  template <typename Serializer>
+  void serialize(Serializer& s) {
+    s | a | b;
+  }
+};
+
+struct WrongMemUsagePackingTooFew {
+  SerialSizeType a{123};
+  SerialSizeType b{456};
+
+  template <typename Serializer>
+  void serialize(Serializer& s) {
+    if (s.isPacking()) {
+      s | a;
+    } else {
+      s | a | b;
+    }
+  }
+};
+
+struct WrongMemUsageUnpackingTooFew {
+  SerialSizeType a{123};
+  SerialSizeType b{456};
+
+  template <typename Serializer>
+  void serialize(Serializer& s) {
+    if (s.isUnpacking()) {
+      s | a ;
+    } else {
+      s | a | b;
+    }
+  }
+};
+
+TEST_F(TestObject, test_serialization_error_checking_memory_usage) {
+  {
+    struct CorrectMemUsage obj;
+    EXPECT_NO_THROW(checkpoint::serialize<CorrectMemUsage>(obj));
+    auto ret = checkpoint::serialize<CorrectMemUsage>(obj);
+    EXPECT_NO_THROW(checkpoint::deserialize<CorrectMemUsage>(ret->getBuffer()));
+  }
+
+  {
+    struct WrongMemUsagePackingTooFew obj;
+    EXPECT_THROW(
+      checkpoint::serialize<WrongMemUsagePackingTooFew>(obj),
+      checkpoint::dispatch::buffer_size_error
+    );
+  }
+
+  {
+    struct WrongMemUsageUnpackingTooFew obj;
+    EXPECT_NO_THROW(checkpoint::serialize<WrongMemUsageUnpackingTooFew>(obj));
+    auto ret = checkpoint::serialize<WrongMemUsageUnpackingTooFew>(obj);
+    EXPECT_THROW(
+      checkpoint::deserialize<WrongMemUsageUnpackingTooFew>(ret->getBuffer()),
+      checkpoint::dispatch::buffer_size_error
+    );
+  }
+}
+
 }}} // end namespace checkpoint::tests::unit
