@@ -225,6 +225,10 @@ inline void serialize(
 
   DEBUG_PRINT_CHECKPOINT(s, "label=%s: size=%zu\n", label.c_str(), view.size());
 
+  // The implementation of Kokkos DynamicView demands that it be
+  // accessible from HostSpace, so no mirroring and copying is
+  // necessary right now
+#if 0
   auto host_view = Kokkos::create_mirror_view(view);
   if (s.isPacking()) {
     // Create and use an execution space to avoid a global Kokkos::fence()
@@ -232,6 +236,9 @@ inline void serialize(
     Kokkos::deep_copy(exec_space, host_view, view);
     exec_space.fence();
   }
+#else
+  auto host_view = view;
+#endif
 
   // Serialize the Kokkos::DynamicView data manually by traversing with
   // DynamicView::operator()(...).
@@ -251,12 +258,15 @@ inline void serialize(
 #else
     TraverseManual<SerializerT,ViewType,1>::apply(s, host_view);
 #endif
+
+#if 0
     if (s.isUnpacking()) {
       // Create and use an execution space to avoid a global Kokkos::fence()
       auto exec_space = Kokkos::HostSpace::execution_space{};
       Kokkos::deep_copy(exec_space, view, host_view);
       exec_space.fence();
     }
+#endif
 }
 
 template <typename SerializerT, typename T, typename... Args>
