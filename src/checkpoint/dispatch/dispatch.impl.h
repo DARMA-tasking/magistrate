@@ -137,10 +137,10 @@ TraverserT& Traverse::with(T& target, TraverserT& t, SerialSizeType len) {
 
 template <typename T, typename TraverserT, typename... Args>
 TraverserT Traverse::with(T& target, Args&&... args) {
+  using CleanT = typename CleanType<T>::CleanT;
   TraverserT t(std::forward<Args>(args)...);
 
   #if !defined(SERIALIZATION_ERROR_CHECKING)
-  using CleanT = typename CleanType<T>::CleanT;
   withTypeIdx<CleanT>(t);
   #endif
 
@@ -165,7 +165,6 @@ TraverserT Traverse::with(T& target, Args&&... args) {
     with(serBufSize, t);
     auto const deserBufSize = t.usedBufferSize();
     if (serBufSize != deserBufSize) {
-      using CleanT = typename CleanType<T>::CleanT;
       std::string msg = "For type '" + typeregistry::getTypeName<CleanT>() +
         "' serialization used " + std::to_string(serBufSize) +
         "B, but deserialization used " + std::to_string(deserBufSize) + "B";
