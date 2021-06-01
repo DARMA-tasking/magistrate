@@ -61,8 +61,12 @@ struct UnpackerBuffer : MemorySerializer {
   explicit UnpackerBuffer(Args&&... args);
 
   void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms);
+  SerialSizeType usedBufferSize() const;
 
 private:
+  // Size of the actually used memory (for error checking)
+  SerialSizeType usedSize_ = 0;
+
   BufferPtrType buffer_ = nullptr;
 };
 

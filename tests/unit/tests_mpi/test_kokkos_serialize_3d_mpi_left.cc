@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                   packer.h
+//                       test_kokkos_serialize_3d_mpi.cc
 //                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
@@ -42,50 +42,51 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_PACKER_H
-#define INCLUDED_CHECKPOINT_SERIALIZERS_PACKER_H
+#if KOKKOS_ENABLED_CHECKPOINT
 
-#include "checkpoint/common.h"
-#include "checkpoint/serializers/memory_serializer.h"
-#include "checkpoint/buffer/buffer.h"
-#include "checkpoint/buffer/managed_buffer.h"
-#include "checkpoint/buffer/user_buffer.h"
-#include "checkpoint/buffer/io_buffer.h"
+#include "test_kokkos_3d_commons.h"
+#include "tests_mpi/test_commons_mpi.h"
 
-namespace checkpoint {
+template <typename ParamT>
+struct KokkosViewTest3DMPI : KokkosViewTest<ParamT> { };
 
-template <typename BufferT>
-struct PackerBuffer : MemorySerializer {
-  using BufferTPtrType = std::unique_ptr<BufferT>;
-  using PackerReturnType = std::tuple<BufferTPtrType, SerialSizeType>;
+TYPED_TEST_CASE_P(KokkosViewTest3DMPI);
 
-  explicit PackerBuffer(SerialSizeType const& in_size);
-  PackerBuffer(SerialSizeType const& in_size, BufferTPtrType buf_ptr);
+TYPED_TEST_P(KokkosViewTest3DMPI, test_3d_any) {
+  using namespace checkpoint;
 
-  template <typename... Args>
-  explicit PackerBuffer(SerialSizeType const& in_size, Args&&... args);
+  using LayoutType = typename std::tuple_element<1, TypeParam>::type;
+  using DataType = typename std::tuple_element<0, TypeParam>::type;
+  using ViewType = Kokkos::View<DataType, LayoutType>;
+  using NonConstT = typename ViewType::traits::non_const_data_type;
+  using NonConstViewType = Kokkos::View<NonConstT, LayoutType>;
+  using ConstT = typename ViewType::traits::const_data_type;
+  using ConstViewType = Kokkos::View<ConstT, LayoutType>;
 
-  void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms);
-  BufferTPtrType extractPackedBuffer();
-  SerialSizeType usedBufferSize() const;
+  static constexpr size_t const N = 5;
+  static constexpr size_t const M = 17;
+  static constexpr size_t const Q = 7;
 
-private:
-  // Size of the buffer we are packing (Sizer should have run already)
-  SerialSizeType const size_;
+  LayoutType layout = layout3d<LayoutType>(N, M, Q);
+  NonConstViewType in_view("test-3D-some-string", layout);
 
-  // Size of the actually used memory (for error checking)
-  SerialSizeType usedSize_ = 0;
+  init3d(in_view);
 
-  // The abstract buffer that may manage the memory in various ways
-  BufferTPtrType buffer_ = nullptr;
-};
+  if (std::is_same<NonConstViewType, ViewType>::value) {
+    serializeAnyMPI<NonConstViewType>(in_view, &compare3d<NonConstViewType>);
+  } else {
+    ConstViewType const_in_view = in_view;
+    serializeAnyMPI<ConstViewType>(const_in_view, &compare3d<ConstViewType>);
+  }
+}
 
-using Packer = PackerBuffer<buffer::ManagedBuffer>;
-using PackerUserBuf = PackerBuffer<buffer::UserBuffer>;
-using PackerIO = PackerBuffer<buffer::IOBuffer>;
+REGISTER_TYPED_TEST_CASE_P(KokkosViewTest3DMPI, test_3d_any);
 
-} /* end namespace checkpoint */
+#if DO_UNIT_TESTS_FOR_VIEW
 
-#include "checkpoint/serializers/packer.impl.h"
+INSTANTIATE_TYPED_TEST_CASE_P(test_3d_L, KokkosViewTest3DMPI, Test3DTypesLeft, );
+INSTANTIATE_TYPED_TEST_CASE_P(test_3d_L_C, KokkosViewTest3DMPI, Test3DConstTypesLeft, );
 
-#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_PACKER_H*/
+#endif
+
+#endif

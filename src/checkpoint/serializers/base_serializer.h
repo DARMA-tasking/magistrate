@@ -136,6 +136,14 @@ struct Serializer {
    */
   void addBytes(std::size_t s) {}
 
+    /**
+   * \brief Returns size of buffer (in bytes) used during given serialization
+   * step. By default it returns 0.
+   *
+   * \param[in] t an element
+   */
+  SerialSizeType usedBufferSize() { return 0; }
+
   /**
    * \brief Serialize a contiguous set of typed bytes
    *
