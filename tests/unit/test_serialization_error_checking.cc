@@ -195,29 +195,73 @@ struct WrongMemUsageUnpackingTooFew {
   }
 };
 
+struct A {
+  char a{1};
+  double aa{2};
+
+  template <typename Serializer>
+  void serialize(Serializer& s) {
+    if (s.isUnpacking()) {
+      s | a  ;
+    } else {
+      s | a | aa;
+    }
+  }
+};
+
+struct B {
+  SerialSizeType b{3};
+  SerialSizeType bb{4};
+  A a;
+
+  template <typename Serializer>
+  void serialize(Serializer& s) {
+      s | b | bb | a;
+  }
+};
+
+struct WrongMemUsageNestedStructs {
+  B b;
+
+  template <typename Serializer>
+  void serialize(Serializer& s) {
+    s | b;
+  }
+};
+
 TEST_F(TestObject, test_serialization_error_checking_memory_usage) {
   {
-    struct CorrectMemUsage obj;
+    CorrectMemUsage obj;
     EXPECT_NO_THROW(checkpoint::serialize<CorrectMemUsage>(obj));
     auto ret = checkpoint::serialize<CorrectMemUsage>(obj);
     EXPECT_NO_THROW(checkpoint::deserialize<CorrectMemUsage>(ret->getBuffer()));
   }
 
   {
-    struct WrongMemUsagePackingTooFew obj;
+    WrongMemUsagePackingTooFew obj;
     EXPECT_THROW(
       checkpoint::serialize<WrongMemUsagePackingTooFew>(obj),
-      checkpoint::dispatch::buffer_size_error
+      checkpoint::dispatch::serialization_error
     );
   }
 
   {
-    struct WrongMemUsageUnpackingTooFew obj;
+    WrongMemUsageUnpackingTooFew obj;
     EXPECT_NO_THROW(checkpoint::serialize<WrongMemUsageUnpackingTooFew>(obj));
     auto ret = checkpoint::serialize<WrongMemUsageUnpackingTooFew>(obj);
     EXPECT_THROW(
       checkpoint::deserialize<WrongMemUsageUnpackingTooFew>(ret->getBuffer()),
-      checkpoint::dispatch::buffer_size_error
+      checkpoint::dispatch::serialization_error
+    );
+  }
+
+  {
+    WrongMemUsageNestedStructs obj;
+    EXPECT_NO_THROW(checkpoint::serialize<WrongMemUsageNestedStructs>(obj));
+    auto ret = checkpoint::serialize<WrongMemUsageNestedStructs>(obj);
+    EXPECT_THROW(
+      checkpoint::deserialize<WrongMemUsageNestedStructs>(ret->getBuffer()),
+      checkpoint::dispatch::serialization_error
     );
   }
 }

@@ -46,7 +46,6 @@
 #define INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_IMPL_H
 
 #include "checkpoint/common.h"
-#include "checkpoint/dispatch/buffer_size_error.h"
 #include "checkpoint/dispatch/dispatch.h"
 #include "checkpoint/dispatch/type_registry.h"
 
@@ -107,6 +106,35 @@ TraverserT& withTypeIdx(TraverserT& t) {
 }
 
 template <typename T, typename TraverserT>
+TraverserT& withMemUsed(TraverserT& t, SerialSizeType len) {
+  using DispatchType =
+    typename TraverserT::template DispatcherType<TraverserT, SerialSizeType>;
+  SerializerDispatch<TraverserT, SerialSizeType, DispatchType> ap;
+
+  SerialSizeType const memUsed = sizeof(T) * len;
+  constexpr SerialSizeType memUsedLen = 1;
+  if (t.isPacking() || t.isSizing()) {
+    auto val = cleanType(&memUsed);
+    ap(t, val, memUsedLen);
+  } else if (t.isUnpacking()) {
+    SerialSizeType serMemUsed = 0;
+    auto val = cleanType(&serMemUsed);
+    ap(t, val, memUsedLen);
+
+    if (memUsed != serMemUsed) {
+      using CleanT = typename CleanType<T>::CleanT;
+      std::string msg = "For type '" + typeregistry::getTypeName<CleanT>() +
+        "' serialization used " + std::to_string(serMemUsed) +
+        "B, but deserialization used " + std::to_string(memUsed) + "B";
+
+      throw serialization_error(msg);
+    }
+  }
+
+  return t;
+}
+
+template <typename T, typename TraverserT>
 TraverserT& Traverse::with(T& target, TraverserT& t, SerialSizeType len) {
   using CleanT = typename CleanType<T>::CleanT;
   using DispatchType =
@@ -132,12 +160,19 @@ TraverserT& Traverse::with(T& target, TraverserT& t, SerialSizeType len) {
   ap(t, val, len);
   #endif
 
+  #if defined(SERIALIZATION_ERROR_CHECKING)
+  withMemUsed<CleanT>(t, len);
+  #endif
+
   return t;
 }
 
 template <typename T, typename TraverserT, typename... Args>
 TraverserT Traverse::with(T& target, Args&&... args) {
+  #if !defined(SERIALIZATION_ERROR_CHECKING)
   using CleanT = typename CleanType<T>::CleanT;
+  #endif
+
   TraverserT t(std::forward<Args>(args)...);
 
   #if !defined(SERIALIZATION_ERROR_CHECKING)
@@ -146,32 +181,9 @@ TraverserT Traverse::with(T& target, Args&&... args) {
 
   with(target, t);
 
-  if (t.isSizing()) {
-    SerialSizeType const usedBufferSize = 0;
-    with(usedBufferSize, t);
-  } else if (t.isPacking()) {
-    // Size of buffer is serialized in next step, so actual memory usage
-    // needs to be calculated in advance
-    auto const usedBufferSize =
   #if !defined(SERIALIZATION_ERROR_CHECKING)
-      t.usedBufferSize() + sizeof(SerialSizeType);
-  #else
-      t.usedBufferSize() + sizeof(SerialSizeType) +
-      sizeof(typeregistry::DecodedIndex);
+  withMemUsed<CleanT>(t, 1);
   #endif
-    with(usedBufferSize, t);
-  } else if (t.isUnpacking()) {
-    SerialSizeType serBufSize = 0;
-    with(serBufSize, t);
-    auto const deserBufSize = t.usedBufferSize();
-    if (serBufSize != deserBufSize) {
-      std::string msg = "For type '" + typeregistry::getTypeName<CleanT>() +
-        "' serialization used " + std::to_string(serBufSize) +
-        "B, but deserialization used " + std::to_string(deserBufSize) + "B";
-
-      throw buffer_size_error(msg);
-    }
-  }
 
   return t;
 }
@@ -232,7 +244,7 @@ validatePackerBufferSize(PackerT const& p, SerialSizeType bufferSize) {
     std::string msg = "For type '" + typeregistry::getTypeName<CleanT>() +
       "' Sizer reported " + std::to_string(bufferSize) + "B, but Packer used " +
       std::to_string(usedBufferSize) + "B";
-    throw buffer_size_error(msg);
+    throw serialization_error(msg);
   }
 }
 

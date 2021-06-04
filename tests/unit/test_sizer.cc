@@ -64,23 +64,19 @@ struct Test1 {
 
 TEST_F(TestSizer, test_sizer_1) {
   Test1 t;
-  auto const& size = checkpoint::getSize(t);
+  auto const size = checkpoint::getSize(t);
 
 #if defined(SERIALIZATION_ERROR_CHECKING)
   // Expected is
   // sizeof(int) +
-  // sizeof(DecodedIndex) for Test1 +
-  // sizeof(DecodedIndex) for Test1::a +
-  // sizeof(SerialSizeType) +
-  // sizeof(DecodedIndex) for SerialSizeType
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test1 +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test1::a +
   auto const expectedSize = sizeof(int) +
-    sizeof(dispatch::typeregistry::DecodedIndex) * 2 + sizeof(SerialSizeType) +
-    sizeof(dispatch::typeregistry::DecodedIndex);
+    2 * (sizeof(dispatch::typeregistry::DecodedIndex) + sizeof(SerialSizeType));
 #else
   // Expected is
   // sizeof(int) +
-  // sizeof(DecodedIndex) for Test1 +
-  // sizeof(SerialSizeType)
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test1
   auto const expectedSize = sizeof(int) +
     sizeof(dispatch::typeregistry::DecodedIndex) + sizeof(SerialSizeType);
 #endif
@@ -93,32 +89,27 @@ struct Test2 {
 
   template <typename Serializer>
   void serialize(Serializer& s) {
-    s | a;
-    s | b;
+    s | a | b;
   }
 };
 
 TEST_F(TestSizer, test_sizer_2) {
   Test2 t;
-  auto const& size = checkpoint::getSize(t);
+  auto const size = checkpoint::getSize(t);
 
 #if defined(SERIALIZATION_ERROR_CHECKING)
   // Expected is
-  // sizeof(int)*2 +
-  // sizeof(DecodedIndex) for Test2 +
-  // sizeof(DecodedIndex) for Test2::a +
-  // sizeof(DecodedIndex) for Test2::b +
-  // sizeof(SerialSizeType) +
-  // sizeof(DecodedIndex) for SerialSizeType
-  auto const expectedSize = sizeof(int) * 2 +
-    sizeof(dispatch::typeregistry::DecodedIndex) * 3 + sizeof(SerialSizeType) +
-    sizeof(dispatch::typeregistry::DecodedIndex);
+  // 2 * sizeof(int) +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test2 +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test2::a +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test2::b
+  auto const expectedSize = 2 * sizeof(int) +
+    3 * (sizeof(dispatch::typeregistry::DecodedIndex) + sizeof(SerialSizeType));
 #else
   // Expected is
-  // sizeof(int)*2 +
-  // sizeof(DecodedIndex) for Test2 +
-  // sizeof(SerialSizeType)
-  auto const expectedSize = sizeof(int) * 2 +
+  // 2 * sizeof(int) +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test2
+  auto const expectedSize = 2 * sizeof(int) +
     sizeof(dispatch::typeregistry::DecodedIndex) + sizeof(SerialSizeType);
 #endif
 
@@ -130,34 +121,28 @@ struct Test3 {
 
   template <typename Serializer>
   void serialize(Serializer& s) {
-    s | a;
-    s | b;
-    s | c;
+    s | a | b | c;
   }
 };
 
 TEST_F(TestSizer, test_sizer_3) {
   Test3 t;
-  auto const& size = checkpoint::getSize(t);
+  auto const size = checkpoint::getSize(t);
 
 #if defined(SERIALIZATION_ERROR_CHECKING)
   // Expected is
-  // sizeof(int)*3 +
-  // sizeof(DecodedIndex) for Test3 +
-  // sizeof(DecodedIndex) for Test3::a +
-  // sizeof(DecodedIndex) for Test3::b +
-  // sizeof(DecodedIndex) for Test3::c +
-  // sizeof(SerialSizeType) +
-  // sizeof(DecodedIndex) for SerialSizeType
-  auto const expectedSize = sizeof(int) * 3 +
-    sizeof(dispatch::typeregistry::DecodedIndex) * 4 + sizeof(SerialSizeType) +
-    sizeof(dispatch::typeregistry::DecodedIndex);
+  // 3 * sizeof(int) +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test3 +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test3::a +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test3::b +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test3::c +
+  auto const expectedSize = 3 * sizeof(int) +
+    4 * (sizeof(dispatch::typeregistry::DecodedIndex) + sizeof(SerialSizeType));
 #else
   // Expected is
-  // sizeof(int)*3 +
-  // sizeof(DecodedIndex) for Test3 +
-  // sizeof(SerialSizeType)
-  auto const expectedSize = sizeof(int) * 3 +
+  // 3 * sizeof(int) +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test3
+  auto const expectedSize = 3 * sizeof(int) +
     sizeof(dispatch::typeregistry::DecodedIndex) + sizeof(SerialSizeType);
 #endif
 
@@ -170,36 +155,109 @@ struct Test4 {
 
 template <typename Serializer>
 void serialize(Serializer& s, Test4 t) {
-  s | t.a;
-  s | t.b;
-  s | t.c;
-  s | t.d;
+  s | t.a | t.b | t.c | t.d;
 }
 
 TEST_F(TestSizer, test_sizer_4) {
   Test4 t;
-  auto const& size = checkpoint::getSize(t);
+  auto const size = checkpoint::getSize(t);
 
 #if defined(SERIALIZATION_ERROR_CHECKING)
   // Expected is
-  // sizeof(int)*4 +
-  // sizeof(DecodedIndex) for Test4 +
-  // sizeof(DecodedIndex) for Test4::a +
-  // sizeof(DecodedIndex) for Test4::b +
-  // sizeof(DecodedIndex) for Test4::c +
-  // sizeof(DecodedIndex) for Test4::d +
-  // sizeof(SerialSizeType) +
-  // sizeof(DecodedIndex) for SerialSizeType
-  auto const expectedSize = sizeof(int) * 4 +
-    sizeof(dispatch::typeregistry::DecodedIndex) * 5 + sizeof(SerialSizeType) +
-    sizeof(dispatch::typeregistry::DecodedIndex);
+  // 4 * sizeof(int) +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test4 +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test4::a +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test4::b +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test4::c +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test4::d
+  auto const expectedSize = 4 * sizeof(int) +
+    5 * (sizeof(dispatch::typeregistry::DecodedIndex) + sizeof(SerialSizeType));
 #else
   // Expected is
-  // sizeof(int)*4 +
-  // sizeof(DecodedIndex) for Test4 +
-  // sizeof(SerialSizeType)
-  auto const expectedSize = sizeof(int) * 4 +
+  // 4 * sizeof(int) +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test4
+  auto const expectedSize = 4 * sizeof(int) +
     sizeof(dispatch::typeregistry::DecodedIndex) + sizeof(SerialSizeType);
+#endif
+
+  EXPECT_EQ(size, expectedSize);
+}
+
+struct Test5 {
+  int a;
+  std::array<char, 3> b;
+};
+
+template <typename Serializer>
+void serialize(Serializer& s, Test5 t) {
+  s | t.a | t.b;
+}
+
+TEST_F(TestSizer, test_sizer_5) {
+  Test5 t;
+  auto const size = checkpoint::getSize(t);
+
+#if defined(SERIALIZATION_ERROR_CHECKING)
+  // Expected is
+  // sizeof(int) + 3 * sizeof(Test5::b::char) +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test5 +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test5::a +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test5::b +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test5::b::char
+  auto const expectedSize = sizeof(int) + 3 * sizeof(char) +
+    4 * (sizeof(dispatch::typeregistry::DecodedIndex) + sizeof(SerialSizeType));
+#else
+  // Expected is
+  // sizeof(int) + 3 * sizeof(Test5::b::char) +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test5
+  auto const expectedSize = sizeof(int) + 3 * sizeof(char) +
+    sizeof(dispatch::typeregistry::DecodedIndex) + sizeof(SerialSizeType);
+#endif
+
+  EXPECT_EQ(size, expectedSize);
+}
+
+struct Test6 {
+  double a{3.14};
+  std::vector<float> b{1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7};
+};
+
+template <typename Serializer>
+void serialize(Serializer& s, Test6 t) {
+  s | t.a | t.b;
+}
+
+TEST_F(TestSizer, test_sizer_6) {
+  Test6 t;
+  auto const size = checkpoint::getSize(t);
+
+  using VecT = decltype(t.b);
+  using CapacityT = decltype(std::declval<VecT>().capacity());
+  using SizeT = decltype(std::declval<VecT>().size());
+
+#if defined(SERIALIZATION_ERROR_CHECKING)
+  // Expected is
+  // sizeof(double) +
+  // sizeof(Test6::b::capacity()) + sizeof(Test6::b::size()) +
+  // 7 * sizeof(Test6::b::float) +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test6 +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test6::a +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test6::b +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test6::b::capacity() +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test6::b::size() +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test6::b::float
+  auto const expectedSize = sizeof(double) + sizeof(CapacityT) + sizeof(SizeT) +
+    7 * sizeof(float) +
+    6 * (sizeof(dispatch::typeregistry::DecodedIndex) + sizeof(SerialSizeType));
+#else
+  // Expected is
+  // sizeof(double) +
+  // sizeof(Test6::b::capacity()) + sizeof(Test6::b::size()) +
+  // 7 * sizeof(Test5::b::char) +
+  // sizeof(DecodedIndex) + sizeof(SerialSizeType) for Test6
+  auto const expectedSize = sizeof(double) + sizeof(CapacityT) + sizeof(SizeT) +
+    7 * sizeof(float) + sizeof(dispatch::typeregistry::DecodedIndex) +
+    sizeof(SerialSizeType);
 #endif
 
   EXPECT_EQ(size, expectedSize);
