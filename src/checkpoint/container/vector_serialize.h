@@ -97,14 +97,22 @@ void constructVectorDataWithResize(
   );
 }
 
+template <typename T>
+struct Allocated {
+  Allocated() : buf{dispatch::Standard::template allocate<T>()} { }
+  ~Allocated() { std::allocator<T>{}.deallocate(reinterpret_cast<T*>(buf), 1); }
+
+  SerialByteType* buf;
+};
+
 template <typename T, typename VectorAllocator>
 void constructVectorDataReconstruct(
   SerialSizeType const vec_size, std::vector<T, VectorAllocator>& vec,
   typename dispatch::Reconstructor<T>::template isReconstructibleType<T>* = nullptr
 ) {
-  auto buf = dispatch::Standard::template allocate<T>();
+  Allocated<T> const allocated;
   for (SerialSizeType i = 0; i < vec_size; ++i) {
-    auto& t = T::reconstruct(buf);
+    auto& t = T::reconstruct(allocated.buf);
     vec.emplace_back(std::move(t));
   }
 }
@@ -114,10 +122,10 @@ void constructVectorDataReconstruct(
   SerialSizeType const vec_size, std::vector<T, VectorAllocator>& vec,
   typename dispatch::Reconstructor<T>::template isNonIntReconstructibleType<T>* = nullptr
 ) {
-  auto buf = dispatch::Standard::allocate<T>();
+  Allocated<T> const allocated;
   for (SerialSizeType i = 0; i < vec_size; ++i) {
     T* t = nullptr;
-    reconstruct(t, buf);
+    reconstruct(t, allocated.buf);
     vec.emplace_back(std::move(*t));
   }
 }
@@ -135,9 +143,7 @@ void constructVectorData(
   SerialSizeType const vec_size, std::vector<T, VectorAllocator>& vec,
   typename dispatch::Reconstructor<T>::template isTaggedConstructibleType<T>* = nullptr
 ) {
-  for (SerialSizeType i = 0; i < vec_size; ++i) {
-    vec.emplace_back(SERIALIZE_CONSTRUCT_TAG{});
-  }
+  vec.resize(vec_size, T{SERIALIZE_CONSTRUCT_TAG{}});
 }
 
 template <typename T, typename VectorAllocator>
@@ -151,7 +157,11 @@ void constructVectorData(
 template <typename Serializer, typename T, typename VectorAllocator>
 void serialize(Serializer& s, std::vector<T, VectorAllocator>& vec) {
   auto const vec_size = serializeVectorMeta(s, vec);
-  constructVectorData(vec_size, vec);
+
+  if (s.isUnpacking()) {
+    constructVectorData(vec_size, vec);
+  }
+
   dispatch::serializeArray(s, vec.data(), vec.size());
 
   // make sure to account for reserved space when footprinting
@@ -166,7 +176,10 @@ void serialize(Serializer& s, std::vector<bool, VectorAllocator>& vec) {
   }
 
   auto const vec_size = serializeVectorMeta(s, vec);
-  constructVectorData(vec_size, vec);
+
+  if (s.isUnpacking()) {
+    constructVectorData(vec_size, vec);
+  }
 
   if (!s.isUnpacking()) {
     for (bool elt : vec) {
