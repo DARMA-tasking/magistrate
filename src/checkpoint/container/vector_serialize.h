@@ -112,10 +112,8 @@ void constructVectorDataReconstruct(
   typename ReconstructorTraits<T>::template isReconstructibleType<T>* = nullptr
 ) {
   Allocated<T> const allocated;
-  for (SerialSizeType i = 0; i < vec_size; ++i) {
-    auto& t = T::reconstruct(allocated.buf);
-    vec.emplace_back(std::move(t));
-  }
+  auto& t = T::reconstruct(allocated.buf);
+  vec.resize(vec_size, t);
 }
 
 template <typename T, typename VectorAllocator>
@@ -124,11 +122,9 @@ void constructVectorDataReconstruct(
   typename ReconstructorTraits<T>::template isNonIntReconstructibleType<T>* = nullptr
 ) {
   Allocated<T> const allocated;
-  for (SerialSizeType i = 0; i < vec_size; ++i) {
-    T* t = nullptr;
-    reconstruct(t, allocated.buf);
-    vec.emplace_back(std::move(*t));
-  }
+  T* t = nullptr;
+  reconstruct(t, allocated.buf);
+  vec.resize(vec_size, *t);
 }
 
 template <typename T, typename VectorAllocator>
