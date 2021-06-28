@@ -3,7 +3,6 @@
 // *****************************************************************************
 //
 //                            checkpoint_api.impl.h
-//                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
