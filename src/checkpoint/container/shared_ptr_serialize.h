@@ -3,7 +3,6 @@
 // *****************************************************************************
 //
 //                           shared_ptr_serialize.h
-//                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2020 National Technology & Engineering Solutions of Sandia, LLC

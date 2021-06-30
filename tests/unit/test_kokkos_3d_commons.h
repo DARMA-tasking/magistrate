@@ -3,7 +3,6 @@
 // *****************************************************************************
 //
 //                           test_kokkos_3d_commons.h
-//                           DARMA Toolkit v. 1.0.0
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
