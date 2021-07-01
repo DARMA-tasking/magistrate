@@ -45,6 +45,7 @@
 #define INCLUDED_CHECKPOINT_CONTAINER_VECTOR_SERIALIZE_H
 
 #include "checkpoint/common.h"
+#include "checkpoint/dispatch/allocator.h"
 #include "checkpoint/dispatch/dispatch.h"
 #include "checkpoint/dispatch/reconstructor.h"
 #include "checkpoint/serializers/serializers_headers.h"
@@ -77,7 +78,7 @@ serializeVectorMeta(SerializerT& s, std::vector<T, VectorAllocator>& vec) {
 }
 
 template <typename T, typename VectorAllocator>
-void constructVectorDataWithResize(
+void constructVectorData(
   SerialSizeType const vec_size, std::vector<T, VectorAllocator>& vec,
   typename ReconstructorTraits<T>::template isDefaultConsType<T>* = nullptr
 ) {
@@ -85,70 +86,17 @@ void constructVectorDataWithResize(
 }
 
 template <typename T, typename VectorAllocator>
-void constructVectorDataWithResize(
-  SerialSizeType const, std::vector<T, VectorAllocator>& vec,
+void constructVectorData(
+  SerialSizeType const vec_size, std::vector<T, VectorAllocator>& vec,
   typename ReconstructorTraits<T>::template isNotDefaultConsType<T>* = nullptr
 ) {
-  static_assert(
-    SerializableTraits<T, void>::is_tagged_constructible or
-      SerializableTraits<T, void>::is_reconstructible or
-      std::is_default_constructible<T>::value,
-    "Either a default constructor, reconstruct() function, or tagged "
-    "constructor are required for std::vector de-serialization"
-  );
-}
+  using Alloc = dispatch::Allocator<T>;
+  using Reconstructor =
+    dispatch::Reconstructor<typename dispatch::CleanType<T>::CleanT>;
 
-template <typename T>
-struct Allocated {
-  Allocated() : buf{dispatch::Standard::template allocate<T>()} { }
-  ~Allocated() { std::allocator<T>{}.deallocate(reinterpret_cast<T*>(buf), 1); }
-
-  SerialByteType* buf;
-};
-
-template <typename T, typename VectorAllocator>
-void constructVectorDataReconstruct(
-  SerialSizeType const vec_size, std::vector<T, VectorAllocator>& vec,
-  typename ReconstructorTraits<T>::template isReconstructibleType<T>* = nullptr
-) {
-  Allocated<T> const allocated;
-  auto& t = T::reconstruct(allocated.buf);
-  vec.resize(vec_size, t);
-}
-
-template <typename T, typename VectorAllocator>
-void constructVectorDataReconstruct(
-  SerialSizeType const vec_size, std::vector<T, VectorAllocator>& vec,
-  typename ReconstructorTraits<T>::template isNonIntReconstructibleType<T>* = nullptr
-) {
-  Allocated<T> const allocated;
-  T* t = nullptr;
-  reconstruct(t, allocated.buf);
-  vec.resize(vec_size, *t);
-}
-
-template <typename T, typename VectorAllocator>
-void constructVectorDataReconstruct(
-  SerialSizeType const vec_size, std::vector<T, VectorAllocator>& vec,
-  typename ReconstructorTraits<T>::template isNotReconstructibleType<T>* = nullptr
-) {
-  constructVectorDataWithResize(vec_size, vec);
-}
-
-template <typename T, typename VectorAllocator>
-void constructVectorData(
-  SerialSizeType const vec_size, std::vector<T, VectorAllocator>& vec,
-  typename ReconstructorTraits<T>::template isTaggedConstructibleType<T>* = nullptr
-) {
-  vec.resize(vec_size, T{SERIALIZE_CONSTRUCT_TAG{}});
-}
-
-template <typename T, typename VectorAllocator>
-void constructVectorData(
-  SerialSizeType const vec_size, std::vector<T, VectorAllocator>& vec,
-  typename ReconstructorTraits<T>::template isNotTaggedConstructibleType<T>* = nullptr
-) {
-  constructVectorDataReconstruct(vec_size, vec);
+  Alloc allocated;
+  auto* reconstructed = Reconstructor::construct(allocated.buf);
+  vec.resize(vec_size, *reconstructed);
 }
 
 template <typename Serializer, typename T, typename VectorAllocator>
