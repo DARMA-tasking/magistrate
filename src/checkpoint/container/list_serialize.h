@@ -45,6 +45,7 @@
 #define INCLUDED_CHECKPOINT_CONTAINER_LIST_SERIALIZE_H
 
 #include "checkpoint/common.h"
+#include "checkpoint/dispatch/allocator.h"
 #include "checkpoint/serializers/serializers_headers.h"
 #include "checkpoint/container/container_serialize.h"
 
@@ -60,17 +61,15 @@ inline typename std::enable_if_t<
 > deserializeOrderedElems(
   Serializer& s, ContainerT& cont, typename ContainerT::size_type size
 ) {
-  for (typename ContainerT::size_type i = 0; i < size; i++) {
-    #pragma GCC diagnostic push
-#if !defined(__has_warning)
-    #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#elif __has_warning("-Wmaybe-uninitialized")
-    #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
-    ElmT elm;
-    s | elm;
-    cont.push_back(std::move(elm));
-    #pragma GCC diagnostic pop
+  using Alloc = dispatch::Allocator<ElmT>;
+  using Reconstructor =
+    dispatch::Reconstructor<typename dispatch::CleanType<ElmT>::CleanT>;
+
+  Alloc allocated;
+  auto* reconstructed = Reconstructor::construct(allocated.buf);
+  cont.resize(size, *reconstructed);
+  for (auto& val : cont) {
+    s | val;
   }
 }
 
