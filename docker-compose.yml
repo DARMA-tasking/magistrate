@@ -127,25 +127,6 @@ services:
         /checkpoint/ci/build_cpp.sh /checkpoint /build &&
         /checkpoint/ci/test_cpp.sh  /checkpoint /build"
 
-  ubuntu-cpp-vt:
-    image: ${REPO}:${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
-    build:
-      context: .
-      target: base
-      dockerfile: ci/docker/ubuntu-${UBUNTU}-${COMPILER_TYPE}-cpp.dockerfile
-      cache_from:
-        - ${REPO}:${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
-      args: *default-args
-    ulimits: *ulimits
-    environment:
-      <<: *ccache
-      <<: *checkpointopts
-    volumes: *ubuntu-volumes
-    command: &build-against-vt-cpp-command >
-      /bin/bash -c "
-        /checkpoint/ci/build_against_vt.sh /vt /build /checkpoint
-        /vt/ci/test_cpp.sh /vt /build"
-
   ##############################################################################
   # Interactive C++ setup of Checkpoint on ubuntu platform from container
   # baseline.
