@@ -275,8 +275,11 @@ buffer::ImplReturnType serializeType(T& target, BufferObtainFnType fn) {
 template <typename T>
 T* deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
   auto mem = allocBuf ? allocBuf : Standard::allocate<T>();
-  T* t_buf = Standard::construct<T>(mem);
-  return Standard::unpack<T, UnpackerBuffer<buffer::UserBuffer>>(t_buf, data);
+  auto t_buf = std::unique_ptr<T>(Standard::construct<T>(mem));
+  T* traverser =
+    Standard::unpack<T, UnpackerBuffer<buffer::UserBuffer>>(t_buf.get(), data);
+  t_buf.release();
+  return traverser;
 }
 
 template <typename T>
