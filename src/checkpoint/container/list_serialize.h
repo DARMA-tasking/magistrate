@@ -56,10 +56,10 @@ namespace checkpoint {
 
 template <typename Serializer, typename ContainerT, typename ElmT>
 inline typename std::enable_if_t<
-  not std::is_same<Serializer, checkpoint::Footprinter>::value,
-  void
-> deserializeOrderedElems(
-  Serializer& s, ContainerT& cont, typename ContainerT::size_type size
+  not std::is_same<Serializer, checkpoint::Footprinter>::value, void>
+deserializeOrderedElems(
+  Serializer& s, ContainerT& cont, typename ContainerT::size_type size,
+  typename ReconstructorTraits<ElmT>::template isCopyConstructible<ElmT>* = nullptr
 ) {
   using Alloc = dispatch::Allocator<ElmT>;
   using Reconstructor =
@@ -70,6 +70,25 @@ inline typename std::enable_if_t<
   cont.resize(size, *reconstructed);
   for (auto& val : cont) {
     s | val;
+  }
+}
+
+template <typename Serializer, typename ContainerT, typename ElmT>
+inline typename std::enable_if_t<
+  not std::is_same<Serializer, checkpoint::Footprinter>::value, void>
+deserializeOrderedElems(
+  Serializer& s, ContainerT& cont, typename ContainerT::size_type size,
+  typename ReconstructorTraits<ElmT>::template isNotCopyConstructible<ElmT>* = nullptr
+) {
+  using Alloc = dispatch::Allocator<ElmT>;
+  using Reconstructor =
+    dispatch::Reconstructor<typename dispatch::CleanType<ElmT>::CleanT>;
+
+  Alloc allocated;
+  for (typename ContainerT::size_type i = 0; i < size; ++i) {
+    auto* reconstructed = Reconstructor::construct(allocated.buf);
+    s | *reconstructed;
+    cont.emplace_back(std::move(*reconstructed));
   }
 }
 

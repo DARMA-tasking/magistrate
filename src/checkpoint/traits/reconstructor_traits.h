@@ -88,6 +88,14 @@ struct ReconstructorTraits {
   template <typename U>
   using isNotConstructible = typename std::enable_if<
     not SerializableTraits<U, void>::is_constructible, T>::type;
+
+  template <typename U>
+  using isCopyConstructible =
+    typename std::enable_if<std::is_copy_constructible<U>::value, T>::type;
+
+  template <typename U>
+  using isNotCopyConstructible =
+    typename std::enable_if<not std::is_copy_constructible<U>::value, T>::type;
 };
 
 } // namespace checkpoint

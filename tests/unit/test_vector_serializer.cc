@@ -177,4 +177,47 @@ TEST_F(VectorTest, test_vector_tagged_ctor) {
   }
 }
 
+struct NonCopyableReconstruct {
+  static constexpr int val_ctor = 5;
+  static constexpr int val_reconstruct = 105;
+
+  int i;
+
+  NonCopyableReconstruct() = delete;
+  NonCopyableReconstruct(const NonCopyableReconstruct&) = delete;
+  NonCopyableReconstruct& operator=(const NonCopyableReconstruct& other);
+  NonCopyableReconstruct(NonCopyableReconstruct&&) = default;
+  NonCopyableReconstruct& operator=(NonCopyableReconstruct&& other) = default;
+
+  explicit NonCopyableReconstruct(int ii) : i{ii} { }
+
+  static NonCopyableReconstruct& reconstruct(void* buf) {
+    auto b = new (buf) NonCopyableReconstruct{val_reconstruct};
+    return *b;
+  }
+
+  template <typename Serializer>
+  void serialize(Serializer& s) {
+    s | i;
+  }
+};
+
+constexpr int NonCopyableReconstruct::val_ctor;
+constexpr int NonCopyableReconstruct::val_reconstruct;
+
+TEST_F(VectorTest, test_vector_non_copyable_reconstruct) {
+  std::vector<NonCopyableReconstruct> ncrs;
+  ncrs.reserve(3);
+  ncrs.emplace_back(NonCopyableReconstruct::val_ctor);
+  ncrs.emplace_back(NonCopyableReconstruct::val_ctor);
+  ncrs.emplace_back(NonCopyableReconstruct::val_ctor);
+  auto ret = serialize<std::vector<NonCopyableReconstruct>>(ncrs);
+  auto deser =
+    deserialize<std::vector<NonCopyableReconstruct>>(ret->getBuffer());
+
+  for (auto const& tc : *deser) {
+    EXPECT_EQ(tc.i, NonCopyableReconstruct::val_ctor);
+  }
+}
+
 }}}

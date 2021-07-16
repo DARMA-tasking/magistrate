@@ -88,7 +88,8 @@ void constructVectorData(
 template <typename T, typename VectorAllocator>
 void constructVectorData(
   SerialSizeType const vec_size, std::vector<T, VectorAllocator>& vec,
-  typename ReconstructorTraits<T>::template isNotDefaultConsType<T>* = nullptr
+  typename ReconstructorTraits<T>::template isNotDefaultConsType<T>* = nullptr,
+  typename ReconstructorTraits<T>::template isCopyConstructible<T>* = nullptr
 ) {
   using Alloc = dispatch::Allocator<T>;
   using Reconstructor =
@@ -97,6 +98,23 @@ void constructVectorData(
   Alloc allocated;
   auto* reconstructed = Reconstructor::construct(allocated.buf);
   vec.resize(vec_size, *reconstructed);
+}
+
+template <typename T, typename VectorAllocator>
+void constructVectorData(
+  SerialSizeType const vec_size, std::vector<T, VectorAllocator>& vec,
+  typename ReconstructorTraits<T>::template isNotDefaultConsType<T>* = nullptr,
+  typename ReconstructorTraits<T>::template isNotCopyConstructible<T>* = nullptr
+) {
+  using Alloc = dispatch::Allocator<T>;
+  using Reconstructor =
+    dispatch::Reconstructor<typename dispatch::CleanType<T>::CleanT>;
+
+  Alloc allocated;
+  for (SerialSizeType i = 0; i < vec_size; ++i) {
+    auto* reconstructed = Reconstructor::construct(allocated.buf);
+    vec.emplace_back(std::move(*reconstructed));
+  }
 }
 
 template <typename Serializer, typename T, typename VectorAllocator>
