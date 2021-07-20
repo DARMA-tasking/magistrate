@@ -65,6 +65,9 @@ void __asan_on_error() {
 }
 
 int main(int argc, char **argv) {
+  int k = 0x7fffffff;
+  k += argc;
+
   ::testing::InitGoogleTest(&argc, argv);
 #if HAVE_MPI
   ::testing::AddGlobalTestEnvironment(new MPIEnvironment(&argc, argv));
