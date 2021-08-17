@@ -138,25 +138,6 @@ target_include_directories(
   $<INSTALL_INTERFACE:include>
 )
 
-if("${CMAKE_SOURCE_DIR}/src" STREQUAL PROJECT_SOURCE_DIR)
-  message(STATUS "Checkpoint: building as top-level")
-else()
-  message(STATUS "Checkpoint: building as a sub-directory")
-
-  if(CMAKE_VERSION VERSION_LESS "3.13.0")
-    message(
-      WARNING
-      "Checkpoint: Install targets skipped because CMake version ${CMAKE_VERSION}<3.13; "
-      "affects packages built with a Checkpoint install. "
-      "CMake <3.13 does not support exporting targets from subdirectories"
-    )
-  else()
-    install(TARGETS detector EXPORT ${CHECKPOINT_LIBRARY})
-    set(DETECTOR_EXPORT detector)
-  endif()
-
-endif()
-
 install(
   TARGETS                   ${CHECKPOINT_LIBRARY}
   EXPORT                    ${CHECKPOINT_LIBRARY}
@@ -176,7 +157,6 @@ install(
 
 export(
   TARGETS                   ${CHECKPOINT_LIBRARY}
-                            ${DETECTOR_EXPORT}
   FILE                      "checkpointTargets.cmake"
   NAMESPACE                 vt::lib::
 )

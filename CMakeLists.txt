@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.17)
 project(checkpoint VERSION 1.1.0)
 
 include(cmake/turn_on_warnings.cmake)
@@ -139,9 +139,16 @@ if (NOT kokkos_kernels_DISABLE)
   endif()
 endif()
 
+get_directory_property(hasParent PARENT_DIRECTORY)
+
+if(hasParent)
+  message(STATUS "Checkpoint: building as a sub-directory")
+else()
+  message(STATUS "Checkpoint: building as top-level")
+endif()
+
 # If checkpoint build tests require the GTest package
 if (${checkpoint_tests_enabled})
-  get_directory_property(hasParent PARENT_DIRECTORY)
   if(NOT hasParent)
     find_package(GTest REQUIRED)
     set(CHECKPOINT_HAS_GTEST TRUE)
