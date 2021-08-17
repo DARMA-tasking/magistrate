@@ -143,18 +143,8 @@ if("${CMAKE_SOURCE_DIR}/src" STREQUAL PROJECT_SOURCE_DIR)
 else()
   message(STATUS "Checkpoint: building as a sub-directory")
 
-  if(CMAKE_VERSION VERSION_LESS "3.13.0")
-    message(
-      WARNING
-      "Checkpoint: Install targets skipped because CMake version ${CMAKE_VERSION}<3.13; "
-      "affects packages built with a Checkpoint install. "
-      "CMake <3.13 does not support exporting targets from subdirectories"
-    )
-  else()
-    install(TARGETS detector EXPORT ${CHECKPOINT_LIBRARY})
-    set(DETECTOR_EXPORT detector)
-  endif()
-
+  install(TARGETS detector EXPORT ${CHECKPOINT_LIBRARY})
+  set(DETECTOR_EXPORT detector)
 endif()
 
 install(
