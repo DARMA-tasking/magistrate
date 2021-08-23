@@ -12,3 +12,5 @@ if (@CHECKPOINT_HAS_KOKKOS_LIBRARY@)
   set (kokkos_DIR @kokkos_DIR@)
   find_dependency(kokkos REQUIRED HINTS @kokkos_DIR@ NAMES Kokkos)
 endif()
+
+set (CHECKPOINT_INCLUDE_DIRS "@CMAKE_INSTALL_PREFIX@/include")
