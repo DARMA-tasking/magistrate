@@ -56,7 +56,8 @@ namespace checkpoint {
 
 template <typename SerializerT, typename T, typename VectorAllocator>
 typename std::enable_if_t<
-  not std::is_same<SerializerT, checkpoint::Footprinter>::value, SerialSizeType
+  not std::is_same<SerializerT, checkpoint::Footprinter>::value,
+  SerialSizeType
 >
 serializeVectorMeta(SerializerT& s, std::vector<T, VectorAllocator>& vec) {
   SerialSizeType vec_capacity = vec.capacity();
@@ -66,15 +67,6 @@ serializeVectorMeta(SerializerT& s, std::vector<T, VectorAllocator>& vec) {
   SerialSizeType vec_size = vec.size();
   s | vec_size;
   return vec_size;
-}
-
-template <typename SerializerT, typename T, typename VectorAllocator>
-typename std::enable_if_t<
-  std::is_same<SerializerT, checkpoint::Footprinter>::value, SerialSizeType
->
-serializeVectorMeta(SerializerT& s, std::vector<T, VectorAllocator>& vec) {
-  s.countBytes(vec);
-  return vec.size();
 }
 
 template <typename T, typename VectorAllocator>
@@ -117,8 +109,12 @@ void constructVectorData(
   }
 }
 
-template <typename Serializer, typename T, typename VectorAllocator>
-void serialize(Serializer& s, std::vector<T, VectorAllocator>& vec) {
+template <typename SerializerT, typename T, typename VectorAllocator>
+typename std::enable_if_t<
+  not std::is_same<SerializerT, checkpoint::Footprinter>::value,
+  void
+>
+serialize(SerializerT& s, std::vector<T, VectorAllocator>& vec) {
   auto const vec_size = serializeVectorMeta(s, vec);
 
   if (s.isUnpacking()) {
@@ -126,18 +122,14 @@ void serialize(Serializer& s, std::vector<T, VectorAllocator>& vec) {
   }
 
   dispatch::serializeArray(s, vec.data(), vec.size());
-
-  // make sure to account for reserved space when footprinting
-  s.addBytes(sizeof(T) * (vec.capacity() - vec.size()));
 }
 
-template <typename Serializer, typename VectorAllocator>
-void serialize(Serializer& s, std::vector<bool, VectorAllocator>& vec) {
-  if (s.isFootprinting()) {
-    s.countBytes(vec);
-    return;
-  }
-
+template <typename SerializerT, typename VectorAllocator>
+typename std::enable_if_t<
+  not std::is_same<SerializerT, checkpoint::Footprinter>::value,
+  void
+>
+serialize(SerializerT& s, std::vector<bool, VectorAllocator>& vec) {
   auto const vec_size = serializeVectorMeta(s, vec);
 
   if (s.isUnpacking()) {
@@ -155,6 +147,26 @@ void serialize(Serializer& s, std::vector<bool, VectorAllocator>& vec) {
       vec[i] = elt;
     }
   }
+}
+
+template <typename SerializerT, typename T, typename VectorAllocator>
+typename std::enable_if_t<
+  std::is_same<SerializerT, checkpoint::Footprinter>::value,
+  void
+>
+serialize(SerializerT& s, std::vector<T, VectorAllocator>& vec) {
+  s.countBytes(vec);
+  dispatch::serializeArray(s, vec.data(), vec.size());
+  s.addBytes(sizeof(T) * (vec.capacity() - vec.size()));
+}
+
+template <typename SerializerT, typename VectorAllocator>
+typename std::enable_if_t<
+  std::is_same<SerializerT, checkpoint::Footprinter>::value, void
+>
+serialize(SerializerT& s, std::vector<bool, VectorAllocator>& vec) {
+  s.countBytes(vec);
+  return;
 }
 
 } /* end namespace checkpoint */
