@@ -57,10 +57,7 @@ template <typename T>
 struct Reconstructor {
   // Default-construct as lowest priority in reconstruction preference
   template <typename U = T>
-  static T* constructDefault(
-    void* buf,
-    typename ReconstructorTraits<T>::template isDefaultConsType<U>* = nullptr
-  ) {
+  static T* constructDefault(void* buf, isDefaultConsType<U>* = nullptr) {
     debug_checkpoint(
       "DeserializerDispatch: default constructor: buf=%p\n", buf
     );
@@ -70,10 +67,7 @@ struct Reconstructor {
 
   // Fail, no valid option to constructing T
   template <typename U = T>
-  static T* constructDefault(
-    void* buf,
-    typename ReconstructorTraits<T>::template isNotDefaultConsType<U>* = nullptr
-  ) {
+  static T* constructDefault(void* buf, isNotDefaultConsType<U>* = nullptr) {
     static_assert(
       SerializableTraits<U, void>::is_tagged_constructible or
         SerializableTraits<U, void>::is_reconstructible or
@@ -96,10 +90,7 @@ struct Reconstructor {
 
   // Intrusive reconstruct
   template <typename U = T>
-  static T* constructReconstruct(
-    void* buf,
-    typename ReconstructorTraits<T>::template isReconstructibleType<U>* = nullptr
-  ) {
+  static T* constructReconstruct(void* buf, isReconstructibleType<U>* = nullptr) {
     debug_checkpoint("DeserializerDispatch: T::reconstruct(): buf=%p\n", buf);
     auto& t = T::reconstruct(buf);
     return &t;
@@ -107,10 +98,7 @@ struct Reconstructor {
 
   // Non-intrusive reconstruct
   template <typename U = T>
-  static T* constructReconstruct(
-    void* buf,
-    typename ReconstructorTraits<T>::template isNonIntReconstructibleType<U>* = nullptr
-  ) {
+  static T* constructReconstruct(void* buf, isNonIntReconstructibleType<U>* = nullptr) {
     debug_checkpoint(
       "DeserializerDispatch: non-int reconstruct(): buf=%p\n", buf
     );
@@ -122,19 +110,13 @@ struct Reconstructor {
 
   /// Non-reconstruct pass-through
   template <typename U = T>
-  static T* constructReconstruct(
-    void* buf,
-    typename ReconstructorTraits<T>::template isNotReconstructibleType<U>* = nullptr
-  ) {
+  static T* constructReconstruct(void* buf, isNotReconstructibleType<U>* = nullptr) {
     return constructDefault<U>(buf);
   }
 
   /// Tagged constructor
   template <typename U = T>
-  static T* constructTag(
-    void* buf,
-    typename ReconstructorTraits<T>::template isTaggedConstructibleType<U>* = nullptr
-  ) {
+  static T* constructTag(void* buf, isTaggedConstructibleType<U>* = nullptr) {
     debug_checkpoint("DeserializerDispatch: tagged constructor: buf=%p\n", buf);
     T* t_ptr = new (buf) T{SERIALIZE_CONSTRUCT_TAG{}};
     return t_ptr;
@@ -142,10 +124,7 @@ struct Reconstructor {
 
   /// Non-tagged constructor pass-through
   template <typename U = T>
-  static T* constructTag(
-    void* buf,
-    typename ReconstructorTraits<T>::template isNotTaggedConstructibleType<U>* = nullptr
-  ) {
+  static T* constructTag(void* buf, isNotTaggedConstructibleType<U>* = nullptr) {
     return constructReconstruct<U>(buf);
   }
 
@@ -157,18 +136,12 @@ struct Reconstructor {
   /// Overloads that allow failure to reconstruct so SFINAE overloads don't
   /// static assert out
   template <typename U = T>
-  static T* constructAllowFailImpl(
-    void* buf,
-    typename ReconstructorTraits<T>::template isConstructible<U>* = nullptr
-  ) {
+  static T* constructAllowFailImpl(void* buf, isConstructible<U>* = nullptr) {
     return construct<U>(buf);
   }
 
   template <typename U = T>
-  static T* constructAllowFailImpl(
-    void* buf,
-    typename ReconstructorTraits<T>::template isNotConstructible<U>* = nullptr
-  ) {
+  static T* constructAllowFailImpl(void* buf, isNotConstructible<U>* = nullptr) {
     std::unique_ptr<char[]> msg = std::make_unique<char[]>(32768);
     sprintf(
       &msg[0],

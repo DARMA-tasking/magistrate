@@ -52,51 +52,48 @@
 namespace checkpoint {
 
 template <typename T>
-struct ReconstructorTraits {
-  template <typename U>
-  using isDefaultConsType =
-    typename std::enable_if<std::is_default_constructible<U>::value, T>::type;
+using isDefaultConsType =
+  std::enable_if_t<std::is_default_constructible<T>::value>;
 
-  template <typename U>
-  using isNotDefaultConsType = typename std::enable_if<
-    not std::is_default_constructible<U>::value, T>::type;
+template <typename T>
+using isNotDefaultConsType =
+  std::enable_if_t<not std::is_default_constructible<T>::value>;
 
-  template <typename U>
-  using isReconstructibleType = typename std::enable_if<
-    SerializableTraits<U, void>::is_intrusive_reconstructible, T>::type;
+template <typename T>
+using isReconstructibleType =
+  std::enable_if_t<SerializableTraits<T, void>::is_intrusive_reconstructible>;
 
-  template <typename U>
-  using isNonIntReconstructibleType = typename std::enable_if<
-    SerializableTraits<U, void>::is_nonintrusive_reconstructible, T>::type;
+template <typename T>
+using isNonIntReconstructibleType = std::enable_if_t<
+  SerializableTraits<T, void>::is_nonintrusive_reconstructible>;
 
-  template <typename U>
-  using isNotReconstructibleType = typename std::enable_if<
-    not SerializableTraits<U, void>::is_reconstructible, T>::type;
+template <typename T>
+using isNotReconstructibleType =
+  std::enable_if_t<not SerializableTraits<T, void>::is_reconstructible>;
 
-  template <typename U>
-  using isTaggedConstructibleType = typename std::enable_if<
-    SerializableTraits<U, void>::is_tagged_constructible, T>::type;
+template <typename T>
+using isTaggedConstructibleType =
+  std::enable_if_t<SerializableTraits<T, void>::is_tagged_constructible>;
 
-  template <typename U>
-  using isNotTaggedConstructibleType = typename std::enable_if<
-    not SerializableTraits<U, void>::is_tagged_constructible, T>::type;
+template <typename T>
+using isNotTaggedConstructibleType =
+  std::enable_if_t<not SerializableTraits<T, void>::is_tagged_constructible>;
 
-  template <typename U>
-  using isConstructible = typename std::enable_if<
-    SerializableTraits<U, void>::is_constructible, T>::type;
+template <typename T>
+using isConstructible =
+  std::enable_if_t<SerializableTraits<T, void>::is_constructible>;
 
-  template <typename U>
-  using isNotConstructible = typename std::enable_if<
-    not SerializableTraits<U, void>::is_constructible, T>::type;
+template <typename T>
+using isNotConstructible =
+  std::enable_if_t<not SerializableTraits<T, void>::is_constructible>;
 
-  template <typename U>
-  using isCopyConstructible =
-    typename std::enable_if<std::is_copy_constructible<U>::value, T>::type;
+template <typename T>
+using isNotCopyConstructible =
+  std::enable_if_t<not std::is_copy_constructible<T>::value>;
 
-  template <typename U>
-  using isNotCopyConstructible =
-    typename std::enable_if<not std::is_copy_constructible<U>::value, T>::type;
-};
+template <typename T>
+using isCopyConstructible =
+  std::enable_if_t<std::is_copy_constructible<T>::value>;
 
 } // namespace checkpoint
 

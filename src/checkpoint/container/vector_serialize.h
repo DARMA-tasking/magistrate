@@ -56,8 +56,7 @@ namespace checkpoint {
 
 template <typename SerializerT, typename T, typename VectorAllocator>
 typename std::enable_if_t<
-  not std::is_same<SerializerT, checkpoint::Footprinter>::value,
-  SerialSizeType
+  not std::is_same<SerializerT, checkpoint::Footprinter>::value, SerialSizeType
 >
 serializeVectorMeta(SerializerT& s, std::vector<T, VectorAllocator>& vec) {
   SerialSizeType vec_capacity = vec.capacity();
@@ -72,7 +71,7 @@ serializeVectorMeta(SerializerT& s, std::vector<T, VectorAllocator>& vec) {
 template <typename T, typename VectorAllocator>
 void constructVectorData(
   SerialSizeType const vec_size, std::vector<T, VectorAllocator>& vec,
-  typename ReconstructorTraits<T>::template isDefaultConsType<T>* = nullptr
+  isDefaultConsType<T>* = nullptr
 ) {
   vec.resize(vec_size);
 }
@@ -80,8 +79,7 @@ void constructVectorData(
 template <typename T, typename VectorAllocator>
 void constructVectorData(
   SerialSizeType const vec_size, std::vector<T, VectorAllocator>& vec,
-  typename ReconstructorTraits<T>::template isNotDefaultConsType<T>* = nullptr,
-  typename ReconstructorTraits<T>::template isCopyConstructible<T>* = nullptr
+  isNotDefaultConsType<T>* = nullptr, isCopyConstructible<T>* = nullptr
 ) {
   using Alloc = dispatch::Allocator<T>;
   using Reconstructor =
@@ -95,8 +93,7 @@ void constructVectorData(
 template <typename T, typename VectorAllocator>
 void constructVectorData(
   SerialSizeType const vec_size, std::vector<T, VectorAllocator>& vec,
-  typename ReconstructorTraits<T>::template isNotDefaultConsType<T>* = nullptr,
-  typename ReconstructorTraits<T>::template isNotCopyConstructible<T>* = nullptr
+  isNotDefaultConsType<T>* = nullptr, isNotCopyConstructible<T>* = nullptr
 ) {
   using Alloc = dispatch::Allocator<T>;
   using Reconstructor =
@@ -111,8 +108,7 @@ void constructVectorData(
 
 template <typename SerializerT, typename T, typename VectorAllocator>
 typename std::enable_if_t<
-  not std::is_same<SerializerT, checkpoint::Footprinter>::value,
-  void
+  not std::is_same<SerializerT, checkpoint::Footprinter>::value, void
 >
 serialize(SerializerT& s, std::vector<T, VectorAllocator>& vec) {
   auto const vec_size = serializeVectorMeta(s, vec);
@@ -126,8 +122,7 @@ serialize(SerializerT& s, std::vector<T, VectorAllocator>& vec) {
 
 template <typename SerializerT, typename VectorAllocator>
 typename std::enable_if_t<
-  not std::is_same<SerializerT, checkpoint::Footprinter>::value,
-  void
+  not std::is_same<SerializerT, checkpoint::Footprinter>::value, void
 >
 serialize(SerializerT& s, std::vector<bool, VectorAllocator>& vec) {
   auto const vec_size = serializeVectorMeta(s, vec);
@@ -151,8 +146,7 @@ serialize(SerializerT& s, std::vector<bool, VectorAllocator>& vec) {
 
 template <typename SerializerT, typename T, typename VectorAllocator>
 typename std::enable_if_t<
-  std::is_same<SerializerT, checkpoint::Footprinter>::value,
-  void
+  std::is_same<SerializerT, checkpoint::Footprinter>::value, void
 >
 serialize(SerializerT& s, std::vector<T, VectorAllocator>& vec) {
   s.countBytes(vec);

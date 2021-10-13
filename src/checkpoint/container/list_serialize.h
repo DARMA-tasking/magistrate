@@ -56,10 +56,11 @@ namespace checkpoint {
 
 template <typename Serializer, typename ContainerT, typename ElmT>
 inline typename std::enable_if_t<
-  not std::is_same<Serializer, checkpoint::Footprinter>::value, void>
+  not std::is_same<Serializer, checkpoint::Footprinter>::value, void
+>
 deserializeOrderedElems(
   Serializer& s, ContainerT& cont, typename ContainerT::size_type size,
-  typename ReconstructorTraits<ElmT>::template isCopyConstructible<ElmT>* = nullptr
+  isCopyConstructible<ElmT>* = nullptr
 ) {
   using Alloc = dispatch::Allocator<ElmT>;
   using Reconstructor =
@@ -75,10 +76,11 @@ deserializeOrderedElems(
 
 template <typename Serializer, typename ContainerT, typename ElmT>
 inline typename std::enable_if_t<
-  not std::is_same<Serializer, checkpoint::Footprinter>::value, void>
+  not std::is_same<Serializer, checkpoint::Footprinter>::value, void
+>
 deserializeOrderedElems(
   Serializer& s, ContainerT& cont, typename ContainerT::size_type size,
-  typename ReconstructorTraits<ElmT>::template isNotCopyConstructible<ElmT>* = nullptr
+  isNotCopyConstructible<ElmT>* = nullptr
 ) {
   using Alloc = dispatch::Allocator<ElmT>;
   using Reconstructor =
@@ -94,9 +96,9 @@ deserializeOrderedElems(
 
 template <typename Serializer, typename ContainerT, typename ElmT>
 inline typename std::enable_if_t<
-  std::is_same<Serializer, checkpoint::Footprinter>::value,
-  void
-> deserializeOrderedElems(
+  std::is_same<Serializer, checkpoint::Footprinter>::value, void
+>
+deserializeOrderedElems(
   Serializer& s, ContainerT& cont, typename ContainerT::size_type size
 ) { }
 
