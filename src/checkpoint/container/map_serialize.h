@@ -45,6 +45,7 @@
 #define INCLUDED_CHECKPOINT_CONTAINER_MAP_SERIALIZE_H
 
 #include "checkpoint/common.h"
+#include "checkpoint/dispatch/allocator.h"
 #include "checkpoint/serializers/serializers_headers.h"
 #include "checkpoint/container/container_serialize.h"
 
@@ -62,17 +63,15 @@ inline typename std::enable_if_t<
 > deserializeEmplaceElems(
   Serializer& s, ContainerT& cont, typename ContainerT::size_type size
 ) {
+  using Alloc = dispatch::Allocator<ElmT>;
+  using Reconstructor =
+    dispatch::Reconstructor<typename dispatch::CleanType<ElmT>::CleanT>;
+
+  Alloc allocated;
   for (typename ContainerT::size_type i = 0; i < size; i++) {
-    #pragma GCC diagnostic push
-#if !defined(__has_warning)
-    #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#elif __has_warning("-Wmaybe-uninitialized")
-    #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
-    ElmT elm;
-    s | elm;
-    cont.emplace(std::move(elm));
-    #pragma GCC diagnostic pop
+    auto* reconstructed = Reconstructor::construct(allocated.buf);
+    s | *reconstructed;
+    cont.emplace(std::move(*reconstructed));
   }
 }
 

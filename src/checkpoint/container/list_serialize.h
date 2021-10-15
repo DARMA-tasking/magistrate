@@ -45,6 +45,7 @@
 #define INCLUDED_CHECKPOINT_CONTAINER_LIST_SERIALIZE_H
 
 #include "checkpoint/common.h"
+#include "checkpoint/dispatch/allocator.h"
 #include "checkpoint/serializers/serializers_headers.h"
 #include "checkpoint/container/container_serialize.h"
 
@@ -55,30 +56,49 @@ namespace checkpoint {
 
 template <typename Serializer, typename ContainerT, typename ElmT>
 inline typename std::enable_if_t<
-  not std::is_same<Serializer, checkpoint::Footprinter>::value,
-  void
-> deserializeOrderedElems(
-  Serializer& s, ContainerT& cont, typename ContainerT::size_type size
+  not std::is_same<Serializer, checkpoint::Footprinter>::value, void
+>
+deserializeOrderedElems(
+  Serializer& s, ContainerT& cont, typename ContainerT::size_type size,
+  isCopyConstructible<ElmT>* = nullptr
 ) {
-  for (typename ContainerT::size_type i = 0; i < size; i++) {
-    #pragma GCC diagnostic push
-#if !defined(__has_warning)
-    #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#elif __has_warning("-Wmaybe-uninitialized")
-    #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
-    ElmT elm;
-    s | elm;
-    cont.push_back(std::move(elm));
-    #pragma GCC diagnostic pop
+  using Alloc = dispatch::Allocator<ElmT>;
+  using Reconstructor =
+    dispatch::Reconstructor<typename dispatch::CleanType<ElmT>::CleanT>;
+
+  Alloc allocated;
+  auto* reconstructed = Reconstructor::construct(allocated.buf);
+  cont.resize(size, *reconstructed);
+  for (auto& val : cont) {
+    s | val;
   }
 }
 
 template <typename Serializer, typename ContainerT, typename ElmT>
 inline typename std::enable_if_t<
-  std::is_same<Serializer, checkpoint::Footprinter>::value,
-  void
-> deserializeOrderedElems(
+  not std::is_same<Serializer, checkpoint::Footprinter>::value, void
+>
+deserializeOrderedElems(
+  Serializer& s, ContainerT& cont, typename ContainerT::size_type size,
+  isNotCopyConstructible<ElmT>* = nullptr
+) {
+  using Alloc = dispatch::Allocator<ElmT>;
+  using Reconstructor =
+    dispatch::Reconstructor<typename dispatch::CleanType<ElmT>::CleanT>;
+
+  Alloc allocated;
+  for (typename ContainerT::size_type i = 0; i < size; ++i) {
+    auto* reconstructed = Reconstructor::construct(allocated.buf);
+    s | *reconstructed;
+    cont.emplace_back(std::move(*reconstructed));
+  }
+}
+
+template <typename Serializer, typename ContainerT, typename ElmT>
+inline typename std::enable_if_t<
+  std::is_same<Serializer, checkpoint::Footprinter>::value, void
+>
+deserializeOrderedElems(
   Serializer& s, ContainerT& cont, typename ContainerT::size_type size
 ) { }
 
