@@ -93,6 +93,18 @@
 
 namespace checkpoint {
 
+namespace {
+
+template <typename T, typename U>
+void deepCopyWithLocalFence(T& dst, U& src) {
+  // Create and use an execution space to avoid a global Kokkos::fence()
+  auto exec_space = Kokkos::HostSpace::execution_space{};
+  Kokkos::deep_copy(exec_space, dst, src);
+  exec_space.fence();
+}
+
+}
+
 /*
  * Serialization factory re-constructors for views taking a parameter pack for
  * the constructor.
@@ -228,10 +240,7 @@ inline void serialize(
 #if 0
   auto host_view = Kokkos::create_mirror_view(Kokkos::WithoutInitializing, view);
   if (s.isPacking()) {
-    // Create and use an execution space to avoid a global Kokkos::fence()
-    auto exec_space = Kokkos::HostSpace::execution_space{};
-    Kokkos::deep_copy(exec_space, host_view, view);
-    exec_space.fence();
+    deepCopyWithLocalFence(host_view, view);
   }
 #else
   auto host_view = view;
@@ -258,10 +267,7 @@ inline void serialize(
 
 #if 0
     if (s.isUnpacking()) {
-      // Create and use an execution space to avoid a global Kokkos::fence()
-      auto exec_space = Kokkos::HostSpace::execution_space{};
-      Kokkos::deep_copy(exec_space, view, host_view);
-      exec_space.fence();
+      deepCopyWithLocalFence(view, host_view);
     }
 #endif
 }
@@ -347,10 +353,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
   if (init) {
     auto host_view = Kokkos::create_mirror_view(Kokkos::WithoutInitializing, view);
     if (s.isPacking()) {
-      // Create and use an execution space to avoid a global Kokkos::fence()
-      auto exec_space = Kokkos::HostSpace::execution_space{};
-      Kokkos::deep_copy(exec_space, host_view, view);
-      exec_space.fence();
+      deepCopyWithLocalFence(host_view, view);
     }
 
     // Serialize the actual data owned by the Kokkos::View
@@ -382,10 +385,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
     }
 
     if (s.isUnpacking()) {
-      // Create and use an execution space to avoid a global Kokkos::fence()
-      auto exec_space = Kokkos::HostSpace::execution_space{};
-      Kokkos::deep_copy(exec_space, view, host_view);
-      exec_space.fence();
+      deepCopyWithLocalFence(view, host_view);
     }
   }
 }
@@ -484,10 +484,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
   if (init) {
     auto host_view = Kokkos::create_mirror_view(Kokkos::WithoutInitializing, view);
     if (s.isPacking()) {
-      // Create and use an execution space to avoid a global Kokkos::fence()
-      auto exec_space = Kokkos::HostSpace::execution_space{};
-      Kokkos::deep_copy(exec_space, host_view, view);
-      exec_space.fence();
+      deepCopyWithLocalFence(host_view, view);
     }
 
     // Serialize the actual data owned by the Kokkos::View
@@ -513,10 +510,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
     }
 
     if (s.isUnpacking()) {
-      // Create and use an execution space to avoid a global Kokkos::fence()
-      auto exec_space = Kokkos::HostSpace::execution_space{};
-      Kokkos::deep_copy(exec_space, view, host_view);
-      exec_space.fence();
+      deepCopyWithLocalFence(view, host_view);
     }
   }
 }
@@ -527,7 +521,7 @@ inline void serialize_const(SerializerT& s, Kokkos::View<T,Args...>& view) {
   using T_non_const = typename ViewType::traits::non_const_data_type;
   Kokkos::View<T_non_const,Args...> tmp_non_const(view.label(), view.layout());
   if (s.isPacking() || s.isSizing()) {
-    Kokkos::deep_copy(tmp_non_const, view);
+    deepCopyWithLocalFence(tmp_non_const, view);
   }
   serialize_impl(s, tmp_non_const);
   if (s.isUnpacking()) {
@@ -690,7 +684,7 @@ void serializeContentsOnly(SerializerT& s, Kokkos::View<T, Ts...>& v) {
   Kokkos::View<T, Ts...> values = v;
   s | values;
   if (s.isUnpacking())
-    Kokkos::deep_copy(v, values);
+    deepCopyWithLocalFence(v, values);
 }
 
 #if KOKKOS_KERNELS_ENABLED
