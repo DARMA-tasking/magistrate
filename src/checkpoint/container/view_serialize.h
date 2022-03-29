@@ -228,7 +228,7 @@ inline void serialize(
   // accessible from HostSpace, so no mirroring and copying is
   // necessary right now
 #if 0
-  auto host_view = Kokkos::create_mirror_view(view);
+  auto host_view = Kokkos::create_mirror_view(Kokkos::WithoutInitializing, view);
   if (s.isPacking()) {
     // Create and use an execution space to avoid a global Kokkos::fence()
     auto exec_space = Kokkos::HostSpace::execution_space{};
@@ -347,7 +347,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
   s | init;
 
   if (init) {
-    auto host_view = Kokkos::create_mirror_view(view);
+    auto host_view = Kokkos::create_mirror_view(Kokkos::WithoutInitializing, view);
     if (s.isPacking()) {
       // Create and use an execution space to avoid a global Kokkos::fence()
       auto exec_space = Kokkos::HostSpace::execution_space{};
@@ -484,7 +484,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
   s | init;
 
   if (init) {
-    auto host_view = Kokkos::create_mirror_view(view);
+    auto host_view = Kokkos::create_mirror_view(Kokkos::WithoutInitializing, view);
     if (s.isPacking()) {
       // Create and use an execution space to avoid a global Kokkos::fence()
       auto exec_space = Kokkos::HostSpace::execution_space{};
