@@ -224,9 +224,7 @@ inline void serialize(
 
   DEBUG_PRINT_CHECKPOINT(s, "label=%s: size=%zu\n", label.c_str(), view.size());
 
-  // The implementation of Kokkos DynamicView demands that it be
-  // accessible from HostSpace, so no mirroring and copying is
-  // necessary right now
+  // Kokkos::deep_copy between DynamicView instances is not yet implemented
 #if 0
   auto host_view = Kokkos::create_mirror_view(Kokkos::WithoutInitializing, view);
   if (s.isPacking()) {
