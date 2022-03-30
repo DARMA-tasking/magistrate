@@ -16,9 +16,9 @@ openmp=$3
 echo "${kokkos_version}"
 echo "${kokkos_zip_name}"
 
-wget "http://github.com/kokkos/kokkos/archive/${kokkos_zip_name}"
+wget -O kokkos.zip "http://github.com/kokkos/kokkos/archive/${kokkos_zip_name}"
 
-unzip "${kokkos_zip_name}"
+unzip kokkos.zip
 
 mkdir -p "${build_dir}"
 pushd "${build_dir}"

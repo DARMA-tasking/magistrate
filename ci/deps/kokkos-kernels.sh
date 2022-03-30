@@ -16,9 +16,9 @@ build_dir=$2
 echo "${kokkos_version}"
 echo "${kokkos_zip_name}"
 
-wget "http://github.com/kokkos/kokkos-kernels/archive/${kokkos_zip_name}"
+wget -O kokkos-kernels.zip "http://github.com/kokkos/kokkos-kernels/archive/${kokkos_zip_name}"
 
-unzip "${kokkos_zip_name}"
+unzip kokkos-kernels.zip
 
 mkdir -p "${build_dir}"
 pushd "${build_dir}"
