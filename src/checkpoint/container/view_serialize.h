@@ -352,6 +352,8 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
 
   if (init) {
     auto host_view = Kokkos::create_mirror_view(Kokkos::WithoutInitializing, view);
+    using HostViewType = decltype(host_view);
+
     if (s.isPacking()) {
       deepCopyWithLocalFence(host_view, view);
     }
@@ -362,19 +364,19 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
       dispatch::serializeArray(s, host_view.data(), num_elms);
     } else {
       if (dims == 1) {
-        TraverseManual<SerializerT,ViewType,1>::apply(s,host_view);
+        TraverseManual<SerializerT,HostViewType,1>::apply(s,host_view);
       } else if (dims == 2) {
-        TraverseManual<SerializerT,ViewType,2>::apply(s,host_view);
+        TraverseManual<SerializerT,HostViewType,2>::apply(s,host_view);
       } else if (dims == 3) {
-        TraverseManual<SerializerT,ViewType,3>::apply(s,host_view);
+        TraverseManual<SerializerT,HostViewType,3>::apply(s,host_view);
       } else if (dims == 4) {
-        TraverseManual<SerializerT,ViewType,4>::apply(s,host_view);
+        TraverseManual<SerializerT,HostViewType,4>::apply(s,host_view);
       } else if (dims == 5) {
-        TraverseManual<SerializerT,ViewType,5>::apply(s,host_view);
+        TraverseManual<SerializerT,HostViewType,5>::apply(s,host_view);
       } else if (dims == 6) {
-        TraverseManual<SerializerT,ViewType,6>::apply(s,host_view);
+        TraverseManual<SerializerT,HostViewType,6>::apply(s,host_view);
       } else if (dims == 7) {
-        TraverseManual<SerializerT,ViewType,7>::apply(s,host_view);
+        TraverseManual<SerializerT,HostViewType,7>::apply(s,host_view);
       } else {
         checkpointAssert(
           false,
@@ -482,7 +484,9 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
   s | init;
 
   if (init) {
-    auto host_view = Kokkos::create_mirror_view(Kokkos::WithoutInitializing, view);
+    auto host_view = Kokkos::create_mirror_view(view);
+    using HostViewType = decltype(host_view);
+
     if (s.isPacking()) {
       deepCopyWithLocalFence(host_view, view);
     }
@@ -503,9 +507,9 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
         s | elm;
       };
 
-      TraverseRecursive<ViewType,T,dims,decltype(fn)>::apply(host_view,fn);
+      TraverseRecursive<HostViewType,T,dims,decltype(fn)>::apply(host_view,fn);
 #else
-      TraverseManual<SerializerT,ViewType,rank_val>::apply(s,host_view);
+      TraverseManual<SerializerT,HostViewType,rank_val>::apply(s,host_view);
 #endif
     }
 
