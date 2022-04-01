@@ -51,14 +51,16 @@ jobs:
         key: ${{ runner.os }}-${{ env.cache-name }}-${{ steps.cache_ts.outputs.timestamp }}
         restore-keys: |
           ${{ runner.os }}-${{ env.cache-name }}-
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
-        name: DARMA-tasking/vt
+        repository: DARMA-tasking/vt
         ref: develop
-    - uses: actions/checkout@v2
-    - name: Docker Pull Base Image
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Prepare the base Docker image
       shell: bash
-      run: docker-compose pull --ignore-pull-failures ubuntu-cpp-vt
+      run: $(./scripts/check_containers.sh) ubuntu-cpp-vt
     - name: Build the Docker image
       run: docker-compose run ubuntu-cpp-vt
       env:
