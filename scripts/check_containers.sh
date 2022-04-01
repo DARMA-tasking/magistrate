@@ -1,11 +1,21 @@
 #!/usr/bin/env bash
-# Check if there were any dockerfiles modified in the latest pull request.
+# Decide whether we should pull or build the Docker images in CI.
+# This is consistent with GitHub (actions/checkout@v3).
 
 diff_latest() {
-  git diff --name-only origin/develop...HEAD
+  printf "Files modified in the latest pull request:\n" >&2
+  local base_ref
+  if [[ $(git branch --show-current) == "develop" ]]
+  then
+    base_ref=$(git log --skip=1 -1 --merges --pretty=format:%H)
+  else
+    base_ref="origin/develop"
+  fi
+  git diff --name-only "$base_ref"...HEAD
 }
 
-# Copy the diff output to stderr to list the modified files
+# Check if there were any dockerfiles modified in the latest pull request.
+# Print the modified files list to stderr as well.
 if diff_latest | tee >(cat >&2) | grep -i dockerfile > /dev/null
 then
     echo "docker-compose build --pull"
