@@ -56,6 +56,8 @@ jobs:
         repository: DARMA-tasking/vt
         ref: develop
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
     - name: Prepare the base Docker image
       shell: bash
       run: $(./scripts/check_containers.sh) ubuntu-cpp-vt
