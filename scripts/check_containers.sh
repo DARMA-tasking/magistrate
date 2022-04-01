@@ -16,7 +16,7 @@ diff_latest() {
 
 # Check if there were any dockerfiles modified in the latest pull request.
 # Print the modified files list to stderr as well.
-if diff_latest | tee >(cat >&2) | grep -i dockerfile > /dev/null
+if diff_latest | tee >(cat >&2) | grep -i -q dockerfile
 then
     echo "docker-compose build --pull"
 else
