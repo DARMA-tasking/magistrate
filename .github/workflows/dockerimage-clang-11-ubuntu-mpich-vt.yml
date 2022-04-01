@@ -56,9 +56,9 @@ jobs:
         name: DARMA-tasking/vt
         ref: develop
     - uses: actions/checkout@v2
-    - name: Docker Pull Base Image
+    - name: Prepare the base Docker image
       shell: bash
-      run: docker-compose build --pull ubuntu-cpp-vt
+      run: $(./scripts/check_containers.sh) ubuntu-cpp-vt
     - name: Build the Docker image
       run: docker-compose run ubuntu-cpp-vt
       env:
