@@ -53,7 +53,7 @@ jobs:
           ${{ runner.os }}-${{ env.cache-name }}-
     - uses: actions/checkout@v3
       with:
-        name: DARMA-tasking/vt
+        repository: DARMA-tasking/vt
         ref: develop
     - uses: actions/checkout@v3
     - name: Prepare the base Docker image
