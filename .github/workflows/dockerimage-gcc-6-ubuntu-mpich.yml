@@ -55,7 +55,7 @@ jobs:
         key: ${{ runner.os }}-${{ env.cache-name }}-${{ steps.cache_ts.outputs.timestamp }}
         restore-keys: |
           ${{ runner.os }}-${{ env.cache-name }}-
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Docker Pull Base Image
       shell: bash
       run: docker-compose pull --ignore-pull-failures ubuntu-cpp

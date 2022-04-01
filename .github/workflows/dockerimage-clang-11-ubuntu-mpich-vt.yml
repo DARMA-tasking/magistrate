@@ -51,11 +51,11 @@ jobs:
         key: ${{ runner.os }}-${{ env.cache-name }}-${{ steps.cache_ts.outputs.timestamp }}
         restore-keys: |
           ${{ runner.os }}-${{ env.cache-name }}-
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         name: DARMA-tasking/vt
         ref: develop
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Prepare the base Docker image
       shell: bash
       run: $(./scripts/check_containers.sh) ubuntu-cpp-vt
