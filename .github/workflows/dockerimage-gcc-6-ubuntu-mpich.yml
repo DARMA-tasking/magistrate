@@ -56,9 +56,11 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-${{ env.cache-name }}-
     - uses: actions/checkout@v3
-    - name: Docker Pull Base Image
+      with:
+        fetch-depth: 0
+    - name: Prepare the base Docker image
       shell: bash
-      run: docker-compose pull --ignore-pull-failures ubuntu-cpp
+      run: $(./scripts/check_containers.sh) ubuntu-cpp
     - name: Build the Docker image
       run: docker-compose run ubuntu-cpp
       env:
