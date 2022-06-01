@@ -136,7 +136,7 @@ TEST_F(KokkosViewContentsTest, test_device_view_contents) {
   auto out_view = checkpoint::deserialize<LogicalViewType>(ret->getBuffer());
   auto const& out_view_ref = *out_view;
 
-  EXPECT_EQ(out_view_ref.extent(0), 1);
+  EXPECT_EQ(out_view_ref.extent(0), std::size_t(1));
 
   auto mirror = create_mirror_view(out_view_ref);
   Kokkos::deep_copy(mirror, out_view_ref);
