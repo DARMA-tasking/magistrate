@@ -1,6 +1,5 @@
 # *checkpoint* => serialization and checkpointing library
 
-[![clang-3.9 ubuntu mpich](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-3.9-ubuntu-mpich.yml/badge.svg)](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-3.9-ubuntu-mpich.yml)
 [![clang-5 ubuntu mpich](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-5.0-ubuntu-mpich.yml/badge.svg)](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-5.0-ubuntu-mpich.yml)
 [![clang-7 ubuntu mpich](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-6.0-ubuntu-mpich.yml/badge.svg)](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-6.0-ubuntu-mpich.yml)
 [![clang-9 ubuntu mpich](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-7-ubuntu-mpich.yml/badge.svg)](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-7-ubuntu-mpich.yml)
