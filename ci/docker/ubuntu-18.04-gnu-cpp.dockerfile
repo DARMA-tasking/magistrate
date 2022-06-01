@@ -4,7 +4,7 @@ ARG distro=18.04
 FROM ${arch}/ubuntu:${distro} as base
 
 ARG proxy=""
-ARG compiler=gcc-7
+ARG compiler=gcc-8
 
 ENV https_proxy=${proxy} \
     http_proxy=${proxy}
