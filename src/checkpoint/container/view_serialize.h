@@ -58,6 +58,12 @@
 #include <Kokkos_Serial.hpp>
 #include <Kokkos_DynRankView.hpp>
 
+#if KOKKOS_VERSION > 30699L
+#define CHECKPOINT_KOKKOS_WITHOUTINIT Kokkos::WithoutInitializing,
+#else
+#define CHECKPOINT_KOKKOS_WITHOUTINIT
+#endif
+
 #if KOKKOS_KERNELS_ENABLED
 #include <Kokkos_StaticCrsGraph.hpp>
 #include <KokkosSparse_CrsMatrix.hpp>
@@ -238,7 +244,7 @@ inline void serialize(
 
   // Kokkos::deep_copy between DynamicView instances is not yet implemented
 #if 0
-  auto host_view = Kokkos::create_mirror_view(Kokkos::WithoutInitializing, view);
+  auto host_view = Kokkos::create_mirror_view(CHECKPOINT_KOKKOS_WITHOUTINIT view);
   if (s.isPacking()) {
     deepCopyWithLocalFence(host_view, view);
   }
@@ -351,7 +357,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
   s | init;
 
   if (init) {
-    auto host_view = Kokkos::create_mirror_view(Kokkos::WithoutInitializing, view);
+    auto host_view = Kokkos::create_mirror_view(CHECKPOINT_KOKKOS_WITHOUTINIT view);
     using HostViewType = decltype(host_view);
 
     if (s.isPacking()) {
