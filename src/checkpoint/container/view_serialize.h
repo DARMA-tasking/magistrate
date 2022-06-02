@@ -534,11 +534,9 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
 template <typename SerializerT, typename T, typename... Args>
 inline void serialize_const(SerializerT& s, Kokkos::View<T,Args...>& view) {
   using ViewType = Kokkos::View<T,Args...>;
-  using T_non_const = typename ViewType::traits::non_const_data_type;
-  Kokkos::View<T_non_const,Args...> tmp_non_const(view.label(), view.layout());
-  if (s.isPacking()) {
-    deepCopyWithLocalFence(tmp_non_const, view);
-  }
+  using V_non_const = typename ViewType::non_const_type;
+  using T_non_const = typename ViewType::traits::non_const_value_type;
+  V_non_const tmp_non_const(const_cast<T_non_const*>(view.data()), view.layout());
   serialize_impl(s, tmp_non_const);
   if (s.isUnpacking()) {
     view = tmp_non_const;
