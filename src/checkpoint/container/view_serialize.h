@@ -530,7 +530,7 @@ inline void serialize_const(SerializerT& s, Kokkos::View<T,Args...>& view) {
   using ViewType = Kokkos::View<T,Args...>;
   using T_non_const = typename ViewType::traits::non_const_data_type;
   Kokkos::View<T_non_const,Args...> tmp_non_const(view.label(), view.layout());
-  if (s.isPacking() || s.isSizing()) {
+  if (s.isPacking()) {
     deepCopyWithLocalFence(tmp_non_const, view);
   }
   serialize_impl(s, tmp_non_const);
