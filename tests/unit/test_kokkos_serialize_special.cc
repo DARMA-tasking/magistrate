@@ -116,6 +116,58 @@ TEST_F(KokkosViewContentsTest, test_view_contents_2d_layout) {
   EXPECT_EQ(40, alias(1,1));
 }
 
+struct TestSpaceNamer {
+  static constexpr const char* get_name() { return "TestSpace"; }
+};
+
+using fake_memory_space = Kokkos::Experimental::LogicalMemorySpace<
+    Kokkos::HostSpace, Kokkos::DefaultHostExecutionSpace, TestSpaceNamer,
+    Kokkos::Experimental::LogicalSpaceSharesAccess::no_shared_access>;
+
+TEST_F(KokkosViewContentsTest, test_logical_device_view_contents) {
+  // Create an inaccessible View
+  using LogicalViewType = Kokkos::View<int*, fake_memory_space>;
+  auto lv = LogicalViewType("lv", 1);
+
+  // Initialize a value
+  Kokkos::deep_copy(lv, 3);
+
+  auto ret = checkpoint::serialize<LogicalViewType>(lv);
+  auto out_view = checkpoint::deserialize<LogicalViewType>(ret->getBuffer());
+  auto const& out_view_ref = *out_view;
+
+  EXPECT_EQ(out_view_ref.extent(0), std::size_t(1));
+
+  auto mirror = create_mirror_view(out_view_ref);
+  Kokkos::deep_copy(mirror, out_view_ref);
+
+  EXPECT_EQ(mirror(0), 3);
+}
+
+#if defined(KOKKOS_ENABLE_CUDA)
+
+TEST_F(KokkosViewContentsTest, test_cuda_device_view_contents) {
+  // Create an inaccessible View
+  using LogicalViewType = Kokkos::View<int*, Kokkos::CudaSpace>;
+  auto lv = LogicalViewType("lv", 1);
+
+  // Initialize a value
+  Kokkos::deep_copy(lv, 3);
+
+  auto ret = checkpoint::serialize<LogicalViewType>(lv);
+  auto out_view = checkpoint::deserialize<LogicalViewType>(ret->getBuffer());
+  auto const& out_view_ref = *out_view;
+
+  EXPECT_EQ(out_view_ref.extent(0), std::size_t(1));
+
+  auto mirror = create_mirror_view(out_view_ref);
+  Kokkos::deep_copy(mirror, out_view_ref);
+
+  EXPECT_EQ(mirror(0), 3);
+}
+
+#endif
+
 struct KokkosViewExtentTest : virtual testing::Test { };
 
 
