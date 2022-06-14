@@ -44,11 +44,15 @@
 
 #include "test_commons.h"
 #include "test_harness.h"
+#include "test_kokkos_0d_commons.h"
 #include "test_kokkos_1d_commons.h"
 #include "test_kokkos_2d_commons.h"
 #include "test_kokkos_3d_commons.h"
 
 #include <Kokkos_DynRankView.hpp>
+
+template <typename ParamT>
+struct KokkosDynRankViewTestEmpty : KokkosViewTest<ParamT> { };
 
 template <typename ParamT>
 struct KokkosDynRankViewTest1D : KokkosViewTest<ParamT> { };
@@ -59,9 +63,21 @@ struct KokkosDynRankViewTest2D : KokkosViewTest<ParamT> { };
 template <typename ParamT>
 struct KokkosDynRankViewTest3D : KokkosViewTest<ParamT> { };
 
+TYPED_TEST_CASE_P(KokkosDynRankViewTestEmpty);
 TYPED_TEST_CASE_P(KokkosDynRankViewTest1D);
 TYPED_TEST_CASE_P(KokkosDynRankViewTest2D);
 TYPED_TEST_CASE_P(KokkosDynRankViewTest3D);
+
+TYPED_TEST_P(KokkosDynRankViewTestEmpty, test_empty_any) {
+  using namespace checkpoint;
+
+  using DataType = TypeParam;
+  using ViewType = Kokkos::DynRankView<DataType>;
+
+  ViewType in_view{};
+  auto out_view = serializeAny<ViewType>(in_view);
+  EXPECT_EQ(out_view->rank(), unsigned(0));
+}
 
 TYPED_TEST_P(KokkosDynRankViewTest1D, test_1d_any) {
   using namespace checkpoint;
@@ -111,12 +127,14 @@ TYPED_TEST_P(KokkosDynRankViewTest3D, test_3d_any) {
   EXPECT_EQ(out_view->rank(), unsigned(3));
 }
 
+REGISTER_TYPED_TEST_CASE_P(KokkosDynRankViewTestEmpty, test_empty_any);
 REGISTER_TYPED_TEST_CASE_P(KokkosDynRankViewTest1D, test_1d_any);
 REGISTER_TYPED_TEST_CASE_P(KokkosDynRankViewTest2D, test_2d_any);
 REGISTER_TYPED_TEST_CASE_P(KokkosDynRankViewTest3D, test_3d_any);
 
 #if DO_UNIT_TESTS_FOR_VIEW
 
+INSTANTIATE_TYPED_TEST_CASE_P(test_dynrank_empty , KokkosDynRankViewTestEmpty, DynRankViewTestTypes, );
 INSTANTIATE_TYPED_TEST_CASE_P(test_dynrank_1, KokkosDynRankViewTest1D, DynRankViewTestTypes, );
 INSTANTIATE_TYPED_TEST_CASE_P(test_dynrank_2, KokkosDynRankViewTest2D, DynRankViewTestTypes, );
 INSTANTIATE_TYPED_TEST_CASE_P(test_dynrank_3, KokkosDynRankViewTest3D, DynRankViewTestTypes, );
