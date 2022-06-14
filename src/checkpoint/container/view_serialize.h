@@ -315,7 +315,9 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
 
   // Construct a view with the layout and use operator= to propagate out
   if (s.isUnpacking()) {
-    if (dims == 1) {
+    if (dims == 0) {
+      view = ViewType{};
+    } else if (dims == 1) {
       view = constructRankedView<ViewType,1>(label, std::make_tuple(layout));
     } else if (dims == 2) {
       view = constructRankedView<ViewType,2>(label, std::make_tuple(layout));
@@ -335,6 +337,10 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
         "Serializing Kokkos::DynRankView is only supported up to 7 dimensions"
       );
     }
+  }
+
+  if (dims == 0) {
+    return;
   }
 
   // Serialize the total number of elements in the Kokkos::View
