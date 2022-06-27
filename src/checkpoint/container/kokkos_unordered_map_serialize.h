@@ -42,30 +42,35 @@
 */
 
 #if !defined INCLUDED_CHECKPOINT_CONTAINER_KOKKOS_UNORDERED_MAP_SERIALIZE_H
-  #define INCLUDED_CHECKPOINT_CONTAINER_KOKKOS_UNORDERED_MAP_SERIALIZE_H
+#define INCLUDED_CHECKPOINT_CONTAINER_KOKKOS_UNORDERED_MAP_SERIALIZE_H
 
-  #include "checkpoint/common.h"
-  #include "checkpoint/serializers/serializers_headers.h"
-  #include "checkpoint/dispatch/allocator.h"
-  #include "checkpoint/dispatch/dispatch.h"
-  #include "checkpoint/dispatch/reconstructor.h"
+#include "checkpoint/common.h"
+#include "checkpoint/serializers/serializers_headers.h"
+#include "checkpoint/dispatch/allocator.h"
+#include "checkpoint/dispatch/dispatch.h"
+#include "checkpoint/dispatch/reconstructor.h"
 
-  #if KOKKOS_ENABLED_CHECKPOINT
+#if KOKKOS_ENABLED_CHECKPOINT
 
-    #include <Kokkos_UnorderedMap.hpp>
+#include <Kokkos_UnorderedMap.hpp>
 
 namespace checkpoint {
 
 template <
   typename Serializer, typename Key, typename Value, typename Device,
-  typename Hasher, typename EqualTo>
+  typename Hasher, typename EqualTo
+>
 void serializeKokkosUnorderedMapElems(
   Serializer& s,
-  Kokkos::UnorderedMap<Key, Value, Device, Hasher, EqualTo>& map) {
-  for (auto i = 0; i < map.capacity(); i++) {
-    auto keyAtI = map.key_at(i);
+  Kokkos::UnorderedMap<Key, Value, Device, Hasher, EqualTo>& map
+) {
+  using mapSizeType =
+    typename Kokkos::UnorderedMap<Key, Value, Device, Hasher, EqualTo>::size_type;
+
+  for (mapSizeType i = 0; i < map.capacity(); i++) {
+    Key keyAtI = map.key_at(i);
     if (map.exists(keyAtI)) {
-      auto val = map.value_at(map.find(keyAtI));
+      Value val = map.value_at(map.find(keyAtI));
 
       s | keyAtI;
       s | val;
@@ -75,11 +80,13 @@ void serializeKokkosUnorderedMapElems(
 
 template <
   typename Serializer, typename Key, typename Value, typename Device,
-  typename Hasher, typename EqualTo>
+  typename Hasher, typename EqualTo
+>
 void deserializeInsertElems(
   Serializer& s, Kokkos::UnorderedMap<Key, Value, Device, Hasher, EqualTo>& map,
   typename Kokkos::UnorderedMap<Key, Value, Device, Hasher, EqualTo>::size_type
-    map_size) {
+    map_size
+) {
   using KeyAlloc = dispatch::Allocator<Key>;
   using ValueAlloc = dispatch::Allocator<Value>;
   using KeyReconstructor =
@@ -96,21 +103,22 @@ void deserializeInsertElems(
     s | *key;
     s | *val;
 
-    auto insertResult = map.insert(std::move(*key), std::move(*val));
-    KOKKOS_ASSERT(insertResult.success());
+    map.insert(std::move(*key), std::move(*val));
   }
 }
 
 template <
   typename SerializerT, typename Key, typename Value, typename Device,
-  typename Hasher, typename EqualTo>
+  typename Hasher, typename EqualTo
+>
 void serialize(
   SerializerT& s,
-  Kokkos::UnorderedMap<Key, Value, Device, Hasher, EqualTo>& map) {
-  using UnorderMapType =
+  Kokkos::UnorderedMap<Key, Value, Device, Hasher, EqualTo>& map
+) {
+  using UnorderedMapType =
     Kokkos::UnorderedMap<Key, Value, Device, Hasher, EqualTo>;
 
-  typename UnorderMapType::size_type size = serializeContainerSize(s, map);
+  typename UnorderedMapType::size_type size = serializeContainerSize(s, map);
 
   if (s.isUnpacking()) {
     deserializeInsertElems(s, map, size);
@@ -121,6 +129,6 @@ void serialize(
 
 } // namespace checkpoint
 
-  #endif /*KOKKOS_ENABLED_CHECKPOINT*/
+#endif /*KOKKOS_ENABLED_CHECKPOINT*/
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_KOKKOS_UNORDERED_MAP_SERIALIZE_H*/
