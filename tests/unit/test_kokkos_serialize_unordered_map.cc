@@ -74,22 +74,22 @@ static void test_kokkos_unordered_map(
   for (typename UnorderedMapType::size_type i = 0; i < refMap.capacity(); i++) {
     Key refKey = refMap.key_at(i);
     if (refMap.exists(refKey)) {
+      ASSERT_TRUE(outMap.exists(refKey));
+
       Value refVal = refMap.value_at(refMap.find(refKey));
-
-      Key key = outMap.key_at(i);
-      Value val = outMap.value_at(outMap.find(key));
-
-      ASSERT_EQ(refKey, key);
+      Value val = outMap.value_at(outMap.find(refKey));
       ASSERT_EQ(refVal, val);
     }
   }
 }
 
 TEST_F(KokkosUnorderedMapTest, test_kokkos_unordered_map) {
-  auto mapIntInt = Kokkos::UnorderedMap<int, int>(2);
-  mapIntInt.insert(1, 10);
-  mapIntInt.insert(2, 20);
-  test_kokkos_unordered_map(mapIntInt);
+  int bigSize = 1000;
+  auto mapIntIntBig = Kokkos::UnorderedMap<int, int>(bigSize);
+  for(int i = 0; i < bigSize; i++) {
+    mapIntIntBig.insert(i + bigSize, i * bigSize);
+  }
+  test_kokkos_unordered_map(mapIntIntBig);
 
   auto mapIntDouble = Kokkos::UnorderedMap<int, double>(2);
   mapIntDouble.insert(3, 123.34);

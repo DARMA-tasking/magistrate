@@ -62,6 +62,16 @@ serializeContainerSize(Serializer& s, ContainerT& cont) {
 }
 
 template <typename Serializer, typename ContainerT>
+inline typename ContainerT::size_type
+serializeContainerCapacity(Serializer& s, ContainerT& cont) {
+  typename ContainerT::size_type cont_capacity = cont.capacity();
+  if (!s.isFootprinting()) {
+    s | cont_capacity;
+  }
+  return cont_capacity;
+}
+
+template <typename Serializer, typename ContainerT>
 inline void serializeContainerElems(Serializer& s, ContainerT& cont) {
   for (auto&& elm : cont) {
     s | elm;

@@ -119,8 +119,10 @@ void serialize(
     Kokkos::UnorderedMap<Key, Value, Device, Hasher, EqualTo>;
 
   typename UnorderedMapType::size_type size = serializeContainerSize(s, map);
+  typename UnorderedMapType::size_type capacity = serializeContainerCapacity(s, map);
 
   if (s.isUnpacking()) {
+    map.rehash(capacity);
     deserializeInsertElems(s, map, size);
   } else {
     serializeKokkosUnorderedMapElems(s, map);
