@@ -44,7 +44,6 @@
 #if KOKKOS_ENABLED_CHECKPOINT
 
 #include "test_commons.h"
-#include "checkpoint/container/kokkos_unordered_map_serialize.h"
 
 namespace checkpoint { namespace tests { namespace unit {
 

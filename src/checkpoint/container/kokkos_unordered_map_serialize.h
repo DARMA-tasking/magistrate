@@ -85,7 +85,9 @@ template <
 void deserializeInsertElems(
   Serializer& s, Kokkos::UnorderedMap<Key, Value, Device, Hasher, EqualTo>& map,
   typename Kokkos::UnorderedMap<Key, Value, Device, Hasher, EqualTo>::size_type
-    map_size
+    map_size,
+  typename Kokkos::UnorderedMap<Key, Value, Device, Hasher, EqualTo>::size_type
+    map_capacity
 ) {
   using KeyAlloc = dispatch::Allocator<Key>;
   using ValueAlloc = dispatch::Allocator<Value>;
@@ -93,6 +95,9 @@ void deserializeInsertElems(
     dispatch::Reconstructor<typename dispatch::CleanType<Key>::CleanT>;
   using ValReconstructor =
     dispatch::Reconstructor<typename dispatch::CleanType<Value>::CleanT>;
+
+  // resize unordered map
+  map.rehash(map_capacity);
 
   KeyAlloc keyAllocated;
   ValueAlloc valAllocated;
@@ -111,7 +116,9 @@ template <
   typename SerializerT, typename Key, typename Value, typename Device,
   typename Hasher, typename EqualTo
 >
-void serialize(
+typename std::enable_if_t<
+  not std::is_same<SerializerT, checkpoint::Footprinter>::value, void
+> serialize(
   SerializerT& s,
   Kokkos::UnorderedMap<Key, Value, Device, Hasher, EqualTo>& map
 ) {
@@ -122,11 +129,27 @@ void serialize(
   typename UnorderedMapType::size_type capacity = serializeContainerCapacity(s, map);
 
   if (s.isUnpacking()) {
-    map.rehash(capacity);
-    deserializeInsertElems(s, map, size);
+    deserializeInsertElems(s, map, size, capacity);
   } else {
     serializeKokkosUnorderedMapElems(s, map);
   }
+}
+
+template <
+  typename SerializerT, typename Key, typename Value, typename Device,
+  typename Hasher, typename EqualTo
+>
+typename std::enable_if_t<
+  std::is_same<SerializerT, checkpoint::Footprinter>::value, void
+> serialize(
+  SerializerT& s,
+  Kokkos::UnorderedMap<Key, Value, Device, Hasher, EqualTo>& map
+) {
+  using UnorderedMapType =
+    Kokkos::UnorderedMap<Key, Value, Device, Hasher, EqualTo>;
+
+  typename UnorderedMapType::size_type size = serializeContainerSize(s, map);
+  s.addBytes(size * (sizeof(Key) + sizeof(Value)));
 }
 
 } // namespace checkpoint

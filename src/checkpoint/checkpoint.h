@@ -65,6 +65,8 @@
 #include "checkpoint/container/unique_ptr_serialize.h"
 #include "checkpoint/container/view_serialize.h"
 
+#include <checkpoint/container/kokkos_unordered_map_serialize.h>
+
 #include "checkpoint/checkpoint_api.h"
 #include "checkpoint/checkpoint_api.impl.h"
 
