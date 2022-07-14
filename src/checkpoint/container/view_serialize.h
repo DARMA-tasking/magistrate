@@ -53,9 +53,7 @@
 #if KOKKOS_ENABLED_CHECKPOINT
 
 #include <Kokkos_Core.hpp>
-#include <Kokkos_View.hpp>
 #include <Kokkos_DynamicView.hpp>
-#include <Kokkos_Serial.hpp>
 #include <Kokkos_DynRankView.hpp>
 
 #if KOKKOS_VERSION > 30699L
