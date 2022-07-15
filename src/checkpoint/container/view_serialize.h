@@ -316,10 +316,10 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
   // Serialize the total number of elements in the Kokkos::View
   size_t num_elms = view.size();
   s | num_elms;
-
+  bool is_uninitialized = dims == 0 and num_elms == 0;
   // Construct a view with the layout and use operator= to propagate out
   if (s.isUnpacking()) {
-    if (dims == 0 and num_elms == 0) {
+    if (is_uninitialized) {
       view = ViewType{};
     } else if (dims == 0) {
       view = constructRankedView<ViewType,0>(label, std::make_tuple(layout));
@@ -345,7 +345,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
     }
   }
 
-  if (dims == 0 and num_elms == 0) {
+  if (is_uninitialized) {
     return;
   }
 
