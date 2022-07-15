@@ -81,6 +81,7 @@ TYPED_TEST_P(KokkosDynRankViewTestEmpty, test_empty_any) {
   ViewType in_view{};
   auto out_view = serializeAny<ViewType>(in_view);
   EXPECT_EQ(out_view->rank(), unsigned(0));
+  EXPECT_EQ(out_view->size(), unsigned(0));
 }
 
 TYPED_TEST_P(KokkosDynRankViewTest0D, test_0d_any) {
