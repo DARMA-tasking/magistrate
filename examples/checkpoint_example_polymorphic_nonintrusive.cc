@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                  checkpoint_example_polymorphic_macro.cc
+//               checkpoint_example_polymorphic_nonintrusive.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -41,47 +41,33 @@
 //@HEADER
 */
 
-/// [Serialize polymorphic macro]
+/// [Non-Intrusive Serialize polymorphic]
 
 #include <checkpoint/checkpoint.h>
 #include "checkpoint/dispatch/dispatch_virtual.h"
 
 namespace checkpoint { namespace examples {
 
-// \struct Abstract base class
-struct MyBase {
-
+struct MyBase : checkpoint::SerializableBase<MyBase> {
   MyBase() { printf("MyBase cons\n"); }
   explicit MyBase(SERIALIZE_CONSTRUCT_TAG) { printf("MyBase recons\n"); }
 
   virtual ~MyBase() = default;
 
-  // Add serializing macro
-  checkpoint_virtual_serialize_root()
-
   int val_ = 0;
-
-  template <typename S>
-  void serialize(S& s) {
-    s | val_;
-    printf("MyBase: serialize val %d\n", val_);
-  }
 
   virtual void test() = 0;
 };
 
-struct MyObj : public MyBase {
+template <typename S>
+void serialize(S& s, MyBase& obj) {
+  s | obj.val_;
+  printf("MyBase: serialize val %d\n", obj.val_);
+}
 
-  explicit MyObj(int val) : MyBase() { printf("MyObj cons\n"); val_ = val;}
-  explicit MyObj(SERIALIZE_CONSTRUCT_TAG) {}
-
-  // Add macro for serialization
-  checkpoint_virtual_serialize_derived_from(MyBase)
-
-  template <typename SerializerT>
-  void serialize(SerializerT& s) {
-    printf("MyObj: serialize\n");
-  }
+struct MyObj : checkpoint::SerializableDerived<MyObj, MyBase> {
+  explicit MyObj(int val) { printf("MyObj cons\n"); val_ = val;}
+  explicit MyObj(SERIALIZE_CONSTRUCT_TAG){}
 
   void test() override {
     printf("test MyObj 10 == %d ?\n", val_);
@@ -89,38 +75,31 @@ struct MyObj : public MyBase {
   }
 };
 
-struct MyObj2 : public MyBase {
+template <typename SerializerT>
+void serialize(SerializerT& s, MyObj& obj) {
+  printf("MyObj: serialize\n");
+}
+
+struct MyObj2 : checkpoint::SerializableDerived<MyObj2, MyBase> {
   explicit MyObj2(int val) { printf("MyObj2 cons\n"); val_=val; }
   explicit MyObj2(SERIALIZE_CONSTRUCT_TAG) {}
 
-  // Add macro for serialization
-  checkpoint_virtual_serialize_derived_from(MyBase)
-
-  template <typename SerializerT>
-  void serialize(SerializerT& s) {
-    printf("MyObj2: serialize\n");
-  }
   void test() override {
     printf("test MyObj2 20 == %d ?\n", val_);
     assert(val_ == 20);
   }
 };
 
-struct MyObj3 : public MyBase {
+template <typename SerializerT>
+void serialize(SerializerT& s, MyObj2& obj) {
+  printf("MyObj2: serialize\n");
+}
 
+struct MyObj3 : checkpoint::SerializableDerived<MyObj3, MyBase> {
   int a=0, b=0, c=0;
-
   explicit MyObj3(int val) { printf("MyObj3 cons\n"); a= 10; b=20; c=100; val_=val;}
   explicit MyObj3(SERIALIZE_CONSTRUCT_TAG) {}
 
-  // Add macro for serialization
-  checkpoint_virtual_serialize_derived_from(MyBase)
-
-  template <typename SerializerT>
-  void serialize(SerializerT& s) {
-    s|a|b|c;
-    printf("MyObj3: serialize a b c %d %d %d\n", a, b, c);
-  }
   void test() override {
     printf("val_ 30  a 10 b 20 c 100 = %d %d %d %d\n", val_, a, b, c);
     assert(val_ == 30);
@@ -130,19 +109,26 @@ struct MyObj3 : public MyBase {
   }
 };
 
+template <typename SerializerT>
+void serialize(SerializerT& s, MyObj3& obj) {
+  s | obj.a;
+  s | obj.b;
+  s | obj.c;
+  printf("MyObj3: serialize a b c %d %d %d\n", obj.a, obj.b, obj.c);
+}
+
 /*
  * Example vector that holds a vector of unique_ptr to MyBase
  */
 
 struct ExampleVector {
-
-  template <typename SerializerT>
-  void serialize(SerializerT& s) {
-    s | vec;
-  }
-
   std::vector<std::unique_ptr<MyBase>> vec;
 };
+
+template <typename SerializerT>
+void serialize(SerializerT& s, ExampleVector& obj) {
+  s | obj.vec;
+}
 
 void test() {
 
@@ -153,14 +139,12 @@ void test() {
 
   auto ret = checkpoint::serialize(v);
 
-  {
-    // Display information about serialization result
-    auto const& buf = ret->getBuffer();
-    auto const& buf_size = ret->getSize();
-    printf("ptr=%p, size=%ld\n*****\n\n", static_cast<void*>(buf), buf_size);
-  }
+  auto const& buf = ret->getBuffer();
+  auto const& buf_size = ret->getSize();
 
-  auto t = checkpoint::deserialize<ExampleVector>(ret->getBuffer());
+  printf("ptr=%p, size=%ld\n*****\n\n", static_cast<void*>(buf), buf_size);
+
+  auto t = checkpoint::deserialize<ExampleVector>(buf);
 
   for (auto&& elm : t->vec) {
     elm->test();
@@ -177,5 +161,4 @@ int main(int, char**) {
   return 0;
 }
 
-/// [Serialize polymorphic macro]
-
+/// [Non-Intrusive Serialize polymorphic]

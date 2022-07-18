@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                  checkpoint_example_polymorphic_macro.cc
+//           checkpoint_example_polymorphic_macro_nonintrusive.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -41,7 +41,7 @@
 //@HEADER
 */
 
-/// [Serialize polymorphic macro]
+/// [Non-Intrusive Serialize polymorphic macro]
 
 #include <checkpoint/checkpoint.h>
 #include "checkpoint/dispatch/dispatch_virtual.h"
@@ -61,14 +61,14 @@ struct MyBase {
 
   int val_ = 0;
 
-  template <typename S>
-  void serialize(S& s) {
-    s | val_;
-    printf("MyBase: serialize val %d\n", val_);
-  }
-
   virtual void test() = 0;
 };
+
+template <typename S>
+void serialize(S& s, MyBase& obj) {
+  s | obj.val_;
+  printf("MyBase: serialize val %d\n", obj.val_);
+}
 
 struct MyObj : public MyBase {
 
@@ -78,16 +78,16 @@ struct MyObj : public MyBase {
   // Add macro for serialization
   checkpoint_virtual_serialize_derived_from(MyBase)
 
-  template <typename SerializerT>
-  void serialize(SerializerT& s) {
-    printf("MyObj: serialize\n");
-  }
-
   void test() override {
     printf("test MyObj 10 == %d ?\n", val_);
     assert(val_ == 10);
   }
 };
+
+template <typename SerializerT>
+void serialize(SerializerT& s, MyObj& obj) {
+  printf("MyObj: serialize\n");
+}
 
 struct MyObj2 : public MyBase {
   explicit MyObj2(int val) { printf("MyObj2 cons\n"); val_=val; }
@@ -96,15 +96,16 @@ struct MyObj2 : public MyBase {
   // Add macro for serialization
   checkpoint_virtual_serialize_derived_from(MyBase)
 
-  template <typename SerializerT>
-  void serialize(SerializerT& s) {
-    printf("MyObj2: serialize\n");
-  }
   void test() override {
     printf("test MyObj2 20 == %d ?\n", val_);
     assert(val_ == 20);
   }
 };
+
+template <typename SerializerT>
+void serialize(SerializerT& s, MyObj2& obj) {
+  printf("MyObj2: serialize\n");
+}
 
 struct MyObj3 : public MyBase {
 
@@ -116,11 +117,6 @@ struct MyObj3 : public MyBase {
   // Add macro for serialization
   checkpoint_virtual_serialize_derived_from(MyBase)
 
-  template <typename SerializerT>
-  void serialize(SerializerT& s) {
-    s|a|b|c;
-    printf("MyObj3: serialize a b c %d %d %d\n", a, b, c);
-  }
   void test() override {
     printf("val_ 30  a 10 b 20 c 100 = %d %d %d %d\n", val_, a, b, c);
     assert(val_ == 30);
@@ -130,19 +126,26 @@ struct MyObj3 : public MyBase {
   }
 };
 
+template <typename SerializerT>
+void serialize(SerializerT& s, MyObj3& obj) {
+  s | obj.a;
+  s | obj.b;
+  s | obj.c;
+  printf("MyObj3: serialize a b c %d %d %d\n", obj.a, obj.b, obj.c);
+}
+
 /*
  * Example vector that holds a vector of unique_ptr to MyBase
  */
 
 struct ExampleVector {
-
-  template <typename SerializerT>
-  void serialize(SerializerT& s) {
-    s | vec;
-  }
-
   std::vector<std::unique_ptr<MyBase>> vec;
 };
+
+template <typename SerializerT>
+void serialize(SerializerT& s, ExampleVector& obj) {
+  s | obj.vec;
+}
 
 void test() {
 
@@ -177,5 +180,5 @@ int main(int, char**) {
   return 0;
 }
 
-/// [Serialize polymorphic macro]
+/// [Non-Intrusive Serialize polymorphic macro]
 

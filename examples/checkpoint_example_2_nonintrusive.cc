@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                    checkpoint_example_1_nonintrusive.cc
+//                   checkpoint_example_2_nonintrusive.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -41,7 +41,7 @@
 //@HEADER
 */
 
-/// [Non-Intrusive serialize custom structure]
+/// [Non-Intrusive Serialize custom structure]
 
 #include <checkpoint/checkpoint.h>
 
@@ -49,20 +49,56 @@
 
 namespace checkpoint { namespace examples {
 
+// \struct MyTest2
+// \brief Simple structure with one variable of built-in type
+struct MyTest2 {
+  int c = 41;
 
-// \brief Simple structure with three variables of built-in types
-struct MyTest3 {
-  int a = 1, b = 2 , c = 3;
+  // \brief Default constructor
+  //
+  // The reconstruction strategy is required for deserialization. A default
+  // constructor is one of the reconstruction strategies that checkpoint will
+  // look for.
+  MyTest2() = default;
 
   // \brief Printing function unto the standard display
   void print() {
-    printf("MyTest3: a=%d, b=%d, c=%d\n", a, b, c);
+    printf("\t MyTest2: c=%d\n", c);
   }
 };
 
 // \brief Templated function for serializing/deserializing
-// a variable of type `MyTest3`. Non-intrusive version of the function
-// placed outside of `MyTest3` structure.
+// a variable of type `MyTest2`
+template <typename Serializer>
+void serialize(Serializer& s, MyTest2& my_test2) {
+  printf("MyTest2 serialize\n");
+  s | my_test2.c;
+}
+
+// \struct MyTest
+//
+// \brief Structure with two variables of built-in types and one variable of
+// custom type (`MyTest2`)
+struct MyTest {
+  int a = 29, b = 31;
+  MyTest2 my_test_2;
+
+  // \brief Default constructor
+  //
+  // The reconstruction strategy is required for deserialization. A default
+  // constructor is one of the reconstruction strategies that checkpoint will
+  // look for.
+  MyTest() = default;
+
+  // \brief Printing function unto the standard display
+  void print() {
+    printf("MyTest: a=%d, b=%d\n", a, b);
+    my_test_2.print();
+  }
+};
+
+// \brief Templated function for serializing/deserializing
+// a variable of type `MyTest`
 //
 // \tparam <Serializer> The type of serializer depending on the pass
 // \param[in,out] s the serializer for traversing this class
@@ -80,11 +116,13 @@ struct MyTest3 {
 // the buffer to recursively reconstruct the types and setup the class members.
 //
 template <typename Serializer>
-void serialize(Serializer& s, MyTest3& my_test3) {
-  // a, b, c - variable of type `int` (built-in type)
-  s | my_test3.a;
-  s | my_test3.b;
-  s | my_test3.c;
+void serialize(Serializer& s, MyTest& my_test) {
+  printf("MyTest serialize\n");
+  s | my_test.a;
+  s | my_test.b;
+
+  // Recursive dispatch to the `MyTest2` object
+  s | my_test.my_test_2;
 }
 
 }} // end namespace checkpoint::examples
@@ -92,28 +130,28 @@ void serialize(Serializer& s, MyTest3& my_test3) {
 int main(int, char**) {
   using namespace checkpoint::examples;
 
-  // Define a variable of custom type `MyTest3`
-  MyTest3 my_test3;
-  my_test3.print();
+  // Define a variable of custom type `MyTest`
+  MyTest my_test_inst;
+  my_test_inst.a = 10;
+  my_test_inst.print();
 
-  // Call the serialization routine for the variable `my_test3`
+  // Call the serialization routine for the variable `my_test_inst`
   // The output is a unique pointer: `std::unique_ptr<SerializedInfo>`
   // (defined in `src/checkpoint_api.h`)
-  auto ret = checkpoint::serialize(my_test3);
+  auto ret = checkpoint::serialize(my_test_inst);
 
-  auto const& buf = ret->getBuffer();
-  auto const& buf_size = ret->getSize();
+  {
+    // Display information about the serialization "message"
+    auto const& buf = ret->getBuffer();
+    auto const& buf_size = ret->getSize();
+    printf("ptr=%p, size=%ld\n", static_cast<void*>(buf), buf_size);
+  }
 
-  // Print the buffer address and its size
-  printf("ptr=%p, size=%ld\n", static_cast<void*>(buf), buf_size);
-
-  // Deserialize the variable `my_test3` from the serialized buffer
-  auto t = checkpoint::deserialize<MyTest3>(buf);
-
-  // Display the de-serialized data
+  // De-serialization call to create a new unique pointer to `MyTest`
+  auto t = checkpoint::deserialize<MyTest>(ret->getBuffer());
   t->print();
 
   return 0;
 }
 
-/// [Non-Intrusive serialize custom structure]
+/// [Non-Intrusive Serialize custom structure]
