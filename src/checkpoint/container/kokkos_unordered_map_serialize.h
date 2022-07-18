@@ -150,7 +150,7 @@ typename std::enable_if_t<
 
   typename UnorderedMapType::size_type size = serializeContainerSize(s, map);
   typename UnorderedMapType::size_type capacity = serializeContainerCapacity(s, map);
-  
+
   s.addBytes(capacity * sizeof(Key) + size * sizeof(Value));
 }
 
