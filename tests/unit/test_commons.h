@@ -163,18 +163,20 @@ struct TestFactory {
 namespace  {
 template <typename T>
 std::unique_ptr<T> serializeAny(
-  T& view, std::function<void(T const&,T const&)> compare
+  T& view, std::function<void(T const&,T const&)> compare = nullptr
 ) {
   using namespace checkpoint;
 
   auto ret = serialize<T>(view);
   auto out_view = deserialize<T>(ret->getBuffer());
   auto const& out_view_ref = *out_view;
-  #if CHECKPOINT_USE_ND_COMPARE
-    compareND(view, out_view_ref);
-  #else
-    compare(view, out_view_ref);
-  #endif
+  if (compare) {
+    #if CHECKPOINT_USE_ND_COMPARE
+      compareND(view, out_view_ref);
+    #else
+      compare(view, out_view_ref);
+    #endif
+  }
   return out_view;
 }
 } //end namespace

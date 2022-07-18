@@ -313,9 +313,17 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
     serializeLayout<SerializerT>(s, 7, layout_cur);
   }
 
+  // Serialize the total number of elements in the Kokkos::View
+  size_t num_elms = view.size();
+  s | num_elms;
+  bool is_uninitialized = dims == 0 and num_elms == 0;
   // Construct a view with the layout and use operator= to propagate out
   if (s.isUnpacking()) {
-    if (dims == 1) {
+    if (is_uninitialized) {
+      view = ViewType{};
+    } else if (dims == 0) {
+      view = constructRankedView<ViewType,0>(label, std::make_tuple(layout));
+    } else if (dims == 1) {
       view = constructRankedView<ViewType,1>(label, std::make_tuple(layout));
     } else if (dims == 2) {
       view = constructRankedView<ViewType,2>(label, std::make_tuple(layout));
@@ -337,9 +345,9 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
     }
   }
 
-  // Serialize the total number of elements in the Kokkos::View
-  size_t num_elms = view.size();
-  s | num_elms;
+  if (is_uninitialized) {
+    return;
+  }
 
   // Serialize whether the view is contiguous or not. Is this required?
   bool is_contig = view.span_is_contiguous();
