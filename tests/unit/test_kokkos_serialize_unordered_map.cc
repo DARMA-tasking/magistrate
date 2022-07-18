@@ -68,6 +68,7 @@ static void test_kokkos_unordered_map(
 
   ASSERT_FALSE(outMap.failed_insert());
   ASSERT_EQ(refMap.size(), outMap.size());
+  ASSERT_EQ(refMap.capacity(), outMap.capacity());
 
   // check all keys and values
   for (typename UnorderedMapType::size_type i = 0; i < refMap.capacity(); i++) {
