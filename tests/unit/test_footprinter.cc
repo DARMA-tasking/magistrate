@@ -618,7 +618,11 @@ TEST_F(TestFootprinter, test_kokkos_unordered_map) {
   // empty map
   {
     auto mapEmpty = Kokkos::UnorderedMap<int, int>();
-    EXPECT_EQ(checkpoint::getMemoryFootprint(mapEmpty), sizeof(mapEmpty));
+
+    auto expected_size =
+      sizeof(mapEmpty) + mapEmpty.capacity() * sizeof(int);
+
+    EXPECT_EQ(checkpoint::getMemoryFootprint(mapEmpty), expected_size);
   }
 
   // map with some elements
@@ -629,7 +633,7 @@ TEST_F(TestFootprinter, test_kokkos_unordered_map) {
     mapIntLong.insert(6, 70);
 
     auto expected_size =
-      sizeof(mapIntLong) + 3 * (sizeof(int) + sizeof(long));
+      sizeof(mapIntLong) + mapIntLong.capacity() * sizeof(int) + 3 * sizeof(long);
 
     EXPECT_EQ(checkpoint::getMemoryFootprint(mapIntLong), expected_size);
   }

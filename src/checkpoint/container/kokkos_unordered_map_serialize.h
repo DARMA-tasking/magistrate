@@ -149,7 +149,9 @@ typename std::enable_if_t<
     Kokkos::UnorderedMap<Key, Value, Device, Hasher, EqualTo>;
 
   typename UnorderedMapType::size_type size = serializeContainerSize(s, map);
-  s.addBytes(size * (sizeof(Key) + sizeof(Value)));
+  typename UnorderedMapType::size_type capacity = serializeContainerCapacity(s, map);
+  
+  s.addBytes(capacity * sizeof(Key) + size * sizeof(Value));
 }
 
 } // namespace checkpoint
