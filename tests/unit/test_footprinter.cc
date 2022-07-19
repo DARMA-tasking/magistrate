@@ -612,4 +612,32 @@ TEST_F(TestFootprinter, test_no_serialize) {
     sizeof(m) + m.size() * (sizeof(p) + sizeof(p.first) + sizeof(p.second))
   );
 }
+
+#if KOKKOS_ENABLED_CHECKPOINT
+TEST_F(TestFootprinter, test_kokkos_unordered_map) {
+  // empty map
+  {
+    auto mapEmpty = Kokkos::UnorderedMap<int, int>();
+
+    auto expected_size =
+      sizeof(mapEmpty) + mapEmpty.capacity() * sizeof(int);
+
+    EXPECT_EQ(checkpoint::getMemoryFootprint(mapEmpty), expected_size);
+  }
+
+  // map with some elements
+  {
+    auto mapIntLong = Kokkos::UnorderedMap<int, long>(3);
+    mapIntLong.insert(4, 50);
+    mapIntLong.insert(5, 60);
+    mapIntLong.insert(6, 70);
+
+    auto expected_size =
+      sizeof(mapIntLong) + mapIntLong.capacity() * sizeof(int) + 3 * sizeof(long);
+
+    EXPECT_EQ(checkpoint::getMemoryFootprint(mapIntLong), expected_size);
+  }
+}
+#endif /*KOKKOS_ENABLED_CHECKPOINT*/
+
 }}} // end namespace checkpoint::tests::unit
