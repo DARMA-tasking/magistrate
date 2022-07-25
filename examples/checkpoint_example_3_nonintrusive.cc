@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                    checkpoint_example_3_nonintrusive.cc
+//                    checkpoint_example_3_nonnonintrusive.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -53,7 +53,8 @@
 // class of a serializable/deserializable type.
 //
 
-namespace checkpoint { namespace examples {
+// \brief Namespace containing types which will be serialized
+namespace magistrate::nonintrusive::examples {
 
 // \brief Structure with a variable of built-in type.
 struct TestDefaultCons {
@@ -61,15 +62,6 @@ struct TestDefaultCons {
 
   TestDefaultCons() = default;
 };
-
-// \breif Non-Intrusive Serialize method for TestDefaultCons structure.
-// 
-// \note Together with default constructor provides a serialization / deserialization
-// capability to the structure.
-template <typename Serializer>
-void serialize(Serializer& s, TestDefaultCons& tdc) {
-  s | tdc.a;
-}
 
 // \brief Structure with a variable of built-in type.
 //
@@ -93,12 +85,6 @@ struct TestShouldFailReconstruct {
   TestShouldFailReconstruct() = delete;
 };
 
-// \breif Non-Intrusive Serialize method for TestShouldFailReconstruct structure.
-template <typename Serializer>
-void serialize(Serializer& s, TestShouldFailReconstruct& tsf) {
-  s | tsf.a;
-}
-
 // \brief Structure with a variable of built-in type.
 //
 // \note This structure is a serializable / deserializable type. The structure
@@ -117,19 +103,41 @@ struct TestReconstruct {
   }
 };
 
+} // end namespace magistrate::nonintrusive::examples
+
+// \brief In Non-Intrusive way, serialize function needs to be placed in the namespace
+// of the type which will be serialized.
+namespace magistrate::nonintrusive::examples {
+
+// \breif Non-Intrusive Serialize method for TestDefaultCons structure.
+// 
+// \note Together with default constructor provides a serialization / deserialization
+// capability to the structure.
+template <typename Serializer>
+void serialize(Serializer& s, TestDefaultCons& tdc) {
+  s | tdc.a;
+}
+
+// \breif Non-Intrusive Serialize method for TestShouldFailReconstruct structure.
+template <typename Serializer>
+void serialize(Serializer& s, TestShouldFailReconstruct& tsf) {
+  s | tsf.a;
+}
+
 // \breif Non-Intrusive Serialize method for TestReconstruct structure.
 template <typename Serializer>
 void serialize(Serializer& s, TestReconstruct& tr) {
   s | tr.a;
 }
 
-}} // end namespace checkpoint::examples
+} // end namespace magistrate::nonintrusive::examples
 
 #include "checkpoint/traits/serializable_traits.h"
 
-namespace checkpoint {
+namespace magistrate {
 
-using namespace examples;
+using namespace ::checkpoint;
+using namespace nonintrusive::examples;
 
 static_assert(
   SerializableTraits<TestDefaultCons>::is_serializable,
@@ -149,7 +157,8 @@ static_assert(
   SerializableTraits<TestReconstruct>::is_serializable,
   "Should be serializable"
 );
-} // end namespace checkpoint
+
+} // end namespace magistrate
 
 
 int main(int, char**) {

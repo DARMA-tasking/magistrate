@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                checkpoint_example_to_file_nonintrusive.cc
+//                checkpoint_example_to_file_nonnonintrusive.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -41,14 +41,15 @@
 //@HEADER
 */
 
-/// [Non-intrusive Serialize structure to file]
+/// [Non-nonintrusive Serialize structure to file]
 
 #include <checkpoint/checkpoint.h>
 
 #include <iostream>
 #include <vector>
 
-namespace checkpoint { namespace examples {
+// \brief Namespace containing type which will be serialized
+namespace magistrate::nonintrusive::examples {
 
 static constexpr int const u_val = 934;
 
@@ -88,6 +89,26 @@ struct MyTestType {
 
 };
 
+bool operator==(const MyTestType &c1, const MyTestType &c2)
+{
+  if (c1.len_ != c2.len_)
+    return false;
+  bool isEqual = true;
+  for (int i = 0; i < c1.len_; ++i) {
+    if (c1.u_[i] != c2.u_[i]) {
+      isEqual = false;
+      break;
+    }
+  }
+  return isEqual;
+}
+
+} // end namespace magistrate::nonintrusive::examples
+
+// \brief In Non-Intrusive way, serialize function needs to be placed in the namespace
+// of the type which will be serialized.
+namespace magistrate::nonintrusive::examples {
+
 // \brief Templated function for serializing/deserializing
 // a variable of type `MyTestType`
 //
@@ -108,27 +129,10 @@ void serialize(Serializer& s, MyTestType& c) {
   s | c.len_;
 }
 
-bool operator==(const checkpoint::examples::MyTestType &c1,
-                const checkpoint::examples::MyTestType &c2)
-{
-  if (c1.len_ != c2.len_)
-    return false;
-  bool isEqual = true;
-  for (int i = 0; i < c1.len_; ++i) {
-    if (c1.u_[i] != c2.u_[i]) {
-      isEqual = false;
-      break;
-    }
-  }
-  return isEqual;
-}
-
-
-} }
-
+} // end namespace magistrate::nonintrusive::examples
 
 int main(int, char**) {
-  using namespace checkpoint::examples;
+  using namespace magistrate::nonintrusive::examples;
 
   // Define a variable of custom type `MyTestType`
   MyTestType my_test_inst(11);
@@ -175,5 +179,5 @@ int main(int, char**) {
 }
 
 
-/// [Non-intrusive Serialize structure to file]
+/// [Non-nonintrusive Serialize structure to file]
 

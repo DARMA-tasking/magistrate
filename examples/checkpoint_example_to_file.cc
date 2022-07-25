@@ -48,7 +48,7 @@
 #include <iostream>
 #include <vector>
 
-namespace checkpoint { namespace examples {
+namespace magistrate::intrusive::examples {
 
 static constexpr int const u_val = 934;
 
@@ -109,8 +109,7 @@ struct MyTestType {
 };
 
 
-bool operator==(const checkpoint::examples::MyTestType &c1,
-                const checkpoint::examples::MyTestType &c2)
+bool operator==(const MyTestType &c1, const MyTestType &c2)
 {
   if (c1.len_ != c2.len_)
     return false;
@@ -124,12 +123,11 @@ bool operator==(const checkpoint::examples::MyTestType &c1,
   return isEqual;
 }
 
-
-} }
+} // end namespace magistrate::intrusive::examples
 
 
 int main(int, char**) {
-  using namespace checkpoint::examples;
+  using namespace magistrate::intrusive::examples;
 
   // Define a variable of custom type `MyTestType`
   MyTestType my_test_inst(11);

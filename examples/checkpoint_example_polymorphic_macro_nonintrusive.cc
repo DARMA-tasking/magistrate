@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//           checkpoint_example_polymorphic_macro_nonintrusive.cc
+//           checkpoint_example_polymorphic_macro_nonnonintrusive.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -46,13 +46,14 @@
 #include <checkpoint/checkpoint.h>
 #include "checkpoint/dispatch/dispatch_virtual.h"
 
-namespace checkpoint { namespace examples {
+// \brief Namespace containing types which will be serialized
+namespace magistrate::nonintrusive::examples {
 
 // \struct Abstract base class
 struct MyBase {
 
   MyBase() { printf("MyBase cons\n"); }
-  explicit MyBase(SERIALIZE_CONSTRUCT_TAG) { printf("MyBase recons\n"); }
+  explicit MyBase(::checkpoint::SERIALIZE_CONSTRUCT_TAG) { printf("MyBase recons\n"); }
 
   virtual ~MyBase() = default;
 
@@ -64,16 +65,10 @@ struct MyBase {
   virtual void test() = 0;
 };
 
-template <typename S>
-void serialize(S& s, MyBase& obj) {
-  s | obj.val_;
-  printf("MyBase: serialize val %d\n", obj.val_);
-}
-
 struct MyObj : public MyBase {
 
   explicit MyObj(int val) : MyBase() { printf("MyObj cons\n"); val_ = val;}
-  explicit MyObj(SERIALIZE_CONSTRUCT_TAG) {}
+  explicit MyObj(::checkpoint::SERIALIZE_CONSTRUCT_TAG) {}
 
   // Add macro for serialization
   checkpoint_virtual_serialize_derived_from(MyBase)
@@ -84,14 +79,9 @@ struct MyObj : public MyBase {
   }
 };
 
-template <typename SerializerT>
-void serialize(SerializerT& s, MyObj& obj) {
-  printf("MyObj: serialize\n");
-}
-
 struct MyObj2 : public MyBase {
   explicit MyObj2(int val) { printf("MyObj2 cons\n"); val_=val; }
-  explicit MyObj2(SERIALIZE_CONSTRUCT_TAG) {}
+  explicit MyObj2(::checkpoint::SERIALIZE_CONSTRUCT_TAG) {}
 
   // Add macro for serialization
   checkpoint_virtual_serialize_derived_from(MyBase)
@@ -102,17 +92,12 @@ struct MyObj2 : public MyBase {
   }
 };
 
-template <typename SerializerT>
-void serialize(SerializerT& s, MyObj2& obj) {
-  printf("MyObj2: serialize\n");
-}
-
 struct MyObj3 : public MyBase {
 
   int a=0, b=0, c=0;
 
   explicit MyObj3(int val) { printf("MyObj3 cons\n"); a= 10; b=20; c=100; val_=val;}
-  explicit MyObj3(SERIALIZE_CONSTRUCT_TAG) {}
+  explicit MyObj3(::checkpoint::SERIALIZE_CONSTRUCT_TAG) {}
 
   // Add macro for serialization
   checkpoint_virtual_serialize_derived_from(MyBase)
@@ -126,14 +111,6 @@ struct MyObj3 : public MyBase {
   }
 };
 
-template <typename SerializerT>
-void serialize(SerializerT& s, MyObj3& obj) {
-  s | obj.a;
-  s | obj.b;
-  s | obj.c;
-  printf("MyObj3: serialize a b c %d %d %d\n", obj.a, obj.b, obj.c);
-}
-
 /*
  * Example vector that holds a vector of unique_ptr to MyBase
  */
@@ -141,11 +118,6 @@ void serialize(SerializerT& s, MyObj3& obj) {
 struct ExampleVector {
   std::vector<std::unique_ptr<MyBase>> vec;
 };
-
-template <typename SerializerT>
-void serialize(SerializerT& s, ExampleVector& obj) {
-  s | obj.vec;
-}
 
 void test() {
 
@@ -170,10 +142,45 @@ void test() {
   }
 }
 
-}} // end namespace checkpoint::examples
+} // end namespace magistrate::nonintrusive::examples
+
+// \brief In Non-Intrusive way, serialize function needs to be placed in the namespace
+// of the type which will be serialized.
+namespace magistrate::nonintrusive::examples {
+
+template <typename S>
+void serialize(S& s, MyBase& obj) {
+  s | obj.val_;
+  printf("MyBase: serialize val %d\n", obj.val_);
+}
+
+template <typename SerializerT>
+void serialize(SerializerT& s, MyObj& obj) {
+  printf("MyObj: serialize\n");
+}
+
+template <typename SerializerT>
+void serialize(SerializerT& s, MyObj2& obj) {
+  printf("MyObj2: serialize\n");
+}
+
+template <typename SerializerT>
+void serialize(SerializerT& s, MyObj3& obj) {
+  s | obj.a;
+  s | obj.b;
+  s | obj.c;
+  printf("MyObj3: serialize a b c %d %d %d\n", obj.a, obj.b, obj.c);
+}
+
+template <typename SerializerT>
+void serialize(SerializerT& s, ExampleVector& obj) {
+  s | obj.vec;
+}
+
+} // end namespace magistrate::nonintrusive::examples
 
 int main(int, char**) {
-  using namespace checkpoint::examples;
+  using namespace magistrate::nonintrusive::examples;
 
   test();
 

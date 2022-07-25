@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                   checkpoint_example_2_nonintrusive.cc
+//                   checkpoint_example_2_nonnonintrusive.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -47,7 +47,8 @@
 
 #include <cstdio>
 
-namespace checkpoint { namespace examples {
+// \brief Namespace containing types which will be serialized
+namespace magistrate::nonintrusive::examples {
 
 // \struct MyTest2
 // \brief Simple structure with one variable of built-in type
@@ -66,14 +67,6 @@ struct MyTest2 {
     printf("\t MyTest2: c=%d\n", c);
   }
 };
-
-// \brief Templated function for serializing/deserializing
-// a variable of type `MyTest2`
-template <typename Serializer>
-void serialize(Serializer& s, MyTest2& my_test2) {
-  printf("MyTest2 serialize\n");
-  s | my_test2.c;
-}
 
 // \struct MyTest
 //
@@ -97,6 +90,11 @@ struct MyTest {
   }
 };
 
+} // end namespace magistrate::nonintrusive::examples
+
+// \brief In Non-Intrusive way, serialize function needs to be placed in the namespace
+// of the type which will be serialized.
+namespace magistrate::nonintrusive::examples {
 // \brief Templated function for serializing/deserializing
 // a variable of type `MyTest`
 //
@@ -125,10 +123,18 @@ void serialize(Serializer& s, MyTest& my_test) {
   s | my_test.my_test_2;
 }
 
-}} // end namespace checkpoint::examples
+// \brief Templated function for serializing/deserializing
+// a variable of type `MyTest2`
+template <typename Serializer>
+void serialize(Serializer& s, MyTest2& my_test2) {
+  printf("MyTest2 serialize\n");
+  s | my_test2.c;
+}
+
+} // end namespace magistrate::nonintrusive::examples
 
 int main(int, char**) {
-  using namespace checkpoint::examples;
+  using namespace magistrate::nonintrusive::examples;
 
   // Define a variable of custom type `MyTest`
   MyTest my_test_inst;

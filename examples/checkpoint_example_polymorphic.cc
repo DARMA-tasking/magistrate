@@ -46,11 +46,11 @@
 #include <checkpoint/checkpoint.h>
 #include "checkpoint/dispatch/dispatch_virtual.h"
 
-namespace checkpoint { namespace examples {
+namespace magistrate::intrusive::examples {
 
 struct MyBase : checkpoint::SerializableBase<MyBase> {
   MyBase() { printf("MyBase cons\n"); }
-  explicit MyBase(SERIALIZE_CONSTRUCT_TAG) { printf("MyBase recons\n"); }
+  explicit MyBase(::checkpoint::SERIALIZE_CONSTRUCT_TAG) { printf("MyBase recons\n"); }
 
   virtual ~MyBase() = default;
 
@@ -67,7 +67,7 @@ struct MyBase : checkpoint::SerializableBase<MyBase> {
 
 struct MyObj : checkpoint::SerializableDerived<MyObj, MyBase> {
   explicit MyObj(int val) { printf("MyObj cons\n"); val_ = val;}
-  explicit MyObj(SERIALIZE_CONSTRUCT_TAG){}
+  explicit MyObj(::checkpoint::SERIALIZE_CONSTRUCT_TAG){}
 
   template <typename SerializerT>
   void serialize(SerializerT& s) {
@@ -82,7 +82,7 @@ struct MyObj : checkpoint::SerializableDerived<MyObj, MyBase> {
 
 struct MyObj2 : checkpoint::SerializableDerived<MyObj2, MyBase> {
   explicit MyObj2(int val) { printf("MyObj2 cons\n"); val_=val; }
-  explicit MyObj2(SERIALIZE_CONSTRUCT_TAG) {}
+  explicit MyObj2(::checkpoint::SERIALIZE_CONSTRUCT_TAG) {}
 
   template <typename SerializerT>
   void serialize(SerializerT& s) {
@@ -97,7 +97,7 @@ struct MyObj2 : checkpoint::SerializableDerived<MyObj2, MyBase> {
 struct MyObj3 : checkpoint::SerializableDerived<MyObj3, MyBase> {
   int a=0, b=0, c=0;
   explicit MyObj3(int val) { printf("MyObj3 cons\n"); a= 10; b=20; c=100; val_=val;}
-  explicit MyObj3(SERIALIZE_CONSTRUCT_TAG) {}
+  explicit MyObj3(::checkpoint::SERIALIZE_CONSTRUCT_TAG) {}
 
   template <typename SerializerT>
   void serialize(SerializerT& s) {
@@ -148,10 +148,10 @@ void test() {
   }
 }
 
-}} // end namespace checkpoint::examples
+} // end namespace magistrate::intrusive::examples
 
 int main(int, char**) {
-  using namespace checkpoint::examples;
+  using namespace magistrate::intrusive::examples;
 
   test();
 

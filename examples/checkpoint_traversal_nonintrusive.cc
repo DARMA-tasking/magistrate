@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                   checkpoint_traversal_nonintrusive.cc
+//                   checkpoint_traversal_nonnonintrusive.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -46,7 +46,8 @@
 #include <cstdio>
 #include <string>
 
-namespace checkpoint { namespace examples {
+// \brief Namespace containing type which will be serialized
+namespace magistrate::nonintrusive::examples {
 
 struct TestObject {
 
@@ -82,7 +83,11 @@ void serialize(Serializer& s, TestObject& obj) {
   s | obj.vec3;
 }
 
-}} // end namespace checkpoint::examples
+} // end namespace magistrate::nonintrusive::examples
+
+// \brief In Non-Intrusive way, serialize functionality needs to be placed in the namespace
+// of the type which will be serialized.
+namespace magistrate::nonintrusive::examples {
 
 /// Custom traverser for printing raw bytes
 struct PrintBytesTraverse : checkpoint::Serializer {
@@ -142,8 +147,10 @@ struct TypedTraverse : checkpoint::Serializer {
   }
 };
 
+} // end namespace magistrate::nonintrusive::examples
+
 int main(int, char**) {
-  using namespace checkpoint::examples;
+  using namespace magistrate::nonintrusive::examples;
 
   TestObject my_obj(TestObject::MakeTag{});
 
