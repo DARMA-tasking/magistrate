@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                    checkpoint_example_3_nonnonintrusive.cc
+//                    checkpoint_example_3_nonintrusive.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -54,7 +54,7 @@
 //
 
 // \brief Namespace containing types which will be serialized
-namespace magistrate::nonintrusive::examples {
+namespace magistrate { namespace nonintrusive { namespace examples {
 
 // \brief Structure with a variable of built-in type.
 struct TestDefaultCons {
@@ -81,7 +81,7 @@ struct TestNoSerialize {
 struct TestShouldFailReconstruct {
   int a = 29;
 
-  TestShouldFailReconstruct(int const) { }
+  explicit TestShouldFailReconstruct(int const) { }
   TestShouldFailReconstruct() = delete;
 };
 
@@ -94,7 +94,7 @@ struct TestShouldFailReconstruct {
 struct TestReconstruct {
   int a = 29;
 
-  TestReconstruct(int const) { }
+  explicit TestReconstruct(int const) { }
   TestReconstruct() = delete;
 
   static TestReconstruct& reconstruct(void* buf) {
@@ -103,14 +103,14 @@ struct TestReconstruct {
   }
 };
 
-} // end namespace magistrate::nonintrusive::examples
+}}} // end namespace magistrate::nonintrusive::examples
 
 // \brief In Non-Intrusive way, serialize function needs to be placed in the namespace
 // of the type which will be serialized.
-namespace magistrate::nonintrusive::examples {
+namespace magistrate { namespace nonintrusive { namespace examples {
 
 // \breif Non-Intrusive Serialize method for TestDefaultCons structure.
-// 
+//
 // \note Together with default constructor provides a serialization / deserialization
 // capability to the structure.
 template <typename Serializer>
@@ -130,7 +130,7 @@ void serialize(Serializer& s, TestReconstruct& tr) {
   s | tr.a;
 }
 
-} // end namespace magistrate::nonintrusive::examples
+}}} // end namespace magistrate::nonintrusive::examples
 
 #include "checkpoint/traits/serializable_traits.h"
 

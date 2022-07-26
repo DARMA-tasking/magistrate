@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                   checkpoint_traversal_nonnonintrusive.cc
+//                           checkpoint_traversal.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -41,13 +41,14 @@
 //@HEADER
 */
 
+/// [Serialization with custom traverser]
+
 #include <checkpoint/checkpoint.h>
 
 #include <cstdio>
 #include <string>
 
-// \brief Namespace containing type which will be serialized
-namespace magistrate::nonintrusive::examples {
+namespace magistrate { namespace intrusive { namespace examples {
 
 struct TestObject {
 
@@ -64,7 +65,9 @@ struct TestObject {
   }
 
   template <typename Serializer>
-  friend void serialize(Serializer& s, TestObject& obj);
+  void serialize(Serializer& s) {
+    s | a | b | vec1 | vec2 | vec3;
+  }
 
 private:
   int a = 29;
@@ -74,20 +77,7 @@ private:
   std::vector<std::string> vec3;
 };
 
-template <typename Serializer>
-void serialize(Serializer& s, TestObject& obj) {
-  s | obj.a;
-  s | obj.b;
-  s | obj.vec1;
-  s | obj.vec2;
-  s | obj.vec3;
-}
-
-} // end namespace magistrate::nonintrusive::examples
-
-// \brief In Non-Intrusive way, serialize functionality needs to be placed in the namespace
-// of the type which will be serialized.
-namespace magistrate::nonintrusive::examples {
+}}} // end namespace magistrate::intrusive::examples
 
 /// Custom traverser for printing raw bytes
 struct PrintBytesTraverse : checkpoint::Serializer {
@@ -147,10 +137,8 @@ struct TypedTraverse : checkpoint::Serializer {
   }
 };
 
-} // end namespace magistrate::nonintrusive::examples
-
 int main(int, char**) {
-  using namespace magistrate::nonintrusive::examples;
+  using namespace magistrate::intrusive::examples;
 
   TestObject my_obj(TestObject::MakeTag{});
 
@@ -163,3 +151,5 @@ int main(int, char**) {
 
   return 0;
 }
+
+/// [Serialization with custom traverser]

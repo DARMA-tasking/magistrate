@@ -47,7 +47,7 @@
 
 #include <cstdio>
 
-namespace magistrate::intrusive::examples {
+namespace magistrate { namespace intrusive { namespace examples {
 
 // \struct MyTest
 // \brief Simple structure with two variables of built-in types
@@ -68,7 +68,7 @@ struct MyTest {
   //
   MyTest(int ai, int bi) : a(ai), b(bi) { };
 
-  /// \brief Printing function unto the standard display
+  // \brief Printing function unto the standard display
   void print() {
     printf("MyTest: a=%d, b=%d\n", a, b);
   }
@@ -105,7 +105,7 @@ struct MyTest {
   }
 };
 
-} // end namespace magistrate::intrusive::examples
+}}} // end namespace magistrate::intrusive::examples
 
 int main(int, char**) {
   using namespace magistrate::intrusive::examples;

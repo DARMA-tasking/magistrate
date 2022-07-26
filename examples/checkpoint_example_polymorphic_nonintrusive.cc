@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//               checkpoint_example_polymorphic_nonnonintrusive.cc
+//               checkpoint_example_polymorphic_nonintrusive.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -47,7 +47,7 @@
 #include "checkpoint/dispatch/dispatch_virtual.h"
 
 // \brief Namespace containing types which will be serialized
-namespace magistrate::nonintrusive::examples {
+namespace magistrate { namespace nonintrusive { namespace examples {
 
 struct MyBase : ::checkpoint::SerializableBase<MyBase> {
   MyBase() { printf("MyBase cons\n"); }
@@ -123,11 +123,11 @@ void test() {
   }
 }
 
-} // end namespace magistrate::nonintrusive::examples
+}}} // end namespace magistrate::nonintrusive::examples
 
 // \brief In Non-Intrusive way, serialize function needs to be placed in the namespace
 // of the type which will be serialized.
-namespace magistrate::nonintrusive::examples {
+namespace magistrate { namespace nonintrusive { namespace examples {
 
 template <typename S>
 void serialize(S& s, MyBase& obj) {
@@ -158,7 +158,7 @@ void serialize(SerializerT& s, ExampleVector& obj) {
   s | obj.vec;
 }
 
-} // end namespace magistrate::nonintrusive::examples
+}}} // end namespace magistrate::nonintrusive::examples
 
 int main(int, char**) {
   using namespace magistrate::nonintrusive::examples;

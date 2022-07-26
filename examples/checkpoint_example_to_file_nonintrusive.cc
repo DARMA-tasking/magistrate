@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                checkpoint_example_to_file_nonnonintrusive.cc
+//                checkpoint_example_to_file_nonintrusive.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -41,7 +41,7 @@
 //@HEADER
 */
 
-/// [Non-nonintrusive Serialize structure to file]
+/// [Non-Intrusive Serialize structure to file]
 
 #include <checkpoint/checkpoint.h>
 
@@ -49,7 +49,7 @@
 #include <vector>
 
 // \brief Namespace containing type which will be serialized
-namespace magistrate::nonintrusive::examples {
+namespace magistrate { namespace nonintrusive { namespace examples {
 
 static constexpr int const u_val = 934;
 
@@ -103,11 +103,11 @@ bool operator==(const MyTestType &c1, const MyTestType &c2)
   return isEqual;
 }
 
-} // end namespace magistrate::nonintrusive::examples
+}}} // end namespace magistrate::nonintrusive::examples
 
 // \brief In Non-Intrusive way, serialize function needs to be placed in the namespace
 // of the type which will be serialized.
-namespace magistrate::nonintrusive::examples {
+namespace magistrate { namespace nonintrusive { namespace examples {
 
 // \brief Templated function for serializing/deserializing
 // a variable of type `MyTestType`
@@ -129,7 +129,7 @@ void serialize(Serializer& s, MyTestType& c) {
   s | c.len_;
 }
 
-} // end namespace magistrate::nonintrusive::examples
+}}} // end namespace magistrate::nonintrusive::examples
 
 int main(int, char**) {
   using namespace magistrate::nonintrusive::examples;
@@ -179,5 +179,5 @@ int main(int, char**) {
 }
 
 
-/// [Non-nonintrusive Serialize structure to file]
+/// [Non-Intrusive Serialize structure to file]
 

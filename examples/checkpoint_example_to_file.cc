@@ -48,7 +48,7 @@
 #include <iostream>
 #include <vector>
 
-namespace magistrate::intrusive::examples {
+namespace magistrate { namespace intrusive { namespace examples {
 
 static constexpr int const u_val = 934;
 
@@ -123,7 +123,7 @@ bool operator==(const MyTestType &c1, const MyTestType &c2)
   return isEqual;
 }
 
-} // end namespace magistrate::intrusive::examples
+}}} // end namespace magistrate::intrusive::examples
 
 
 int main(int, char**) {

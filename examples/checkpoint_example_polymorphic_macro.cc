@@ -46,7 +46,7 @@
 #include <checkpoint/checkpoint.h>
 #include "checkpoint/dispatch/dispatch_virtual.h"
 
-namespace magistrate::intrusive::examples {
+namespace magistrate { namespace intrusive { namespace examples {
 
 // \struct Abstract base class
 struct MyBase {
@@ -167,7 +167,7 @@ void test() {
   }
 }
 
-} // end namespace magistrate::intrusive::examples
+}}} // end namespace magistrate::intrusive::examples
 
 int main(int, char**) {
   using namespace magistrate::intrusive::examples;
