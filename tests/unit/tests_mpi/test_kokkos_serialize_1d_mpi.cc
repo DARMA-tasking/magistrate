@@ -114,7 +114,7 @@ TYPED_TEST_P(KokkosDynamicViewTestMPI, test_dynamic_1d) {
 
   init1d(in_view);
 
-  serializeAnyMPI<ViewType>(in_view, &compare1d<ViewType>);
+  serializeAnyMPI<ViewType>(in_view, &compare1dDynamic<ViewType>);
 }
 
 REGISTER_TYPED_TEST_CASE_P(KokkosDynamicViewTestMPI, test_dynamic_1d);
