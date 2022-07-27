@@ -102,7 +102,15 @@ TYPED_TEST_P(KokkosDynamicViewTest, test_dynamic_1d) {
   using namespace checkpoint;
 
   using DataType = TypeParam;
+
+#if defined(KOKKOS_ENABLE_CUDA)
+  // Explicitly allocate in CudaUVMSpace, because we don't currently
+  // have support for testing serialization of a DynamicView instance
+  // that's not host-accessible
+  using ViewType = Kokkos::Experimental::DynamicView<DataType, Kokkos::CudaUVMSpace>;
+#else
   using ViewType = Kokkos::Experimental::DynamicView<DataType>;
+#endif
 
   static constexpr std::size_t const N = 64;
   static constexpr unsigned const min_chunk = 8;
@@ -113,7 +121,7 @@ TYPED_TEST_P(KokkosDynamicViewTest, test_dynamic_1d) {
 
   init1d(in_view);
 
-  serializeAny<ViewType>(in_view, &compare1d<ViewType>);
+  serializeAny<ViewType>(in_view, &compare1dDynamic<ViewType>);
 }
 
 REGISTER_TYPED_TEST_CASE_P(KokkosDynamicViewTest, test_dynamic_1d);
