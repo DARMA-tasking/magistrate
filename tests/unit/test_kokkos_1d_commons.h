@@ -51,8 +51,12 @@ template <typename ViewT, unsigned ndim>
 static void compareInner1d(ViewT const& k1, ViewT const& k2) {
   std::cout << "compareInner1d: " << k1.extent(0) << "," << k2.extent(0) << "\n";
   EXPECT_EQ(k1.extent(0), k2.extent(0));
+
+  auto j1 = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace{}, k1);
+  auto j2 = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace{}, k2);
+
   for (typename ViewT::size_type i = 0; i < k1.extent(0); i++) {
-    EXPECT_EQ(k1.operator()(i), k2.operator()(i));
+    EXPECT_EQ(j1.operator()(i), j2.operator()(i));
   }
 }
 
@@ -62,36 +66,43 @@ static void compare1d(ViewT const& k1, ViewT const& k2) {
   compareInner1d<ViewT,1>(k1,k2);
 }
 
-// 1-D initialization
-template <typename T, typename... Args>
-static inline void init1d(Kokkos::View<T*,Args...> const& v) {
-  for (auto i = 0UL; i < v.extent(0); i++) {
-    v.operator()(i) = i;
+template <typename ViewT>
+static void compare1dDynamic(ViewT const& k1, ViewT const& k2) {
+  compareBasic(k1,k2);
+  std::cout << "compare1dDynamic: " << k1.extent(0) << "," << k2.extent(0) << "\n";
+  EXPECT_EQ(k1.extent(0), k2.extent(0));
+
+  for (typename ViewT::size_type i = 0; i < k1.extent(0); i++) {
+    EXPECT_EQ(k1.operator()(i), k2.operator()(i));
   }
 }
 
+// 1-D initialization
 template <typename T, typename... Args>
-static inline void init1d(Kokkos::DynRankView<T,Args...> const& v) {
-  for (auto i = 0UL; i < v.extent(0); i++) {
-    v.operator()(i) = i;
-  }
+static inline void init1d(Kokkos::View<T*,Args...> v) {
+  Kokkos::parallel_for(v.extent(0), KOKKOS_LAMBDA(int i) { v(i) = i; });
+  Kokkos::fence();
+}
+
+template <typename T, typename... Args>
+static inline void init1d(Kokkos::DynRankView<T,Args...> v) {
+  Kokkos::parallel_for(v.extent(0), KOKKOS_LAMBDA(int i) { v(i) = i; });
+  Kokkos::fence();
 }
 
 template <typename T, unsigned N, typename... Args>
-static inline void init1d(Kokkos::View<T[N],Args...> const& v) {
+static inline void init1d(Kokkos::View<T[N],Args...> v) {
   EXPECT_EQ(N, v.extent(0));
-  for (auto i = 0UL; i < v.extent(0); i++) {
-    v.operator()(i) = i;
-  }
+  Kokkos::parallel_for(v.extent(0), KOKKOS_LAMBDA(int i) { v(i) = i; });
+  Kokkos::fence();
 }
 
 template <typename T, typename... Args>
 static inline void init1d(
-  Kokkos::Experimental::DynamicView<T*,Args...> const& v
+  Kokkos::Experimental::DynamicView<T*,Args...> v
 ) {
-  for (auto i = 0UL; i < v.extent(0); i++) {
-    v.operator()(i) = i;
-  }
+  Kokkos::parallel_for(v.extent(0), KOKKOS_LAMBDA(int i) { v(i) = i; });
+  Kokkos::fence();
 }
 
 
