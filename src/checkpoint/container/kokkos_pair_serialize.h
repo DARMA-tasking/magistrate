@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                 checkpoint.h
+//                         kokkos_pair_serialize.h
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -41,34 +41,36 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CHECKPOINT_H
-#define INCLUDED_CHECKPOINT_CHECKPOINT_H
+#if !defined INCLUDED_CHECKPOINT_CONTAINER_KOKKOS_PAIR_SERIALIZE_H
+#define INCLUDED_CHECKPOINT_CONTAINER_KOKKOS_PAIR_SERIALIZE_H
 
+#include "checkpoint/common.h"
 #include "checkpoint/serializers/serializers_headers.h"
+#include "checkpoint/dispatch/allocator.h"
 #include "checkpoint/dispatch/dispatch.h"
-#include "checkpoint/traits/serializable_traits.h"
+#include "checkpoint/dispatch/reconstructor.h"
 
-#include "checkpoint/container/array_serialize.h"
-#include "checkpoint/container/atomic_serialize.h"
-#include "checkpoint/container/chrono_serialize.h"
-#include "checkpoint/container/enum_serialize.h"
-#include "checkpoint/container/function_serialize.h"
-#include "checkpoint/container/list_serialize.h"
-#include "checkpoint/container/map_serialize.h"
-#include "checkpoint/container/queue_serialize.h"
-#include "checkpoint/container/raw_ptr_serialize.h"
-#include "checkpoint/container/shared_ptr_serialize.h"
-#include "checkpoint/container/string_serialize.h"
-#include "checkpoint/container/thread_serialize.h"
-#include "checkpoint/container/tuple_serialize.h"
-#include "checkpoint/container/vector_serialize.h"
-#include "checkpoint/container/unique_ptr_serialize.h"
-#include "checkpoint/container/view_serialize.h"
+#if KOKKOS_ENABLED_CHECKPOINT
 
-#include "checkpoint/container/kokkos_unordered_map_serialize.h"
-#include "checkpoint/container/kokkos_pair_serialize.h"
+#include <Kokkos_Pair.hpp>
 
-#include "checkpoint/checkpoint_api.h"
-#include "checkpoint/checkpoint_api.impl.h"
+namespace checkpoint {
 
-#endif /*INCLUDED_CHECKPOINT_CHECKPOINT_H*/
+template <typename SerializerT, typename T1, typename T2>
+void serialize(SerializerT& s, Kokkos::pair<T1, T2>& pair)
+{
+  s | pair.first;
+  s | pair.second;
+}
+
+template <typename SerializerT, typename T1>
+void serialize(SerializerT& s, Kokkos::pair<T1, void>& pair)
+{
+  s | pair.first;
+}
+
+} // namespace checkpoint
+
+#endif /*KOKKOS_ENABLED_CHECKPOINT*/
+
+#endif /*INCLUDED_CHECKPOINT_CONTAINER_KOKKOS_PAIR_SERIALIZE_H*/

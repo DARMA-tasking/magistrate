@@ -638,6 +638,23 @@ TEST_F(TestFootprinter, test_kokkos_unordered_map) {
     EXPECT_EQ(checkpoint::getMemoryFootprint(mapIntLong), expected_size);
   }
 }
+
+TEST_F(TestFootprinter, test_kokkos_pair) {
+  {
+    auto pairIntInt = Kokkos::pair<int, int>(10, 20);
+    auto expected_size = sizeof(pairIntInt.first) + sizeof(pairIntInt.second);
+
+    EXPECT_EQ(checkpoint::getMemoryFootprint(pairIntInt), expected_size);
+  }
+  // 'pair' without second element
+  {
+    auto pairIntVoid = Kokkos::pair<int, void>(10);
+    auto expected_size = sizeof(pairIntVoid.first);
+
+    EXPECT_EQ(checkpoint::getMemoryFootprint(pairIntVoid), expected_size);
+  }
+}
+
 #endif /*KOKKOS_ENABLED_CHECKPOINT*/
 
 }}} // end namespace checkpoint::tests::unit
