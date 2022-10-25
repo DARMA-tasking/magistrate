@@ -109,7 +109,7 @@ struct TestReconstruct {
 // of the type which will be serialized.
 namespace magistrate { namespace nonintrusive { namespace examples {
 
-// \breif Non-Intrusive Serialize method for TestDefaultCons structure.
+// \brief Non-Intrusive Serialize method for TestDefaultCons structure.
 //
 // \note Together with default constructor provides a serialization / deserialization
 // capability to the structure.
@@ -118,13 +118,13 @@ void serialize(Serializer& s, TestDefaultCons& tdc) {
   s | tdc.a;
 }
 
-// \breif Non-Intrusive Serialize method for TestShouldFailReconstruct structure.
+// \brief Non-Intrusive Serialize method for TestShouldFailReconstruct structure.
 template <typename Serializer>
 void serialize(Serializer& s, TestShouldFailReconstruct& tsf) {
   s | tsf.a;
 }
 
-// \breif Non-Intrusive Serialize method for TestReconstruct structure.
+// \brief Non-Intrusive Serialize method for TestReconstruct structure.
 template <typename Serializer>
 void serialize(Serializer& s, TestReconstruct& tr) {
   s | tr.a;
