@@ -111,10 +111,6 @@ struct MyObj3 : public MyBase {
   }
 };
 
-/*
- * Example vector that holds a vector of unique_ptr to MyBase
- */
-
 struct ExampleVector {
   std::vector<std::unique_ptr<MyBase>> vec;
 };

@@ -60,7 +60,7 @@ struct MyTestType {
   // \brief Default constructor
   //
   // The default constructor is needed for the (de)serialization.
-  // (required for serialization)
+  //
   MyTestType() = default;
 
   // \brief Constructor with two parameters
@@ -148,10 +148,12 @@ int main(int, char**) {
   //
   auto out = checkpoint::deserializeFromFile<MyTestType>("hello.txt");
 
-  if (my_test_inst == *out)
+  if (my_test_inst == *out) {
     std::cout << " Serialization / Deserialization from file worked. \n";
-  else
+  } else {
     std::cout << " Serialization / Deserialization from file failed. \n";
+    assert(false);
+  }
 
   //
   // Another option is to de-serialize into an existing object of type 'MyTestType'
@@ -170,10 +172,12 @@ int main(int, char**) {
   // - an integer 'len_' equal to the length of the vector stored in the file.
   //
 
-  if (my_test_inst == out_2)
+  if (my_test_inst == out_2) {
     std::cout << " Deserialization in-place from file worked. \n";
-  else
+  } else {
     std::cout << " Deserialization in-place from file failed. \n";
+    assert(false);
+  }
 
   return 0;
 }
