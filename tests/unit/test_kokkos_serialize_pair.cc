@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                 checkpoint.h
+//                       test_kokkos_serialize_pair.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -41,35 +41,42 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CHECKPOINT_H
-#define INCLUDED_CHECKPOINT_CHECKPOINT_H
+#if KOKKOS_ENABLED_CHECKPOINT
 
-#include "checkpoint/serializers/serializers_headers.h"
-#include "checkpoint/dispatch/dispatch.h"
-#include "checkpoint/traits/serializable_traits.h"
+#include "test_commons.h"
 
-#include "checkpoint/container/array_serialize.h"
-#include "checkpoint/container/atomic_serialize.h"
-#include "checkpoint/container/chrono_serialize.h"
-#include "checkpoint/container/enum_serialize.h"
-#include "checkpoint/container/function_serialize.h"
-#include "checkpoint/container/list_serialize.h"
-#include "checkpoint/container/map_serialize.h"
-#include "checkpoint/container/queue_serialize.h"
-#include "checkpoint/container/raw_ptr_serialize.h"
-#include "checkpoint/container/shared_ptr_serialize.h"
-#include "checkpoint/container/string_serialize.h"
-#include "checkpoint/container/thread_serialize.h"
-#include "checkpoint/container/tuple_serialize.h"
-#include "checkpoint/container/vector_serialize.h"
-#include "checkpoint/container/unique_ptr_serialize.h"
-#include "checkpoint/container/view_serialize.h"
+namespace checkpoint { namespace tests { namespace unit {
 
-#include "checkpoint/container/kokkos_unordered_map_serialize.h"
-#include "checkpoint/container/kokkos_pair_serialize.h"
-#include "checkpoint/container/kokkos_complex_serialize.h"
+struct KokkosPairTest : virtual testing::Test { };
 
-#include "checkpoint/checkpoint_api.h"
-#include "checkpoint/checkpoint_api.impl.h"
+template <typename T1, typename T2>
+static void test_kokkos_pair(Kokkos::pair<T1, T2>& refPair) {
+    using pairType = Kokkos::pair<T1, T2>;
 
-#endif /*INCLUDED_CHECKPOINT_CHECKPOINT_H*/
+    auto serialized = checkpoint::serialize<pairType>(refPair);
+    auto deserialized = checkpoint::deserialize<pairType>(serialized->getBuffer());
+    auto& outPair = *deserialized;
+
+    ASSERT_EQ(refPair.first, outPair.first);
+    ASSERT_EQ(refPair.second, outPair.second);
+}
+
+TEST_F(KokkosPairTest, test_kokkos_pair) {
+    using namespace ::checkpoint;
+
+    auto pairIntInt = Kokkos::pair<int, int>(10, 20);
+    test_kokkos_pair(pairIntInt);
+
+    auto pairShortString = Kokkos::pair<short, std::string>(5, "test");
+    test_kokkos_pair(pairShortString);
+
+    auto pairUnsignedVector = Kokkos::pair<unsigned, std::vector<int>>{30, {2, 3, 4 ,5}};
+    test_kokkos_pair(pairUnsignedVector);
+
+    auto pairIntVoid = Kokkos::pair<int, void>(100);
+    test_kokkos_pair(pairIntVoid);
+}
+
+}}} // namespace checkpoint::tests::unit
+
+#endif /*KOKKOS_ENABLED_CHECKPOINT*/

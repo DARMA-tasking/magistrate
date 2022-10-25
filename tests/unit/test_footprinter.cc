@@ -638,6 +638,45 @@ TEST_F(TestFootprinter, test_kokkos_unordered_map) {
     EXPECT_EQ(checkpoint::getMemoryFootprint(mapIntLong), expected_size);
   }
 }
+
+TEST_F(TestFootprinter, test_kokkos_pair) {
+  {
+    auto pairIntInt = Kokkos::pair<int, int>(10, 20);
+    auto expected_size = sizeof(pairIntInt.first) + sizeof(pairIntInt.second);
+
+    EXPECT_EQ(checkpoint::getMemoryFootprint(pairIntInt), expected_size);
+  }
+  // 'pair' without second element
+  {
+    auto pairIntVoid = Kokkos::pair<int, void>(10);
+    auto expected_size = sizeof(pairIntVoid.first);
+
+    EXPECT_EQ(checkpoint::getMemoryFootprint(pairIntVoid), expected_size);
+  }
+}
+
+TEST_F(TestFootprinter, test_kokkos_complex) {
+  {
+    auto complexFloat = Kokkos::complex<float>(10.0f, 50.0f);
+    auto expected_size = 2 * sizeof(float);
+
+    EXPECT_EQ(checkpoint::getMemoryFootprint(complexFloat), expected_size);
+  }
+  {
+    auto complexDouble = Kokkos::complex<double>(100.0, 500.0);
+    auto expected_size = 2 * sizeof(double);
+
+    EXPECT_EQ(checkpoint::getMemoryFootprint(complexDouble), expected_size);
+  }
+  {
+    auto complexLongDouble = Kokkos::complex<long double>(100.0l, 500.0l);
+    auto expected_size = 2 * sizeof(long double);
+
+    EXPECT_EQ(checkpoint::getMemoryFootprint(complexLongDouble), expected_size);
+  }
+}
+
+
 #endif /*KOKKOS_ENABLED_CHECKPOINT*/
 
 }}} // end namespace checkpoint::tests::unit
