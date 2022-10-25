@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                           checkpoint_example_to_file.cc
+//                checkpoint_example_to_file_nonintrusive.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -41,14 +41,15 @@
 //@HEADER
 */
 
-/// [Serialize structure to file]
+/// [Non-Intrusive Serialize structure to file]
 
 #include <checkpoint/checkpoint.h>
 
 #include <iostream>
 #include <vector>
 
-namespace magistrate { namespace intrusive { namespace examples {
+// \brief Namespace containing type which will be serialized
+namespace magistrate { namespace nonintrusive { namespace examples {
 
 static constexpr int const u_val = 934;
 
@@ -59,7 +60,7 @@ struct MyTestType {
   // \brief Default constructor
   //
   // The default constructor is needed for the (de)serialization.
-  // (required for serialization)
+  //
   MyTestType() = default;
 
   // \brief Constructor with two parameters
@@ -72,26 +73,6 @@ struct MyTestType {
     u_.resize(len_);
     for (int i = 0; i < len_; ++i)
       u_[i] = u_val + i;
-  }
-
-  // \brief Templated function for serializing/deserializing
-  // a variable of type `MyTestType`
-  //
-  // \tparam <Serializer> { Type for storing the serialized result }
-  // \param[in,out] Variable for storing the serialized result
-  //
-  // \note The routine `serialize` is actually a two-way routine:
-  // - it creates the serialized result `s` by combining
-  //   the variables `u_` and `len_`; this creation phase is run
-  //   when the status of the serializer `s` is `Packing`.
-  // - it can extract from a serialized result `s` the values
-  //   to place in the variables `u_` and `len_`; this extraction phase is run
-  //   when the status of the serializer `s` is `Unpacking`.
-  //
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | u_;
-    s | len_;
   }
 
   //
@@ -108,7 +89,6 @@ struct MyTestType {
 
 };
 
-
 bool operator==(const MyTestType &c1, const MyTestType &c2)
 {
   if (c1.len_ != c2.len_)
@@ -123,11 +103,36 @@ bool operator==(const MyTestType &c1, const MyTestType &c2)
   return isEqual;
 }
 
-}}} // end namespace magistrate::intrusive::examples
+}}} // end namespace magistrate::nonintrusive::examples
 
+// \brief In Non-Intrusive way, serialize function needs to be placed in the namespace
+// of the type which will be serialized.
+namespace magistrate { namespace nonintrusive { namespace examples {
+
+// \brief Templated function for serializing/deserializing
+// a variable of type `MyTestType`
+//
+// \tparam <Serializer> { Type for storing the serialized result }
+// \param[in,out] Variable for storing the serialized result
+//
+// \note The routine `serialize` is actually a two-way routine:
+// - it creates the serialized result `s` by combining
+//   the variables `u_` and `len_`; this creation phase is run
+//   when the status of the serializer `s` is `Packing`.
+// - it can extract from a serialized result `s` the values
+//   to place in the variables `u_` and `len_`; this extraction phase is run
+//   when the status of the serializer `s` is `Unpacking`.
+//
+template <typename Serializer>
+void serialize(Serializer& s, MyTestType& c) {
+  s | c.u_;
+  s | c.len_;
+}
+
+}}} // end namespace magistrate::nonintrusive::examples
 
 int main(int, char**) {
-  using namespace magistrate::intrusive::examples;
+  using namespace magistrate::nonintrusive::examples;
 
   // Define a variable of custom type `MyTestType`
   MyTestType my_test_inst(11);
@@ -143,10 +148,12 @@ int main(int, char**) {
   //
   auto out = checkpoint::deserializeFromFile<MyTestType>("hello.txt");
 
-  if (my_test_inst == *out)
+  if (my_test_inst == *out) {
     std::cout << " Serialization / Deserialization from file worked. \n";
-  else
+  } else {
     std::cout << " Serialization / Deserialization from file failed. \n";
+    assert(false);
+  }
 
   //
   // Another option is to de-serialize into an existing object of type 'MyTestType'
@@ -165,14 +172,16 @@ int main(int, char**) {
   // - an integer 'len_' equal to the length of the vector stored in the file.
   //
 
-  if (my_test_inst == out_2)
+  if (my_test_inst == out_2) {
     std::cout << " Deserialization in-place from file worked. \n";
-  else
+  } else {
     std::cout << " Deserialization in-place from file failed. \n";
+    assert(false);
+  }
 
   return 0;
 }
 
 
-/// [Serialize structure to file]
+/// [Non-Intrusive Serialize structure to file]
 

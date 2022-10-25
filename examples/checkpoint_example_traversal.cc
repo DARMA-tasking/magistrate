@@ -41,12 +41,14 @@
 //@HEADER
 */
 
+/// [Serialization with custom traverser]
+
 #include <checkpoint/checkpoint.h>
 
 #include <cstdio>
 #include <string>
 
-namespace checkpoint { namespace examples {
+namespace magistrate { namespace intrusive { namespace examples {
 
 struct TestObject {
 
@@ -75,7 +77,7 @@ private:
   std::vector<std::string> vec3;
 };
 
-}} // end namespace checkpoint::examples
+}}} // end namespace magistrate::intrusive::examples
 
 /// Custom traverser for printing raw bytes
 struct PrintBytesTraverse : checkpoint::Serializer {
@@ -136,7 +138,7 @@ struct TypedTraverse : checkpoint::Serializer {
 };
 
 int main(int, char**) {
-  using namespace checkpoint::examples;
+  using namespace magistrate::intrusive::examples;
 
   TestObject my_obj(TestObject::MakeTag{});
 
@@ -149,3 +151,5 @@ int main(int, char**) {
 
   return 0;
 }
+
+/// [Serialization with custom traverser]

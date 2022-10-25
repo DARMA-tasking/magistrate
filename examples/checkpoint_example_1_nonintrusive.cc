@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                      checkpoint_example_nonintrusive.cc
+//                    checkpoint_example_1_nonintrusive.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -41,44 +41,85 @@
 //@HEADER
 */
 
+/// [Non-Intrusive serialize custom structure]
+
 #include <checkpoint/checkpoint.h>
 
 #include <cstdio>
 
-namespace checkpoint { namespace examples {
+// \brief Namespace containing type which will be serialized
+namespace magistrate { namespace nonintrusive { namespace examples {
 
+// \brief Simple structure with three variables of built-in types
 struct MyTest3 {
   int a = 1, b = 2 , c = 3;
 
+  // \brief Printing function unto the standard display
   void print() {
     printf("MyTest3: a=%d, b=%d, c=%d\n", a, b, c);
   }
 };
 
-template <typename Serializer>
-void serialize(Serializer& s, MyTest3& my_test3) {
-  s | my_test3.a;
-  s | my_test3.b;
-  s | my_test3.c;
-}
+}}} // end namespace magistrate::nonintrusive::examples
 
-}} // end namespace checkpoint::examples
+// \brief Function to serialize the MyTest3 structure.
+// In Non-Intrusive way, this function needs to be placed in the namespace
+// of the type which will be serialized.
+namespace magistrate { namespace nonintrusive { namespace examples {
+  // \brief Templated function for serializing/deserializing
+  // a variable of type `MyTest3`. Non-nonintrusive version of the function
+  // placed outside of `MyTest3` structure.
+  //
+  // \tparam <Serializer> The type of serializer depending on the pass
+  // \param[in,out] s the serializer for traversing this class
+  //
+  // \note The serialize method is typically called three times when
+  // (de-)serializing to a byte buffer:
+  //
+  // 1) Sizing: The first time its called, it sizes all the data it recursively
+  // traverses to generate a final size for the buffer.
+  //
+  // 2) Packing: As the traversal occurs, it copies the data traversed to the
+  // byte buffer in the appropriate location.
+  //
+  // 3) Unpacking: As the byte buffer is traversed, it extracts the bytes from
+  // the buffer to recursively reconstruct the types and setup the class members.
+  //
+  template <typename Serializer>
+  void serialize(Serializer& s, MyTest3& my_test3) {
+    // a, b, c - variable of type `int` (built-in type)
+    s | my_test3.a;
+    s | my_test3.b;
+    s | my_test3.c;
+  }
+
+}}} // end namespace magistrate::nonintrusive::examples
 
 int main(int, char**) {
-  using namespace checkpoint::examples;
+  using namespace magistrate::nonintrusive::examples;
 
+  // Define a variable of custom type `MyTest3`
   MyTest3 my_test3;
   my_test3.print();
 
+  // Call the serialization routine for the variable `my_test3`
+  // The output is a unique pointer: `std::unique_ptr<SerializedInfo>`
+  // (defined in `src/checkpoint_api.h`)
   auto ret = checkpoint::serialize(my_test3);
 
   auto const& buf = ret->getBuffer();
   auto const& buf_size = ret->getSize();
 
+  // Print the buffer address and its size
   printf("ptr=%p, size=%ld\n", static_cast<void*>(buf), buf_size);
 
+  // Deserialize the variable `my_test3` from the serialized buffer
   auto t = checkpoint::deserialize<MyTest3>(buf);
+
+  // Display the de-serialized data
   t->print();
 
   return 0;
 }
+
+/// [Non-Intrusive serialize custom structure]

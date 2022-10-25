@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                    checkpoint_example_polymorphic.cc
+//               checkpoint_example_polymorphic_nonintrusive.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -41,12 +41,13 @@
 //@HEADER
 */
 
-/// [Serialize polymorphic]
+/// [Non-Intrusive Serialize polymorphic]
 
 #include <checkpoint/checkpoint.h>
 #include "checkpoint/dispatch/dispatch_virtual.h"
 
-namespace magistrate { namespace intrusive { namespace examples {
+// \brief Namespace containing types which will be serialized
+namespace magistrate { namespace nonintrusive { namespace examples {
 
 struct MyBase : ::checkpoint::SerializableBase<MyBase> {
   MyBase() { printf("MyBase cons\n"); }
@@ -56,23 +57,12 @@ struct MyBase : ::checkpoint::SerializableBase<MyBase> {
 
   int val_ = 0;
 
-  template <typename S>
-  void serialize(S& s) {
-    s | val_;
-    printf("MyBase: serialize val %d\n", val_);
-  }
-
   virtual void test() = 0;
 };
 
 struct MyObj : ::checkpoint::SerializableDerived<MyObj, MyBase> {
   explicit MyObj(int val) { printf("MyObj cons\n"); val_ = val;}
   explicit MyObj(::checkpoint::SERIALIZE_CONSTRUCT_TAG){}
-
-  template <typename SerializerT>
-  void serialize(SerializerT& s) {
-    printf("MyObj: serialize\n");
-  }
 
   void test() override {
     printf("test MyObj 10 == %d ?\n", val_);
@@ -84,10 +74,6 @@ struct MyObj2 : ::checkpoint::SerializableDerived<MyObj2, MyBase> {
   explicit MyObj2(int val) { printf("MyObj2 cons\n"); val_=val; }
   explicit MyObj2(::checkpoint::SERIALIZE_CONSTRUCT_TAG) {}
 
-  template <typename SerializerT>
-  void serialize(SerializerT& s) {
-    printf("MyObj2: serialize\n");
-  }
   void test() override {
     printf("test MyObj2 20 == %d ?\n", val_);
     assert(val_ == 20);
@@ -99,11 +85,6 @@ struct MyObj3 : ::checkpoint::SerializableDerived<MyObj3, MyBase> {
   explicit MyObj3(int val) { printf("MyObj3 cons\n"); a= 10; b=20; c=100; val_=val;}
   explicit MyObj3(::checkpoint::SERIALIZE_CONSTRUCT_TAG) {}
 
-  template <typename SerializerT>
-  void serialize(SerializerT& s) {
-    s|a|b|c;
-    printf("MyObj3: serialize a b c %d %d %d\n", a, b, c);
-  }
   void test() override {
     printf("val_ 30  a 10 b 20 c 100 = %d %d %d %d\n", val_, a, b, c);
     assert(val_ == 30);
@@ -118,12 +99,6 @@ struct MyObj3 : ::checkpoint::SerializableDerived<MyObj3, MyBase> {
  */
 
 struct ExampleVector {
-
-  template <typename SerializerT>
-  void serialize(SerializerT& s) {
-    s | vec;
-  }
-
   std::vector<std::unique_ptr<MyBase>> vec;
 };
 
@@ -148,14 +123,49 @@ void test() {
   }
 }
 
-}}} // end namespace magistrate::intrusive::examples
+}}} // end namespace magistrate::nonintrusive::examples
+
+// \brief In Non-Intrusive way, serialize function needs to be placed in the namespace
+// of the type which will be serialized.
+namespace magistrate { namespace nonintrusive { namespace examples {
+
+template <typename S>
+void serialize(S& s, MyBase& obj) {
+  s | obj.val_;
+  printf("MyBase: serialize val %d\n", obj.val_);
+}
+
+template <typename SerializerT>
+void serialize(SerializerT& s, MyObj& obj) {
+  printf("MyObj: serialize\n");
+}
+
+template <typename SerializerT>
+void serialize(SerializerT& s, MyObj2& obj) {
+  printf("MyObj2: serialize\n");
+}
+
+template <typename SerializerT>
+void serialize(SerializerT& s, MyObj3& obj) {
+  s | obj.a;
+  s | obj.b;
+  s | obj.c;
+  printf("MyObj3: serialize a b c %d %d %d\n", obj.a, obj.b, obj.c);
+}
+
+template <typename SerializerT>
+void serialize(SerializerT& s, ExampleVector& obj) {
+  s | obj.vec;
+}
+
+}}} // end namespace magistrate::nonintrusive::examples
 
 int main(int, char**) {
-  using namespace magistrate::intrusive::examples;
+  using namespace magistrate::nonintrusive::examples;
 
   test();
 
   return 0;
 }
 
-/// [Serialize polymorphic]
+/// [Non-Intrusive Serialize polymorphic]

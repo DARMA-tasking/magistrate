@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                           checkpoint_example_3.cc
+//                    checkpoint_example_3_nonintrusive.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -41,7 +41,7 @@
 //@HEADER
 */
 
-/// [Serialize constraints constructor destructor]
+/// [Non-Intrusive Serialize constraints constructor destructor]
 
 #include <checkpoint/checkpoint.h>
 
@@ -53,21 +53,14 @@
 // class of a serializable/deserializable type.
 //
 
-namespace magistrate { namespace intrusive { namespace examples {
+// \brief Namespace containing types which will be serialized
+namespace magistrate { namespace nonintrusive { namespace examples {
 
 // \brief Structure with a variable of built-in type.
-//
-// \note This structure is a serializable / deserializable type. It has a
-// default constructor and a `serialize` function.
 struct TestDefaultCons {
   int a = 29;
 
   TestDefaultCons() = default;
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
 };
 
 // \brief Structure with a variable of built-in type.
@@ -88,13 +81,8 @@ struct TestNoSerialize {
 struct TestShouldFailReconstruct {
   int a = 29;
 
-  TestShouldFailReconstruct(int const) { }
+  explicit TestShouldFailReconstruct(int const) { }
   TestShouldFailReconstruct() = delete;
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
 };
 
 // \brief Structure with a variable of built-in type.
@@ -106,28 +94,50 @@ struct TestShouldFailReconstruct {
 struct TestReconstruct {
   int a = 29;
 
-  TestReconstruct(int const) { }
+  explicit TestReconstruct(int const) { }
   TestReconstruct() = delete;
 
   static TestReconstruct& reconstruct(void* buf) {
     auto a = new (buf) TestReconstruct(100);
     return *a;
   }
-
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    s | a;
-  }
 };
 
-}}} // end namespace magistrate::intrusive::examples
+}}} // end namespace magistrate::nonintrusive::examples
+
+// \brief In Non-Intrusive way, serialize function needs to be placed in the namespace
+// of the type which will be serialized.
+namespace magistrate { namespace nonintrusive { namespace examples {
+
+// \brief Non-Intrusive Serialize method for TestDefaultCons structure.
+//
+// \note Together with default constructor provides a serialization / deserialization
+// capability to the structure.
+template <typename Serializer>
+void serialize(Serializer& s, TestDefaultCons& tdc) {
+  s | tdc.a;
+}
+
+// \brief Non-Intrusive Serialize method for TestShouldFailReconstruct structure.
+template <typename Serializer>
+void serialize(Serializer& s, TestShouldFailReconstruct& tsf) {
+  s | tsf.a;
+}
+
+// \brief Non-Intrusive Serialize method for TestReconstruct structure.
+template <typename Serializer>
+void serialize(Serializer& s, TestReconstruct& tr) {
+  s | tr.a;
+}
+
+}}} // end namespace magistrate::nonintrusive::examples
 
 #include "checkpoint/traits/serializable_traits.h"
 
 namespace magistrate {
 
 using namespace ::checkpoint;
-using namespace intrusive::examples;
+using namespace nonintrusive::examples;
 
 static_assert(
   SerializableTraits<TestDefaultCons>::is_serializable,
@@ -147,7 +157,8 @@ static_assert(
   SerializableTraits<TestReconstruct>::is_serializable,
   "Should be serializable"
 );
-} // end namespace checkpoint
+
+} // end namespace magistrate
 
 
 int main(int, char**) {
@@ -155,4 +166,4 @@ int main(int, char**) {
   return 0;
 }
 
-/// [Serialize constraints constructor destructor]
+/// [Non-Intrusive Serialize constraints constructor destructor]

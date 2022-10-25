@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                           checkpoint_example_1.cc
+//                   checkpoint_example_2_nonintrusive.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -41,18 +41,40 @@
 //@HEADER
 */
 
-/// [Serialize structure built-in types]
+/// [Non-Intrusive Serialize custom structure]
 
 #include <checkpoint/checkpoint.h>
 
 #include <cstdio>
 
-namespace magistrate { namespace intrusive { namespace examples {
+// \brief Namespace containing types which will be serialized
+namespace magistrate { namespace nonintrusive { namespace examples {
+
+// \struct MyTest2
+// \brief Simple structure with one variable of built-in type
+struct MyTest2 {
+  int c = 41;
+
+  // \brief Default constructor
+  //
+  // The reconstruction strategy is required for deserialization. A default
+  // constructor is one of the reconstruction strategies that checkpoint will
+  // look for.
+  MyTest2() = default;
+
+  // \brief Printing function unto the standard display
+  void print() {
+    printf("\t MyTest2: c=%d\n", c);
+  }
+};
 
 // \struct MyTest
-// \brief Simple structure with two variables of built-in types
+//
+// \brief Structure with two variables of built-in types and one variable of
+// custom type (`MyTest2`)
 struct MyTest {
   int a = 29, b = 31;
+  MyTest2 my_test_2;
 
   // \brief Default constructor
   //
@@ -61,57 +83,63 @@ struct MyTest {
   // look for.
   MyTest() = default;
 
-  // \brief Constructor with two parameters
-  //
-  // \param[in] Initial value for `a`
-  // \param[in] Initial value for `b`
-  //
-  MyTest(int ai, int bi) : a(ai), b(bi) { };
-
   // \brief Printing function unto the standard display
   void print() {
     printf("MyTest: a=%d, b=%d\n", a, b);
-  }
-
-  // \brief Templated function for serializing/deserializing
-  // a variable of type `MyTest`
-  //
-  // \tparam <Serializer> The type of serializer depending on the pass
-  // \param[in,out] s the serializer for traversing this class
-  //
-  // \note The serialize method is typically called three times when
-  // (de-)serializing to a byte buffer:
-  //
-  // 1) Sizing: The first time its called, it sizes all the data it recursively
-  // traverses to generate a final size for the buffer.
-  //
-  // 2) Packing: As the traversal occurs, it copies the data traversed to the
-  // byte buffer in the appropriate location.
-  //
-  // 3) Unpacking: As the byte buffer is traversed, it extracts the bytes from
-  // the buffer to recursively reconstruct the types and setup the class members.
-  //
-  template <typename Serializer>
-  void serialize(Serializer& s) {
-    printf("MyTest serialize\n");
-    //
-    // a = variable of type `int` (built-in type)
-    //
-    s | a;
-    //
-    // b = variable of type `int` (built-in type)
-    //
-    s | b;
+    my_test_2.print();
   }
 };
 
-}}} // end namespace magistrate::intrusive::examples
+}}} // end namespace magistrate::nonintrusive::examples
+
+// \brief In Non-Intrusive way, serialize function needs to be placed in the namespace
+// of the type which will be serialized.
+namespace magistrate { namespace nonintrusive { namespace examples {
+
+// \brief Templated function for serializing/deserializing
+// a variable of type `MyTest`
+//
+// \tparam <Serializer> The type of serializer depending on the pass
+// \param[in,out] s the serializer for traversing this class
+//
+// \note The serialize method is typically called three times when
+// (de-)serializing to a byte buffer:
+//
+// 1) Sizing: The first time its called, it sizes all the data it recursively
+// traverses to generate a final size for the buffer.
+//
+// 2) Packing: As the traversal occurs, it copies the data traversed to the
+// byte buffer in the appropriate location.
+//
+// 3) Unpacking: As the byte buffer is traversed, it extracts the bytes from
+// the buffer to recursively reconstruct the types and setup the class members.
+//
+template <typename Serializer>
+void serialize(Serializer& s, MyTest& my_test) {
+  printf("MyTest serialize\n");
+  s | my_test.a;
+  s | my_test.b;
+
+  // Recursive dispatch to the `MyTest2` object
+  s | my_test.my_test_2;
+}
+
+// \brief Templated function for serializing/deserializing
+// a variable of type `MyTest2`
+template <typename Serializer>
+void serialize(Serializer& s, MyTest2& my_test2) {
+  printf("MyTest2 serialize\n");
+  s | my_test2.c;
+}
+
+}}} // end namespace magistrate::nonintrusive::examples
 
 int main(int, char**) {
-  using namespace magistrate::intrusive::examples;
+  using namespace magistrate::nonintrusive::examples;
 
   // Define a variable of custom type `MyTest`
-  MyTest my_test_inst(11, 12);
+  MyTest my_test_inst;
+  my_test_inst.a = 10;
   my_test_inst.print();
 
   // Call the serialization routine for the variable `my_test_inst`
@@ -128,11 +156,9 @@ int main(int, char**) {
 
   // De-serialization call to create a new unique pointer to `MyTest`
   auto t = checkpoint::deserialize<MyTest>(ret->getBuffer());
-
-  // Display the result
   t->print();
 
   return 0;
 }
 
-/// [Serialize structure built-in types]
+/// [Non-Intrusive Serialize custom structure]

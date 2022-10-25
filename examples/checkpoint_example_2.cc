@@ -47,7 +47,7 @@
 
 #include <cstdio>
 
-namespace checkpoint { namespace examples {
+namespace magistrate { namespace intrusive { namespace examples {
 
 // \struct MyTest2
 // \brief Simple structure with one variable of built-in type
@@ -125,10 +125,10 @@ struct MyTest {
   }
 };
 
-}} // end namespace checkpoint::examples
+}}} // end namespace magistrate::intrusive::examples
 
 int main(int, char**) {
-  using namespace checkpoint::examples;
+  using namespace magistrate::intrusive::examples;
 
   // Define a variable of custom type `MyTest`
   MyTest my_test_inst;
