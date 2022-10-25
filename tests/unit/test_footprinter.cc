@@ -655,6 +655,28 @@ TEST_F(TestFootprinter, test_kokkos_pair) {
   }
 }
 
+TEST_F(TestFootprinter, test_kokkos_complex) {
+  {
+    auto complexFloat = Kokkos::complex<float>(10.0f, 50.0f);
+    auto expected_size = 2 * sizeof(float);
+
+    EXPECT_EQ(checkpoint::getMemoryFootprint(complexFloat), expected_size);
+  }
+  {
+    auto complexDouble = Kokkos::complex<double>(100.0, 500.0);
+    auto expected_size = 2 * sizeof(double);
+
+    EXPECT_EQ(checkpoint::getMemoryFootprint(complexDouble), expected_size);
+  }
+  {
+    auto complexLongDouble = Kokkos::complex<long double>(100.0l, 500.0l);
+    auto expected_size = 2 * sizeof(long double);
+
+    EXPECT_EQ(checkpoint::getMemoryFootprint(complexLongDouble), expected_size);
+  }
+}
+
+
 #endif /*KOKKOS_ENABLED_CHECKPOINT*/
 
 }}} // end namespace checkpoint::tests::unit

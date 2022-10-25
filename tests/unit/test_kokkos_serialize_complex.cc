@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                 checkpoint.h
+//                  test_kokkos_serialize_complex.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -41,35 +41,39 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CHECKPOINT_H
-#define INCLUDED_CHECKPOINT_CHECKPOINT_H
+#if KOKKOS_ENABLED_CHECKPOINT
 
-#include "checkpoint/serializers/serializers_headers.h"
-#include "checkpoint/dispatch/dispatch.h"
-#include "checkpoint/traits/serializable_traits.h"
+#include "test_commons.h"
 
-#include "checkpoint/container/array_serialize.h"
-#include "checkpoint/container/atomic_serialize.h"
-#include "checkpoint/container/chrono_serialize.h"
-#include "checkpoint/container/enum_serialize.h"
-#include "checkpoint/container/function_serialize.h"
-#include "checkpoint/container/list_serialize.h"
-#include "checkpoint/container/map_serialize.h"
-#include "checkpoint/container/queue_serialize.h"
-#include "checkpoint/container/raw_ptr_serialize.h"
-#include "checkpoint/container/shared_ptr_serialize.h"
-#include "checkpoint/container/string_serialize.h"
-#include "checkpoint/container/thread_serialize.h"
-#include "checkpoint/container/tuple_serialize.h"
-#include "checkpoint/container/vector_serialize.h"
-#include "checkpoint/container/unique_ptr_serialize.h"
-#include "checkpoint/container/view_serialize.h"
+namespace checkpoint { namespace tests { namespace unit {
 
-#include "checkpoint/container/kokkos_unordered_map_serialize.h"
-#include "checkpoint/container/kokkos_pair_serialize.h"
-#include "checkpoint/container/kokkos_complex_serialize.h"
+struct KokkosComplexTest : virtual testing::Test { };
 
-#include "checkpoint/checkpoint_api.h"
-#include "checkpoint/checkpoint_api.impl.h"
+template <typename T1>
+static void test_kokkos_complex(Kokkos::complex<T1>& refComplex) {
+    using complexType = Kokkos::complex<T1>;
 
-#endif /*INCLUDED_CHECKPOINT_CHECKPOINT_H*/
+    auto serialized = checkpoint::serialize<complexType>(refComplex);
+    auto deserialized = checkpoint::deserialize<complexType>(serialized->getBuffer());
+    auto& outComplex = *deserialized;
+
+    ASSERT_DOUBLE_EQ(refComplex.real(), outComplex.real());
+    ASSERT_DOUBLE_EQ(refComplex.imag(), outComplex.imag());
+}
+
+TEST_F(KokkosComplexTest, test_kokkos_complex) {
+    using namespace ::checkpoint;
+
+    auto complexFloat = Kokkos::complex<float>(1.0f, 2.0f);
+    test_kokkos_complex(complexFloat);
+
+    auto complexDouble = Kokkos::complex<double>(10.0, 20.0);
+    test_kokkos_complex(complexDouble);
+
+    auto complexLongDouble = Kokkos::complex<long double>(100.0l, 200.0l);
+    test_kokkos_complex(complexLongDouble);
+}
+
+}}} // namespace checkpoint::tests::unit
+
+#endif /*KOKKOS_ENABLED_CHECKPOINT*/
