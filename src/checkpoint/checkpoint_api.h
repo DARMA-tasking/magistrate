@@ -217,6 +217,15 @@ std::unique_ptr<T> deserializeFromFile(std::string const& file);
 template <typename T>
 void deserializeInPlaceFromFile(std::string const& file, T* buf);
 
+
+template <typename T, typename StreamT>
+void serializeToStream(T& target, StreamT& stream);
+template <typename T, typename StreamT>
+std::unique_ptr<T> deserializeFromStream(StreamT& stream);
+template <typename T, typename StreamT>
+void deserializeInPlaceFromStream(StreamT& stream, T* buf);
+
+
 } /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CHECKPOINT_API_H*/
