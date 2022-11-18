@@ -441,7 +441,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
   }
 
   // Construct a view with the layout and use operator= to propagate out
-  if (s.isUnpacking()) {
+  if (s.isUnpacking() && (view.label() != label)) {
     view = constructView<ViewType>(label, std::make_tuple(layout));
   }
 #else
@@ -471,7 +471,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
   s | extents_array;
 
   // Construct a view with the layout and use operator= to propagate out
-  if (s.isUnpacking()) {
+  if (s.isUnpacking() && (view.label() != label)) {
     view = constructView<ViewType>(label, extents_array);
   }
 #endif

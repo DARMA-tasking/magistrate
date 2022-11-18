@@ -45,8 +45,6 @@
 
 #include "test_commons.h"
 
-#include <Kokkos_DynRankView.hpp>
-
 template <typename ViewT, unsigned ndim>
 static void compareInner1d(ViewT const& k1, ViewT const& k2) {
   std::cout << "compareInner1d: " << k1.extent(0) << "," << k2.extent(0) << "\n";
