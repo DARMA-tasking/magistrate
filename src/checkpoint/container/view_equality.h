@@ -280,8 +280,8 @@ struct ViewEquality {
    */
   template <typename EqT = detail::DefaultEQ>
   static bool compareExtents(ViewT const& v1, ViewU const& v2, EqT eq = {}) {
-    auto const ndims_v1 = CountDims<ViewT>::numDims(v1);
-    auto const ndims_v2 = CountDims<ViewU>::numDims(v2);
+    auto const ndims_v1 = CountDims<ViewT>::numDims;
+    auto const ndims_v2 = CountDims<ViewU>::numDims;
     CHECKPOINT_APPLY_OP(eq, ndims_v1, ndims_v2, "num dims equal");
     for (auto i = 0; i < ndims_v1; i++) {
       CHECKPOINT_APPLY_OP(eq, v1.extent(i), v2.extent(i), i);

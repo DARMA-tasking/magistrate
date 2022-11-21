@@ -91,28 +91,21 @@ template <
 struct CountDims {
   using BaseT = typename std::decay<T>::type;
   static constexpr size_t dynamic = 0;
-  static int numDims(ViewType const& view) { return 0; }
+  static constexpr size_t numDims = 0;
 };
 
 template <typename ViewType, typename T>
 struct CountDims<ViewType, T*> {
   using BaseT = typename CountDims<ViewType,T>::BaseT;
   static constexpr size_t dynamic = CountDims<ViewType, T>::dynamic + 1;
-
-  static int numDims(ViewType const& view) {
-    auto const val = CountDims<ViewType, T>::numDims(view);
-    return val + 1;
-  }
+  static constexpr size_t numDims = CountDims<ViewType, T>::numDims + 1;
 };
 
 template <typename ViewType, typename T, size_t N>
 struct CountDims<ViewType, T[N]> {
   using BaseT = typename CountDims<ViewType,T>::BaseT;
   static constexpr size_t dynamic = CountDims<ViewType, T>::dynamic;
-  static int numDims(ViewType const& view) {
-    auto const val = CountDims<ViewType, T>::numDims(view);
-    return val + 1;
-  }
+  static constexpr size_t numDims = CountDims<ViewType, T>::numDims + 1;
 };
 
 } /* end namespace checkpoint */

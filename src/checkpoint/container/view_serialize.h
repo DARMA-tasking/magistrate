@@ -184,6 +184,29 @@ inline void serializeLayout(SerdesT& s, int dim, Kokkos::LayoutRight& layout) {
   }
 }
 
+template <typename LayoutAT, typename LayoutBT>
+inline bool compareLayouts(const LayoutAT&, const LayoutBT&, const int){
+  return false; //Layouts are not the same type.
+}
+
+template <typename LayoutT>
+inline bool compareLayouts(const LayoutT& layoutA, const LayoutT& layoutB, const int dim) {
+  for (auto i = 0; i < dim; i++){
+    if(layoutA.dimension[i] != layoutB.dimension[i]) return false;
+  }
+  return true;
+}
+
+template<>
+inline bool compareLayouts(const Kokkos::LayoutStride& layoutA, const Kokkos::LayoutStride& layoutB, const int dim){
+  for (auto i = 0; i < dim; i++){
+    if(layoutA.dimension[i] != layoutB.dimension[i]) return false;
+    if(layoutA.stride[i] != layoutB.stride[i]) return false;
+  }
+  return true;
+}
+
+
 template <typename SerializerT, typename ViewT>
 inline std::string serializeViewLabel(SerializerT& s, ViewT& view) {
   // Serialize the label of the view
@@ -419,13 +442,18 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
   // Serialize the label for the view which is used to construct a new view with
   // the same label. Labels may not be unique and are for debugging Kokkos::View
   auto const label = serializeViewLabel(s,view);
+  
+  bool existingViewUsable = (label == view.label());
 
   // Serialize the total number of dimensions, including runtime+static dims
-  int rt_dim = 0;
+  size_t rt_dim = 0;
   if (!s.isUnpacking()) {
-    rt_dim = CountDims<ViewType, T>::numDims(view);
+    rt_dim = CountDims<ViewType, T>::numDims;
   }
   s | rt_dim;
+  if(s.isUnpacking() && existingViewUsable){
+    existingViewUsable = (CountDims<ViewType, T>::numDims == rt_dim);
+  }
 
 #if CHECKPOINT_KOKKOS_PACK_LAYOUT
   // Serialize the Kokkos layout data, including the extents, strides
@@ -435,14 +463,17 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
   // initialization
   if (s.isUnpacking()) {
     serializeLayout<SerializerT>(s, rt_dim, layout);
+    if(existingViewUsable){
+      existingViewUsable = compareLayouts(layout, view.layout(), rt_dim);
+    }
   } else {
     ArrayLayoutType layout_cur = view.layout();
     serializeLayout<SerializerT>(s, rt_dim, layout_cur);
   }
 
   // Construct a view with the layout and use operator= to propagate out
-  if (s.isUnpacking() && (view.label() != label)) {
-    view = constructView<ViewType>(label, std::make_tuple(layout));
+  if (s.isUnpacking() && !existingViewUsable) {
+      view = constructView<ViewType>(label, std::make_tuple(layout));
   }
 #else
   //
@@ -471,8 +502,13 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
   s | extents_array;
 
   // Construct a view with the layout and use operator= to propagate out
-  if (s.isUnpacking() && (view.label() != label)) {
-    view = constructView<ViewType>(label, extents_array);
+  if (s.isUnpacking()) {
+    for (auto i = 0; i < dyn_dims && existingViewUsable; i++){
+      existingViewUsable = extents_array[i] == view.extent(i);
+    }
+    if(!existingViewUsable) {
+      view = constructView<ViewType>(label, extents_array);
+    }
   }
 #endif
 
