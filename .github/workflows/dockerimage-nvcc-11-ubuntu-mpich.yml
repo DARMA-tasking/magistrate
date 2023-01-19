@@ -2,7 +2,7 @@
 ############## Warning this is a generated file---do not modify ###############
 ###############################################################################
 
-name: PR tests (nvcc-11.0, ubuntu, mpich)
+name: PR tests (nvcc-11.4, ubuntu, mpich)
 
 on:
   push:
