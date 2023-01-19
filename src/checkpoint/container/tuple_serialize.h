@@ -49,6 +49,7 @@
 
 #include <tuple>
 #include <utility>
+#include <new>
 
 namespace checkpoint {
 
