@@ -20,7 +20,7 @@ jobs:
     env:
       REPO: lifflander1/checkpoint
       ARCH: amd64
-      UBUNTU: 18.04
+      UBUNTU: 20.04
       COMPILER_TYPE: nvidia
       COMPILER: nvcc-11
       BUILD_TYPE: release
