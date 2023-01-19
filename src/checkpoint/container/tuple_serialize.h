@@ -59,6 +59,13 @@ void tuple_helper(Serializer& s, std::tuple<T...>& tup, std::index_sequence<Idxs
   );
 }
 
+template <typename... T, size_t... Idxs>
+void tuple_helper_reconstruct(std::tuple<T...>*& tup, std::index_sequence<Idxs...>) {
+  std::forward_as_tuple(
+    (dispatch::Reconstructor<T>::construct(&std::get<Idxs>(*tup)))...
+  );
+}
+
 template <typename Serializer, typename... Args>
 void serialize(Serializer& s, std::tuple<Args...>& tuple) {
   tuple_helper(s, tuple, std::index_sequence_for<Args...>());
@@ -70,6 +77,15 @@ void serialize(Serializer& s, std::pair<T, U>& pair) {
   s | pair.first;
   s | pair.second;
 }
+
+template <typename... Args>
+struct CheckpointReconstructor<std::tuple<Args...>> {
+  static void reconstruct(std::tuple<Args...>*& tuple, void* buf) {
+    using TupleType = std::decay_t<decltype(*tuple)>;
+    tuple = std::launder<TupleType>(reinterpret_cast<TupleType*>(buf));
+    tuple_helper_reconstruct(tuple, std::index_sequence_for<Args...>());
+  }
+};
 
 } /* end namespace checkpoint */
 

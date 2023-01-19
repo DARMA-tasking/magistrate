@@ -51,7 +51,12 @@
 #include <tuple>
 #include <cstdlib>
 
-namespace checkpoint { namespace dispatch {
+namespace checkpoint {
+
+template <typename T>
+struct CheckpointReconstructor;
+
+namespace dispatch {
 
 template <typename T>
 struct Reconstructor {
@@ -94,6 +99,17 @@ struct Reconstructor {
     debug_checkpoint("DeserializerDispatch: T::reconstruct(): buf=%p\n", buf);
     auto& t = T::reconstruct(buf);
     return &t;
+  }
+
+  template <typename U = T>
+  static T* constructReconstruct(void* buf, isSpecializedReconstructibleType<U>* = nullptr) {
+    debug_checkpoint(
+      "DeserializerDispatch: CheckpointReconstructor<T>::reconstruct(): buf=%p\n",
+      buf
+    );
+    T* t = nullptr;
+    checkpoint::CheckpointReconstructor<T>::reconstruct(t, buf);
+    return t;
   }
 
   // Non-intrusive reconstruct
