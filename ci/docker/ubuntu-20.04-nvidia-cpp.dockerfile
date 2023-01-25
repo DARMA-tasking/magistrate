@@ -1,5 +1,4 @@
 
-ARG cuda=11.4
 ARG arch=amd64
 FROM ${arch}/ubuntu:20.04 as base
 
