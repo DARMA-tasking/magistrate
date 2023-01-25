@@ -4,7 +4,7 @@ ARG arch=amd64
 FROM ${arch}/ubuntu:20.04 as base
 
 ARG proxy=""
-ARG compiler=nvcc-11
+ARG compiler=nvcc-11.2
 
 ENV https_proxy=${proxy} \
     http_proxy=${proxy}
@@ -43,7 +43,7 @@ RUN if test ${compiler} = "nvcc-12"; then \
       rm -rf /var/lib/apt/lists/* && \
       rm -rf cuda-repo-ubuntu1804-10-1-local-10.1.243-418.87.00_1.0-1_amd64.deb && \
       ln -s /usr/local/cuda-12 /usr/local/cuda-versioned; \
-    else \
+    elif test ${compiler} = "nvcc-11.4"; then \
       wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin && \
       mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600 && \
       wget http://developer.download.nvidia.com/compute/cuda/11.4.1/local_installers/cuda-repo-ubuntu2004-11-4-local_11.4.1-470.57.02-1_amd64.deb && \
@@ -55,6 +55,18 @@ RUN if test ${compiler} = "nvcc-12"; then \
       rm -rf /var/lib/apt/lists/* && \
       rm -rf cuda-repo-ubuntu2004-11-4-local_11.4.1-470.57.02-1_amd64.deb && \
       ln -s /usr/local/cuda-11.4 /usr/local/cuda-versioned; \
+    elif test ${compiler} = "nvcc-11.2"; then \
+      wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-ubuntu1804.pin && \
+      mv cuda-ubuntu1804.pin /etc/apt/preferences.d/cuda-repository-pin-600 && \
+      wget https://developer.download.nvidia.com/compute/cuda/11.2.0/local_installers/cuda-repo-ubuntu1804-11-2-local_11.2.0-460.27.04-1_amd64.deb && \
+      dpkg -i cuda-repo-ubuntu1804-11-2-local_11.2.0-460.27.04-1_amd64.deb && \
+      apt-key add /var/cuda-repo-ubuntu1804-11-2-local/7fa2af80.pub && \
+      apt-get update && \
+      apt-get -y install cuda-nvcc-11-2 && \
+      apt-get clean && \
+      rm -rf /var/lib/apt/lists/* && \
+      rm -rf cuda-repo-ubuntu1804-11-2-local_11.2.0-460.27.04-1_amd64.deb && \
+      ln -s /usr/local/cuda-11.2 /usr/local/cuda-versioned; \
     fi
 
 ENV CC=gcc \
