@@ -51,12 +51,7 @@
 #include <tuple>
 #include <cstdlib>
 
-namespace checkpoint {
-
-template <typename T>
-struct CheckpointReconstructor;
-
-namespace dispatch {
+namespace checkpoint { namespace dispatch {
 
 template <typename T>
 struct Reconstructor {
