@@ -96,6 +96,17 @@ struct Reconstructor {
     return &t;
   }
 
+  template <typename U = T>
+  static T* constructReconstruct(void* buf, isSpecializedReconstructibleType<U>* = nullptr) {
+    debug_checkpoint(
+      "DeserializerDispatch: CheckpointReconstructor<T>::reconstruct(): buf=%p\n",
+      buf
+    );
+    T* t = nullptr;
+    checkpoint::CheckpointReconstructor<T>::reconstruct(t, buf);
+    return t;
+  }
+
   // Non-intrusive reconstruct
   template <typename U = T>
   static T* constructReconstruct(void* buf, isNonIntReconstructibleType<U>* = nullptr) {
