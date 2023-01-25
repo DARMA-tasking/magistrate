@@ -2,7 +2,7 @@
 ############## Warning this is a generated file---do not modify ###############
 ###############################################################################
 
-name: PR tests (clang-5.0, ubuntu, mpich)
+name: PR tests (clang-14, ubuntu, mpich)
 
 on:
   push:
@@ -20,9 +20,9 @@ jobs:
     env:
       REPO: lifflander1/checkpoint
       ARCH: amd64
-      UBUNTU: 18.04
+      UBUNTU: 22.04
       COMPILER_TYPE: clang
-      COMPILER: clang-5.0
+      COMPILER: clang-14
       BUILD_TYPE: release
       ULIMIT_CORE: 0
       CODE_COVERAGE: 0
@@ -49,7 +49,7 @@ jobs:
         message("::set-output name=timestamp::${current_date}")
     - uses: actions/cache@v1
       env:
-        cache-name: ubuntu-clang-5.0-cache
+        cache-name: ubuntu-clang-14-cache
       with:
         path: ${{ env.BUILD_ROOT }}/ccache
         key: ${{ runner.os }}-${{ env.cache-name }}-${{ steps.cache_ts.outputs.timestamp }}
