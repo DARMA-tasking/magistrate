@@ -99,8 +99,8 @@ private:
   TestObject2 obj2;
 };
 
-struct TestTraverse : checkpoint::Serializer {
-  TestTraverse() : checkpoint::Serializer(checkpoint::eSerializationMode::None) { }
+struct TestTraverse : checkpoint::Serializer<> {
+  TestTraverse() : checkpoint::Serializer<>(checkpoint::eSerializationMode::None) { }
 
   void contiguousBytes(void* ptr, std::size_t size, std::size_t num_elms) {
     printf("size=%zu, num=%zu\n", size, num_elms);
@@ -139,13 +139,13 @@ struct CustomDispatch<SerializerT, std::vector<U>> {
   }
 };
 
-struct TestTraverse2 : checkpoint::Serializer {
+struct TestTraverse2 : checkpoint::Serializer<> {
   template <typename U, typename V>
   using DispatcherType = CustomDispatch<U, V>;
 
   void contiguousBytes(void* ptr, std::size_t size, std::size_t num_elms) { }
 
-  TestTraverse2() : checkpoint::Serializer(checkpoint::eSerializationMode::None) { }
+  TestTraverse2() : checkpoint::Serializer<>(checkpoint::eSerializationMode::None) { }
 };
 
 

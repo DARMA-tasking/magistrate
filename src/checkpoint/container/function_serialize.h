@@ -68,9 +68,8 @@ template <
   typename Res,
   typename... ArgTypes,
   typename = std::enable_if_t<
-    std::is_same<
-      SerializerT,
-      checkpoint::Footprinter
+    checkpoint::is_footprinter<
+      SerializerT
     >::value
   >
 >

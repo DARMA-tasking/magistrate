@@ -56,7 +56,7 @@ namespace checkpoint {
 
 template <typename SerializerT, typename T, typename VectorAllocator>
 typename std::enable_if_t<
-  not std::is_same<SerializerT, checkpoint::Footprinter>::value, SerialSizeType
+  not checkpoint::is_footprinter<SerializerT>::value, SerialSizeType
 >
 serializeVectorMeta(SerializerT& s, std::vector<T, VectorAllocator>& vec) {
   SerialSizeType vec_capacity = vec.capacity();
@@ -108,7 +108,7 @@ void constructVectorData(
 
 template <typename SerializerT, typename T, typename VectorAllocator>
 typename std::enable_if_t<
-  not std::is_same<SerializerT, checkpoint::Footprinter>::value, void
+  not checkpoint::is_footprinter<SerializerT>::value, void
 >
 serialize(SerializerT& s, std::vector<T, VectorAllocator>& vec) {
   auto const vec_size = serializeVectorMeta(s, vec);
@@ -122,7 +122,7 @@ serialize(SerializerT& s, std::vector<T, VectorAllocator>& vec) {
 
 template <typename SerializerT, typename VectorAllocator>
 typename std::enable_if_t<
-  not std::is_same<SerializerT, checkpoint::Footprinter>::value, void
+  not checkpoint::is_footprinter<SerializerT>::value, void
 >
 serialize(SerializerT& s, std::vector<bool, VectorAllocator>& vec) {
   auto const vec_size = serializeVectorMeta(s, vec);
@@ -146,7 +146,7 @@ serialize(SerializerT& s, std::vector<bool, VectorAllocator>& vec) {
 
 template <typename SerializerT, typename T, typename VectorAllocator>
 typename std::enable_if_t<
-  std::is_same<SerializerT, checkpoint::Footprinter>::value, void
+  checkpoint::is_footprinter<SerializerT>::value, void
 >
 serialize(SerializerT& s, std::vector<T, VectorAllocator>& vec) {
   s.countBytes(vec);
@@ -156,7 +156,7 @@ serialize(SerializerT& s, std::vector<T, VectorAllocator>& vec) {
 
 template <typename SerializerT, typename VectorAllocator>
 typename std::enable_if_t<
-  std::is_same<SerializerT, checkpoint::Footprinter>::value, void
+  checkpoint::is_footprinter<SerializerT>::value, void
 >
 serialize(SerializerT& s, std::vector<bool, VectorAllocator>& vec) {
   s.countBytes(vec);

@@ -49,13 +49,16 @@
 
 namespace checkpoint {
 
-struct MemorySerializer : Serializer {
+template<typename... UserTraits>
+struct MemorySerializer : Serializer<UserTraits...> {
+  using ModeType = eSerializationMode;
+
   MemorySerializer(ModeType const& in_mode, SerialByteType* in_start)
-    : Serializer(in_mode), start_(in_start), cur_(in_start)
+    : Serializer<UserTraits...>(in_mode), start_(in_start), cur_(in_start)
   { }
 
   explicit MemorySerializer(ModeType const& in_mode)
-    : Serializer(in_mode)
+    : Serializer<UserTraits...>(in_mode)
   { }
 
   SerialByteType* getBuffer() const {

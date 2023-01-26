@@ -78,7 +78,7 @@ using SerializedReturnType = std::unique_ptr<SerializedInfo>;
  * \return a \c std::unique_ptr to a \c SerializedInfo containing the buffer
  * with serialized data and the size of the buffer
  */
-template <typename T>
+template <typename T, typename... UserTraits>
 SerializedReturnType serialize(T& target, BufferCallbackType fn = nullptr);
 
 /**
@@ -101,7 +101,7 @@ SerializedReturnType serialize(T& target, BufferCallbackType fn = nullptr);
  *
  * \return a pointer to the newly reified \c T based on bytes in \c buf
  */
-template <typename T>
+template <typename T, typename... UserTraits>
 T* deserialize(char* buf, char* object_buf);
 
 /**
@@ -118,7 +118,7 @@ T* deserialize(char* buf, char* object_buf);
  *
  * \return a unique pointer to the newly reified \c T based on bytes in \c buf
  */
-template <typename T>
+template <typename T, typename... UserTraits>
 std::unique_ptr<T> deserialize(char* buf);
 
 /**
@@ -132,7 +132,7 @@ std::unique_ptr<T> deserialize(char* buf);
  * \param[in] t a valid pointer to a \c T that has been user-allocated and
  * constructed
  */
-template <typename T>
+template <typename T, typename... UserTraits>
 void deserializeInPlace(char* buf, T* t);
 
 /**
@@ -143,7 +143,7 @@ void deserializeInPlace(char* buf, T* t);
  *
  * \return a unique pointer to \c T that must be deallocated
  */
-template <typename T>
+template <typename T, typename... UserTraits>
 std::unique_ptr<T> deserialize(SerializedReturnType&& in);
 
 /**
@@ -153,7 +153,7 @@ std::unique_ptr<T> deserialize(SerializedReturnType&& in);
  *
  * \return number of bytes for the \c target
  */
-template <typename T>
+template <typename T, typename... UserTraits>
 std::size_t getSize(T& target);
 
 /**
@@ -170,7 +170,7 @@ std::size_t getSize(T& target);
  *
  * \return memory footprint of the \c target
  */
-template <typename T>
+template <typename T, typename... UserTraits>
 std::size_t getMemoryFootprint(T& target, std::size_t size_offset = 0);
 
 /**
@@ -184,7 +184,7 @@ std::size_t getMemoryFootprint(T& target, std::size_t size_offset = 0);
  * \param[in] target the \c T to serialize
  * \param[in] file name of the file to create
  */
-template <typename T>
+template <typename T, typename... UserTraits>
 void serializeToFile(T& target, std::string const& file);
 
 /**
@@ -200,7 +200,7 @@ void serializeToFile(T& target, std::string const& file);
  *
  * \return unique pointer to the new object \c T
  */
-template <typename T>
+template <typename T, typename... UserTraits>
 std::unique_ptr<T> deserializeFromFile(std::string const& file);
 
 /**
@@ -214,7 +214,7 @@ std::unique_ptr<T> deserializeFromFile(std::string const& file);
  * \param[in] file the filename to read with bytes for \c T
  * \param[in] t a valid, constructed \c T to deserialize into
  */
-template <typename T>
+template <typename T, typename... UserTraits>
 void deserializeInPlaceFromFile(std::string const& file, T* buf);
 
 /**
@@ -227,7 +227,7 @@ void deserializeInPlaceFromFile(std::string const& file, T* buf);
  * \param[in] target the \c T to serialize
  * \param[in] stream to serialize into, with tellp and write functions.
  */
-template <typename T, typename StreamT>
+template <typename T, typename StreamT, typename... UserTraits>
 void serializeToStream(T& target, StreamT& stream);
 
 /**
@@ -243,7 +243,7 @@ void serializeToStream(T& target, StreamT& stream);
  *
  * \return unique pointer to the new object \c T
  */
-template <typename T, typename StreamT>
+template <typename T, typename StreamT, typename... UserTraits>
 std::unique_ptr<T> deserializeFromStream(StreamT& stream);
 
 /**
@@ -257,7 +257,7 @@ std::unique_ptr<T> deserializeFromStream(StreamT& stream);
  * \param[in] stream the stream to read with bytes for \c T, with tellg and read functions
  * \param[in] t a valid, constructed \c T to deserialize into
  */
-template <typename T, typename StreamT>
+template <typename T, typename StreamT, typename... UserTraits>
 void deserializeInPlaceFromStream(StreamT& stream, T* buf);
 
 

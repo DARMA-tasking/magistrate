@@ -52,16 +52,12 @@ template<class T> struct always_false : std::false_type {};
 
 namespace checkpoint {
 
-template <typename StreamT, eSerializationMode mode>
-struct StreamSerializer : Serializer {
-  //This really doesn't expect to be initialized like this, disabling until someone yells at me.
-  /*explicit StreamSerializer(ModeType const& in_mode)
-    : Serializer(in_mode)
-  { 
-  }*/
-  
+template <typename StreamT, eSerializationMode mode, typename... UserTraits>
+struct StreamSerializer : Serializer<UserTraits...> {
+  using ModeType = eSerializationMode;
+
   StreamSerializer(ModeType const& in_mode, StreamT& stream)
-    : Serializer(in_mode), stream(stream)
+    : Serializer<UserTraits...>(in_mode), stream(stream)
   { 
     if constexpr ( mode == eSerializationMode::Packing ) {
         start_position = stream.tellp();

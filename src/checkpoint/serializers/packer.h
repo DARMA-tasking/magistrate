@@ -53,8 +53,8 @@
 
 namespace checkpoint {
 
-template <typename BufferT>
-struct PackerBuffer : MemorySerializer {
+template <typename BufferT, typename... UserTraits>
+struct PackerBuffer : MemorySerializer<UserTraits...> {
   using BufferTPtrType = std::unique_ptr<BufferT>;
   using PackerReturnType = std::tuple<BufferTPtrType, SerialSizeType>;
 

@@ -247,17 +247,17 @@ validatePackerBufferSize(PackerT const& p, SerialSizeType bufferSize) {
   }
 }
 
-template <typename T>
+template <typename T, typename... UserTraits>
 buffer::ImplReturnType
 packBuffer(T& target, SerialSizeType size, BufferObtainFnType fn) {
   SerialByteType* user_buf = fn ? fn(size) : nullptr;
   if (user_buf == nullptr) {
     auto p =
-      Standard::pack<T, PackerBuffer<buffer::ManagedBuffer>>(target, size);
+      Standard::pack<T, PackerBuffer<buffer::ManagedBuffer, UserTraits...>>(target, size);
     validatePackerBufferSize<T>(p, size);
     return std::make_tuple(std::move(p.extractPackedBuffer()), size);
   } else {
-    auto p = Standard::pack<T, PackerBuffer<buffer::UserBuffer>>(
+    auto p = Standard::pack<T, PackerBuffer<buffer::UserBuffer, UserTraits...>>(
       target, size, std::make_unique<buffer::UserBuffer>(user_buf, size)
     );
     validatePackerBufferSize<T>(p, size);
@@ -265,26 +265,26 @@ packBuffer(T& target, SerialSizeType size, BufferObtainFnType fn) {
   }
 }
 
-template <typename T>
+template <typename T, typename... UserTraits>
 buffer::ImplReturnType serializeType(T& target, BufferObtainFnType fn) {
-  auto len = Standard::size<T, Sizer>(target);
+  auto len = Standard::size<T, Sizer<UserTraits...>>(target);
   debug_checkpoint("serializeType: len=%ld\n", len);
-  return packBuffer<T>(target, len, fn);
+  return packBuffer<T, UserTraits...>(target, len, fn);
 }
 
-template <typename T>
+template <typename T, typename... UserTraits>
 T* deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
   auto mem = allocBuf ? allocBuf : Standard::allocate<T>();
   auto t_buf = std::unique_ptr<T>(Standard::construct<T>(mem));
   T* traverser =
-    Standard::unpack<T, UnpackerBuffer<buffer::UserBuffer>>(t_buf.get(), data);
+    Standard::unpack<T, UnpackerBuffer<buffer::UserBuffer, UserTraits...>>(t_buf.get(), data);
   t_buf.release();
   return traverser;
 }
 
-template <typename T>
+template <typename T, typename... UserTraits>
 void deserializeType(InPlaceTag, SerialByteType* data, T* t) {
-  Standard::unpack<T, UnpackerBuffer<buffer::UserBuffer>>(t, data);
+  Standard::unpack<T, UnpackerBuffer<buffer::UserBuffer, UserTraits...>>(t, data);
 }
 
 }} /* end namespace checkpoint::dispatch */

@@ -56,18 +56,24 @@ namespace checkpoint {
  * preprocessing pass before packing content so a properly sized buffer can be
  * allocated.
  */
-struct Sizer : Serializer {
+template<typename... UserTraits>
+struct Sizer : Serializer<UserTraits...> {
+  using ModeType = eSerializationMode;
   /**
    * \internal \brief Construct a sizer
    */
-  Sizer();
+  Sizer() : Serializer<UserTraits...>(ModeType::Sizing){
+
+  }
 
   /**
    * \brief Get the current size
    *
    * \return The current size
    */
-  SerialSizeType getSize() const;
+  SerialSizeType getSize() const{
+    return num_bytes_;
+  }
 
   /**
    * \brief Add contiguous bytes to the sizer
@@ -76,7 +82,9 @@ struct Sizer : Serializer {
    * \param[in] size the number of bytes for each element
    * \param[in] num_elms the number of elements
    */
-  void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms);
+  void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms){
+    num_bytes_ += size*num_elms;
+  };
 
 private:
   SerialSizeType num_bytes_ = 0; /**< Count of bytes */

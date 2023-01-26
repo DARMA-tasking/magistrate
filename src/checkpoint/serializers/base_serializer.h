@@ -67,11 +67,29 @@ struct BasicDispatcher;
 
 } /* end namespace dispatch */
 
+namespace {
+
+    template<typename, typename, typename...>
+    struct checkTraitImpl : std::false_type {};
+
+    template<typename Type, typename UserTrait, typename... UserTraits>
+    struct checkTraitImpl<std::enable_if_t<std::is_same<Type, UserTrait>::value>*, Type, UserTrait, UserTraits...> : 
+            std::true_type {};
+
+    template<typename Type, typename UserTrait, typename... UserTraits>
+    struct checkTraitImpl<std::enable_if_t<not std::is_same<Type, UserTrait>::value>*, Type, UserTrait, UserTraits...> : 
+            checkTraitImpl<void*, Type, UserTraits...> {};
+
+    template<typename Type, typename... UserTraits>
+    struct checkTrait : checkTraitImpl<void*, Type, UserTraits...> {};
+}
+
 /**
  * \struct Serializer
  *
  * \brief General base class for serialiers
  */
+template<typename... UserTraits>
 struct Serializer {
   using ModeType = eSerializationMode;
 
@@ -203,10 +221,18 @@ struct Serializer {
    */
   void setVirtualDisabled(bool val) { virtual_disabled_ = val; }
 
+  /*template<typename Type>
+  static constexpr bool hasTrait(void) {
+      return checkTrait<Type, UserTraits...>::value;
+  }*/
+  template<typename Type>
+  using hasTrait = checkTrait<Type, UserTraits...>;
+
 protected:
   ModeType cur_mode_ = ModeType::Invalid; /**< The current mode */
   bool virtual_disabled_ = false;         /**< Virtual serialization disabled */
 };
+
 
 } /* end namespace checkpoint */
 

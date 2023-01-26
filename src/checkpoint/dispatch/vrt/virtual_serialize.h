@@ -146,7 +146,7 @@ struct ReconstructAsVirtualIfNeeded<
   SerializerT,
   typename std::enable_if_t<
     dispatch::vrt::VirtualSerializeTraits<T>::has_not_virtual_serialize and
-    not std::is_same<SerializerT, checkpoint::Footprinter>::value
+    not checkpoint::is_footprinter<SerializerT>::value
   >
 > {
   static T* apply(SerializerT& s, dispatch::vrt::TypeIdx entry) {
@@ -162,7 +162,7 @@ struct ReconstructAsVirtualIfNeeded<
   SerializerT,
   typename std::enable_if_t<
     dispatch::vrt::VirtualSerializeTraits<T>::has_not_virtual_serialize and
-    std::is_same<SerializerT, checkpoint::Footprinter>::value
+    checkpoint::is_footprinter<SerializerT>::value
   >
 > {
   static T* apply(SerializerT& s, dispatch::vrt::TypeIdx entry) { return nullptr; }
