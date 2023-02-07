@@ -48,6 +48,7 @@
 #include <checkpoint/checkpoint.h>
 #include "checkpoint/checkpoint_api.h"
 #include "buffer/buffer.h"
+#include "traits/user_traits.h"
 
 #include <memory>
 
@@ -146,6 +147,19 @@ void deserializeInPlaceFromStream(StreamT& stream, T* t) {
   dispatch::Standard::unpack<T, StreamSerializer<StreamT, eSerializationMode::Unpacking, UserTraits...>>(
     t, eSerializationMode::Unpacking, stream
   );
+}
+
+template <typename Trait, template<typename...> typename SerializerT, typename... UserTraits>
+struct hasTrait<Trait, SerializerT<UserTraits...>> : SerializerUserTraits::hasTrait<Trait, SerializerT, UserTraits...> {};
+
+template <typename Trait, typename SerializerT>
+auto& withoutTrait(SerializerT& s){
+  return SerializerUserTraits::withoutTrait<Trait>(s);
+}
+
+template <typename Trait, typename SerializerT>
+auto& withTrait(SerializerT& s){
+  return SerializerUserTraits::withTrait<Trait>(s);
 }
 
 } /* end namespace checkpoint */

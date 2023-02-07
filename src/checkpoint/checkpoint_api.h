@@ -260,6 +260,55 @@ std::unique_ptr<T> deserializeFromStream(StreamT& stream);
 template <typename T, typename StreamT, typename... UserTraits>
 void deserializeInPlaceFromStream(StreamT& stream, T* buf);
 
+/**
+ * \brief Checks for \c Trait in the template parameters of \c SerializerT.
+ *
+ * Assumes \c SerializerT<typename... UserTraits> is a valid template and 
+ * checks for existence of \c Trait within \c UserTraits...
+ * \c Trait is considered found if std::is_same<> returns true on \c Trait
+ * and any \c UserTrait within \c UserTraits...
+ * Some Serializer types may use template parameters of their own, caller should
+ * use unique types for \c Trait.
+ * May also use statically as hasTrait<Trait, SerializerT>::value.
+ *
+ * \return extends std::true_type if \c Trait is within \c UserTraits..., else std::false_type.
+ */
+template <typename Trait, typename SerializerT>
+struct hasTrait : std::false_type {};
+
+/**
+ * \brief Returns a \c SerializerT with no instances of \c Trait in its
+ * template parameters.
+ *
+ * Assumes \c SerializerT<typename... UserTraits> is a valid template and 
+ * recursively checks for \c Trait within \c UserTraits..., removing all
+ * instances, then uses std::reinterpret_cast to return a \c SerializerT
+ * reference without template parameter \c Trait. 
+ * Some Serializer types may use template parameters of their own, caller should
+ * use unique types for \c Trait.
+ *
+ * \param[in] Serializer of type \c SerializerT<UserTraits...>.
+ *
+ * \return Serializer of type \c SerializerT<UserTraits...>, where \c UserTraits...
+ * does not contain \c Trait
+ */
+template <typename Trait, typename SerializerT>
+auto& withoutTrait(SerializerT& s);
+
+/**
+ * \brief Returns a \c SerializerT with \c Trait added to its list of 
+ * \c UserTraits...
+ *
+ * Assumes SerializerT<typename... UserTraits> is a valid template and 
+ * uses std::reinterpret_cast to create a new reference to 
+ * \c SerializerT<UserTraits..., Trait>.
+ *
+ * \param[in] Serializer of type \c SerializerT<UserTraits...>
+ *
+ * \return Serializer of type \c SerializerT<UserTraits..., Trait>
+ */
+template <typename Trait, typename SerializerT>
+auto& withTrait(SerializerT& s);
 
 } /* end namespace checkpoint */
 
