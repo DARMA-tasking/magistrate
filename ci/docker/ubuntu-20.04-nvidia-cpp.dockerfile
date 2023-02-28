@@ -1,5 +1,5 @@
 
-ARG compiler=11.0.3
+ARG compiler=11.2.0
 ARG arch=amd64
 ARG ubuntu=20.04
 FROM --platform=${arch} nvidia/cuda:${compiler}-devel-ubuntu${ubuntu} as base
