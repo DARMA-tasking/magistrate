@@ -43,7 +43,7 @@ ENV PATH=/cmake/bin/:$PATH
 ENV LESSCHARSET=utf-8
 
 COPY ./ci/deps/gtest.sh gtest.sh
-RUN ./gtest.sh 1.8.1 /pkgs
+RUN ./gtest.sh 1.12.1 /pkgs
 ENV GTEST_ROOT=/pkgs/gtest/install
 
 COPY ./ci/deps/kokkos.sh kokkos.sh
