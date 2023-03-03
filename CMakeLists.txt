@@ -37,6 +37,8 @@ if(checkpoint_serialization_error_checking_enabled)
   message(STATUS "Building with serialization error checking enabled")
 endif()
 
+include(cmake/nvcc_no_deprecated_gpu_targets.cmake)
+
 # Try to find ccache to speed up compilation
 find_program(ccache_binary ccache)
 if (ccache_binary)
