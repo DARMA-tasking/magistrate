@@ -72,6 +72,10 @@ using isNotReconstructibleType =
   std::enable_if_t<not SerializableTraits<T, void>::is_reconstructible>;
 
 template <typename T>
+using isSpecializedReconstructibleType =
+  std::enable_if_t<SerializableTraits<T, void>::is_specialized_reconstructible>;
+
+template <typename T>
 using isTaggedConstructibleType =
   std::enable_if_t<SerializableTraits<T, void>::is_tagged_constructible>;
 
