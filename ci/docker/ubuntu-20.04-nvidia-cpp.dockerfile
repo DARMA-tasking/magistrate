@@ -91,15 +91,13 @@ COPY ./ci/deps/kokkos.sh kokkos.sh
 RUN ./kokkos.sh 3.6.00 /pkgs 0
 ENV KOKKOS_ROOT=/pkgs/kokkos/install/lib
 
-RUN git clone https://github.com/kokkos/nvcc_wrapper.git && \
-    cd nvcc_wrapper && \
-    mkdir build && \
-    cd build && \
-    cmake ../
+RUN mkdir -p /nvcc_wrapper/build && \
+    wget https://raw.githubusercontent.com/kokkos/kokkos/master/bin/nvcc_wrapper -P /nvcc_wrapper/build && \
+    chmod +x /nvcc_wrapper/build/nvcc_wrapper
 
 ENV MPI_EXTRA_FLAGS="" \
-    CXX=/nvcc_wrapper/build/nvcc_wrapper \
-    PATH=/usr/lib/ccache/:$PATH
+    PATH=/usr/lib/ccache/:/nvcc_wrapper/build:$PATH \
+    CXX=nvcc_wrapper
 
 COPY ./ci/deps/kokkos-kernels.sh kokkos-kernels.sh
 RUN ./kokkos-kernels.sh 3.6.00 /pkgs
