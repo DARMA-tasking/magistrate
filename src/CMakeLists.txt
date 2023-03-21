@@ -93,7 +93,6 @@ if (${kokkos_DIR_FOUND})
     KOKKOS_ENABLED_CHECKPOINT=1 KOKKOS_KERNELS_ENABLED=${KERNELS}
   )
   message(STATUS "Checkpoint: Kokkos enabled")
-  # This should not have to be done, missing include configuration from kokkos
   target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC Kokkos::kokkos)
 endif()
 
