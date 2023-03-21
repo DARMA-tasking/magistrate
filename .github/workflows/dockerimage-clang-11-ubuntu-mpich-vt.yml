@@ -38,11 +38,8 @@ jobs:
       with:
         BUILD_ROOT: "~/.local/cache/${{ env.ARCH }}-ubuntu-${{ env.UBUNTU }}-${{ env.COMPILER }}-cache/"
     - name: Prepare caching timestamp
-      id: cache_ts
-      shell: cmake -P {0}
       run: |
-        string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
-        message("::set-output name=timestamp::${current_date}")
+        echo "timestamp=$(TZ=UTC date +"%Y-%m-%d-%H;%M;%S")" >> $GITHUB_ENV
     - uses: actions/cache@v3
       env:
         cache-name: ubuntu-clang-11-cache
