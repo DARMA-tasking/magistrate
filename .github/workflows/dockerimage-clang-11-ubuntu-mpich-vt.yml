@@ -34,9 +34,8 @@ jobs:
 
     steps:
     - name: Setup Build Root
-      uses: allenevans/set-env@v2.0.0
-      with:
-        BUILD_ROOT: "~/.local/cache/${{ env.ARCH }}-ubuntu-${{ env.UBUNTU }}-${{ env.COMPILER }}-cache/"
+      run: |
+        echo "BUILD_ROOT=~/.local/cache/${{ env.ARCH }}-ubuntu-${{ env.UBUNTU }}-${{ env.COMPILER }}-cache" >> $GITHUB_ENV
     - name: Prepare caching timestamp
       run: |
         echo "timestamp=$(TZ=UTC date +"%Y-%m-%d-%H;%M;%S")" >> $GITHUB_ENV
