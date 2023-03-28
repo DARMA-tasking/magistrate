@@ -22,7 +22,7 @@ jobs:
       ARCH: amd64
       UBUNTU: 20.04
       COMPILER_TYPE: nvidia
-      COMPILER: nvcc-11.2
+      COMPILER: 11.2.0
       BUILD_TYPE: release
       ULIMIT_CORE: 0
       CODE_COVERAGE: 0
@@ -49,7 +49,7 @@ jobs:
         message("::set-output name=timestamp::${current_date}")
     - uses: actions/cache@v1
       env:
-        cache-name: ubuntu-nvcc-11.2-cache
+        cache-name: ubuntu-nvcc-11.2.0-cache
       with:
         path: ${{ env.BUILD_ROOT }}/ccache
         key: ${{ runner.os }}-${{ env.cache-name }}-${{ steps.cache_ts.outputs.timestamp }}
