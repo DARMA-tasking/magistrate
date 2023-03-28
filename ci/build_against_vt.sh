@@ -11,9 +11,6 @@ cd "$vt_source_dir"
 rm -Rf ./*
 git clone -b develop https://github.com/DARMA-tasking/vt.git .
 
-# Dependency versions, when fetched via git.
-detector_rev=master
-
 target="${4:-install}"
 
 if hash ccache &>/dev/null
@@ -33,23 +30,6 @@ mkdir -p "${vt_build_dir}"
 cd "${vt_build_dir}"
 rm -Rf ./*
 
-mkdir -p detector_src
-cd detector_src
-rm -Rf ./*
-git clone -b "${detector_rev}" --depth 1 https://github.com/DARMA-tasking/detector.git .
-export DETECTOR=${PWD}
-export DETECTOR_BUILD=${vt_build_dir}/detector
-mkdir -p "${DETECTOR_BUILD}"
-cd "${DETECTOR_BUILD}"
-rm -Rf ./*
-mkdir -p build
-cd build
-rm -Rf ./*
-cmake -G "${CMAKE_GENERATOR:-Ninja}" \
-    -DCMAKE_INSTALL_PREFIX="${DETECTOR_BUILD}/install" \
-    "${DETECTOR}"
-cmake --build . --target install
-
 export CHECKPOINT=${checkpoint_source_dir}
 export CHECKPOINT_BUILD=${vt_build_dir}/checkpoint
 mkdir -p "${CHECKPOINT_BUILD}"
@@ -60,7 +40,6 @@ cd build
 rm -Rf ./*
 cmake -G "${CMAKE_GENERATOR:-Ninja}" \
         -DCMAKE_INSTALL_PREFIX="${CHECKPOINT_BUILD}/install" \
-        -Ddetector_DIR="${DETECTOR_BUILD}/install" \
         -Dcheckpoint_asan_enabled="${CHECKPOINT_ASAN_ENABLED:-1}" \
         -Dcheckpoint_ubsan_enabled="${CHECKPOINT_UBSAN_ENABLED:-1}" \
         -Dcheckpoint_serialization_error_checking_enabled="${CHECKPOINT_SERIALIZATION_ERROR_CHECKING_ENABLED:-1}" \
@@ -109,7 +88,6 @@ cmake -G "${CMAKE_GENERATOR:-Ninja}" \
       -DCMAKE_CXX_COMPILER="${CXX:-c++}" \
       -DCMAKE_C_COMPILER="${CC:-cc}" \
       -DCMAKE_EXE_LINKER_FLAGS="${CMAKE_EXE_LINKER_FLAGS:-}" \
-      -Ddetector_DIR="${DETECTOR_BUILD}/install" \
       -Dcheckpoint_DIR="${CHECKPOINT_BUILD}/install" \
       -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH:-}" \
       -DCMAKE_INSTALL_PREFIX="${VT_BUILD}/install" \

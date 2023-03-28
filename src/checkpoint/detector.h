@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                             checkpoint_traits.h
+//                                 detector.h
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -41,54 +41,54 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_TRAITS_CHECKPOINT_TRAITS_H
-#define INCLUDED_CHECKPOINT_TRAITS_CHECKPOINT_TRAITS_H
+#if !defined INCLUDED_CHECKPOINT_DETECTOR_H
+#define INCLUDED_CHECKPOINT_DETECTOR_H
 
-#include <cstdint>
+#include <type_traits>
 
-#include "checkpoint/common.h"
-#include "checkpoint/detector.h"
+namespace detection {
 
-namespace checkpoint {
-
-template <typename T>
-struct SerializerTraits {
-  template <typename U>
-  using contiguousBytes_t = decltype(std::declval<U>().contiguousBytes(
-    std::declval<void*>(), std::declval<SizeType>(), std::declval<SizeType>()
-  ));
-  using has_contiguousBytes = detection::is_detected<contiguousBytes_t, T>;
-
-  template <typename U>
-  using isSizing_t = decltype(std::declval<U>().isSizing());
-  using has_isSizing = detection::is_detected_convertible<bool, isSizing_t, T>;
-
-  template <typename U>
-  using isPacking_t = decltype(std::declval<U>().isPacking());
-  using has_isPacking = detection::is_detected_convertible<bool, isPacking_t, T>;
-
-  template <typename U>
-  using isUnpacking_t = decltype(std::declval<U>().isUnpacking());
-  using has_isUnpacking = detection::is_detected_convertible<bool, isUnpacking_t, T>;
-
-  template <typename U>
-  using isVirtualDisabled_t = decltype(std::declval<const U>().isVirtualDisabled());
-  using has_isVirtualDisabled = detection::is_detected_convertible<bool, isVirtualDisabled_t, T>;
-
-  template <typename U>
-  using setVirtualDisabled_t = decltype(std::declval<U>().setVirtualDisabled(std::declval<bool>()));
-  using has_setVirtualDisabled = detection::is_detected_convertible<bool, setVirtualDisabled_t, T>;
-
-  // This defines what it means to be a valid serializer
-  static constexpr auto const is_valid_serializer =
-    has_contiguousBytes::value and
-    has_isSizing::value and
-    has_isPacking::value and
-    has_isUnpacking::value and
-    has_isVirtualDisabled::value and
-    has_setVirtualDisabled::value;
+/*
+ * Implementation of the standard C++ detector idiom, used to statically
+ * detect/assert properties of C++ types.
+ */
+struct NoneSuch final {
+  NoneSuch() = delete;
+  ~NoneSuch() = delete;
+  NoneSuch(NoneSuch const&) = delete;
+  void operator=(NoneSuch const&) = delete;
 };
 
-}  // end namespace checkpoint
+using NoneSuchType = NoneSuch;
 
-#endif /*INCLUDED_CHECKPOINT_TRAITS_CHECKPOINT_TRAITS_H*/
+template <typename T, typename, template <typename...> class Op, typename... Args>
+struct detector {
+  constexpr static auto value = false;
+  using value_t = std::false_type;
+  using type = T;
+  using element_type = T;
+};
+
+template <typename T, template <typename...> class Op, typename... Args>
+struct detector<T, std::void_t<Op<Args...>>, Op, Args...>  {
+  constexpr static auto value = true;
+  using value_t = std::true_type;
+  using type = Op<Args...>;
+  using element_type = typename std::tuple_element<0, std::tuple<Args...>>::type;
+};
+
+template <template <typename...> class Op, typename... Args>
+using is_detected = detector<NoneSuchType, void, Op, Args...>;
+
+template <template <typename...> class Op, typename... Args>
+using detected_t = typename is_detected<Op, Args...>::type;
+
+template <typename ExpectedT, template<typename...> class Op, typename... Args>
+using is_detected_exact = std::is_same<detected_t<Op, Args...>, ExpectedT>;
+
+template <typename T, template <typename...> class Op, typename... Args>
+using is_detected_convertible = std::is_convertible<detected_t<Op, Args...>, T>;
+
+}  // end detection
+
+#endif /* INCLUDED_CHECKPOINT_DETECTOR_H */

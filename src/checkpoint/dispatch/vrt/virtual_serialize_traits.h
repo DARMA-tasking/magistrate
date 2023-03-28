@@ -46,8 +46,7 @@
 
 #include "checkpoint/common.h"
 #include "checkpoint/dispatch/vrt/registry_common.h"
-
-#include "detector_headers.h"
+#include "checkpoint/detector.h"
 
 #include <type_traits>
 

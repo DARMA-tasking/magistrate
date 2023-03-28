@@ -96,7 +96,6 @@ if (${kokkos_DIR_FOUND})
   target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC Kokkos::kokkos)
 endif()
 
-target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC vt::lib::detector)
 target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 
 if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
