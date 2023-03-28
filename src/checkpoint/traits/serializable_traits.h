@@ -47,8 +47,7 @@
 #include "checkpoint/common.h"
 #include "checkpoint/serializers/serializers_headers.h"
 #include "checkpoint/dispatch/reconstructor_tag.h"
-
-#include "detector_headers.h"
+#include "checkpoint/detector.h"
 
 #include <cstdint>
 #include <cassert>
