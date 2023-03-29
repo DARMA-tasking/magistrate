@@ -100,6 +100,8 @@ endif()
 set(CHECKPOINT_LIBRARY checkpoint CACHE INTERNAL "" FORCE )
 set(CHECKPOINT_LIBRARY_NS vt::lib::checkpoint "" CACHE INTERNAL "" FORCE )
 
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 option(kokkos_DISABLE "Disable Kokkos" OFF)
 option(kokkos_kernels_DISABLE "Disable Kokkos Kernels" OFF)
 
