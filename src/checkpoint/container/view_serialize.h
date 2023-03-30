@@ -109,39 +109,6 @@ void deepCopyWithLocalFence(T& dst, U& src) {
 }
 
 /*
- * Serialization factory re-constructors for views taking a parameter pack for
- * the constructor.
- */
-
-template <typename ViewType, std::size_t N,typename... I>
-static ViewType buildView(
-  std::string const& label, I&&... index
-) {
-  ViewType v{label, std::forward<I>(index)...};
-  return v;
-}
-
-template <typename ViewType, unsigned Rank, typename Tuple, std::size_t... I>
-static constexpr ViewType constructView(
-  std::string const& view_label, Tuple&& t, std::index_sequence<I...>
-) {
-  return buildView<ViewType,Rank>(
-    view_label,std::get<I>(std::forward<Tuple>(t))...
-  );
-}
-
-template <typename ViewType, typename Tuple>
-static constexpr ViewType constructView(
-  std::string const& view_label, Tuple&& t
-) {
-  using TupUnrefT = std::remove_reference_t<Tuple>;
-  constexpr auto tup_size = std::tuple_size<TupUnrefT>::value;
-  return constructView<ViewType, ViewType::Rank>(
-    view_label, std::forward<Tuple>(t), std::make_index_sequence<tup_size>{}
-  );
-}
-
-/*
  * Serialization overloads for Kokkos::LayoutLeft, Kokkos::LayoutRight,
  * Kokkos::LayoutStride. Serialize the extents/stride in the Kokkos layout,
  * sufficient for proper reconstruction.
@@ -215,9 +182,7 @@ inline void serialize(
   if (s.isUnpacking()) {
     unsigned min_chunk_size = static_cast<unsigned>(chunk_size);
     unsigned max_alloc_extent = static_cast<unsigned>(max_extent);
-    view = constructView<ViewType>(
-      label, std::make_tuple(min_chunk_size,max_alloc_extent)
-    );
+    view = ViewType(label, min_chunk_size, max_alloc_extent);
 
     // Resize the view to the size that was packed. It seems this is necessary.
     view.resize_serial(view_size);
