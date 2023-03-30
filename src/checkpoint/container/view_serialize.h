@@ -143,20 +143,6 @@ static constexpr ViewType constructView(
 }
 
 /*
- * Factory for constructing a DynRankView
- */
-template <typename ViewType, unsigned Rank, typename Tuple>
-static constexpr ViewType constructRankedView(
-  std::string const& view_label, Tuple&& t
-) {
-  using TupUnrefT = std::remove_reference_t<Tuple>;
-  constexpr auto tup_size = std::tuple_size<TupUnrefT>::value;
-  return constructView<ViewType, Rank>(
-    view_label, std::forward<Tuple>(t), std::make_index_sequence<tup_size>{}
-  );
-}
-
-/*
  * Serialization overloads for Kokkos::LayoutLeft, Kokkos::LayoutRight,
  * Kokkos::LayoutStride. Serialize the extents/stride in the Kokkos layout,
  * sufficient for proper reconstruction.
@@ -307,27 +293,8 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
   if (s.isUnpacking()) {
     if (is_uninitialized) {
       view = ViewType{};
-    } else if (dims == 0) {
-      view = constructRankedView<ViewType,0>(label, std::make_tuple(layout));
-    } else if (dims == 1) {
-      view = constructRankedView<ViewType,1>(label, std::make_tuple(layout));
-    } else if (dims == 2) {
-      view = constructRankedView<ViewType,2>(label, std::make_tuple(layout));
-    } else if (dims == 3) {
-      view = constructRankedView<ViewType,3>(label, std::make_tuple(layout));
-    } else if (dims == 4) {
-      view = constructRankedView<ViewType,4>(label, std::make_tuple(layout));
-    } else if (dims == 5) {
-      view = constructRankedView<ViewType,5>(label, std::make_tuple(layout));
-    } else if (dims == 6) {
-      view = constructRankedView<ViewType,6>(label, std::make_tuple(layout));
-    } else if (dims == 7) {
-      view = constructRankedView<ViewType,7>(label, std::make_tuple(layout));
     } else {
-      checkpointAssert(
-        false,
-        "Serializing Kokkos::DynRankView is only supported up to 7 dimensions"
-      );
+      view = ViewType(label, layout);
     }
   }
 
