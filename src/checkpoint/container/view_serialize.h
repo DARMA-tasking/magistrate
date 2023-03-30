@@ -77,7 +77,6 @@
 #include <type_traits>
 
 #define CHECKPOINT_DEBUG_ENABLED 0
-#define CHECKPOINT_KOKKOS_PACK_LAYOUT 1
 
 // I am shutting the n-dim traversal off by default for now, due to the extra
 // template complexity that needs to be tested more extensively on different
@@ -382,7 +381,6 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
   }
   s | rt_dim;
 
-#if CHECKPOINT_KOKKOS_PACK_LAYOUT
   // Serialize the Kokkos layout data, including the extents, strides
   ArrayLayoutType layout;
 
@@ -397,37 +395,6 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
   if (s.isUnpacking()) {
     view = constructView<ViewType>(label, std::make_tuple(layout));
   }
-#else
-  //
-  // This code for now is disabled by default
-  //
-  // Works only for Kokkos::LayoutLeft and Kokkos::LayoutRight
-  //
-  // Instead of serializing the layout struct data, serialize the extents that
-  // get propagate to the View from the layout
-  //
-  // Note: enabling this option will *not* work with Kokkos::LayoutStride. It
-  // will fail to compile with a static_assert: because LayoutStide is not
-  // extent constructible: traits::array_layout::is_extent_constructible!
-  //
-  constexpr auto dyn_dims = CountDims<ViewType, T>::dynamic;
-
-  std::array<size_t, dyn_dims> extents_array;
-
-  if (!s.isUnpacking()) {
-    // Set up the extents array
-    for (auto i = 0; i < dyn_dims; i++) {
-      extents_array[i] = view.extent(i);
-    }
-  }
-
-  s | extents_array;
-
-  // Construct a view with the layout and use operator= to propagate out
-  if (s.isUnpacking()) {
-    view = constructView<ViewType>(label, extents_array);
-  }
-#endif
 
   // Serialize the total number of elements in the Kokkos::View
   size_t num_elms = view.size();
