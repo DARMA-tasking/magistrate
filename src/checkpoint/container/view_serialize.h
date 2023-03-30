@@ -393,7 +393,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
 
   // Construct a view with the layout and use operator= to propagate out
   if (s.isUnpacking()) {
-    view = constructView<ViewType>(label, std::make_tuple(layout));
+    view = ViewType(label, layout);
   }
 
   // Serialize the total number of elements in the Kokkos::View
