@@ -162,24 +162,24 @@ static constexpr ViewType constructRankedView(
  * sufficient for proper reconstruction.
  */
 
-template <typename SerdesT>
-inline void serializeLayout(SerdesT& s, int dim, Kokkos::LayoutStride& layout) {
-  for (auto i = 0; i < dim; i++) {
+template <typename SerializerT>
+inline void serialize(SerializerT &s, Kokkos::LayoutStride& layout) {
+  for (auto i = 0; i < Kokkos::ARRAY_LAYOUT_MAX_RANK; i++) {
     s | layout.dimension[i];
     s | layout.stride[i];
   }
 }
 
-template <typename SerdesT>
-inline void serializeLayout(SerdesT& s, int dim, Kokkos::LayoutLeft& layout) {
-  for (auto i = 0; i < dim; i++) {
+template <typename SerializerT>
+inline void serialize(SerializerT &s, Kokkos::LayoutLeft& layout) {
+  for (auto i = 0; i < Kokkos::ARRAY_LAYOUT_MAX_RANK; i++) {
     s | layout.dimension[i];
   }
 }
 
-template <typename SerdesT>
-inline void serializeLayout(SerdesT& s, int dim, Kokkos::LayoutRight& layout) {
-  for (auto i = 0; i < dim; i++) {
+template <typename SerializerT>
+inline void serialize(SerializerT &s, Kokkos::LayoutRight& layout) {
+  for (auto i = 0; i < Kokkos::ARRAY_LAYOUT_MAX_RANK; i++) {
     s | layout.dimension[i];
   }
 }
@@ -297,7 +297,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
   if (!s.isUnpacking()) {
     layout = view.layout();
   }
-  serializeLayout<SerializerT>(s, 7, layout);
+  s | layout;
 
   // Serialize the total number of elements in the Kokkos::View
   size_t num_elms = view.size();
@@ -421,12 +421,10 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
 
   // This is ordered as so because the view.layout() might fail before proper
   // initialization
-  if (s.isUnpacking()) {
-    serializeLayout<SerializerT>(s, rt_dim, layout);
-  } else {
-    ArrayLayoutType layout_cur = view.layout();
-    serializeLayout<SerializerT>(s, rt_dim, layout_cur);
+  if (!s.isUnpacking()) {
+    layout = view.layout();
   }
+  s | layout;
 
   // Construct a view with the layout and use operator= to propagate out
   if (s.isUnpacking()) {
