@@ -47,7 +47,7 @@ RUN ./gtest.sh 1.12.1 /pkgs
 ENV GTEST_ROOT=/pkgs/gtest/install
 
 COPY ./ci/deps/kokkos.sh kokkos.sh
-RUN ./kokkos.sh 3.6.00 /pkgs 0
+RUN ./kokkos.sh 4.0.00 /pkgs 0
 ENV KOKKOS_ROOT=/pkgs/kokkos/install/lib
 
 RUN mkdir -p /nvcc_wrapper/build && \
@@ -59,7 +59,7 @@ ENV MPI_EXTRA_FLAGS="" \
     CXX=nvcc_wrapper
 
 COPY ./ci/deps/kokkos-kernels.sh kokkos-kernels.sh
-RUN ./kokkos-kernels.sh 3.6.00 /pkgs
+RUN ./kokkos-kernels.sh 4.0.00 /pkgs
 ENV KOKKOS_KERNELS_ROOT=/pkgs/kokkos-kernels/install/lib
 
 FROM base as build
