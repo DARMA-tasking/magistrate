@@ -5,9 +5,6 @@ set -ex
 source_dir=${1}
 build_dir=${2}
 
-# Dependency versions, when fetched via git.
-detector_rev=master
-
 if test "${CHECKPOINT_DOXYGEN_ENABLED:-0}" -eq 1
 then
     token=${3}
@@ -20,29 +17,6 @@ ccache -s
 
 mkdir -p "${build_dir}"
 pushd "${build_dir}"
-
-if test -d "detector"
-then
-    rm -Rf detector
-fi
-
-if test -d "${source_dir}/lib/detector"
-then
-    echo "Detector already in lib... not downloading, building, and installing"
-else
-    git clone -b "${detector_rev}" --depth 1 https://github.com/DARMA-tasking/detector.git
-    export DETECTOR=$PWD/detector
-    export DETECTOR_BUILD=${build_dir}/detector
-    mkdir -p "$DETECTOR_BUILD"
-    cd "$DETECTOR_BUILD"
-    mkdir build
-    cd build
-    cmake -G "${CMAKE_GENERATOR:-Ninja}" \
-          -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
-          -DCMAKE_INSTALL_PREFIX="$DETECTOR_BUILD/install" \
-          "$DETECTOR"
-    cmake --build . --target install
-fi
 
 export CHECKPOINT=${source_dir}
 export CHECKPOINT_BUILD=${build_dir}/checkpoint
@@ -73,7 +47,6 @@ cmake -G "${CMAKE_GENERATOR:-Ninja}" \
       -DCMAKE_C_COMPILER="${CC:-cc}" \
       -DCMAKE_EXE_LINKER_FLAGS="${CMAKE_EXE_LINKER_FLAGS:-}" \
       -DCODE_COVERAGE="${CODE_COVERAGE:-0}" \
-      -Ddetector_DIR="$DETECTOR_BUILD/install" \
       -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH:-}" \
       -DCMAKE_INSTALL_PREFIX="$CHECKPOINT_BUILD/install" \
       -DGTEST_ROOT="${GTEST_ROOT}" \
