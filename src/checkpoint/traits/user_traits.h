@@ -44,65 +44,147 @@
 #if !defined INCLUDED_USER_TRAITS_CHECKPOINT_TRAITS_H
 #define INCLUDED_USER_TRAITS_CHECKPOINT_TRAITS_H
 
+//"api" pre-declare
 namespace checkpoint {
-
-namespace {
-  //Pass around a list of types via storage in the parameters of a tuple
-  template<typename First, typename... Second>
-  struct addToTuple {};
-
-  template<typename First, typename... Second>
-  struct addToTuple<First, std::tuple<Second...>> {
-      using type = std::tuple<First, Second...>;
-  };
+namespace SerializerUserTraits {
+  template<typename SerializerT, typename Trait>
+  struct has_trait;
   
-  //Take types from a tuple and template our Serializer type on those.
-  template<template<typename...> typename SerializerT, typename... UserTraits>
-  struct fromTuple {};
 
-  template<template<typename...> typename SerializerT, typename... UserTraits> 
-  struct fromTuple<SerializerT, std::tuple<UserTraits...>> {
-      using type = SerializerT<UserTraits...>;
+  template<typename SerializerT, typename Trait>
+  struct with_trait;
+  template<typename SerializerT, typename Trait, typename... Traits>
+  struct with_traits;
+
+  template<typename SerializerT, typename Trait>
+  struct without_trait;
+  template<typename SerializerT, typename Trait, typename... Traits>
+  struct without_traits;
+}}  // end namespace checkpoint::SerializerUserTraits
+
+
+
+namespace { //anon = filescope
+
+  template<
+    typename TraitToRemove,
+    template<typename...> typename SerializerT,
+    typename UserTraits,
+    typename... PassedTraits
+  >
+  struct without_trait_impl {
+    using type = SerializerT<PassedTraits...>;
   };
 
-  
-  //Get a SerializerT with all the same template parameters except all instances of a given type.
-  //No change if ToRemove is not present in UserTraits.
-  template<typename ToRemove, typename... UserTraits>
-  struct removeTraitImpl {
-     using Traits = std::tuple<UserTraits...>;
+  template<
+    typename ToRemove,
+    template<typename...> typename SerializerT,
+    typename... Passed,
+    typename... Remaining
+  >
+  struct without_trait_impl<
+        ToRemove,
+        SerializerT,
+        std::tuple<ToRemove, Remaining...>,
+        Passed...
+  >
+  {
+    using type = typename without_trait_impl<
+                 ToRemove, SerializerT, std::tuple<Remaining...>, Passed...
+                 >::type;
   };
 
-  template<typename ToRemove, typename... UserTraits>
-  struct removeTraitImpl<ToRemove, ToRemove, UserTraits...> {
-      using Traits = typename removeTraitImpl<ToRemove, UserTraits...>::Traits;
-  };
 
-  template<typename ToRemove, typename Other, typename... UserTraits>
-  struct removeTraitImpl<ToRemove, Other, UserTraits...>{
-      using Traits = typename addToTuple<Other, typename removeTraitImpl<ToRemove, UserTraits...>::Traits>::type;
-  };
-
-  template<typename ToRemove, template<typename...> typename SerializerT, typename... UserTraits>
-  struct removeTrait {
-      using type = typename fromTuple<SerializerT, typename removeTraitImpl<ToRemove, UserTraits...>::Traits>::type;
+  template<
+    typename ToRemove,
+    template<typename...> typename SerializerT,
+    typename... Passed,
+    typename ToKeep,
+    typename... Remaining
+  >
+  struct without_trait_impl<
+        ToRemove,
+        SerializerT,
+        std::tuple<ToKeep, Remaining...>,
+        Passed...
+  >
+  {
+    using type = typename without_trait_impl<
+                 ToRemove, SerializerT, std::tuple<Remaining...>, Passed..., ToKeep
+                 >::type;
   };
 }
 
+  
+  
+namespace checkpoint {
 namespace SerializerUserTraits {
-  template<typename Trait, template<typename... UserTraits> typename SerializerT, typename... UserTraits>
-  using hasTrait = std::disjunction<std::is_same<Trait, UserTraits>...>;
+  template<
+    template<typename...> typename SerializerT, 
+    typename... UserTraits,
+    typename Trait
+  >
+  struct has_trait<SerializerT<UserTraits...>, Trait> 
+      : std::disjunction<std::is_same<Trait, UserTraits>...> { };
 
-  template<typename Trait, template<typename...> typename SerializerT, typename... UserTraits>
-  auto& withoutTrait(SerializerT<UserTraits...>& obj){
-    return reinterpret_cast<typename removeTrait<Trait, SerializerT, UserTraits...>::type&>(obj);
-  }
 
-  template<typename Trait, template<typename...> typename SerializerT, typename... UserTraits>
-  auto& withTrait(SerializerT<UserTraits...>& obj){
-    return reinterpret_cast<typename SerializerT<UserTraits..., Trait>::type&>(obj);
-  }
-}  // end namespace UserTraits
-}  // end namespace checkpoint
+  template<
+    template<typename...> typename SerializerT, 
+    typename... UserTraits,
+    typename Trait
+  >
+  struct with_trait<SerializerT<UserTraits...>, Trait>
+      : std::conditional<has_trait<SerializerT<UserTraits...>, Trait>::value,
+            SerializerT<UserTraits...>,
+            SerializerT<UserTraits..., Trait>
+        > { };
+
+
+  template<typename SerializerT, typename Trait>
+  struct with_traits<SerializerT, Trait> 
+      : with_trait<SerializerT, Trait> {};
+  
+  template<
+    typename SerializerT,
+    typename TraitOne,
+    typename TraitTwo,
+    typename... Remaining
+  >
+  struct with_traits<SerializerT, TraitOne, TraitTwo, Remaining...>
+      : with_traits<typename with_trait<SerializerT, TraitOne>::type, TraitTwo, Remaining...> {};
+
+    
+
+  template<
+    typename SerializerT, 
+    typename Trait
+  >
+  struct without_trait { 
+    using type = SerializerT;
+  };
+
+  template<
+    template<typename...> typename SerializerT, 
+    typename... UserTraits,
+    typename Trait
+  >
+  struct without_trait<SerializerT<UserTraits...>, Trait> 
+      : without_trait_impl<Trait, SerializerT, std::tuple<UserTraits...>> { };
+
+
+  template<typename SerializerT, typename Trait>
+  struct without_traits<SerializerT, Trait>
+      : without_trait<SerializerT, Trait> {};
+
+  template<
+    typename SerializerT,
+    typename TraitOne,
+    typename TraitTwo,
+    typename... Remaining
+  >
+  struct without_traits<SerializerT, TraitOne, TraitTwo, Remaining...>
+      : without_traits<typename without_trait<SerializerT, TraitOne>::type, TraitTwo, Remaining...> {};
+
+}}  // end namespace checkpoint::SerializerUserTraits
 
 #endif /*INCLUDED_USER_TRAITS_CHECKPOINT_TRAITS_H*/

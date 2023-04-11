@@ -78,7 +78,7 @@ using SerializedReturnType = std::unique_ptr<SerializedInfo>;
  * \return a \c std::unique_ptr to a \c SerializedInfo containing the buffer
  * with serialized data and the size of the buffer
  */
-template <typename T, typename... UserTraits>
+template <typename... UserTraits, typename T>
 SerializedReturnType serialize(T& target, BufferCallbackType fn = nullptr);
 
 /**
@@ -132,7 +132,7 @@ std::unique_ptr<T> deserialize(char* buf);
  * \param[in] t a valid pointer to a \c T that has been user-allocated and
  * constructed
  */
-template <typename T, typename... UserTraits>
+template <typename... UserTraits, typename T>
 void deserializeInPlace(char* buf, T* t);
 
 /**
@@ -153,7 +153,7 @@ std::unique_ptr<T> deserialize(SerializedReturnType&& in);
  *
  * \return number of bytes for the \c target
  */
-template <typename T, typename... UserTraits>
+template <typename... UserTraits, typename T>
 std::size_t getSize(T& target);
 
 /**
@@ -170,7 +170,7 @@ std::size_t getSize(T& target);
  *
  * \return memory footprint of the \c target
  */
-template <typename T, typename... UserTraits>
+template <typename... UserTraits, typename T>
 std::size_t getMemoryFootprint(T& target, std::size_t size_offset = 0);
 
 /**
@@ -184,7 +184,7 @@ std::size_t getMemoryFootprint(T& target, std::size_t size_offset = 0);
  * \param[in] target the \c T to serialize
  * \param[in] file name of the file to create
  */
-template <typename T, typename... UserTraits>
+template <typename... UserTraits, typename T>
 void serializeToFile(T& target, std::string const& file);
 
 /**
@@ -214,7 +214,7 @@ std::unique_ptr<T> deserializeFromFile(std::string const& file);
  * \param[in] file the filename to read with bytes for \c T
  * \param[in] t a valid, constructed \c T to deserialize into
  */
-template <typename T, typename... UserTraits>
+template <typename... UserTraits, typename T>
 void deserializeInPlaceFromFile(std::string const& file, T* buf);
 
 /**
@@ -227,7 +227,7 @@ void deserializeInPlaceFromFile(std::string const& file, T* buf);
  * \param[in] target the \c T to serialize
  * \param[in] stream to serialize into, with tellp and write functions.
  */
-template <typename T, typename StreamT, typename... UserTraits>
+template <typename... UserTraits, typename T, typename StreamT>
 void serializeToStream(T& target, StreamT& stream);
 
 /**
@@ -243,7 +243,7 @@ void serializeToStream(T& target, StreamT& stream);
  *
  * \return unique pointer to the new object \c T
  */
-template <typename T, typename StreamT, typename... UserTraits>
+template <typename T, typename... UserTraits, typename StreamT>
 std::unique_ptr<T> deserializeFromStream(StreamT& stream);
 
 /**
@@ -257,58 +257,78 @@ std::unique_ptr<T> deserializeFromStream(StreamT& stream);
  * \param[in] stream the stream to read with bytes for \c T, with tellg and read functions
  * \param[in] t a valid, constructed \c T to deserialize into
  */
-template <typename T, typename StreamT, typename... UserTraits>
-void deserializeInPlaceFromStream(StreamT& stream, T* buf);
+template <typename... UserTraits, typename StreamT, typename T>
+void deserializeInPlaceFromStream(StreamT& stream, T* t);
 
 /**
- * \brief Checks for \c Trait in the template parameters of \c SerializerT.
+ * \brief Returns whether serializer has the traits this function 
+ * is templated on.
  *
- * Assumes \c SerializerT<typename... UserTraits> is a valid template and 
- * checks for existence of \c Trait within \c UserTraits...
- * \c Trait is considered found if std::is_same<> returns true on \c Trait
- * and any \c UserTrait within \c UserTraits...
- * Some Serializer types may use template parameters of their own, caller should
- * use unique types for \c Trait.
- * May also use statically as hasTrait<Trait, SerializerT>::value.
+ * Traits are compared via std::is_same<>
  *
- * \return extends std::true_type if \c Trait is within \c UserTraits..., else std::false_type.
+ * Equivalently, use has_trait<SerializerT, Trait>::value or
+ *                   has_trait_v<SerializerT, Trait>
+ *
+ * \param[in] serializer to check for the trait within.
+ *
+ * \return whether the trait is found.
  */
 template <typename Trait, typename SerializerT>
-struct hasTrait : std::false_type {};
+constexpr bool hasTrait(const SerializerT& s);
+
+template <typename SerializerT, typename Trait>
+struct has_trait;
+
+template <typename SerializerT, typename Trait>
+inline constexpr bool has_trait_v = has_trait<SerializerT, Trait>::value;
+
 
 /**
- * \brief Returns a \c SerializerT with no instances of \c Trait in its
- * template parameters.
+ * \brief Returns a reinterpreted serializer without any of the traits
+ * this function is templated on.
  *
- * Assumes \c SerializerT<typename... UserTraits> is a valid template and 
- * recursively checks for \c Trait within \c UserTraits..., removing all
- * instances, then uses std::reinterpret_cast to return a \c SerializerT
- * reference without template parameter \c Trait. 
- * Some Serializer types may use template parameters of their own, caller should
- * use unique types for \c Trait.
+ * NOTE: Some serializers may use template parameters of their own, 
+ * caller should use unique types for traits.
  *
- * \param[in] Serializer of type \c SerializerT<UserTraits...>.
+ * You may also statically get the type of \c SerializerT without these
+ * traits using without_traits<SerializerT, Trait>::type or
+ *              without_traits_t<SerializerT, Trait>
  *
- * \return Serializer of type \c SerializerT<UserTraits...>, where \c UserTraits...
- * does not contain \c Trait
+ * \param[in] serializer to reinterpret
+ *
+ * \return The reinterpreted serializer.
  */
-template <typename Trait, typename SerializerT>
-auto& withoutTrait(SerializerT& s);
+template <typename Trait, typename... Traits, typename SerializerT>
+auto& withoutTraits(SerializerT& s);
+
+template <typename SerializerT, typename Trait, typename... Traits>
+struct without_traits; 
+
+template <typename SerializerT, typename Trait, typename... Traits>
+using without_traits_t = 
+  typename without_traits<SerializerT, Trait, Traits...>::type;
+
 
 /**
- * \brief Returns a \c SerializerT with \c Trait added to its list of 
- * \c UserTraits...
+ * \brief Returns a reinterpreted serializer with all of the traits
+ * this function is templated on.
  *
- * Assumes SerializerT<typename... UserTraits> is a valid template and 
- * uses std::reinterpret_cast to create a new reference to 
- * \c SerializerT<UserTraits..., Trait>.
+ * You may also statically get the type of \c SerializerT with these
+ * traits using with_traits<SerializerT, Trait>::type or
+ *              with_traits_t<SerializerT, Trait>.
  *
- * \param[in] Serializer of type \c SerializerT<UserTraits...>
+ * \param[in] serializer to reinterpret
  *
- * \return Serializer of type \c SerializerT<UserTraits..., Trait>
+ * \return a reference to the serializer with trait \c Trait
  */
-template <typename Trait, typename SerializerT>
-auto& withTrait(SerializerT& s);
+template <typename Trait, typename... Traits, typename SerializerT>
+auto& withTraits(SerializerT& s);
+
+template <typename SerializerT, typename Trait, typename... Traits>
+struct with_traits;
+
+template <typename SerializerT, typename Trait, typename... Traits>
+using with_traits_t = typename with_traits<SerializerT, Trait, Traits...>::type;
 
 } /* end namespace checkpoint */
 

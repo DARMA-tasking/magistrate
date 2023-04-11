@@ -93,12 +93,12 @@ struct SerializableTraits {
   // Regular serialize detection
   template <typename U, typename V>
   using serialize_t = decltype(
-    std::declval<U>().serialize(std::declval<V&>())
+    std::declval<U>().template serialize<V>(std::declval<V&>())
   );
   using has_serialize = detection::is_detected<serialize_t, T, S>;
 
   template <typename U, typename V>
-  using nonintrustive_serialize_t = decltype(serialize(
+  using nonintrustive_serialize_t = decltype(serialize<V>(
     std::declval<V&>(),
     std::declval<U&>()
   ));
