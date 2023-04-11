@@ -47,60 +47,80 @@
 #include "checkpoint/common.h"
 #include "checkpoint/serializers/base_serializer.h"
 
-//Used to always static_assert false without compilation issues.
-template<class T> struct always_false : std::false_type {};
-
 namespace checkpoint {
 
-template <typename StreamT, eSerializationMode mode, typename... UserTraits>
-struct StreamSerializer : Serializer<UserTraits...> {
-  using ModeType = eSerializationMode;
+namespace {
+  //template<Serializer::ModeType mode>
+  //struct false_type : std::false_type {};
 
-  StreamSerializer(ModeType const& in_mode, StreamT& stream)
-    : Serializer<UserTraits...>(in_mode), stream(stream)
-  { 
-    if constexpr ( mode == eSerializationMode::Packing ) {
-        start_position = stream.tellp();
-    } else if constexpr ( mode == eSerializationMode::Unpacking ){ 
-        start_position = stream.tellg();
-    } else static_assert(always_false<StreamT>::value, "StreamSerializer can only be used for packing and unpacking");
+  template <typename StreamT, Serializer::ModeType mode>
+  struct StreamHolder {
+    template<Serializer::ModeType T = mode>
+    using false_type = std::false_type;
+
+    StreamHolder(StreamT& stream){
+      static_assert(false_type<>::value, "Unsupported serialization mode");
+    }
+  };
+
+  template <typename StreamT>
+  struct StreamHolder<StreamT, Serializer::ModeType::Packing> {
+    StreamT& stream;
+
+    StreamHolder(StreamT& stream) : stream(stream) {};
+
+    void copy(char* ptr, SerialSizeType len){
+      stream.write(ptr, len);
+    }
+
+    SerialSizeType position(){
+      return stream.tellp();
+    }
+  };
+
+  template <typename StreamT>
+  struct StreamHolder<StreamT, Serializer::ModeType::Unpacking> {
+    StreamT& stream;
+
+    StreamHolder(StreamT& stream) : stream(stream) {};
+
+    void copy(char* ptr, SerialSizeType len){
+      stream.read(ptr, len);
+    }
+
+    SerialSizeType position(){
+      return stream.tellg();
+    }
+  };
+}
+
+template <typename StreamT, Serializer::ModeType mode, typename... UserTraits>
+struct StreamSerializer : Serializer<UserTraits...> {
+  StreamSerializer(ModeType const& in_mode, StreamT& in_stream)
+      : Serializer(mode), stream(in_stream), stream_start_position(stream.position()) {
+#ifdef DEBUG
+    assert(in_mode == mode);
+#endif
   }
   
-  StreamSerializer(SerialSizeType in_size, ModeType const& in_mode, StreamT& stream) 
-    : StreamSerializer(in_mode, stream) {}
+  StreamSerializer(SerialSizeType size, ModeType const& in_mode, StreamT& in_stream) 
+      : StreamSerializer(in_mode, in_stream) {}
 
-  void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms){
-    SerialSizeType const len = size * num_elms;
-    if constexpr ( mode == eSerializationMode::Packing ){ 
-        stream.write((char*)ptr, len);
-    } else if constexpr ( mode == eSerializationMode::Unpacking ){ 
-        stream.read((char*)ptr, len);
-    } else static_assert(always_false<StreamT>::value, "StreamSerializer can only be used for packing and unpacking");
+  void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms) {
+    stream.copy(static_cast<char*>(ptr), size*num_elms);
   }
 
   SerialSizeType usedBufferSize() {
-    SerialSizeType current_position;
-
-    if constexpr ( mode == eSerializationMode::Packing ){ 
-        current_position = static_cast<SerialSizeType>(stream.tellp());
-    } else if constexpr ( mode == eSerializationMode::Unpacking ){
-        current_position = static_cast<SerialSizeType>(stream.tellg());
-    } else static_assert(always_false<StreamT>::value, "StreamSerializer can only be used for packing and unpacking");
-    
-    return current_position - start_position;
+    return stream.position() - stream_start_position;
   }
 
-  //TODO: What is the use of this? Is it important for some usecase?
-  void extractPackedBuffer(){
-    return;
-  }
-
-protected:
-  StreamT& stream;
-
-  //Initial position of streams, used for calculating in/out size
-  SerialSizeType start_position = 0;
+private:
+  StreamHolder<StreamT, mode> stream;
+  const SerialSizeType stream_start_position;
 };
+
+using IStreamSerializer = StreamSerializer<std::istream, Serializer::ModeType::Unpacking>;
+using OStreamSerializer = StreamSerializer<std::ostream, Serializer::ModeType::Packing>;
 
 } /* end namespace checkpoint */
 

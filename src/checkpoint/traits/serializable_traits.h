@@ -47,8 +47,7 @@
 #include "checkpoint/common.h"
 #include "checkpoint/serializers/serializers_headers.h"
 #include "checkpoint/dispatch/reconstructor_tag.h"
-
-#include "detector_headers.h"
+#include "checkpoint/detector.h"
 
 #include <cstdint>
 #include <cassert>
@@ -62,6 +61,9 @@ namespace checkpoint {
 
 template <typename T>
 void reconstruct(T) { checkpointAssert(false, "This code should be unreachable"); }
+
+template <typename T>
+struct CheckpointReconstructor;
 
 struct SerdesByteCopy {
   using isByteCopyable = std::true_type;
@@ -176,6 +178,16 @@ struct SerializableTraits {
   using has_nonintrusive_reconstruct =
     detection::is_detected<nonintrustive_reconstruct_t, T>;
 
+  template <typename U>
+  using specialized_reconstruct_t = decltype(
+    checkpoint::CheckpointReconstructor<U>::reconstruct(
+      std::declval<U*&>(),
+      std::declval<void*>()
+    )
+  );
+  using has_specialized_reconstruct =
+    detection::is_detected<specialized_reconstruct_t, T>;
+
   // This defines what it means to be default constructible
   static constexpr auto const is_default_constructible =
     has_default_constructor::value;
@@ -191,9 +203,15 @@ struct SerializableTraits {
   static constexpr auto const is_nonintrusive_reconstructible =
     has_nonintrusive_reconstruct::value /*and not has_reconstruct::value*/;
 
+  // This defines what it means to be specialized reconstructible
+  static constexpr auto const is_specialized_reconstructible =
+    has_specialized_reconstruct::value;
+
   // This defines what it means to be reconstructible in general
   static constexpr auto const is_reconstructible =
-    has_nonintrusive_reconstruct::value or has_reconstruct::value;
+    has_nonintrusive_reconstruct::value or
+    has_reconstruct::value or
+    has_specialized_reconstruct::value;
 
   // This defines what is means to be generally constructible for
   // de-serialization

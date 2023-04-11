@@ -53,6 +53,8 @@
 #if KOKKOS_ENABLED_CHECKPOINT
 
 #include <Kokkos_Core.hpp>
+#include <Kokkos_DynamicView.hpp>
+#include <Kokkos_DynRankView.hpp>
 
 #include <array>
 #include <cassert>

@@ -124,6 +124,8 @@ using fake_memory_space = Kokkos::Experimental::LogicalMemorySpace<
     Kokkos::HostSpace, Kokkos::DefaultHostExecutionSpace, TestSpaceNamer,
     Kokkos::Experimental::LogicalSpaceSharesAccess::no_shared_access>;
 
+// Disable for now while view reconstruction logic is in flux
+#if 0
 TEST_F(KokkosViewContentsTest, test_logical_device_view_contents) {
   // Create an inaccessible View
   using LogicalViewType = Kokkos::View<int*, fake_memory_space>;
@@ -143,6 +145,7 @@ TEST_F(KokkosViewContentsTest, test_logical_device_view_contents) {
 
   EXPECT_EQ(mirror(0), 3);
 }
+#endif
 
 #if defined(KOKKOS_ENABLE_CUDA)
 

@@ -74,7 +74,6 @@ add_library(
 
 add_library(${CHECKPOINT_LIBRARY_NS} ALIAS ${CHECKPOINT_LIBRARY})
 
-target_compile_options(${CHECKPOINT_LIBRARY} PUBLIC "-fPIC")
 target_compile_features(${CHECKPOINT_LIBRARY} PUBLIC cxx_std_17)
 
 include(CMakePrintHelpers)
@@ -93,11 +92,9 @@ if (${kokkos_DIR_FOUND})
     KOKKOS_ENABLED_CHECKPOINT=1 KOKKOS_KERNELS_ENABLED=${KERNELS}
   )
   message(STATUS "Checkpoint: Kokkos enabled")
-  # This should not have to be done, missing include configuration from kokkos
   target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC Kokkos::kokkos)
 endif()
 
-target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC vt::lib::detector)
 target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 
 if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")

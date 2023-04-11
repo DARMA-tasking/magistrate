@@ -2,7 +2,7 @@
 ############## Warning this is a generated file---do not modify ###############
 ###############################################################################
 
-name: PR tests (clang-5.0, ubuntu, mpich)
+name: PR tests (clang-14, ubuntu, mpich)
 
 on:
   push:
@@ -20,9 +20,9 @@ jobs:
     env:
       REPO: lifflander1/checkpoint
       ARCH: amd64
-      UBUNTU: 18.04
+      UBUNTU: 22.04
       COMPILER_TYPE: clang
-      COMPILER: clang-5.0
+      COMPILER: clang-14
       BUILD_TYPE: release
       ULIMIT_CORE: 0
       CODE_COVERAGE: 0
@@ -38,21 +38,17 @@ jobs:
 
     steps:
     - name: Setup Build Root
-      uses: allenevans/set-env@v2.0.0
-      with:
-        BUILD_ROOT: "~/.local/cache/${{ env.ARCH }}-ubuntu-${{ env.UBUNTU }}-${{ env.COMPILER }}-cache/"
-    - name: Prepare caching timestamp
-      id: cache_ts
-      shell: cmake -P {0}
       run: |
-        string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
-        message("::set-output name=timestamp::${current_date}")
-    - uses: actions/cache@v1
+        echo "BUILD_ROOT=~/.local/cache/${{ env.ARCH }}-ubuntu-${{ env.UBUNTU }}-${{ env.COMPILER }}-cache" >> $GITHUB_ENV
+    - name: Prepare caching timestamp
+      run: |
+        echo "timestamp=$(TZ=UTC date +"%Y-%m-%d-%H;%M;%S")" >> $GITHUB_ENV
+    - uses: actions/cache@v3
       env:
-        cache-name: ubuntu-clang-5.0-cache
+        cache-name: ubuntu-clang-14-cache
       with:
         path: ${{ env.BUILD_ROOT }}/ccache
-        key: ${{ runner.os }}-${{ env.cache-name }}-${{ steps.cache_ts.outputs.timestamp }}
+        key: ${{ runner.os }}-${{ env.cache-name }}-${{ env.timestamp }}
         restore-keys: |
           ${{ runner.os }}-${{ env.cache-name }}-
     - uses: actions/checkout@v3

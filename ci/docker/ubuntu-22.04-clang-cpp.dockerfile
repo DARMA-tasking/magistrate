@@ -1,10 +1,10 @@
 
 ARG arch=amd64
-ARG distro=18.04
+ARG distro=22.04
 FROM ${arch}/ubuntu:${distro} as base
 
 ARG proxy=""
-ARG compiler=gcc-8
+ARG compiler=clang-13
 
 ENV https_proxy=${proxy} \
     http_proxy=${proxy}
@@ -13,34 +13,30 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -y -q && \
     apt-get install -y -q --no-install-recommends \
-    g++-$(echo ${compiler} | cut -d- -f2) \
     ca-certificates \
-    less \
     curl \
+    less \
     git \
     wget \
     ${compiler} \
     zlib1g \
     zlib1g-dev \
-    unzip \
     ninja-build \
+    unzip \
     valgrind \
     make-guile \
     libomp5 \
+    libunwind-dev \
     ccache && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 RUN ln -s \
-    "$(which g++-$(echo ${compiler}  | cut -d- -f2))" \
-    /usr/bin/g++
+    "$(which $(echo ${compiler}  | cut -d- -f1)++-$(echo ${compiler}  | cut -d- -f2))" \
+    /usr/bin/clang++
 
-RUN ln -s \
-    "$(which gcc-$(echo ${compiler}  | cut -d- -f2))" \
-    /usr/bin/gcc
-
-ENV CC=gcc \
-    CXX=g++
+ENV CC=${compiler} \
+    CXX=clang++
 
 COPY ./ci/deps/cmake.sh cmake.sh
 RUN ./cmake.sh 3.18.4
@@ -56,7 +52,7 @@ RUN ./gtest.sh 1.8.1 /pkgs
 ENV GTEST_ROOT=/pkgs/gtest/install
 
 COPY ./ci/deps/kokkos.sh kokkos.sh
-RUN ./kokkos.sh 4.0.00 /pkgs 1
+RUN ./kokkos.sh 4.0.00 /pkgs 0
 ENV KOKKOS_ROOT=/pkgs/kokkos/install/lib
 
 COPY ./ci/deps/kokkos-kernels.sh kokkos-kernels.sh
@@ -64,13 +60,9 @@ RUN ./kokkos-kernels.sh 4.0.00 /pkgs
 ENV KOKKOS_KERNELS_ROOT=/pkgs/kokkos-kernels/install/lib
 
 ENV MPI_EXTRA_FLAGS="" \
-    PATH=/usr/lib/ccache/:$PATH
-
-RUN apt-get update -y -q && \
-    apt-get install -y -q --no-install-recommends \
-    lcov && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    CMAKE_PREFIX_PATH="/lib/x86_64-linux-gnu/" \
+    PATH=/usr/lib/ccache/:$PATH \
+    CMAKE_EXE_LINKER_FLAGS="-pthread"
 
 FROM base as build
 COPY . /checkpoint
