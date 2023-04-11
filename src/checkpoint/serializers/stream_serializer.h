@@ -119,6 +119,9 @@ private:
   const SerialSizeType stream_start_position;
 };
 
+using IStreamSerializer = StreamSerializer<std::istream, Serializer::ModeType::Unpacking>;
+using OStreamSerializer = StreamSerializer<std::ostream, Serializer::ModeType::Packing>;
+
 } /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_SERIALIZERS_STREAM_SERIALIZER_H*/
