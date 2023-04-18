@@ -46,6 +46,8 @@
 
 #include "checkpoint/common.h"
 #include "checkpoint/serializers/base_serializer.h"
+#include <ostream>
+#include <istream>
 
 namespace checkpoint {
 
