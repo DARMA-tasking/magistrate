@@ -6,12 +6,12 @@ int main(int argc, char *argv[]){
   test::TestObj obj;
 
   auto s_info = checkpoint::serialize(obj);
-  s_info = checkpoint::serialize<CheckpointingTrait>(obj);
-  s_info = checkpoint::serialize<CheckpointingTrait, CheckpointingTrait>(obj);
-  s_info = checkpoint::serialize<test::RandomTrait, CheckpointingTrait>(obj);
-  s_info = checkpoint::serialize<CheckpointingTrait, test::RandomTrait>(obj);
-  s_info = checkpoint::serialize<test::RandomTrait, test::RandomTrait>(obj);
-  s_info = checkpoint::serialize<ShallowTrait>(obj);
-  s_info = checkpoint::serialize<misc::NamespaceTrait>(obj);
-  s_info = checkpoint::serialize<misc::HookAllTrait>(obj);
+  s_info = checkpoint::serialize<checkpoint_trait>(obj);
+  s_info = checkpoint::serialize<checkpoint_trait, checkpoint_trait>(obj);
+  s_info = checkpoint::serialize<test::random_trait, checkpoint_trait>(obj);
+  s_info = checkpoint::serialize<checkpoint_trait, test::random_trait>(obj);
+  s_info = checkpoint::serialize<test::random_trait, test::random_trait>(obj);
+  s_info = checkpoint::serialize<shallow_trait>(obj);
+  s_info = checkpoint::serialize<misc::namespace_trait>(obj);
+  s_info = checkpoint::serialize<misc::hook_all_trait>(obj);
 }

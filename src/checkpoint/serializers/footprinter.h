@@ -49,11 +49,11 @@
 
 namespace checkpoint {
 
-template<typename... UserTraits>
-struct Footprinter : Serializer<UserTraits...> {
-  using ModeType = eSerializationMode;
+template<typename UserTraits = UserTraitHolder<>>
+struct Footprinter : Serializer, UserTraitedType<UserTraits, Footprinter> {
+  using Serializer::ModeType;
 
-  Footprinter() : Serializer<UserTraits...>(ModeType::Footprinting) { }
+  Footprinter() : Serializer(ModeType::Footprinting) { }
 
   SerialSizeType getMemoryFootprint() const {
     return num_bytes_;

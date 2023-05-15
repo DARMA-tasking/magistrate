@@ -59,8 +59,8 @@
   checkpoint::PackerIO,                         \
   checkpoint::Unpacker,                         \
   checkpoint::UnpackerIO,                       \
-  checkpoint::Sizer<>                           \
-  checkpoint::IStreamSerializer,                \
-  checkpoint::OStreamSerializer                 \
+  checkpoint::Sizer<>,                          \
+  checkpoint::StreamPacker<>,                     \
+  checkpoint::StreamUnpacker<>                    \
 
 #endif /*INCLUDED_CHECKPOINT_SERIALIZERS_SERIALIZERS_HEADERS_H*/

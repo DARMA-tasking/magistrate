@@ -50,8 +50,8 @@
 
 namespace checkpoint {
 
-template <typename BufferT, typename... UserTraits>
-struct UnpackerBuffer : MemorySerializer<UserTraits...> {
+template <typename BufferT, typename UserTraits = UserTraitHolder<>>
+struct UnpackerBuffer : MemorySerializer, public UserTraitedType<UserTraits, UnpackerBuffer, BufferT> {
   using BufferPtrType = std::unique_ptr<BufferT>;
 
   explicit UnpackerBuffer(SerialByteType* buf);

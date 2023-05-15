@@ -52,12 +52,12 @@
 
 namespace checkpoint {
 
-template <typename BufferT, typename... UserTraits>
-PackerBuffer<BufferT, UserTraits...>::PackerBuffer(SerialSizeType const& in_size)
-   : MemorySerializer<UserTraits...>(eSerializationMode::Packing), size_(in_size),
+template <typename BufferT, typename UserTraits>
+PackerBuffer<BufferT, UserTraits>::PackerBuffer(SerialSizeType const& in_size)
+   : MemorySerializer(Serializer::ModeType::Packing), size_(in_size),
      buffer_(std::make_unique<BufferT>(size_))
 {
-  MemorySerializer<UserTraits...>::initializeBuffer(buffer_->getBuffer());
+  MemorySerializer::initializeBuffer(buffer_->getBuffer());
 
   debug_checkpoint(
     "PackerBuffer: size=%ld, start_=%p, cur_=%p\n",
@@ -67,13 +67,13 @@ PackerBuffer<BufferT, UserTraits...>::PackerBuffer(SerialSizeType const& in_size
   );
 }
 
-template <typename BufferT, typename... UserTraits>
-PackerBuffer<BufferT, UserTraits...>::PackerBuffer(
+template <typename BufferT, typename UserTraits>
+PackerBuffer<BufferT, UserTraits>::PackerBuffer(
   SerialSizeType const& in_size, BufferTPtrType buf_ptr
-) : MemorySerializer<UserTraits...>(eSerializationMode::Packing), size_(in_size),
+) : MemorySerializer(Serializer::ModeType::Packing), size_(in_size),
     buffer_(std::move(buf_ptr))
 {
-  MemorySerializer<UserTraits...>::initializeBuffer(buffer_->getBuffer());
+  MemorySerializer::initializeBuffer(buffer_->getBuffer());
 
   debug_checkpoint(
     "PackerBuffer: size=%ld, start_=%p, cur_=%p\n",
@@ -83,15 +83,15 @@ PackerBuffer<BufferT, UserTraits...>::PackerBuffer(
   );
 }
 
-template <typename BufferT, typename... UserTraits>
+template <typename BufferT, typename UserTraits>
 template <typename... Args>
-PackerBuffer<BufferT, UserTraits...>::PackerBuffer(
+PackerBuffer<BufferT, UserTraits>::PackerBuffer(
   SerialSizeType const& in_size, Args&&... args
-) : MemorySerializer<UserTraits...>(eSerializationMode::Packing),
+) : MemorySerializer(Serializer::ModeType::Packing),
     size_(in_size),
     buffer_(std::make_unique<BufferT>(std::forward<Args>(args)...))
 {
-  MemorySerializer<UserTraits...>::initializeBuffer(buffer_->getBuffer());
+  MemorySerializer::initializeBuffer(buffer_->getBuffer());
 
   debug_checkpoint(
     "PackerBuffer: size=%ld, start_=%p, cur_=%p\n",
@@ -101,16 +101,16 @@ PackerBuffer<BufferT, UserTraits...>::PackerBuffer(
   );
 }
 
-template <typename BufferT, typename... UserTraits>
-typename PackerBuffer<BufferT, UserTraits...>::BufferTPtrType
-PackerBuffer<BufferT, UserTraits...>::extractPackedBuffer() {
+template <typename BufferT, typename UserTraits>
+typename PackerBuffer<BufferT, UserTraits>::BufferTPtrType
+PackerBuffer<BufferT, UserTraits>::extractPackedBuffer() {
   auto ret = std::move(buffer_);
   buffer_ = nullptr;
   return ret;
 }
 
-template <typename BufferT, typename... UserTraits>
-void PackerBuffer<BufferT, UserTraits...>::contiguousBytes(
+template <typename BufferT, typename UserTraits>
+void PackerBuffer<BufferT, UserTraits>::contiguousBytes(
   void* ptr, SerialSizeType size, SerialSizeType num_elms
 ) {
   debug_checkpoint(
@@ -132,8 +132,8 @@ void PackerBuffer<BufferT, UserTraits...>::contiguousBytes(
   usedSize_ += len;
 }
 
-template <typename BufferT, typename... UserTraits>
-SerialSizeType PackerBuffer<BufferT, UserTraits...>::usedBufferSize() const {
+template <typename BufferT, typename UserTraits>
+SerialSizeType PackerBuffer<BufferT, UserTraits>::usedBufferSize() const {
   return usedSize_;
 }
 

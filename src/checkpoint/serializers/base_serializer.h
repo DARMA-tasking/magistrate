@@ -45,6 +45,7 @@
 #define INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H
 
 #include "checkpoint/common.h"
+#include "checkpoint/traits/user_traits.h"
 
 #include <type_traits>
 #include <cstdlib>
@@ -72,7 +73,6 @@ struct BasicDispatcher;
  *
  * \brief General base class for serialiers
  */
-template<typename... UserTraits>
 struct Serializer {
   using ModeType = eSerializationMode;
 

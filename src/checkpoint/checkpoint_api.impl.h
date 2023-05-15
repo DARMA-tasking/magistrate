@@ -54,9 +54,9 @@
 
 namespace checkpoint {
 
-template <typename... UserTraits, typename T>
+template <typename... Traits, typename T>
 SerializedReturnType serialize(T& target, BufferCallbackType fn) {
-  auto ret = dispatch::serializeType<T, UserTraits...>(target, fn);
+  auto ret = dispatch::serializeType<T, UserTraitHolder<Traits...>>(target, fn);
   auto& buf = std::get<0>(ret);
   std::unique_ptr<SerializedInfo> base_ptr(
     static_cast<SerializedInfo*>(buf.release())
@@ -64,114 +64,89 @@ SerializedReturnType serialize(T& target, BufferCallbackType fn) {
   return base_ptr;
 }
 
-template <typename T, typename... UserTraits>
+template <typename T, typename... Traits>
 T* deserialize(char* buf, char* object_buf) {
-  return dispatch::deserializeType<T, UserTraits...>(buf, object_buf);
+  return dispatch::deserializeType<T, UserTraitHolder<Traits...>>(buf, object_buf);
 }
 
-template <typename T, typename... UserTraits>
+template <typename T, typename... Traits>
 std::unique_ptr<T> deserialize(char* buf) {
-  auto t = dispatch::deserializeType<T, UserTraits...>(buf);
+  auto t = dispatch::deserializeType<T, UserTraitHolder<Traits...>>(buf);
   return std::unique_ptr<T>(t);
 }
 
-template <typename T, typename... UserTraits>
+template <typename T, typename... Traits>
 std::unique_ptr<T> deserialize(SerializedReturnType&& in) {
-  auto t = dispatch::deserializeType<T, UserTraits...>(in->getBuffer());
+  auto t = dispatch::deserializeType<T, UserTraitHolder<Traits...>>(in->getBuffer());
   return std::unique_ptr<T>(t);
 }
 
-template <typename... UserTraits, typename T>
+template <typename... Traits, typename T>
 void deserializeInPlace(char* buf, T* t) {
-  return dispatch::deserializeType<T, UserTraits...>(dispatch::InPlaceTag{}, buf, t);
+  return dispatch::deserializeType<T, UserTraitHolder<Traits...>>(dispatch::InPlaceTag{}, buf, t);
 }
 
-template <typename... UserTraits, typename T>
+template <typename... Traits, typename T>
 std::size_t getSize(T& target) {
-  return dispatch::Standard::size<T, Sizer<UserTraits...>>(target);
+  return dispatch::Standard::size<T, Sizer<UserTraitHolder<Traits...>>>(target);
 }
 
-template <typename... UserTraits, typename T>
+template <typename... Traits, typename T>
 std::size_t getMemoryFootprint(T& target, std::size_t size_offset) {
   return size_offset + std::max(
-    dispatch::Standard::footprint<T, Footprinter<UserTraits...>>(target),
+    dispatch::Standard::footprint<T, Footprinter<UserTraitHolder<Traits...>>>(target),
     sizeof(target)
   );
 }
 
-template <typename... UserTraits, typename T>
+template <typename... Traits, typename T>
 void serializeToFile(T& target, std::string const& file) {
-  auto len = getSize<T, UserTraits...>(target);
-  dispatch::Standard::pack<T, PackerBuffer<buffer::IOBuffer, UserTraits...>>(
+  auto len = getSize<T, UserTraitHolder<Traits...>>(target);
+  dispatch::Standard::pack<T, PackerBuffer<buffer::IOBuffer, UserTraitHolder<Traits...>>>(
     target, len, buffer::IOBuffer::WriteToFileTag{}, len, file
   );
 }
 
-template <typename T, typename... UserTraits>
+template <typename T, typename... Traits>
 std::unique_ptr<T> deserializeFromFile(std::string const& file) {
   auto mem = dispatch::Standard::allocate<T>();
   T* t_buf = dispatch::Standard::construct<T>(mem);
-  auto t = dispatch::Standard::unpack<T, UnpackerBuffer<buffer::IOBuffer, UserTraits...>>(
+  auto t = dispatch::Standard::unpack<T, UnpackerBuffer<buffer::IOBuffer, UserTraitHolder<Traits...>>>(
     t_buf, buffer::IOBuffer::ReadFromFileTag{}, file
   );
   return std::unique_ptr<T>(t);
 }
 
-template <typename... UserTraits, typename T>
+template <typename... Traits, typename T>
 void deserializeInPlaceFromFile(std::string const& file, T* t) {
-  dispatch::Standard::unpack<T, UnpackerBuffer<buffer::IOBuffer, UserTraits...>>(
+  dispatch::Standard::unpack<T, UnpackerBuffer<buffer::IOBuffer, UserTraitHolder<Traits...>>>(
     t, buffer::IOBuffer::ReadFromFileTag{}, file
   );
 }
 
-template <typename... UserTraits, typename T, typename StreamT>
+template <typename... Traits, typename T, typename StreamT>
 void serializeToStream(T& target, StreamT& stream) {
   auto len = getSize<T>(target);
-  dispatch::Standard::pack<T, StreamSerializer<StreamT, eSerializationMode::Packing, UserTraits...>>(
+  dispatch::Standard::pack<T, StreamPacker<StreamT, UserTraitHolder<Traits...>>>(
     target, len, eSerializationMode::Packing, stream
   );
 }
 
-template <typename T, typename... UserTraits, typename StreamT>
+template <typename T, typename... Traits, typename StreamT>
 std::unique_ptr<T> deserializeFromStream(StreamT& stream) {
   auto mem = dispatch::Standard::allocate<T>();
   T* t_buf = dispatch::Standard::construct<T>(mem);
-  auto t = dispatch::Standard::unpack<T, StreamSerializer<StreamT, eSerializationMode::Unpacking, UserTraits...>>(
+  auto t = dispatch::Standard::unpack<T, StreamUnpacker<StreamT, UserTraitHolder<Traits...>>>(
     t_buf, eSerializationMode::Unpacking, stream
   );
   return std::unique_ptr<T>(t);
 }
 
-template <typename... UserTraits, typename StreamT, typename T>
+template <typename... Traits, typename StreamT, typename T>
 void deserializeInPlaceFromStream(StreamT& stream, T* t) {
-  dispatch::Standard::unpack<T, StreamSerializer<StreamT, eSerializationMode::Unpacking, UserTraits...>>(
+  dispatch::Standard::unpack<T, StreamUnpacker<StreamT, UserTraitHolder<Traits...>>>(
     t, eSerializationMode::Unpacking, stream
   );
-}
-
-
-template <typename SerializerT, typename Trait>
-struct has_trait : public SerializerUserTraits::has_trait<SerializerT, Trait> {};
-
-template <typename Trait, typename SerializerT>
-constexpr bool hasTrait(const SerializerT& s){
-  return has_trait_v<SerializerT, Trait>;
-}
-
-template <typename SerializerT, typename Trait, typename... Traits>
-struct without_traits : public SerializerUserTraits::without_traits<SerializerT, Trait, Traits...> {};
-
-template <typename Trait, typename... Traits, typename SerializerT>
-auto& withoutTraits(SerializerT& s){
-  return *reinterpret_cast<typename without_traits<SerializerT, Trait, Traits...>::type*>(&s);
-}
-
-template <typename SerializerT, typename Trait, typename... Traits>
-struct with_traits : SerializerUserTraits::with_trait<SerializerT, Trait, Traits...> {};
-
-template <typename Trait, typename... Traits, typename SerializerT>
-auto& withTraits(SerializerT& s){
-  return *reinterpret_cast<with_traits_t<SerializerT, Trait, Traits...>*>(&s);
 }
 
 } /* end namespace checkpoint */

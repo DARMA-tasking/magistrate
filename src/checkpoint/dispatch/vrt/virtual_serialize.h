@@ -49,6 +49,14 @@
 
 namespace checkpoint { namespace dispatch { namespace vrt {
 
+void warn_once(std::string warning){
+  static bool once = false;
+  if(!once){
+    once = true;
+    fprintf(stderr, "%s\n", warning.c_str());
+  }
+}
+
 /**
  * \brief A function to handle serialization of objects of a mix of
  * types in a virtual inheritance hierarchy
@@ -62,6 +70,11 @@ void virtualSerialize(T*& base, SerializerT& s) {
   // Get the real base in case this is called on a derived type
   using BaseT = ::checkpoint::dispatch::vrt::checkpoint_base_type_t<T>;
   auto serializer_idx = serializer_registry::makeObjIdx<BaseT, SerializerT>();
+  
+  if constexpr (not std::is_same_v<SerializerT, typename SerializerT::TraitlessT>){
+    warn_once("Warning: Magistrate cannot support UserTraits being visible to virtually serialized objects.");
+  }
+
   base->_checkpointDynamicSerialize(&s, serializer_idx, no_type_idx);
 }
 

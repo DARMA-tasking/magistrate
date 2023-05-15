@@ -56,13 +56,13 @@ namespace checkpoint {
  * preprocessing pass before packing content so a properly sized buffer can be
  * allocated.
  */
-template<typename... UserTraits>
-struct Sizer : Serializer<UserTraits...> {
+template<typename UserTraits = UserTraitHolder<>>
+struct Sizer : Serializer, public UserTraitedType<UserTraits, Sizer> {
   using ModeType = eSerializationMode;
   /**
    * \internal \brief Construct a sizer
    */
-  Sizer() : Serializer<UserTraits...>(ModeType::Sizing){
+  Sizer() : Serializer(ModeType::Sizing){
 
   }
 

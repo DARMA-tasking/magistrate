@@ -53,12 +53,12 @@
 
 namespace checkpoint {
 
-template <typename BufferT, typename... UserTraits>
-UnpackerBuffer<BufferT, UserTraits...>::UnpackerBuffer(SerialByteType* buf)
-  : MemorySerializer<UserTraits...>(eSerializationMode::Unpacking),
+template <typename BufferT, typename UserTraits>
+UnpackerBuffer<BufferT, UserTraits>::UnpackerBuffer(SerialByteType* buf)
+  : MemorySerializer(Serializer::ModeType::Unpacking),
     buffer_(std::make_unique<BufferT>(buf, 0))
 {
-  MemorySerializer<UserTraits...>::initializeBuffer(buffer_->getBuffer());
+  MemorySerializer::initializeBuffer(buffer_->getBuffer());
 
   debug_checkpoint(
     "UnpackerBuffer: start_=%p, cur_=%p\n",
@@ -67,13 +67,13 @@ UnpackerBuffer<BufferT, UserTraits...>::UnpackerBuffer(SerialByteType* buf)
   );
 }
 
-template <typename BufferT, typename... UserTraits>
+template <typename BufferT, typename UserTraits>
 template <typename... Args>
-UnpackerBuffer<BufferT, UserTraits...>::UnpackerBuffer(Args&&... args)
-  : MemorySerializer<UserTraits...>(eSerializationMode::Unpacking),
+UnpackerBuffer<BufferT, UserTraits>::UnpackerBuffer(Args&&... args)
+  : MemorySerializer(Serializer::ModeType::Unpacking),
     buffer_(std::make_unique<BufferT>(std::forward<Args>(args)...))
 {
-  MemorySerializer<UserTraits...>::initializeBuffer(buffer_->getBuffer());
+  MemorySerializer::initializeBuffer(buffer_->getBuffer());
 
   debug_checkpoint(
     "UnpackerBuffer: start_=%p, cur_=%p\n",
@@ -82,8 +82,8 @@ UnpackerBuffer<BufferT, UserTraits...>::UnpackerBuffer(Args&&... args)
   );
 }
 
-template <typename BufferT, typename... UserTraits>
-void UnpackerBuffer<BufferT, UserTraits...>::contiguousBytes(
+template <typename BufferT, typename UserTraits>
+void UnpackerBuffer<BufferT, UserTraits>::contiguousBytes(
   void* ptr, SerialSizeType size, SerialSizeType num_elms
 ) {
   debug_checkpoint(
@@ -98,8 +98,8 @@ void UnpackerBuffer<BufferT, UserTraits...>::contiguousBytes(
   usedSize_ += len;
 }
 
-template <typename BufferT, typename... UserTraits>
-SerialSizeType UnpackerBuffer<BufferT, UserTraits...>::usedBufferSize() const {
+template <typename BufferT, typename UserTraits>
+SerialSizeType UnpackerBuffer<BufferT, UserTraits>::usedBufferSize() const {
   return usedSize_;
 }
 

@@ -1,69 +1,66 @@
 #include "checkpoint/checkpoint.h"
 
-struct CheckpointingTrait {};
-
-struct ShallowTrait {};
+const struct checkpoint_trait {} CheckpointTrait;
+const struct shallow_trait {} ShallowTrait;
 
 namespace test {
-  struct RandomTrait {};
+  const struct random_trait {} RandomTrait;
   
   struct TestObj {
     int a = 1;
 
     TestObj() {}
   
-    template<typename SerializerT>
-    void serialize(SerializerT& s){
-      if (checkpoint::hasTrait<CheckpointingTrait>(s)){
+    template<typename SerT, typename SerT::has_not_traits_t<shallow_trait>* = nullptr>
+    void serialize(SerT& s){
+      if (s.hasTraits(CheckpointTrait)){
         if(s.isSizing()) printf("Customizing serialization for checkpoint\n");
         s | a;
       } else {
         if(s.isSizing()) printf("Default serializing testObj\n");
       }
 
-      static_assert(not checkpoint::has_trait_v<SerializerT, ShallowTrait>, "ShallowTrait should have been removed!\n");
+      static_assert(not s.hasTraits(ShallowTrait), "ShallowTrait should have been removed!\n");
     }
   };
 }
 
 
 namespace test {
-  template<typename SerializerT, std::enable_if_t<checkpoint::has_trait_v<SerializerT, RandomTrait> >* = nullptr>
-  void serialize(SerializerT& s, TestObj& myObj){
+  template<typename SerT, typename SerT::has_traits_t<random_trait>* = nullptr>
+  void serialize(SerT& s, TestObj& myObj){
     if(s.isSizing()) printf("Inserting random extra object serialization step! ");
     myObj.serialize(s);
   }
 
-  template<typename SerializerT, std::enable_if_t< checkpoint::has_trait_v<SerializerT, ShallowTrait>>* = nullptr>
-  void serialize(SerializerT& s, TestObj& myObj){
+  template<typename SerT, typename SerT::has_traits_t<shallow_trait>* = nullptr>
+  void serialize(SerT& s, TestObj& myObj){
     if(s.isSizing()) printf("Removing shallow trait before passing along!\n");
     
-    auto& newS = checkpoint::withoutTraits<ShallowTrait>(s);
-    
-    myObj.serialize(newS);
+    myObj.serialize(s.withoutTraits(ShallowTrait));
   }
 }
 
 namespace misc {
-  template<typename SerializerT, std::enable_if_t<checkpoint::has_trait_v<SerializerT, test::RandomTrait> >* = nullptr>
-  void serialize(SerializerT& s, test::TestObj& myObj){
+  template<typename SerT, typename SerT::has_traits_t<test::random_trait>* = nullptr>
+  void serialize(SerT& s, test::TestObj& myObj){
     if(s.isSizing()) printf("Serializers in other namespaces don't usually get found ");
     myObj.serialize(s);
   }
 
 
-  struct NamespaceTrait {};
-  template<typename SerializerT, std::enable_if_t<checkpoint::has_trait_v<SerializerT, NamespaceTrait> >* = nullptr>
-  void serialize(SerializerT& s, test::TestObj& myObj){
+  const struct namespace_trait {} NamespaceTrait;
+  template<typename SerT, typename SerT::has_traits_t<namespace_trait>* = nullptr>
+  void serialize(SerT& s, test::TestObj& myObj){
     if(s.isSizing()) printf("A misc:: trait means we can serialize from misc:: too: ");
     myObj.serialize(s);
   }
 
   
-  struct HookAllTrait {};
-  template<typename SerializerT, typename T, std::enable_if_t<checkpoint::has_trait_v<SerializerT, HookAllTrait> >* = nullptr>
-  void serialize(SerializerT& s, T& myObj){
+  const struct hook_all_trait {} HookAllTrait;
+  template<typename SerT, typename T, typename SerT::has_traits_t<hook_all_trait>* = nullptr>
+  void serialize(SerT& s, T& myObj){
     if(s.isSizing()) printf("We can even add on a generic pre-serialize hook: ");
-    myObj.serialize(s);
+    myObj.serialize(s.withoutTraits(HookAllTrait));
   }
 }

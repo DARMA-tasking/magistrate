@@ -50,21 +50,11 @@
 namespace checkpoint {
 
 namespace {
-  //template<Serializer::ModeType mode>
-  //struct false_type : std::false_type {};
-
-  template <typename StreamT, Serializer::ModeType mode>
-  struct StreamHolder {
-    template<Serializer::ModeType T = mode>
-    using false_type = std::false_type;
-
-    StreamHolder(StreamT& stream){
-      static_assert(false_type<>::value, "Unsupported serialization mode");
-    }
-  };
+  template <typename StreamT, typename IsPacking>
+  struct StreamHolder {};
 
   template <typename StreamT>
-  struct StreamHolder<StreamT, Serializer::ModeType::Packing> {
+  struct StreamHolder<StreamT, std::true_type> {
     StreamT& stream;
 
     StreamHolder(StreamT& stream) : stream(stream) {};
@@ -79,7 +69,7 @@ namespace {
   };
 
   template <typename StreamT>
-  struct StreamHolder<StreamT, Serializer::ModeType::Unpacking> {
+  struct StreamHolder<StreamT, std::false_type> {
     StreamT& stream;
 
     StreamHolder(StreamT& stream) : stream(stream) {};
@@ -94,17 +84,18 @@ namespace {
   };
 }
 
-template <typename StreamT, Serializer::ModeType mode, typename... UserTraits>
-struct StreamSerializer : Serializer<UserTraits...> {
-  StreamSerializer(ModeType const& in_mode, StreamT& in_stream)
-      : Serializer(mode), stream(in_stream), stream_start_position(stream.position()) {
-#ifdef DEBUG
-    assert(in_mode == mode);
-#endif
+template <typename StreamT, typename IsPacking, typename UserTraits = UserTraitHolder<>>
+struct StreamSerializerImpl : Serializer, public UserTraitedType<UserTraits, StreamSerializerImpl, StreamT, IsPacking> {
+  using Serializer::ModeType;
+
+  StreamSerializerImpl(ModeType const& in_mode, StreamT& in_stream)
+      : Serializer(in_mode), stream(in_stream), stream_start_position(stream.position()) {
+    assert(( IsPacking::value && (in_mode == ModeType::Packing)) ||
+           (!IsPacking::value && (in_mode == ModeType::Unpacking)));
   }
   
-  StreamSerializer(SerialSizeType size, ModeType const& in_mode, StreamT& in_stream) 
-      : StreamSerializer(in_mode, in_stream) {}
+  StreamSerializerImpl(SerialSizeType size, ModeType const& in_mode, StreamT& in_stream) 
+      : StreamSerializerImpl(in_mode, in_stream) {}
 
   void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms) {
     stream.copy(static_cast<char*>(ptr), size*num_elms);
@@ -115,12 +106,14 @@ struct StreamSerializer : Serializer<UserTraits...> {
   }
 
 private:
-  StreamHolder<StreamT, mode> stream;
+  StreamHolder<StreamT, IsPacking> stream;
   const SerialSizeType stream_start_position;
 };
 
-using IStreamSerializer = StreamSerializer<std::istream, Serializer::ModeType::Unpacking>;
-using OStreamSerializer = StreamSerializer<std::ostream, Serializer::ModeType::Packing>;
+template<typename StreamT = std::ostream, typename... UserTraits>
+using StreamPacker = StreamSerializerImpl<StreamT, std::true_type, UserTraits...>;
+template<typename StreamT = std::istream, typename... UserTraits>
+using StreamUnpacker = StreamSerializerImpl<StreamT, std::false_type, UserTraits...>;
 
 } /* end namespace checkpoint */
 

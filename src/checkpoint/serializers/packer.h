@@ -52,9 +52,8 @@
 #include "checkpoint/buffer/io_buffer.h"
 
 namespace checkpoint {
-
-template <typename BufferT, typename... UserTraits>
-struct PackerBuffer : MemorySerializer<UserTraits...> {
+template <typename BufferT, typename UserTraits = UserTraitHolder<>>
+struct PackerBuffer : MemorySerializer, public UserTraitedType<UserTraits, PackerBuffer, BufferT> {
   using BufferTPtrType = std::unique_ptr<BufferT>;
   using PackerReturnType = std::tuple<BufferTPtrType, SerialSizeType>;
 
