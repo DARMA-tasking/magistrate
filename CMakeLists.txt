@@ -40,7 +40,7 @@ endif()
 # Try to find ccache to speed up compilation
 find_program(ccache_binary ccache)
 if (ccache_binary)
-  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${ccache_binary}")
+  set_directory_properties(PROPERTIES RULE_LAUNCH_COMPILE "${ccache_binary}")
 endif()
 
 # MPI package
