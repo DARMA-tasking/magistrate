@@ -37,10 +37,12 @@ if(checkpoint_serialization_error_checking_enabled)
   message(STATUS "Building with serialization error checking enabled")
 endif()
 
-# Try to find ccache to speed up compilation
-find_program(ccache_binary ccache)
-if (ccache_binary)
-  set_directory_properties(PROPERTIES RULE_LAUNCH_COMPILE "${ccache_binary}")
+if (NOT DEFINED CMAKE_CXX_COMPILER_LAUNCHER)
+  # Try to find ccache to speed up compilation
+  find_program(ccache_binary ccache)
+  if (ccache_binary)
+    set(CMAKE_CXX_COMPILER_LAUNCHER ${ccache_binary})
+  endif()
 endif()
 
 # MPI package
