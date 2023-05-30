@@ -68,7 +68,6 @@ endforeach()
 
 add_library(
   ${CHECKPOINT_LIBRARY}
-  STATIC
   ${HEADER_FILES} ${SOURCE_FILES}
 )
 
