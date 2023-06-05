@@ -101,7 +101,7 @@ std::size_t getMemoryFootprint(T& target, std::size_t size_offset) {
 
 template <typename... Traits, typename T>
 void serializeToFile(T& target, std::string const& file) {
-  auto len = getSize<T, UserTraitHolder<Traits...>>(target);
+  auto len = getSize<Traits...>(target);
   dispatch::Standard::pack<T, PackerBuffer<buffer::IOBuffer, UserTraitHolder<Traits...>>>(
     target, len, buffer::IOBuffer::WriteToFileTag{}, len, file
   );
@@ -126,7 +126,7 @@ void deserializeInPlaceFromFile(std::string const& file, T* t) {
 
 template <typename... Traits, typename T, typename StreamT>
 void serializeToStream(T& target, StreamT& stream) {
-  auto len = getSize<T>(target);
+  auto len = getSize<Traits...>(target);
   dispatch::Standard::pack<T, StreamPacker<StreamT, UserTraitHolder<Traits...>>>(
     target, len, eSerializationMode::Packing, stream
   );
