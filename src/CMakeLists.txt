@@ -84,7 +84,7 @@ if (${kokkos_DIR_FOUND})
     # Kokkos Kernels historically installed its EXPORT targets in the Kokkos:: namespace, and several
     # downstream packages import it as such, so it's not readily changed.
     # Meanwhile, Trilinos installs it under the more consistent KokkosKernels:: namespace.
-    # Account for both possiblie routes of acquiring Kokkos Kernels here
+    # Account for both possible routes of acquiring Kokkos Kernels here
     if(TARGET KokkosKernels::kokkoskernels)
       target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC KokkosKernels::kokkoskernels)
     else()
