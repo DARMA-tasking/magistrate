@@ -328,7 +328,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
   using ViewType = Kokkos::View<T,Args...>;
   using ArrayLayoutType = typename ViewType::traits::array_layout;
 
-  static constexpr auto const rank_val = ViewType::Rank;
+  static constexpr auto const rank_val = ViewType::rank;
 
   checkpointAssert(
     ViewType::traits::is_managed,
