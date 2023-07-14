@@ -81,7 +81,15 @@ if (${kokkos_DIR_FOUND})
   if (KokkosKernels_DIR_FOUND)
     message(STATUS "Checkpoint: Kokkos kernels enabled")
     set(KERNELS 1)
-    target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC Kokkos::kokkoskernels)
+    # Kokkos Kernels historically installed its EXPORT targets in the Kokkos:: namespace, and several
+    # downstream packages import it as such, so it's not readily changed.
+    # Meanwhile, Trilinos installs it under the more consistent KokkosKernels:: namespace.
+    # Account for both possible routes of acquiring Kokkos Kernels here
+    if(TARGET KokkosKernels::kokkoskernels)
+      target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC KokkosKernels::kokkoskernels)
+    else()
+      target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC Kokkos::kokkoskernels)
+    endif()
   else()
     message(STATUS "Checkpoint: Kokkos kernels disabled")
     set(KERNELS 0)
