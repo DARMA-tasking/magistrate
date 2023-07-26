@@ -47,7 +47,7 @@
 
 namespace checkpoint {
 
-Sizer::Sizer() : Serializer(ModeType::Sizing) { }
+Sizer::Sizer() : BaseSerializer(ModeType::Sizing) { }
 
 SerialSizeType Sizer::getSize() const {
   return num_bytes_;

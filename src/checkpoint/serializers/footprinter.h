@@ -49,8 +49,8 @@
 
 namespace checkpoint {
 
-struct Footprinter : Serializer {
-  Footprinter() : Serializer(ModeType::Footprinting) { }
+struct Footprinter : BaseSerializer {
+  Footprinter() : BaseSerializer(ModeType::Footprinting) { }
 
   SerialSizeType getMemoryFootprint() const {
     return num_bytes_;
