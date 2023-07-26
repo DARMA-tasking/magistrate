@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                 checkpoint.h
+//                             varaint_serialize.h
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -41,36 +41,62 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CHECKPOINT_H
-#define INCLUDED_CHECKPOINT_CHECKPOINT_H
+#if !defined INCLUDED_CHECKPOINT_CONTAINER_VARIANT_SERIALIZE_H
+#define INCLUDED_CHECKPOINT_CONTAINER_VARIANT_SERIALIZE_H
 
+#include "checkpoint/common.h"
 #include "checkpoint/serializers/serializers_headers.h"
-#include "checkpoint/dispatch/dispatch.h"
-#include "checkpoint/traits/serializable_traits.h"
+#include "checkpoint/dispatch/allocator.h"
 
-#include "checkpoint/container/array_serialize.h"
-#include "checkpoint/container/atomic_serialize.h"
-#include "checkpoint/container/chrono_serialize.h"
-#include "checkpoint/container/enum_serialize.h"
-#include "checkpoint/container/function_serialize.h"
-#include "checkpoint/container/list_serialize.h"
-#include "checkpoint/container/map_serialize.h"
-#include "checkpoint/container/queue_serialize.h"
-#include "checkpoint/container/raw_ptr_serialize.h"
-#include "checkpoint/container/shared_ptr_serialize.h"
-#include "checkpoint/container/string_serialize.h"
-#include "checkpoint/container/thread_serialize.h"
-#include "checkpoint/container/tuple_serialize.h"
-#include "checkpoint/container/vector_serialize.h"
-#include "checkpoint/container/unique_ptr_serialize.h"
-#include "checkpoint/container/view_serialize.h"
-#include "checkpoint/container/variant_serialize.h"
+#include <variant>
 
-#include "checkpoint/container/kokkos_unordered_map_serialize.h"
-#include "checkpoint/container/kokkos_pair_serialize.h"
-#include "checkpoint/container/kokkos_complex_serialize.h"
+namespace checkpoint {
 
-#include "checkpoint/checkpoint_api.h"
-#include "checkpoint/checkpoint_api.impl.h"
+template <typename... Args>
+struct SerializeEntry;
 
-#endif /*INCLUDED_CHECKPOINT_CHECKPOINT_H*/
+template <typename Arg, typename... Args>
+struct SerializeEntry<Arg, Args...> {
+
+  template <typename SerializerT, typename VariantT>
+  static void serialize(
+    SerializerT& s, VariantT& v, std::size_t entry, std::size_t cur
+  ) {
+    if (entry == cur) {
+      if (s.isUnpacking()) {
+        using Alloc = dispatch::Allocator<Arg>;
+        using Reconstructor =
+          dispatch::Reconstructor<typename dispatch::CleanType<Arg>::CleanT>;
+        Alloc allocated;
+        auto* reconstructed = Reconstructor::construct(allocated.buf);
+        s | *reconstructed;
+        v = std::move(*reconstructed);
+      } else {
+        s | std::get<Arg>(v);
+      }
+    } else {
+      SerializeEntry<Args...>::serialize(s, v, entry, cur+1);
+    }
+  }
+};
+
+template <>
+struct SerializeEntry<> {
+  template <typename SerializerT, typename VariantT>
+  static void serialize(
+    SerializerT& s, VariantT& v, std::size_t entry, std::size_t cur
+  ) {
+    // base case
+  }
+};
+
+template <typename SerializerT, typename... Args>
+void serialize(SerializerT& s, std::variant<Args...>& v) {
+  std::size_t entry = v.index();
+  s | entry;
+  SerializeEntry<Args...>::serialize(s, v, entry, 0);
+}
+
+} /* end namespace checkpoint */
+
+#endif /*INCLUDED_CHECKPOINT_CONTAINER_VARIANT_SERIALIZE_H*/
