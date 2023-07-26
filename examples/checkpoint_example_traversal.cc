@@ -80,8 +80,8 @@ private:
 }}} // end namespace magistrate::intrusive::examples
 
 /// Custom traverser for printing raw bytes
-struct PrintBytesTraverse : checkpoint::Serializer {
-  PrintBytesTraverse() : checkpoint::Serializer(checkpoint::eSerializationMode::None) { }
+struct PrintBytesTraverse : checkpoint::BaseSerializer {
+  PrintBytesTraverse() : checkpoint::BaseSerializer(checkpoint::eSerializationMode::None) { }
 
   void contiguousBytes(void* ptr, std::size_t size, std::size_t num_elms) {
     printf("PrintBytesTraverse: size=%zu, num_elms=%zu\n", size, num_elms);
@@ -125,11 +125,11 @@ struct CustomDispatch<SerializerT, std::vector<U>> {
 };
 
 /// Custom traverser for printing typed ranges
-struct TypedTraverse : checkpoint::Serializer {
+struct TypedTraverse : checkpoint::BaseSerializer {
   template <typename U, typename V>
   using DispatcherType = CustomDispatch<U, V>;
 
-  TypedTraverse() : checkpoint::Serializer(checkpoint::eSerializationMode::None) { }
+  TypedTraverse() : checkpoint::BaseSerializer(checkpoint::eSerializationMode::None) { }
 
   template <typename SerializerT, typename T>
   void contiguousTyped(SerializerT&, T*, std::size_t num_elms) {
