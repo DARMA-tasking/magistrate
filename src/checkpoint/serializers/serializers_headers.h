@@ -50,14 +50,17 @@
 #include "checkpoint/serializers/sizer.h"
 #include "checkpoint/serializers/packer.h"
 #include "checkpoint/serializers/unpacker.h"
+#include "checkpoint/serializers/stream_serializer.h"
 
 #define checkpoint_serializer_variadic_args()   \
-  checkpoint::Footprinter,                      \
+  checkpoint::Footprinter<>,                    \
   checkpoint::Packer,                           \
   checkpoint::PackerUserBuf,                    \
   checkpoint::PackerIO,                         \
   checkpoint::Unpacker,                         \
   checkpoint::UnpackerIO,                       \
-  checkpoint::Sizer                             \
+  checkpoint::Sizer<>,                          \
+  checkpoint::StreamPacker<>,                     \
+  checkpoint::StreamUnpacker<>                    \
 
 #endif /*INCLUDED_CHECKPOINT_SERIALIZERS_SERIALIZERS_HEADERS_H*/

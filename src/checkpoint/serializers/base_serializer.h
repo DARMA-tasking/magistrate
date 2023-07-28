@@ -45,6 +45,7 @@
 #define INCLUDED_CHECKPOINT_SERIALIZERS_BASE_SERIALIZER_H
 
 #include "checkpoint/common.h"
+#include "checkpoint/traits/user_traits.h"
 
 #include <type_traits>
 #include <cstdlib>
@@ -207,6 +208,7 @@ protected:
   ModeType cur_mode_ = ModeType::Invalid; /**< The current mode */
   bool virtual_disabled_ = false;         /**< Virtual serialization disabled */
 };
+
 
 } /* end namespace checkpoint */
 

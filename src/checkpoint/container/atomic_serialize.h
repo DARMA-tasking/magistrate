@@ -54,7 +54,7 @@ template <
   typename SerializerT,
   typename T,
   typename = std::enable_if_t<
-    std::is_same<SerializerT, checkpoint::Footprinter>::value
+    checkpoint::is_footprinter<SerializerT>::value
   >
 >
 void serialize(SerializerT& s, const std::atomic<T>& atomic) {

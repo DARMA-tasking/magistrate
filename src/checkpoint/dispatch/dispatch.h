@@ -188,7 +188,7 @@ struct Standard {
   static SerialByteType* allocate();
 };
 
-template <typename T>
+template <typename T, typename... UserTraits>
 buffer::ImplReturnType packBuffer(
   T& target, SerialSizeType size, BufferObtainFnType fn
 );
@@ -196,13 +196,13 @@ buffer::ImplReturnType packBuffer(
 template <typename Serializer, typename T>
 inline void serializeArray(Serializer& s, T* array, SerialSizeType const len);
 
-template <typename T>
+template <typename T, typename... UserTraits>
 buffer::ImplReturnType serializeType(T& target, BufferObtainFnType fn = nullptr);
 
-template <typename T>
+template <typename T, typename... UserTraits>
 T* deserializeType(SerialByteType* data, SerialByteType* allocBuf = nullptr);
 
-template <typename T>
+template <typename T, typename... UserTraits>
 void deserializeType(InPlaceTag, SerialByteType* data, T* t);
 
 template <typename T>

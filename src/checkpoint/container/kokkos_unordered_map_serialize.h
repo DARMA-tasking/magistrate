@@ -117,7 +117,7 @@ template <
   typename Hasher, typename EqualTo
 >
 typename std::enable_if_t<
-  not std::is_same<SerializerT, checkpoint::Footprinter>::value, void
+  not checkpoint::is_footprinter<SerializerT>::value, void
 > serialize(
   SerializerT& s,
   Kokkos::UnorderedMap<Key, Value, Device, Hasher, EqualTo>& map
@@ -140,7 +140,7 @@ template <
   typename Hasher, typename EqualTo
 >
 typename std::enable_if_t<
-  std::is_same<SerializerT, checkpoint::Footprinter>::value, void
+  checkpoint::is_footprinter<SerializerT>::value, void
 > serialize(
   SerializerT& s,
   Kokkos::UnorderedMap<Key, Value, Device, Hasher, EqualTo>& map

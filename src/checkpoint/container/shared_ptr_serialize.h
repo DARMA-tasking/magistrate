@@ -53,8 +53,8 @@ template <
   typename T,
   typename = std::enable_if_t<
     std::is_same<
-      SerializerT,
-      checkpoint::Footprinter
+      checkpoint::Footprinter<>,
+      SerializerT
     >::value
   >
 >

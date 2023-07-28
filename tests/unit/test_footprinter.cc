@@ -107,7 +107,7 @@ struct TestDerived2 : TestBase {
     typename = std::enable_if_t<
       std::is_same<
         SerializerT,
-        checkpoint::Footprinter
+        checkpoint::Footprinter<>
       >::value
     >
   >

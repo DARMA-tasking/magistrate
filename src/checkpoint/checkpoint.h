@@ -47,6 +47,7 @@
 #include "checkpoint/serializers/serializers_headers.h"
 #include "checkpoint/dispatch/dispatch.h"
 #include "checkpoint/traits/serializable_traits.h"
+#include "checkpoint/traits/user_traits.h"
 
 #include "checkpoint/container/array_serialize.h"
 #include "checkpoint/container/atomic_serialize.h"

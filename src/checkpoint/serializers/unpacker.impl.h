@@ -53,9 +53,9 @@
 
 namespace checkpoint {
 
-template <typename BufferT>
-UnpackerBuffer<BufferT>::UnpackerBuffer(SerialByteType* buf)
-  : MemorySerializer(ModeType::Unpacking),
+template <typename BufferT, typename UserTraits>
+UnpackerBuffer<BufferT, UserTraits>::UnpackerBuffer(SerialByteType* buf)
+  : MemorySerializer(Serializer::ModeType::Unpacking),
     buffer_(std::make_unique<BufferT>(buf, 0))
 {
   MemorySerializer::initializeBuffer(buffer_->getBuffer());
@@ -67,10 +67,10 @@ UnpackerBuffer<BufferT>::UnpackerBuffer(SerialByteType* buf)
   );
 }
 
-template <typename BufferT>
+template <typename BufferT, typename UserTraits>
 template <typename... Args>
-UnpackerBuffer<BufferT>::UnpackerBuffer(Args&&... args)
-  : MemorySerializer(ModeType::Unpacking),
+UnpackerBuffer<BufferT, UserTraits>::UnpackerBuffer(Args&&... args)
+  : MemorySerializer(Serializer::ModeType::Unpacking),
     buffer_(std::make_unique<BufferT>(std::forward<Args>(args)...))
 {
   MemorySerializer::initializeBuffer(buffer_->getBuffer());
@@ -82,8 +82,8 @@ UnpackerBuffer<BufferT>::UnpackerBuffer(Args&&... args)
   );
 }
 
-template <typename BufferT>
-void UnpackerBuffer<BufferT>::contiguousBytes(
+template <typename BufferT, typename UserTraits>
+void UnpackerBuffer<BufferT, UserTraits>::contiguousBytes(
   void* ptr, SerialSizeType size, SerialSizeType num_elms
 ) {
   debug_checkpoint(
@@ -98,8 +98,8 @@ void UnpackerBuffer<BufferT>::contiguousBytes(
   usedSize_ += len;
 }
 
-template <typename BufferT>
-SerialSizeType UnpackerBuffer<BufferT>::usedBufferSize() const {
+template <typename BufferT, typename UserTraits>
+SerialSizeType UnpackerBuffer<BufferT, UserTraits>::usedBufferSize() const {
   return usedSize_;
 }
 

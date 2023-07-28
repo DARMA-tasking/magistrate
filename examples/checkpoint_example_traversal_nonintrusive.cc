@@ -136,7 +136,7 @@ struct CustomDispatch<SerializerT, std::vector<U>> {
   }
 };
 
-/// Custom traverser for printing typed ranges
+/// Custom traverser for printing typed range<>s
 struct TypedTraverse : checkpoint::Serializer {
   template <typename U, typename V>
   using DispatcherType = CustomDispatch<U, V>;

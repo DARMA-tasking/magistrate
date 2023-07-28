@@ -49,7 +49,10 @@
 
 namespace checkpoint {
 
-struct Footprinter : Serializer {
+template<typename UserTraits = UserTraitHolder<>>
+struct Footprinter : Serializer, UserTraitedType<UserTraits, Footprinter> {
+  using Serializer::ModeType;
+
   Footprinter() : Serializer(ModeType::Footprinting) { }
 
   SerialSizeType getMemoryFootprint() const {
@@ -71,6 +74,20 @@ struct Footprinter : Serializer {
 private:
   SerialSizeType num_bytes_ = 0;
 };
+
+namespace {
+    template <typename>
+    struct is_footprinter_impl : public std::false_type {};
+
+    template <typename... UserTraits>
+    struct is_footprinter_impl<Footprinter<UserTraits...>> : std::true_type {};
+   
+    template <>
+    struct is_footprinter_impl<Footprinter<>> : std::true_type {};
+}
+
+template<typename U>
+using is_footprinter = is_footprinter_impl<std::decay_t<U>>;
 
 } /* end namespace checkpoint */
 

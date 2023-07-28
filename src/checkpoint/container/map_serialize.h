@@ -58,7 +58,7 @@ namespace checkpoint {
 
 template <typename Serializer, typename ContainerT, typename ElmT>
 inline typename std::enable_if_t<
-  not std::is_same<Serializer, checkpoint::Footprinter>::value,
+  not checkpoint::is_footprinter<Serializer>::value,
   void
 > deserializeEmplaceElems(
   Serializer& s, ContainerT& cont, typename ContainerT::size_type size
@@ -77,7 +77,7 @@ inline typename std::enable_if_t<
 
 template <typename Serializer, typename ContainerT, typename ElmT>
 inline typename std::enable_if_t<
-  std::is_same<Serializer, checkpoint::Footprinter>::value,
+  checkpoint::is_footprinter<Serializer>::value,
   void
 > deserializeEmplaceElems(
   Serializer& s, ContainerT& cont, typename ContainerT::size_type size

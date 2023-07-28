@@ -62,6 +62,15 @@ void virtualSerialize(T*& base, SerializerT& s) {
   // Get the real base in case this is called on a derived type
   using BaseT = ::checkpoint::dispatch::vrt::checkpoint_base_type_t<T>;
   auto serializer_idx = serializer_registry::makeObjIdx<BaseT, SerializerT>();
+  
+  if constexpr (not std::is_same_v<SerializerT, typename SerializerT::TraitlessT>){
+    static bool warned_once = false;
+    if(!warned_once){
+      fprintf(stderr, "Warning: Magistrate cannot support UserTraits being visible to virtually serialized objects.\n");
+      warned_once = true;
+    }
+  }
+
   base->_checkpointDynamicSerialize(&s, serializer_idx, no_type_idx);
 }
 
@@ -146,7 +155,7 @@ struct ReconstructAsVirtualIfNeeded<
   SerializerT,
   typename std::enable_if_t<
     dispatch::vrt::VirtualSerializeTraits<T>::has_not_virtual_serialize and
-    not std::is_same<SerializerT, checkpoint::Footprinter>::value
+    not checkpoint::is_footprinter<SerializerT>::value
   >
 > {
   static T* apply(SerializerT& s, dispatch::vrt::TypeIdx entry) {
@@ -162,7 +171,7 @@ struct ReconstructAsVirtualIfNeeded<
   SerializerT,
   typename std::enable_if_t<
     dispatch::vrt::VirtualSerializeTraits<T>::has_not_virtual_serialize and
-    std::is_same<SerializerT, checkpoint::Footprinter>::value
+    checkpoint::is_footprinter<SerializerT>::value
   >
 > {
   static T* apply(SerializerT& s, dispatch::vrt::TypeIdx entry) { return nullptr; }
