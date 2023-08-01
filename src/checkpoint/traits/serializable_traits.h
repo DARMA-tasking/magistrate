@@ -69,6 +69,11 @@ struct SerdesByteCopy {
   using isByteCopyable = std::true_type;
 };
 
+template <typename T>
+struct ByteCopyNonIntrusive {
+  using isByteCopyable = std::false_type;
+};
+
 namespace detail {
 template <typename T>
 struct isByteCopyableImpl {
@@ -150,7 +155,8 @@ struct SerializableTraits {
 
   // This defines what it means to be serializable without a serialize method
   static constexpr auto const is_bytecopyable =
-    has_byteCopyTraitTrue::value or has_isArith<T>::value;
+    has_byteCopyTraitTrue::value or has_isArith<T>::value or
+    ByteCopyNonIntrusive<T>::isByteCopyable::value;
 
   /**
    * Detect different types of re-constructibility: default constructors,

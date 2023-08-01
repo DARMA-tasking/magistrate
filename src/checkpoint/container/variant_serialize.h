@@ -50,7 +50,7 @@
 
 #include <variant>
 
-namespace checkpoint {
+namespace checkpoint::detail {
 
 template <typename... Args>
 struct SerializeEntry;
@@ -90,11 +90,36 @@ struct SerializeEntry<> {
   }
 };
 
+template <typename... Args>
+struct ByteCopyableVariant;
+
+template <typename Arg, typename... Args>
+struct ByteCopyableVariant<Arg, Args...> {
+  static constexpr bool const byte_copyable =
+    SerializableTraits<Arg>::is_bytecopyable and
+    ByteCopyableVariant<Args...>::byte_copyable;
+};
+
+template <>
+struct ByteCopyableVariant<> {
+  static constexpr bool const byte_copyable = true;
+};
+
+} /* end namespace checkpoint::detail */
+
+namespace checkpoint {
+
+template <typename... Args>
+struct ByteCopyNonIntrusive<std::variant<Args...>> {
+  using isByteCopyable =
+    std::bool_constant<detail::ByteCopyableVariant<Args...>::byte_copyable>;
+};
+
 template <typename SerializerT, typename... Args>
 void serialize(SerializerT& s, std::variant<Args...>& v) {
   std::size_t entry = v.index();
   s | entry;
-  SerializeEntry<Args...>::serialize(s, v, entry, 0);
+  detail::SerializeEntry<Args...>::serialize(s, v, entry, 0);
 }
 
 } /* end namespace checkpoint */
