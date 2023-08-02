@@ -125,7 +125,10 @@ inline Kokkos::LayoutStride layout3d(lsType d1,lsType d2,lsType d3) {
 using Test3DTypes = std::tuple<
   int      ***, int      **[1], int      **[9],
   double   ***, double   **[1], double   **[9],
+  float    ***, float    **[1], float    **[9],
+  int32_t  ***, int32_t  **[1], int32_t  **[9],
   int64_t  ***, int64_t  **[1], int64_t  **[9],
+  unsigned ***, unsigned **[1], unsigned **[9],
   long     ***, long     **[1], long     **[9],
   long long***, long long**[1], long long**[9]
 >;
@@ -133,7 +136,10 @@ using Test3DTypes = std::tuple<
 using Test3DConstTypes = std::tuple<
   int       const ***, int       const **[1], int       const **[9],
   double    const ***, double    const **[1], double    const **[9],
+  float     const ***, float     const **[1], float     const **[9],
+  int32_t   const ***, int32_t   const **[1], int32_t   const **[9],
   int64_t   const ***, int64_t   const **[1], int64_t   const **[9],
+  unsigned  const ***, unsigned  const **[1], unsigned  const **[9],
   long      const ***, long      const **[1], long      const **[9],
   long long const ***, long long const **[1], long long const **[9]
 >;
@@ -153,5 +159,38 @@ using Test3DConstTypesStride =
   typename TestFactory<Test3DConstTypes,Kokkos::LayoutStride>::ResultType;
 
 #endif
+
+template <typename ParamT> struct KokkosViewTest3D : KokkosViewTest<ParamT> { };
+
+TYPED_TEST_CASE_P(KokkosViewTest3D);
+
+TYPED_TEST_P(KokkosViewTest3D, test_3d_any) {
+  using namespace checkpoint;
+
+  using LayoutType = typename std::tuple_element<1,TypeParam>::type;
+  using DataType   = typename std::tuple_element<0,TypeParam>::type;
+  using ViewType          = Kokkos::View<DataType, LayoutType>;
+  using NonConstT         = typename ViewType::traits::non_const_data_type;
+  using NonConstViewType  = Kokkos::View<NonConstT, LayoutType>;
+  using ConstT         = typename ViewType::traits::const_data_type;
+  using ConstViewType  = Kokkos::View<ConstT, LayoutType>;
+  static constexpr size_t const N = 5;
+  static constexpr size_t const M = 17;
+  static constexpr size_t const Q = 7;
+
+  LayoutType layout = layout3d<LayoutType>(N,M,Q);
+  NonConstViewType in_view("test-3D-some-string", layout);
+
+  init3d(in_view);
+
+  if (std::is_same<NonConstViewType, ViewType>::value) {
+    serializeAny<NonConstViewType>(in_view, &compare3d<NonConstViewType>);
+  } else {
+    ConstViewType const_in_view = in_view;
+    serializeAny<ConstViewType>(const_in_view, &compare3d<ConstViewType>);
+  }
+}
+
+REGISTER_TYPED_TEST_CASE_P(KokkosViewTest3D, test_3d_any);
 
 #endif // TEST_KOKKOS_3D_COMMONS_H
