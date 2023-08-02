@@ -128,8 +128,7 @@ services:
     ulimits: &ulimits
       core: ${ULIMIT_CORE}
     environment:
-      <<: *ccache
-      <<: *checkpointopts
+      <<: [*ccache, *checkpointopts]
     volumes: &ubuntu-volumes
       - .:/checkpoint:delegated
       - ${CACHE}${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cache:/build:delegated
@@ -149,8 +148,7 @@ services:
       args: *default-args
     ulimits: *ulimits
     environment:
-      <<: *ccache
-      <<: *checkpointopts
+      <<: [*ccache, *checkpointopts]
     volumes: *ubuntu-volumes
     command: &build-against-vt-cpp-command >
       /bin/bash -c "
@@ -178,8 +176,7 @@ services:
       args: *default-args
     ulimits: *ulimits
     environment:
-      <<: *ccache
-      <<: *checkpointopts
+      <<: [*ccache, *checkpointopts]
     volumes: *ubuntu-volumes
 
   ##############################################################################
