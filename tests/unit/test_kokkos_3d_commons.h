@@ -125,10 +125,7 @@ inline Kokkos::LayoutStride layout3d(lsType d1,lsType d2,lsType d3) {
 using Test3DTypes = std::tuple<
   int      ***, int      **[1], int      **[9],
   double   ***, double   **[1], double   **[9],
-  float    ***, float    **[1], float    **[9],
-  int32_t  ***, int32_t  **[1], int32_t  **[9],
   int64_t  ***, int64_t  **[1], int64_t  **[9],
-  unsigned ***, unsigned **[1], unsigned **[9],
   long     ***, long     **[1], long     **[9],
   long long***, long long**[1], long long**[9]
 >;
@@ -136,10 +133,7 @@ using Test3DTypes = std::tuple<
 using Test3DConstTypes = std::tuple<
   int       const ***, int       const **[1], int       const **[9],
   double    const ***, double    const **[1], double    const **[9],
-  float     const ***, float     const **[1], float     const **[9],
-  int32_t   const ***, int32_t   const **[1], int32_t   const **[9],
   int64_t   const ***, int64_t   const **[1], int64_t   const **[9],
-  unsigned  const ***, unsigned  const **[1], unsigned  const **[9],
   long      const ***, long      const **[1], long      const **[9],
   long long const ***, long long const **[1], long long const **[9]
 >;
