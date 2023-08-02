@@ -57,6 +57,11 @@ TEST_F(VariantTest, test_variant_basic) {
   std::variant<int, double> v;
   v = 10.0f;
 
+  static_assert(
+    checkpoint::SerializableTraits<decltype(v)>::is_bytecopyable,
+    "Must be byte copyable"
+  );
+
   auto ret = serialize(v);
   auto deser = deserialize<decltype(v)>(ret->getBuffer());
 
@@ -67,6 +72,11 @@ TEST_F(VariantTest, test_variant_basic) {
 TEST_F(VariantTest, test_variant_basic_string) {
   std::variant<int, double, std::string> v;
   v = "test";
+
+  static_assert(
+    not checkpoint::SerializableTraits<decltype(v)>::is_bytecopyable,
+    "Must not be byte copyable"
+  );
 
   auto ret = serialize(v);
   auto deser = deserialize<decltype(v)>(ret->getBuffer());
@@ -88,6 +98,11 @@ struct NotDefaultConstruct {
 TEST_F(VariantTest, test_variant_no_default_construct) {
   std::variant<int, double, NotDefaultConstruct, std::string> v;
   v = NotDefaultConstruct{10};
+
+  static_assert(
+    not checkpoint::SerializableTraits<decltype(v)>::is_bytecopyable,
+    "Must not be byte copyable"
+  );
 
   auto ret = serialize(v);
   auto deser = deserialize<decltype(v)>(ret->getBuffer());
@@ -112,6 +127,11 @@ struct NotCopyConstruct {
 TEST_F(VariantTest, test_variant_no_copy_construct) {
   std::variant<int, double, NotCopyConstruct, std::string> v;
   v.emplace<NotCopyConstruct>(10);
+
+  static_assert(
+    not checkpoint::SerializableTraits<decltype(v)>::is_bytecopyable,
+    "Must not be byte copyable"
+  );
 
   auto ret = serialize(v);
   auto deser = deserialize<decltype(v)>(ret->getBuffer());
