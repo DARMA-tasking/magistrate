@@ -47,6 +47,7 @@
 #include "test_kokkos_3d_commons.h"
 
 #if DO_UNIT_TESTS_FOR_VIEW
+REGISTER_TYPED_TEST_CASE_P(KokkosViewTest3D, test_3d_any);
 INSTANTIATE_TYPED_TEST_CASE_P(test_3d_R, KokkosViewTest3D, Test3DTypesRight, );
 INSTANTIATE_TYPED_TEST_CASE_P(test_3d_R_C, KokkosViewTest3D, Test3DConstTypesRight, );
 #endif

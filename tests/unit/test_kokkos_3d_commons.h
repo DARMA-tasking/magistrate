@@ -191,6 +191,4 @@ TYPED_TEST_P(KokkosViewTest3D, test_3d_any) {
   }
 }
 
-REGISTER_TYPED_TEST_CASE_P(KokkosViewTest3D, test_3d_any);
-
 #endif // TEST_KOKKOS_3D_COMMONS_H
