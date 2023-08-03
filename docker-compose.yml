@@ -64,6 +64,21 @@ volumes:
   amd64-ubuntu-20.04-nvcc-11.2-cache:
   amd64-ubuntu-20.04-nvcc-11.4-cache:
   amd64-ubuntu-20.04-nvcc-12-cache:
+  arm64v8-ubuntu-18.04-clang-5.0-cache:
+  arm64v8-ubuntu-18.04-clang-6.0-cache:
+  arm64v8-ubuntu-18.04-clang-7-cache:
+  arm64v8-ubuntu-18.04-clang-8-cache:
+  arm64v8-ubuntu-18.04-clang-9-cache:
+  arm64v8-ubuntu-20.04-clang-10-cache:
+  arm64v8-ubuntu-18.04-gcc-8-cache:
+  arm64v8-ubuntu-20.04-gcc-8-cache:
+  arm64v8-ubuntu-20.04-gcc-9-cache:
+  arm64v8-ubuntu-20.04-gcc-10-cache:
+  arm64v8-ubuntu-18.04-icc-18-cache:
+  arm64v8-ubuntu-18.04-icc-19-cache:
+  arm64v8-ubuntu-20.04-nvcc-11.2-cache:
+  arm64v8-ubuntu-20.04-nvcc-11.4-cache:
+  arm64v8-ubuntu-20.04-nvcc-12-cache:
 
 # Define basic rules for ccache used across multiple services. The beauty of
 # docker compose with cached volumes is that similarily configured builds will
@@ -113,8 +128,7 @@ services:
     ulimits: &ulimits
       core: ${ULIMIT_CORE}
     environment:
-      <<: *ccache
-      <<: *checkpointopts
+      <<: [*ccache, *checkpointopts]
     volumes: &ubuntu-volumes
       - .:/checkpoint:delegated
       - ${CACHE}${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cache:/build:delegated
@@ -134,8 +148,7 @@ services:
       args: *default-args
     ulimits: *ulimits
     environment:
-      <<: *ccache
-      <<: *checkpointopts
+      <<: [*ccache, *checkpointopts]
     volumes: *ubuntu-volumes
     command: &build-against-vt-cpp-command >
       /bin/bash -c "
@@ -163,8 +176,7 @@ services:
       args: *default-args
     ulimits: *ulimits
     environment:
-      <<: *ccache
-      <<: *checkpointopts
+      <<: [*ccache, *checkpointopts]
     volumes: *ubuntu-volumes
 
   ##############################################################################

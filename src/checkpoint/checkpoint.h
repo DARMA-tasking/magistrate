@@ -64,6 +64,7 @@
 #include "checkpoint/container/vector_serialize.h"
 #include "checkpoint/container/unique_ptr_serialize.h"
 #include "checkpoint/container/view_serialize.h"
+#include "checkpoint/container/variant_serialize.h"
 
 #include "checkpoint/container/kokkos_unordered_map_serialize.h"
 #include "checkpoint/container/kokkos_pair_serialize.h"

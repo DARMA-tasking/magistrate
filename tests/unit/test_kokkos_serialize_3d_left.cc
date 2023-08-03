@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                   sizer.cc
+//                      test_kokkos_serialize_3d_left.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -40,21 +40,16 @@
 // *****************************************************************************
 //@HEADER
 */
+#if KOKKOS_ENABLED_CHECKPOINT
 
-#include "checkpoint/common.h"
-#include "checkpoint/serializers/base_serializer.h"
-#include "checkpoint/serializers/sizer.h"
+#include "test_harness.h"
+#include "test_commons.h"
+#include "test_kokkos_3d_commons.h"
 
-namespace checkpoint {
+#if DO_UNIT_TESTS_FOR_VIEW
+REGISTER_TYPED_TEST_CASE_P(KokkosViewTest3D, test_3d_any);
+INSTANTIATE_TYPED_TEST_CASE_P(test_3d_L, KokkosViewTest3D, Test3DTypesLeft, );
+INSTANTIATE_TYPED_TEST_CASE_P(test_3d_L_C, KokkosViewTest3D, Test3DConstTypesLeft, );
+#endif
 
-Sizer::Sizer() : BaseSerializer(ModeType::Sizing) { }
-
-SerialSizeType Sizer::getSize() const {
-  return num_bytes_;
-}
-
-void Sizer::contiguousBytes(void*, SerialSizeType size, SerialSizeType num_elms) {
-  num_bytes_ += size * num_elms;
-}
-
-} /* end namespace checkpoint */
+#endif

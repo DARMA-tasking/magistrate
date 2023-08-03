@@ -68,11 +68,11 @@ struct BasicDispatcher;
 } /* end namespace dispatch */
 
 /**
- * \struct Serializer
+ * \struct BaseSerializer
  *
  * \brief General base class for serialiers
  */
-struct Serializer {
+struct BaseSerializer {
   using ModeType = eSerializationMode;
 
   template <typename SerializerT, typename T>
@@ -83,7 +83,7 @@ struct Serializer {
    *
    * \param[in] in_mode The serializer mode
    */
-  explicit Serializer(ModeType const& in_mode) : cur_mode_(in_mode) {}
+  explicit BaseSerializer(ModeType const& in_mode) : cur_mode_(in_mode) {}
 
   /**
    * \brief Get the serializer mode

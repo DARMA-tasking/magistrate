@@ -49,13 +49,13 @@
 
 namespace checkpoint {
 
-struct MemorySerializer : Serializer {
+struct MemorySerializer : BaseSerializer {
   MemorySerializer(ModeType const& in_mode, SerialByteType* in_start)
-    : Serializer(in_mode), start_(in_start), cur_(in_start)
+    : BaseSerializer(in_mode), start_(in_start), cur_(in_start)
   { }
 
   explicit MemorySerializer(ModeType const& in_mode)
-    : Serializer(in_mode)
+    : BaseSerializer(in_mode)
   { }
 
   SerialByteType* getBuffer() const {

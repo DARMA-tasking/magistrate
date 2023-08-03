@@ -56,7 +56,7 @@ namespace checkpoint {
  * preprocessing pass before packing content so a properly sized buffer can be
  * allocated.
  */
-struct Sizer : Serializer {
+struct Sizer : BaseSerializer {
   /**
    * \internal \brief Construct a sizer
    */
