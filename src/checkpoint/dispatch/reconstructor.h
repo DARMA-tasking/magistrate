@@ -153,9 +153,11 @@ struct Reconstructor {
 
   template <typename U = T>
   static T* constructAllowFailImpl(void* buf, isNotConstructible<U>* = nullptr) {
-    std::unique_ptr<char[]> msg = std::make_unique<char[]>(32768);
-    sprintf(
+    constexpr int max_buffer_length = 32768;
+    std::unique_ptr<char[]> msg = std::make_unique<char[]>(max_buffer_length);
+    snprintf(
       &msg[0],
+      max_buffer_length,
       "Checkpoint is failing to reconstruct a class %s, due to it being "
       "abstract or the absence of a suitable constructor (default or tagged) "
       "or reconstruct()",
