@@ -88,7 +88,7 @@ hierarchy so it can automatically traverse the hierarchy. Alternatively, the
 user may use the inheritance wrappers `checkpoint::SerializableBase<T>` and
 `checkpoint::SerializableDerived<T, U>` to achieve the same effect.
 
-The example in \ref ckpt_learn_example_polymorphic_macro illustrates the
+The example in \ref ckpt_learn_ex6_polymorphic_macro illustrates the
 approach uses the macros. The example in \ref ckpt_learn_example_polymorphic
 illustrates this approach.
 
