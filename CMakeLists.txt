@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(checkpoint VERSION 1.1.0)
+project(checkpoint VERSION 1.4.0)
 
 include(cmake/turn_on_warnings.cmake)
 
