@@ -52,16 +52,13 @@
 namespace checkpoint {
 
 namespace {
-  //template<Serializer::ModeType mode>
-  //struct false_type : std::false_type {};
+  template<Serializer::ModeType mode>
+  struct false_type : std::false_type {};
 
   template <typename StreamT, Serializer::ModeType mode>
   struct StreamHolder {
-    template<Serializer::ModeType T = mode>
-    using false_type = std::false_type;
-
     StreamHolder(StreamT& stream){
-      static_assert(false_type<>::value, "Unsupported serialization mode");
+      static_assert(false_type<mode>::value, "Unsupported serialization mode");
     }
   };
 
