@@ -1,6 +1,10 @@
 build/
 CMakeFiles/
 
+spack-build*
+spack-configure-args.txt
+install-time-test-log.txt
+
 .dir-locals.el
 
 *.a
