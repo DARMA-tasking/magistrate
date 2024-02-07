@@ -134,18 +134,17 @@ TYPED_TEST_P(TestSerializeStream, test_serialize_stream_multi) {
 
   auto len = checkpoint::getSize(in);
   printf("len=%lu\n", len);
-  
-  std::ofstream ostream;
-  ostream.open("hello.txt");
-  checkpoint::serializeToStream(in, ostream);
-  ostream.close();
  
-  std::ifstream istream;
-  istream.open("hello.txt");
-  auto out = checkpoint::deserializeFromStream<TestType>(istream);
-  istream.close();
-
-  out->check();
+  {
+    std::ofstream ostream("hello-stream.txt", std::ios::binary | std::ios::out | std::ios::trunc);
+    checkpoint::serializeToStream(in, ostream);
+  }
+  
+  {
+    std::ifstream istream("hello-stream.txt", std::ios::binary | std::ios::in);
+    auto out = checkpoint::deserializeFromStream<TestType>(istream);
+    out->check();
+  }
 }
 
 TYPED_TEST_P(TestSerializeStreamInPlace, test_serialize_stream_multi_in_place) {
@@ -157,20 +156,18 @@ TYPED_TEST_P(TestSerializeStreamInPlace, test_serialize_stream_multi_in_place) {
   auto len = checkpoint::getSize(in);
   printf("len=%lu\n", len);
 
-  std::ofstream ostream;
-  ostream.open("hello.txt");
-  checkpoint::serializeToStream(in, ostream);
-  ostream.close();
-
+  {
+    std::ofstream ostream("hello-stream.txt", std::ios::binary | std::ios::out | std::ios::trunc);
+    checkpoint::serializeToStream(in, ostream);
+  }
+  {
+    TestType out{};
   
-  TestType out{};
+    std::ifstream istream("hello-stream.txt", std::ios::binary | std::ios::in);
+    checkpoint::deserializeInPlaceFromStream<TestType>(istream, &out);
   
-  std::ifstream istream;
-  istream.open("hello.txt");
-  checkpoint::deserializeInPlaceFromStream<TestType>(istream, &out);
-  istream.close();
-  
-  out.check();
+    out.check();
+  }
 }
 
 using ConstructTypes = ::testing::Types<
