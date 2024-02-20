@@ -5,5 +5,5 @@
 The full code for this *checkpoint* example can be found here:
 `examples/checkpoint_example_3_nonintrusive.cc`
 
-\subsubsection ex Example source code:
+\subsubsection ex3 Example source code:
 \snippet examples/checkpoint_example_3_nonintrusive.cc Non-Intrusive Serialize constraints constructor destructor
