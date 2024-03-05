@@ -1,4 +1,4 @@
-# *magitrate* => serialization and checkpointing library
+# *magistrate* => serialization and checkpointing library
 
 [![clang-8 ubuntu mpich](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-8-ubuntu-mpich.yml/badge.svg)](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-8-ubuntu-mpich.yml)
 [![clang-9 ubuntu mpich](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-9-ubuntu-mpich.yml/badge.svg)](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-9-ubuntu-mpich.yml)
@@ -16,6 +16,6 @@
 
 ## Read the documentation
 
-To learn *magitrate*, read the [full
+To learn *magistrate*, read the [full
 documentation](https://darma-tasking.github.io/checkpoint_docs/html/index.html)
 that is automatically generated whenever a push occurs to "develop".
