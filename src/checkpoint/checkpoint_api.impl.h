@@ -123,6 +123,31 @@ void deserializeInPlaceFromFile(std::string const& file, T* t) {
   );
 }
 
+template <typename T, typename StreamT>
+void serializeToStream(T& target, StreamT& stream) {
+  auto len = getSize<T>(target);
+  dispatch::Standard::pack<T, StreamPacker<StreamT>>(
+    target, len, stream
+  );
+}
+
+template <typename T, typename StreamT>
+std::unique_ptr<T> deserializeFromStream(StreamT& stream) {
+  auto mem = dispatch::Standard::allocate<T>();
+  T* t_buf = dispatch::Standard::construct<T>(mem);
+  auto t = dispatch::Standard::unpack<T, StreamUnpacker<StreamT>>(
+    t_buf, stream
+  );
+  return std::unique_ptr<T>(t);
+}
+
+template <typename T, typename StreamT>
+void deserializeInPlaceFromStream(StreamT& stream, T* t) {
+  dispatch::Standard::unpack<T, StreamUnpacker<StreamT>>(
+    t, stream
+  );
+}
+
 } /* end namespace checkpoint */
 
 #endif /*INCLUDED_CHECKPOINT_CHECKPOINT_API_IMPL_H*/

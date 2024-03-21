@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                            serializers_headers.h
+//                             stream_serializer.h
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -41,26 +41,59 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_SERIALIZERS_HEADERS_H
-#define INCLUDED_CHECKPOINT_SERIALIZERS_SERIALIZERS_HEADERS_H
+#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_STREAM_SERIALIZER_H
+#define INCLUDED_CHECKPOINT_SERIALIZERS_STREAM_SERIALIZER_H
 
 #include "checkpoint/common.h"
 #include "checkpoint/serializers/base_serializer.h"
-#include "checkpoint/serializers/footprinter.h"
-#include "checkpoint/serializers/sizer.h"
-#include "checkpoint/serializers/packer.h"
-#include "checkpoint/serializers/unpacker.h"
-#include "checkpoint/serializers/stream_serializer.h"
+#include <ostream>
+#include <istream>
 
-#define checkpoint_serializer_variadic_args()   \
-  checkpoint::Footprinter,                      \
-  checkpoint::Packer,                           \
-  checkpoint::PackerUserBuf,                    \
-  checkpoint::PackerIO,                         \
-  checkpoint::Unpacker,                         \
-  checkpoint::UnpackerIO,                       \
-  checkpoint::Sizer,                            \
-  checkpoint::StreamPacker<>,                   \
-  checkpoint::StreamUnpacker<>                  \
+namespace checkpoint {
 
-#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_SERIALIZERS_HEADERS_H*/
+template<typename StreamT = std::ostream>
+struct StreamPacker : BaseSerializer {
+  StreamPacker(SerialSizeType size, StreamT& m_stream)
+    : BaseSerializer(ModeType::Packing), stream(m_stream) {
+    //Nothing to do with the size.
+    //Pre-allocating a buffer for the stream has more problems than solutions.
+  }
+
+  void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms) {
+    stream.write(static_cast<char*>(ptr), size*num_elms);
+    n_bytes += size*num_elms;
+  }
+
+  SerialSizeType usedBufferSize() {
+    return n_bytes;
+  }
+
+private:
+  StreamT& stream;
+  SerialSizeType n_bytes = 0;
+};
+
+template<typename StreamT = std::istream>
+struct StreamUnpacker : BaseSerializer {
+  StreamUnpacker(StreamT& m_stream)
+    : BaseSerializer(ModeType::Unpacking), stream(m_stream) { }
+
+  void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms) {
+    stream.read(static_cast<char*>(ptr), size*num_elms);
+    if(!stream)
+      throw std::runtime_error("Stream unable to read required number of bytes!");
+    n_bytes += size*num_elms;
+  }
+
+  SerialSizeType usedBufferSize() {
+    return n_bytes;
+  }
+
+private:
+  StreamT& stream;
+  SerialSizeType n_bytes = 0;
+};
+
+} /* end namespace checkpoint */
+
+#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_STREAM_SERIALIZER_H*/
