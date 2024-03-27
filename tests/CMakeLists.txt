@@ -28,6 +28,7 @@ file(
 macro(checkpoint_link_target target has_mpi)
   target_include_directories(${target} PUBLIC ${PROJECT_TEST_UNIT_DIR})
   target_link_libraries(${target} PRIVATE GTest::gtest GTest::gtest_main)
+  target_link_libraries(${target} PRIVATE Threads::Threads)
   target_link_libraries(${target} PUBLIC ${CHECKPOINT_LIBRARY})
 
   if (${has_mpi})
@@ -57,7 +58,10 @@ if (checkpoint_tests_enabled)
       ${PROJECT_TEST_UNIT_DIR}/test_harness.h
     )
 
-   if(checkpoint_mpi_enabled)
+    #System's threading library info (eg pthread)
+    find_package(Threads REQUIRED)
+
+    if(checkpoint_mpi_enabled)
       set(
         TEST_HEADER_FILES ${TEST_HEADER_FILES}
         ${PROJECT_TEST_MPI_UNIT_DIR}/mpi-init.h

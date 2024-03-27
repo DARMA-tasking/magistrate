@@ -1,6 +1,9 @@
 build/
 CMakeFiles/
 
+spack-*
+install-time-test-log.txt
+
 .dir-locals.el
 
 *.a
