@@ -84,7 +84,7 @@ template <>
 struct SerializeEntry<> {
   template <typename SerializerT, typename VariantT>
   static void serialize(
-    SerializerT& s, VariantT& v, std::size_t entry, std::size_t cur
+    SerializerT&, VariantT&, std::size_t, std::size_t
   ) {
     // base case
   }

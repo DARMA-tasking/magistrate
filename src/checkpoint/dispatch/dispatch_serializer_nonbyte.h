@@ -128,7 +128,7 @@ struct SerializerDispatchNonByte {
 
   template <typename U = T>
   void applyElm(
-    SerializerT& s, T* val, hasNotSplitSerialize<U>* = nullptr
+    SerializerT&, T*, hasNotSplitSerialize<U>* = nullptr
   ) { }
 
   template <typename U = T>

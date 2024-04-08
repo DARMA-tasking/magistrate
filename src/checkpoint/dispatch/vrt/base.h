@@ -87,6 +87,8 @@ namespace checkpoint { namespace dispatch { namespace vrt {
 template <typename BaseT>
 struct SerializableBase {
   checkpoint_virtual_serialize_root()
+
+  virtual ~SerializableBase() {}
 };
 
 }}} /* end namespace checkpoint::dispatch::vrt */

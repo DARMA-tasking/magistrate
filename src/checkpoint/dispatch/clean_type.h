@@ -66,12 +66,12 @@ struct CleanType {
   }
 
   template <typename U = T>
-  static NonConstRefT* apply1(T* val, isConst<U>* x = nullptr) {
+  static NonConstRefT* apply1(T* val, isConst<U>* = nullptr) {
     return reinterpret_cast<NonConstRefT*>(const_cast<NonConstT*>(val));
   }
 
   template <typename U = T>
-  static NonConstRefT* apply1(T* val, isNotConst<U>* x = nullptr) {
+  static NonConstRefT* apply1(T* val, isNotConst<U>* = nullptr) {
     return reinterpret_cast<NonConstRefT*>(val);
   }
 };

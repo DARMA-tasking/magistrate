@@ -53,7 +53,7 @@ namespace checkpoint {
 
 template<typename StreamT = std::ostream>
 struct StreamPacker : BaseSerializer {
-  StreamPacker(SerialSizeType size, StreamT& m_stream)
+  StreamPacker(SerialSizeType, StreamT& m_stream)
     : BaseSerializer(ModeType::Packing), stream(m_stream) {
     //Nothing to do with the size.
     //Pre-allocating a buffer for the stream has more problems than solutions.

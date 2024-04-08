@@ -70,7 +70,7 @@ struct MyObj : ::checkpoint::SerializableDerived<MyObj, MyBase> {
   explicit MyObj(::checkpoint::SERIALIZE_CONSTRUCT_TAG){}
 
   template <typename SerializerT>
-  void serialize(SerializerT& s) {
+  void serialize(SerializerT&) {
     printf("MyObj: serialize\n");
   }
 
@@ -85,7 +85,7 @@ struct MyObj2 : ::checkpoint::SerializableDerived<MyObj2, MyBase> {
   explicit MyObj2(::checkpoint::SERIALIZE_CONSTRUCT_TAG) {}
 
   template <typename SerializerT>
-  void serialize(SerializerT& s) {
+  void serialize(SerializerT&) {
     printf("MyObj2: serialize\n");
   }
   void test() override {

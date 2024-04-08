@@ -83,7 +83,7 @@ private:
 struct PrintBytesTraverse : checkpoint::BaseSerializer {
   PrintBytesTraverse() : checkpoint::BaseSerializer(checkpoint::eSerializationMode::None) { }
 
-  void contiguousBytes(void* ptr, std::size_t size, std::size_t num_elms) {
+  void contiguousBytes(void*, std::size_t size, std::size_t num_elms) {
     printf("PrintBytesTraverse: size=%zu, num_elms=%zu\n", size, num_elms);
   }
 };
@@ -114,7 +114,7 @@ struct CustomDispatch {
 // skip that overload
 template <typename SerializerT, typename U>
 struct CustomDispatch<SerializerT, std::vector<U>> {
-  static void serializeNonIntrusive(SerializerT& s, std::vector<U>& t) {
+  static void serializeNonIntrusive(SerializerT&, std::vector<U>& t) {
     // Do something special here: e.g., an RDMA for the vector during packing
     printf("Traversing vector: size=%zu\n", t.size());
     for (std::size_t i = 0; i < t.size(); i++) {

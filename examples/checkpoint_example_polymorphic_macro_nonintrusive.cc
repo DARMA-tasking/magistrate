@@ -151,12 +151,12 @@ void serialize(S& s, MyBase& obj) {
 }
 
 template <typename SerializerT>
-void serialize(SerializerT& s, MyObj& obj) {
+void serialize(SerializerT&, MyObj&) {
   printf("MyObj: serialize\n");
 }
 
 template <typename SerializerT>
-void serialize(SerializerT& s, MyObj2& obj) {
+void serialize(SerializerT&, MyObj2&) {
   printf("MyObj2: serialize\n");
 }
 

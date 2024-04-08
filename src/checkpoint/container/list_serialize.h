@@ -99,7 +99,7 @@ inline typename std::enable_if_t<
   std::is_same<Serializer, checkpoint::Footprinter>::value, void
 >
 deserializeOrderedElems(
-  Serializer& s, ContainerT& cont, typename ContainerT::size_type size
+  Serializer&, ContainerT&, typename ContainerT::size_type
 ) { }
 
 template <typename Serializer, typename ContainerT>

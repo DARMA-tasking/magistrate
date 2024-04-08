@@ -97,7 +97,7 @@ private:
 };
 
 struct TestDerived2 : TestBase {
-  explicit TestDerived2(int i) {}
+  explicit TestDerived2(int) {}
   explicit TestDerived2(SERIALIZE_CONSTRUCT_TAG) {}
 
   checkpoint_virtual_serialize_derived_from(TestBase)
