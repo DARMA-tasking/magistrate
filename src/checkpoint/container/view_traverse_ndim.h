@@ -228,7 +228,7 @@ struct TraverseRecurImpl {
   // Test whether the ViewT is actually a std::tuple<Kokkos::View<T>...>
   template <typename U = ViewT>
   static bool dispatchViewType(
-    ViewT const& view, Callable call, TupleT tup, ViewIsTuple<U>* x_ = nullptr
+    ViewT const& view, Callable call, TupleT tup, ViewIsTuple<U>* = nullptr
   ) {
     constexpr auto size = std::tuple_size<ViewT>::value;
     return dispatchViewTuple(view,call,tup,std::make_index_sequence<size>{});
@@ -236,7 +236,7 @@ struct TraverseRecurImpl {
 
   template <typename U = ViewT>
   static bool dispatchViewType(
-    ViewT const& view, Callable call, TupleT tup, ViewNotTuple<U>* x_ = nullptr
+    ViewT const& view, Callable call, TupleT tup, ViewNotTuple<U>* = nullptr
   ) {
     call(expandTupleToOp(view,tup));
     return true;
