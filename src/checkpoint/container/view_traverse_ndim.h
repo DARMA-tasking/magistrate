@@ -131,7 +131,7 @@ struct TraverseRecurImplBase {
   template <typename U = ViewT>
   static CountType applyImpl(
     ViewT const& view, unsigned nd, TupleT idx, Callable call,
-    ViewIsTuple<U>* x_ = nullptr
+    ViewIsTuple<U>* = nullptr
   ) {
     auto const ex1 = std::get<0>(view).extent(nd-d);
     auto const ex2 = std::get<1>(view).extent(nd-d);
@@ -149,7 +149,7 @@ struct TraverseRecurImplBase {
   template <typename U = ViewT>
   static CountType applyImpl(
     ViewT const& view, unsigned nd, TupleT idx, Callable call,
-    ViewNotTuple<U>* x_ = nullptr
+    ViewNotTuple<U>* = nullptr
   ) {
     CountType neq = 0;
     for (SizeType i = 0; i < view.extent(nd-d); i++) {
@@ -204,7 +204,7 @@ struct TraverseRecurImpl {
   // Unwind the inner tuple for operator()(...)
   template <typename ViewU, std::size_t... I>
   static GetBaseType<ViewU>& expandTupleToOp(
-    ViewU const& view, TupleT tup, std::index_sequence<I...> idx
+    ViewU const& view, TupleT tup, std::index_sequence<I...>
   ) {
     return view.operator()(std::get<I>(tup)...);
   }
