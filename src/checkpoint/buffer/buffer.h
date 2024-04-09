@@ -54,8 +54,8 @@ namespace checkpoint { namespace buffer {
 using SerializedInfo = ::checkpoint::SerializedInfo;
 
 struct Buffer : SerializedInfo {
-  virtual SerialByteType* getBuffer() const = 0;
-  virtual SerialSizeType getSize() const = 0;
+  virtual SerialByteType* getBuffer() const override = 0;
+  virtual SerialSizeType getSize() const override = 0;
   virtual ~Buffer() { }
 };
 

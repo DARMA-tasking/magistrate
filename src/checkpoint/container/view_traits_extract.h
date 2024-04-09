@@ -91,7 +91,7 @@ template <
 struct CountDims {
   using BaseT = typename std::decay<T>::type;
   static constexpr size_t dynamic = 0;
-  static int numDims(ViewType const& view) { return 0; }
+  static int numDims(ViewType const&) { return 0; }
 };
 
 template <typename ViewType, typename T>

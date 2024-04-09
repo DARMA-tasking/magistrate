@@ -79,7 +79,7 @@ struct MyObj : public MyBase {
   checkpoint_virtual_serialize_derived_from(MyBase)
 
   template <typename SerializerT>
-  void serialize(SerializerT& s) {
+  void serialize(SerializerT&) {
     printf("MyObj: serialize\n");
   }
 
@@ -97,7 +97,7 @@ struct MyObj2 : public MyBase {
   checkpoint_virtual_serialize_derived_from(MyBase)
 
   template <typename SerializerT>
-  void serialize(SerializerT& s) {
+  void serialize(SerializerT&) {
     printf("MyObj2: serialize\n");
   }
   void test() override {

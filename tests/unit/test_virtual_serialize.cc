@@ -625,7 +625,7 @@ struct HolderBase {
   virtual ~HolderBase() = default;
 
   template <typename Serializer>
-  void serialize(Serializer& s) {}
+  void serialize(Serializer&) {}
 };
 
 template <typename ObjT>
@@ -635,7 +635,7 @@ struct HolderObjBase : HolderBase {
   virtual ObjT* get() = 0;
 
   template <typename Serializer>
-  void serialize(Serializer& s) {}
+  void serialize(Serializer&) {}
 };
 
 template <typename ObjT>

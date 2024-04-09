@@ -67,7 +67,7 @@ struct Reconstructor {
 
   // Fail, no valid option to constructing T
   template <typename U = T>
-  static T* constructDefault(void* buf, isNotDefaultConsType<U>* = nullptr) {
+  static T* constructDefault(void*, isNotDefaultConsType<U>* = nullptr) {
     static_assert(
       SerializableTraits<U, void>::is_tagged_constructible or
         SerializableTraits<U, void>::is_reconstructible or
@@ -152,7 +152,7 @@ struct Reconstructor {
   }
 
   template <typename U = T>
-  static T* constructAllowFailImpl(void* buf, isNotConstructible<U>* = nullptr) {
+  static T* constructAllowFailImpl(void*, isNotConstructible<U>* = nullptr) {
     constexpr int max_buffer_length = 32768;
     std::unique_ptr<char[]> msg = std::make_unique<char[]>(max_buffer_length);
     snprintf(

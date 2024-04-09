@@ -126,14 +126,14 @@ struct BaseSerializer {
    * \param[in] t an element
    */
   template<typename T>
-  void countBytes(const T& t) {}
+  void countBytes(T const&) {}
 
   /**
    * \brief Add bytes for footprinting---default empty implementation
    *
    * \param[in] s the amount of bytes to add
    */
-  void addBytes(std::size_t s) {}
+  void addBytes(std::size_t) {}
 
   /**
    * \brief Add contiguous bytes to the sizer
@@ -142,7 +142,7 @@ struct BaseSerializer {
    * \param[in] size the number of bytes for each element
    * \param[in] num_elms the number of elements
    */
-  void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms) {}
+  void contiguousBytes(void*, SerialSizeType, SerialSizeType) {}
 
   /**
    * \brief Returns size of buffer (in bytes) used during given serialization
@@ -170,7 +170,7 @@ struct BaseSerializer {
    * \note Used/implemented in serialization sanitizer.
    */
   template <typename... Args>
-  void skip(Args&&... args) { }
+  void skip(Args&&...) { }
 
   /**
    * \brief Get a buffer if it is associated with the serializer
@@ -187,7 +187,7 @@ struct BaseSerializer {
    *
    * \return the current spot
    */
-  SerialByteType* getSpotIncrement(SerialSizeType const inc) { return nullptr; }
+  SerialByteType* getSpotIncrement(SerialSizeType const) { return nullptr; }
 
   /**
    * \brief Check if virtual serialization is disabled

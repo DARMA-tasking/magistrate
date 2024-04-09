@@ -66,14 +66,14 @@ struct SerializerDispatchByte {
 
   template <typename U = T>
   void operator()(
-    SerializerT& s, T* val, SerialSizeType num, isByteCopyType<U>* x = nullptr
+    SerializerT& s, T* val, SerialSizeType num, isByteCopyType<U>* = nullptr
   ) {
     s.contiguousTyped(s, val, num);
   }
 
   template <typename U = T>
   void operator()(
-    SerializerT& s, T* val, SerialSizeType num, isNotByteCopyType<U>* x = nullptr
+    SerializerT& s, T* val, SerialSizeType num, isNotByteCopyType<U>* = nullptr
   ) {
     SerializerDispatchNonByte<SerializerT, T, Dispatcher> dispatch;
     dispatch(s, val, num);

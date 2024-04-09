@@ -91,7 +91,7 @@ struct SerializeVirtualTypeIfNeeded<
   >
 >
 {
-  static dispatch::vrt::TypeIdx apply(SerializerT& s, T* target) {
+  static dispatch::vrt::TypeIdx apply(SerializerT&, T*) {
     // no type idx needed in this case
     return dispatch::vrt::no_type_idx;
   }
@@ -149,7 +149,7 @@ struct ReconstructAsVirtualIfNeeded<
     not std::is_same<SerializerT, checkpoint::Footprinter>::value
   >
 > {
-  static T* apply(SerializerT& s, dispatch::vrt::TypeIdx entry) {
+  static T* apply(SerializerT&, dispatch::vrt::TypeIdx) {
     // no type idx needed in this case, static construction in default case
     auto t = std::allocator<T>{}.allocate(1);
     return dispatch::Reconstructor<T>::construct(t);
@@ -165,7 +165,7 @@ struct ReconstructAsVirtualIfNeeded<
     std::is_same<SerializerT, checkpoint::Footprinter>::value
   >
 > {
-  static T* apply(SerializerT& s, dispatch::vrt::TypeIdx entry) { return nullptr; }
+  static T* apply(SerializerT&, dispatch::vrt::TypeIdx) { return nullptr; }
 };
 
 template <typename T, typename SerializerT>
@@ -176,7 +176,7 @@ struct ReconstructAsVirtualIfNeeded<
     dispatch::vrt::VirtualSerializeTraits<T>::has_virtual_serialize
   >
 > {
-  static T* apply(SerializerT& s, dispatch::vrt::TypeIdx entry) {
+  static T* apply(SerializerT&, dispatch::vrt::TypeIdx entry) {
     using BaseT = ::checkpoint::dispatch::vrt::checkpoint_base_type_t<T>;
 
     // use type idx here, registration needed for proper type re-construction

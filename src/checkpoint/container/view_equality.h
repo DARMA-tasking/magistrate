@@ -159,21 +159,21 @@ struct ViewEqualityStatic {
   }
 
   template <typename AnyT, typename... Args>
-  bool operator()(Kokkos::View<AnyT,Args...> const& v, Callable eq) {
+  bool operator()(Kokkos::View<AnyT,Args...> const&, Callable) {
     // No static dimension to check against dynamic dimension, return true
     return true;
   }
 
   template <typename AnyT, typename... Args>
   bool operator()(
-    Kokkos::Experimental::DynamicView<AnyT,Args...> const& v, Callable eq
+    Kokkos::Experimental::DynamicView<AnyT,Args...> const&, Callable
   ) {
     // No static dimension to check against dynamic dimension, return true
     return true;
   }
 
   template <typename AnyT, typename... Args>
-  bool operator()(Kokkos::DynRankView<AnyT,Args...> const& v, Callable eq) {
+  bool operator()(Kokkos::DynRankView<AnyT,Args...> const&, Callable) {
     // No static dimension to check against dynamic dimension, return true
     return true;
   }

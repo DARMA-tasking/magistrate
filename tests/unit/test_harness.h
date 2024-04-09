@@ -53,7 +53,7 @@ namespace checkpoint { namespace tests { namespace unit {
 
 template <typename TestBase>
 struct TestHarnessAny : TestBase {
-  virtual void SetUp() {
+  virtual void SetUp() override {
     argc_ = orig_args_.size();
     argv_ = new char*[argc_];
 
@@ -65,7 +65,7 @@ struct TestHarnessAny : TestBase {
     }
   }
 
-  virtual void TearDown() {
+  virtual void TearDown() override {
     for (int i = 0; i < argc_; i++) {
       delete [] argv_[i];
     }
