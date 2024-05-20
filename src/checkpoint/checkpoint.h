@@ -73,4 +73,7 @@
 #include "checkpoint/checkpoint_api.h"
 #include "checkpoint/checkpoint_api.impl.h"
 
+// Add namespace alias for the new name of the library
+namespace magistrate = checkpoint;
+
 #endif /*INCLUDED_CHECKPOINT_CHECKPOINT_H*/
