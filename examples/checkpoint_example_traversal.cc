@@ -48,7 +48,7 @@
 #include <cstdio>
 #include <string>
 
-namespace magistrate { namespace intrusive { namespace examples {
+namespace checkpoint { namespace intrusive { namespace examples {
 
 struct TestObject {
 
@@ -77,11 +77,11 @@ private:
   std::vector<std::string> vec3;
 };
 
-}}} // end namespace magistrate::intrusive::examples
+}}} // end namespace checkpoint::intrusive::examples
 
 /// Custom traverser for printing raw bytes
-struct PrintBytesTraverse : checkpoint::BaseSerializer {
-  PrintBytesTraverse() : checkpoint::BaseSerializer(checkpoint::eSerializationMode::None) { }
+struct PrintBytesTraverse : magistrate::BaseSerializer {
+  PrintBytesTraverse() : magistrate::BaseSerializer(magistrate::eSerializationMode::None) { }
 
   void contiguousBytes(void*, std::size_t size, std::size_t num_elms) {
     printf("PrintBytesTraverse: size=%zu, num_elms=%zu\n", size, num_elms);
@@ -125,11 +125,11 @@ struct CustomDispatch<SerializerT, std::vector<U>> {
 };
 
 /// Custom traverser for printing typed ranges
-struct TypedTraverse : checkpoint::BaseSerializer {
+struct TypedTraverse : magistrate::BaseSerializer {
   template <typename U, typename V>
   using DispatcherType = CustomDispatch<U, V>;
 
-  TypedTraverse() : checkpoint::BaseSerializer(checkpoint::eSerializationMode::None) { }
+  TypedTraverse() : magistrate::BaseSerializer(magistrate::eSerializationMode::None) { }
 
   template <typename SerializerT, typename T>
   void contiguousTyped(SerializerT&, T*, std::size_t num_elms) {
@@ -143,11 +143,11 @@ int main(int, char**) {
   TestObject my_obj(TestObject::MakeTag{});
 
   // Traverse my_obj with a custom traverser that prints the bytes
-  checkpoint::dispatch::Traverse::with<TestObject, PrintBytesTraverse>(my_obj);
+  magistrate::dispatch::Traverse::with<TestObject, PrintBytesTraverse>(my_obj);
 
   // Traverse my_obj with a custom traverser and dispatcher that prints the
   // types and lens
-  checkpoint::dispatch::Traverse::with<TestObject, TypedTraverse>(my_obj);
+  magistrate::dispatch::Traverse::with<TestObject, TypedTraverse>(my_obj);
 
   return 0;
 }

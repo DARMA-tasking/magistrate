@@ -54,7 +54,7 @@
 //
 
 // \brief Namespace containing types which will be serialized
-namespace magistrate { namespace nonintrusive { namespace examples {
+namespace checkpoint { namespace nonintrusive { namespace examples {
 
 // \brief Structure with a variable of built-in type.
 struct TestDefaultCons {
@@ -103,11 +103,11 @@ struct TestReconstruct {
   }
 };
 
-}}} // end namespace magistrate::nonintrusive::examples
+}}} // end namespace checkpoint::nonintrusive::examples
 
 // \brief In Non-Intrusive way, serialize function needs to be placed in the namespace
 // of the type which will be serialized.
-namespace magistrate { namespace nonintrusive { namespace examples {
+namespace checkpoint { namespace nonintrusive { namespace examples {
 
 // \brief Non-Intrusive Serialize method for TestDefaultCons structure.
 //
@@ -130,13 +130,12 @@ void serialize(Serializer& s, TestReconstruct& tr) {
   s | tr.a;
 }
 
-}}} // end namespace magistrate::nonintrusive::examples
+}}} // end namespace checkpoint::nonintrusive::examples
 
 #include "checkpoint/traits/serializable_traits.h"
 
-namespace magistrate {
+namespace checkpoint {
 
-using namespace ::checkpoint;
 using namespace nonintrusive::examples;
 
 static_assert(
@@ -158,7 +157,7 @@ static_assert(
   "Should be serializable"
 );
 
-} // end namespace magistrate
+} // end namespace checkpoint
 
 
 int main(int, char**) {

@@ -49,7 +49,7 @@
 #include <vector>
 
 // \brief Namespace containing type which will be serialized
-namespace magistrate { namespace nonintrusive { namespace examples {
+namespace checkpoint { namespace nonintrusive { namespace examples {
 
 static constexpr int const u_val = 934;
 
@@ -103,11 +103,11 @@ bool operator==(const MyTestType &c1, const MyTestType &c2)
   return isEqual;
 }
 
-}}} // end namespace magistrate::nonintrusive::examples
+}}} // end namespace checkpoint::nonintrusive::examples
 
 // \brief In Non-Intrusive way, serialize function needs to be placed in the namespace
 // of the type which will be serialized.
-namespace magistrate { namespace nonintrusive { namespace examples {
+namespace checkpoint { namespace nonintrusive { namespace examples {
 
 // \brief Templated function for serializing/deserializing
 // a variable of type `MyTestType`
@@ -129,7 +129,7 @@ void serialize(Serializer& s, MyTestType& c) {
   s | c.len_;
 }
 
-}}} // end namespace magistrate::nonintrusive::examples
+}}} // end namespace checkpoint::nonintrusive::examples
 
 int main(int, char**) {
   using namespace magistrate::nonintrusive::examples;
@@ -140,13 +140,13 @@ int main(int, char**) {
   // Call the serialization routine for the variable `my_test_inst`
   // The output is a unique pointer: `std::unique_ptr<SerializedInfo>`
   // (defined in `src/checkpoint_api.h`)
-  checkpoint::serializeToFile(my_test_inst, "hello.txt");
+  magistrate::serializeToFile(my_test_inst, "hello.txt");
 
   //
   // De-serializes from the file an object of type 'MyTestType'
   // out will be an object of type 'std::unique_ptr<MyTestType>'
   //
-  auto out = checkpoint::deserializeFromFile<MyTestType>("hello.txt");
+  auto out = magistrate::deserializeFromFile<MyTestType>("hello.txt");
 
   if (my_test_inst == *out) {
     std::cout << " Serialization / Deserialization from file worked. \n";
@@ -164,7 +164,7 @@ int main(int, char**) {
   // Here 'out_2' will contain an empty vector and an integer 'len_' set to 0.
   //
 
-  checkpoint::deserializeInPlaceFromFile<MyTestType>("hello.txt", &out_2);
+  magistrate::deserializeInPlaceFromFile<MyTestType>("hello.txt", &out_2);
 
   //
   // Now 'out_2' will contain:
