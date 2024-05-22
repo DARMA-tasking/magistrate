@@ -50,7 +50,7 @@
 #include "checkpoint/container/view_traverse_manual.h"
 #include "checkpoint/container/view_traverse_ndim.h"
 
-#if KOKKOS_ENABLED_CHECKPOINT
+#if MAGISTRATE_ENABLED_KOKKOS
 
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DynamicView.hpp>
@@ -344,6 +344,6 @@ struct ViewEquality {
 
 } /* end namespace checkpoint */
 
-#endif /*KOKKOS_ENABLED_CHECKPOINT*/
+#endif /*MAGISTRATE_ENABLED_KOKKOS*/
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_VIEW_EQUALITY_H*/

@@ -48,7 +48,7 @@
 #include "checkpoint/serializers/serializers_headers.h"
 #include "checkpoint/container/view_traits_extract.h"
 
-#if KOKKOS_ENABLED_CHECKPOINT
+#if MAGISTRATE_ENABLED_KOKKOS
 
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DynamicView.hpp>
@@ -274,6 +274,6 @@ struct TraverseRecursive {
 
 } /* end namespace checkpoint */
 
-#endif /*KOKKOS_ENABLED_CHECKPOINT*/
+#endif /*MAGISTRATE_ENABLED_KOKKOS*/
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_VIEW_TRAVERSE_NDIM_H*/

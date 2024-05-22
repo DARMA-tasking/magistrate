@@ -40,7 +40,7 @@
 // *****************************************************************************
 //@HEADER
 */
-#if KOKKOS_ENABLED_CHECKPOINT
+#if MAGISTRATE_ENABLED_KOKKOS
 
 #include "test_kokkos_integration_commons.h"
 #include "test_kokkos_1d_commons.h"

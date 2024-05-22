@@ -50,7 +50,7 @@
 #include "checkpoint/dispatch/dispatch.h"
 #include "checkpoint/dispatch/reconstructor.h"
 
-#if KOKKOS_ENABLED_CHECKPOINT
+#if MAGISTRATE_ENABLED_KOKKOS
 
 #include <Kokkos_Pair.hpp>
 
@@ -71,6 +71,6 @@ void serialize(SerializerT& s, Kokkos::pair<T1, void>& pair)
 
 } // namespace checkpoint
 
-#endif /*KOKKOS_ENABLED_CHECKPOINT*/
+#endif /*MAGISTRATE_ENABLED_KOKKOS*/
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_KOKKOS_PAIR_SERIALIZE_H*/

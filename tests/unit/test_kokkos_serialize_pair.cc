@@ -41,7 +41,7 @@
 //@HEADER
 */
 
-#if KOKKOS_ENABLED_CHECKPOINT
+#if MAGISTRATE_ENABLED_KOKKOS
 
 #include "test_commons.h"
 
@@ -79,4 +79,4 @@ TEST_F(KokkosPairTest, test_kokkos_pair) {
 
 }}} // namespace checkpoint::tests::unit
 
-#endif /*KOKKOS_ENABLED_CHECKPOINT*/
+#endif /*MAGISTRATE_ENABLED_KOKKOS*/

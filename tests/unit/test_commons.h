@@ -49,7 +49,7 @@
 #include <checkpoint/checkpoint.h>
 #include <checkpoint/container/view_equality.h>
 
-#if KOKKOS_ENABLED_CHECKPOINT
+#if MAGISTRATE_ENABLED_KOKKOS
 
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DynamicView.hpp>
@@ -88,7 +88,7 @@ static void compareBasic(ViewT const& k1, ViewT const& k2) {
   EqualityType::template compareMeta<GTestEquality>(k1,k2);
 }
 
-#if KOKKOS_ENABLED_CHECKPOINT
+#if MAGISTRATE_ENABLED_KOKKOS
 template <typename ParamT>
 struct KokkosViewTest : ::testing::TestWithParam<ParamT> { };
 #endif

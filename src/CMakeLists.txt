@@ -96,7 +96,7 @@ if (${kokkos_DIR_FOUND})
   endif()
   target_compile_definitions(
     ${CHECKPOINT_LIBRARY} PUBLIC
-    KOKKOS_ENABLED_CHECKPOINT=1 KOKKOS_KERNELS_ENABLED=${KERNELS}
+    MAGISTRATE_ENABLED_KOKKOS=1 MAGISTRATE_ENABLED_KOKKOS_KERNELS=${KERNELS}
   )
   message(STATUS "Checkpoint: Kokkos enabled")
   target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC Kokkos::kokkos)
