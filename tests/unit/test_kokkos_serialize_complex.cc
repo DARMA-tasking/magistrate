@@ -41,7 +41,7 @@
 //@HEADER
 */
 
-#if MAGISTRATE_ENABLED_KOKKOS
+#if MAGISTRATE_KOKKOS_ENABLED
 
 #include "test_commons.h"
 
@@ -76,4 +76,4 @@ TEST_F(KokkosComplexTest, test_kokkos_complex) {
 
 }}} // namespace checkpoint::tests::unit
 
-#endif /*MAGISTRATE_ENABLED_KOKKOS*/
+#endif /*MAGISTRATE_KOKKOS_ENABLED*/

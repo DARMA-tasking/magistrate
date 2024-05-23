@@ -50,7 +50,7 @@
 #include "checkpoint/container/view_traverse_manual.h"
 #include "checkpoint/container/view_traverse_ndim.h"
 
-#if MAGISTRATE_ENABLED_KOKKOS
+#if MAGISTRATE_KOKKOS_ENABLED
 
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DynamicView.hpp>
@@ -62,7 +62,7 @@
 #define CHECKPOINT_KOKKOS_WITHOUTINIT
 #endif
 
-#if MAGISTRATE_ENABLED_KOKKOS_KERNELS
+#if MAGISTRATE_KOKKOS_KERNELS_ENABLED
 #include <Kokkos_StaticCrsGraph.hpp>
 #include <KokkosSparse_CrsMatrix.hpp>
 #endif
@@ -588,7 +588,7 @@ void serializeContentsOnly(SerializerT& s, Kokkos::View<T, Ts...>& v) {
     deepCopyWithLocalFence(v, values);
 }
 
-#if MAGISTRATE_ENABLED_KOKKOS_KERNELS
+#if MAGISTRATE_KOKKOS_KERNELS_ENABLED
 template< typename Serializer, typename T, typename... Ts >
 inline void serialize( Serializer &s, Kokkos::StaticCrsGraph<T, Ts...> &graph ) {
   s | graph.entries | graph.row_map | graph.row_block_offsets;
@@ -611,6 +611,6 @@ inline void serialize( Serializer &s, KokkosSparse::CrsMatrix<T, Ts...> &matrix 
 
 } /* end namespace checkpoint */
 
-#endif /*MAGISTRATE_ENABLED_KOKKOS*/
+#endif /*MAGISTRATE_KOKKOS_ENABLED*/
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_VIEW_SERIALIZE_H*/

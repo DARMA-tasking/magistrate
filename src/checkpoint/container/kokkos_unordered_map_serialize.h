@@ -50,7 +50,7 @@
 #include "checkpoint/dispatch/dispatch.h"
 #include "checkpoint/dispatch/reconstructor.h"
 
-#if MAGISTRATE_ENABLED_KOKKOS
+#if MAGISTRATE_KOKKOS_ENABLED
 
 #include <Kokkos_UnorderedMap.hpp>
 
@@ -156,6 +156,6 @@ typename std::enable_if_t<
 
 } // namespace checkpoint
 
-#endif /*MAGISTRATE_ENABLED_KOKKOS*/
+#endif /*MAGISTRATE_KOKKOS_ENABLED*/
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_KOKKOS_UNORDERED_MAP_SERIALIZE_H*/

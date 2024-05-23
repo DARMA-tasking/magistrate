@@ -78,7 +78,7 @@ struct Data : BaseData {
   using Kokkos_ViewType2 = ::Kokkos::View<double**, Kokkos::LayoutRight>;
   using Kokkos_ViewType3 = ::Kokkos::View<float***, AtomicTrait>;
   using Kokkos_ViewType4 = ::Kokkos::View<int*[2]>;
-  #if MAGISTRATE_ENABLED_KOKKOS_KERNELS
+  #if MAGISTRATE_KOKKOS_KERNELS_ENABLED
   using Kokkos_CrsType = ::Kokkos::StaticCrsGraph<double, Kokkos::DefaultExecutionSpace>;
   using Kokkos_CrsMatrix = ::KokkosSparse::CrsMatrix<double, int, Kokkos::DefaultExecutionSpace>;
   #endif
@@ -122,7 +122,7 @@ struct Data : BaseData {
     v3 = v3_tmp;
     v4 = v4_tmp;
 
-    #if MAGISTRATE_ENABLED_KOKKOS_KERNELS
+    #if MAGISTRATE_KOKKOS_KERNELS_ENABLED
     std::vector< std::vector< int > > graph( d1_a );
 
     for ( size_t i = 0 ; i < d1_a; ++i ) {
@@ -207,7 +207,7 @@ struct Data : BaseData {
       EXPECT_EQ(in.v4.operator()(i,1), v4val(i,1));
     }
 
-    #if MAGISTRATE_ENABLED_KOKKOS_KERNELS
+    #if MAGISTRATE_KOKKOS_KERNELS_ENABLED
     std::vector< std::vector< int > > graph( d1_a );
 
     for ( size_t i = 0 ; i < d1_a; ++i ) {
@@ -251,7 +251,7 @@ struct Data : BaseData {
     s | vec;
     s | val1 | val2;
     s | v0 | v1 | v2 | v3 | v4;
-    #if MAGISTRATE_ENABLED_KOKKOS_KERNELS
+    #if MAGISTRATE_KOKKOS_KERNELS_ENABLED
     s | crs;
     s | crs_mat;
     #endif
@@ -265,7 +265,7 @@ public:
   Kokkos_ViewType2 v2;
   Kokkos_ViewType3 v3;
   Kokkos_ViewType4 v4;
-  #if MAGISTRATE_ENABLED_KOKKOS_KERNELS
+  #if MAGISTRATE_KOKKOS_KERNELS_ENABLED
   Kokkos_CrsType crs;
   Kokkos_CrsMatrix crs_mat;
   #endif

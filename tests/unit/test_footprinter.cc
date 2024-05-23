@@ -634,7 +634,7 @@ TEST_F(TestFootprinter, test_no_serialize) {
   );
 }
 
-#if MAGISTRATE_ENABLED_KOKKOS
+#if MAGISTRATE_KOKKOS_ENABLED
 TEST_F(TestFootprinter, test_kokkos_unordered_map) {
   // empty map
   {
@@ -698,6 +698,6 @@ TEST_F(TestFootprinter, test_kokkos_complex) {
 }
 
 
-#endif /*MAGISTRATE_ENABLED_KOKKOS*/
+#endif /*MAGISTRATE_KOKKOS_ENABLED*/
 
 }}} // end namespace checkpoint::tests::unit

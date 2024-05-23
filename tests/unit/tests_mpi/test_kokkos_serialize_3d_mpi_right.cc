@@ -41,7 +41,7 @@
 //@HEADER
 */
 
-#if MAGISTRATE_ENABLED_KOKKOS
+#if MAGISTRATE_KOKKOS_ENABLED
 
 #include "test_kokkos_3d_commons.h"
 #include "tests_mpi/test_commons_mpi.h"
