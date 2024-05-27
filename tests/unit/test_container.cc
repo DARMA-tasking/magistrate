@@ -58,6 +58,11 @@ struct TestContainerUnordered : TestHarness { };
 TYPED_TEST_CASE_P(TestContainer);
 TYPED_TEST_CASE_P(TestContainerUnordered);
 
+template <typename T>
+static void testEqualityContainerOrdered(std::queue<T> c1, std::queue<T> t1) {
+  EXPECT_EQ(c1, t1);
+}
+
 template <typename ContainerT>
 static void testEqualityContainerOrdered(ContainerT& c1, ContainerT& t1) {
   for (auto i = c1.begin(), j = t1.begin(), i_end = c1.end(), j_end = t1.end();
@@ -155,7 +160,8 @@ using ContOrderedTypes = ::testing::Types<
   std::list<T>,
   std::deque<T>,
   std::set<T>,
-  std::multiset<T>
+  std::multiset<T>,
+  std::queue<T>
 >;
 
 template <typename T>
