@@ -48,7 +48,7 @@
 #include <iostream>
 #include <vector>
 
-namespace magistrate { namespace intrusive { namespace examples {
+namespace checkpoint { namespace intrusive { namespace examples {
 
 static constexpr int const u_val = 934;
 
@@ -123,7 +123,7 @@ bool operator==(const MyTestType &c1, const MyTestType &c2)
   return isEqual;
 }
 
-}}} // end namespace magistrate::intrusive::examples
+}}} // end namespace checkpoint::intrusive::examples
 
 
 int main(int, char**) {
@@ -135,13 +135,13 @@ int main(int, char**) {
   // Call the serialization routine for the variable `my_test_inst`
   // The output is a unique pointer: `std::unique_ptr<SerializedInfo>`
   // (defined in `src/checkpoint_api.h`)
-  checkpoint::serializeToFile(my_test_inst, "hello.txt");
+  magistrate::serializeToFile(my_test_inst, "hello.txt");
 
   //
   // De-serializes from the file an object of type 'MyTestType'
   // out will be an object of type 'std::unique_ptr<MyTestType>'
   //
-  auto out = checkpoint::deserializeFromFile<MyTestType>("hello.txt");
+  auto out = magistrate::deserializeFromFile<MyTestType>("hello.txt");
 
   if (my_test_inst == *out)
     std::cout << " Serialization / Deserialization from file worked. \n";
@@ -157,7 +157,7 @@ int main(int, char**) {
   // Here 'out_2' will contain an empty vector and an integer 'len_' set to 0.
   //
 
-  checkpoint::deserializeInPlaceFromFile<MyTestType>("hello.txt", &out_2);
+  magistrate::deserializeInPlaceFromFile<MyTestType>("hello.txt", &out_2);
 
   //
   // Now 'out_2' will contain:

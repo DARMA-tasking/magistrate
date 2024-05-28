@@ -47,7 +47,7 @@
 #include "checkpoint/dispatch/dispatch_virtual.h"
 
 // \brief Namespace containing types which will be serialized
-namespace magistrate { namespace nonintrusive { namespace examples {
+namespace checkpoint { namespace nonintrusive { namespace examples {
 
 // \struct Abstract base class
 struct MyBase {
@@ -138,11 +138,11 @@ void test() {
   }
 }
 
-}}} // end namespace magistrate::nonintrusive::examples
+}}} // end namespace checkpoint::nonintrusive::examples
 
 // \brief In Non-Intrusive way, serialize function needs to be placed in the namespace
 // of the type which will be serialized.
-namespace magistrate { namespace nonintrusive { namespace examples {
+namespace checkpoint { namespace nonintrusive { namespace examples {
 
 template <typename S>
 void serialize(S& s, MyBase& obj) {
@@ -173,7 +173,7 @@ void serialize(SerializerT& s, ExampleVector& obj) {
   s | obj.vec;
 }
 
-}}} // end namespace magistrate::nonintrusive::examples
+}}} // end namespace checkpoint::nonintrusive::examples
 
 int main(int, char**) {
   using namespace magistrate::nonintrusive::examples;

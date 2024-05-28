@@ -53,7 +53,7 @@
 // class of a serializable/deserializable type.
 //
 
-namespace magistrate { namespace intrusive { namespace examples {
+namespace checkpoint { namespace intrusive { namespace examples {
 
 // \brief Structure with a variable of built-in type.
 //
@@ -120,13 +120,12 @@ struct TestReconstruct {
   }
 };
 
-}}} // end namespace magistrate::intrusive::examples
+}}} // end namespace checkpoint::intrusive::examples
 
 #include "checkpoint/traits/serializable_traits.h"
 
-namespace magistrate {
+namespace checkpoint {
 
-using namespace ::checkpoint;
 using namespace intrusive::examples;
 
 static_assert(

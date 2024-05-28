@@ -49,7 +49,7 @@
 #include <string>
 
 // \brief Namespace containing type which will be serialized
-namespace magistrate { namespace nonintrusive { namespace examples {
+namespace checkpoint { namespace nonintrusive { namespace examples {
 
 struct TestObject {
 
@@ -76,11 +76,11 @@ private:
   std::vector<std::string> vec3;
 };
 
-}}} // end namespace magistrate::nonintrusive::examples
+}}} // end namespace checkpoint::nonintrusive::examples
 
 // \brief In Non-Intrusive way, serialize functionality needs to be placed in the namespace
 // of the type which will be serialized.
-namespace magistrate { namespace nonintrusive { namespace examples {
+namespace checkpoint { namespace nonintrusive { namespace examples {
 
 template <typename Serializer>
 void serialize(Serializer& s, TestObject& obj) {
@@ -92,8 +92,8 @@ void serialize(Serializer& s, TestObject& obj) {
 }
 
 /// Custom traverser for printing raw bytes
-struct PrintBytesTraverse : checkpoint::BaseSerializer {
-  PrintBytesTraverse() : checkpoint::BaseSerializer(checkpoint::eSerializationMode::None) { }
+struct PrintBytesTraverse : magistrate::BaseSerializer {
+  PrintBytesTraverse() : magistrate::BaseSerializer(magistrate::eSerializationMode::None) { }
 
   void contiguousBytes(void*, std::size_t size, std::size_t num_elms) {
     printf("PrintBytesTraverse: size=%zu, num_elms=%zu\n", size, num_elms);
@@ -137,11 +137,11 @@ struct CustomDispatch<SerializerT, std::vector<U>> {
 };
 
 /// Custom traverser for printing typed ranges
-struct TypedTraverse : checkpoint::BaseSerializer {
+struct TypedTraverse : magistrate::BaseSerializer {
   template <typename U, typename V>
   using DispatcherType = CustomDispatch<U, V>;
 
-  TypedTraverse() : checkpoint::BaseSerializer(checkpoint::eSerializationMode::None) { }
+  TypedTraverse() : magistrate::BaseSerializer(magistrate::eSerializationMode::None) { }
 
   template <typename SerializerT, typename T>
   void contiguousTyped(SerializerT&, T*, std::size_t num_elms) {
@@ -149,7 +149,7 @@ struct TypedTraverse : checkpoint::BaseSerializer {
   }
 };
 
-}}} // end namespace magistrate::nonintrusive::examples
+}}} // end namespace checkpoint::nonintrusive::examples
 
 int main(int, char**) {
   using namespace magistrate::nonintrusive::examples;
@@ -157,11 +157,11 @@ int main(int, char**) {
   TestObject my_obj(TestObject::MakeTag{});
 
   // Traverse my_obj with a custom traverser that prints the bytes
-  checkpoint::dispatch::Traverse::with<TestObject, PrintBytesTraverse>(my_obj);
+  magistrate::dispatch::Traverse::with<TestObject, PrintBytesTraverse>(my_obj);
 
   // Traverse my_obj with a custom traverser and dispatcher that prints the
   // types and lens
-  checkpoint::dispatch::Traverse::with<TestObject, TypedTraverse>(my_obj);
+  magistrate::dispatch::Traverse::with<TestObject, TypedTraverse>(my_obj);
 
   return 0;
 }

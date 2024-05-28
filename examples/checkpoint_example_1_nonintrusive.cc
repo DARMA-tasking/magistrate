@@ -48,7 +48,7 @@
 #include <cstdio>
 
 // \brief Namespace containing type which will be serialized
-namespace magistrate { namespace nonintrusive { namespace examples {
+namespace checkpoint { namespace nonintrusive { namespace examples {
 
 // \brief Simple structure with three variables of built-in types
 struct MyTest3 {
@@ -60,12 +60,12 @@ struct MyTest3 {
   }
 };
 
-}}} // end namespace magistrate::nonintrusive::examples
+}}} // end namespace checkpoint::nonintrusive::examples
 
 // \brief Function to serialize the MyTest3 structure.
 // In Non-Intrusive way, this function needs to be placed in the namespace
 // of the type which will be serialized.
-namespace magistrate { namespace nonintrusive { namespace examples {
+namespace checkpoint { namespace nonintrusive { namespace examples {
   // \brief Templated function for serializing/deserializing
   // a variable of type `MyTest3`. Non-nonintrusive version of the function
   // placed outside of `MyTest3` structure.
@@ -93,7 +93,7 @@ namespace magistrate { namespace nonintrusive { namespace examples {
     s | my_test3.c;
   }
 
-}}} // end namespace magistrate::nonintrusive::examples
+}}} // end namespace checkpoint::nonintrusive::examples
 
 int main(int, char**) {
   using namespace magistrate::nonintrusive::examples;
