@@ -140,18 +140,19 @@ int main(int, char**) {
   // Call the serialization routine for the variable `my_test_inst`
   // The output is a unique pointer: `std::unique_ptr<SerializedInfo>`
   // (defined in `src/checkpoint_api.h`)
-  magistrate::serializeToFile(my_test_inst, "hello.txt");
+  std::string my_filename = "CheckpointExampleToFileNoninstrusive.txt";
+  magistrate::serializeToFile(my_test_inst, my_filename);
 
   //
   // De-serializes from the file an object of type 'MyTestType'
   // out will be an object of type 'std::unique_ptr<MyTestType>'
   //
-  auto out = magistrate::deserializeFromFile<MyTestType>("hello.txt");
+  auto out = magistrate::deserializeFromFile<MyTestType>(my_filename);
 
   if (my_test_inst == *out) {
     std::cout << " Serialization / Deserialization from file worked. \n";
   } else {
-    std::cout << " Serialization / Deserialization from file failed. \n";
+    std::cout << " Serialization / Deserialization from file failed. \n" << std::flush;
     assert(false);
   }
 
@@ -164,7 +165,7 @@ int main(int, char**) {
   // Here 'out_2' will contain an empty vector and an integer 'len_' set to 0.
   //
 
-  magistrate::deserializeInPlaceFromFile<MyTestType>("hello.txt", &out_2);
+  magistrate::deserializeInPlaceFromFile<MyTestType>(my_filename, &out_2);
 
   //
   // Now 'out_2' will contain:
@@ -175,7 +176,7 @@ int main(int, char**) {
   if (my_test_inst == out_2) {
     std::cout << " Deserialization in-place from file worked. \n";
   } else {
-    std::cout << " Deserialization in-place from file failed. \n";
+    std::cout << " Deserialization in-place from file failed. \n" << std::flush;
     assert(false);
   }
 

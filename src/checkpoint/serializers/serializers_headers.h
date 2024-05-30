@@ -46,21 +46,22 @@
 
 #include "checkpoint/common.h"
 #include "checkpoint/serializers/base_serializer.h"
+#include "checkpoint/serializers/serializer_ref.h"
 #include "checkpoint/serializers/footprinter.h"
 #include "checkpoint/serializers/sizer.h"
 #include "checkpoint/serializers/packer.h"
 #include "checkpoint/serializers/unpacker.h"
 #include "checkpoint/serializers/stream_serializer.h"
 
-#define checkpoint_serializer_variadic_args()   \
-  checkpoint::Footprinter,                      \
-  checkpoint::Packer,                           \
-  checkpoint::PackerUserBuf,                    \
-  checkpoint::PackerIO,                         \
-  checkpoint::Unpacker,                         \
-  checkpoint::UnpackerIO,                       \
-  checkpoint::Sizer,                            \
-  checkpoint::StreamPacker<>,                   \
-  checkpoint::StreamUnpacker<>                  \
+#define checkpoint_serializer_variadic_args()             \
+  checkpoint::SerializerRef<checkpoint::Footprinter>,     \
+  checkpoint::SerializerRef<checkpoint::Packer>,          \
+  checkpoint::SerializerRef<checkpoint::PackerUserBuf>,   \
+  checkpoint::SerializerRef<checkpoint::PackerIO>,        \
+  checkpoint::SerializerRef<checkpoint::Unpacker>,        \
+  checkpoint::SerializerRef<checkpoint::UnpackerIO>,      \
+  checkpoint::SerializerRef<checkpoint::Sizer>,           \
+  checkpoint::SerializerRef<checkpoint::StreamPacker<>>,  \
+  checkpoint::SerializerRef<checkpoint::StreamUnpacker<>> \
 
 #endif /*INCLUDED_SRC_CHECKPOINT_SERIALIZERS_SERIALIZERS_HEADERS_H*/
