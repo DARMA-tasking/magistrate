@@ -112,7 +112,7 @@ struct SerializerDispatchNonByte {
   template <typename U>
   using justFootprint =
   typename std::enable_if<
-    std::is_same<S, checkpoint::Footprinter>::value and
+    checkpoint::is_footprinter_v<S> and
     not SerializableTraits<U, S>::is_traversable and
     not std::is_enum<U>::value,
     T

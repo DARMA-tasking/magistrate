@@ -86,7 +86,7 @@ struct isByteCopyableImpl {
 template <typename T>
 struct isByteCopyable : detail::isByteCopyableImpl<T>::has_byteCopyTraitTrue {};
 
-template <typename T, typename S = checkpoint::BaseSerializer>
+template <typename T, typename S = checkpoint::SerializerRef<BaseSerializer>>
 struct SerializableTraits {
   /**
    * Start with detection of "serialize" overloads, intrusive and non-intrusive.

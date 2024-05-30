@@ -94,7 +94,7 @@ inline RegistryType<ObjT>& getRegistry() {
 
 template <typename ObjT, typename SerializerT>
 inline TypeIdx makeObjIdx() {
-  return Type<ObjT, SerializerT>::idx;
+  return Type<ObjT, typename SerializerT::TraitlessT>::idx;
 }
 
 template <typename ObjT, typename SerializerT>

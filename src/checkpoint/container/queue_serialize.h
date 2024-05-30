@@ -76,7 +76,7 @@ template <
   typename SerializerT,
   typename T,
   typename = std::enable_if_t<
-    not std::is_same_v<SerializerT, checkpoint::Footprinter>
+    not checkpoint::is_footprinter_v<SerializerT>
   >
 >
 void serializeQueueLikeContainer(SerializerT& s, std::queue<T>& q) {

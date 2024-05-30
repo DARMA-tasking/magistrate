@@ -59,9 +59,13 @@ namespace checkpoint { namespace dispatch { namespace vrt {
  */
 template <typename T, typename SerializerT>
 void virtualSerialize(T*& base, SerializerT& s) {
+  //We can't support traited serializing with virtual types.
+  static_assert(std::is_same_v<SerializerT, typename SerializerT::TraitlessT>, "User Traits are incompatible with virtual serialization");
+
   // Get the real base in case this is called on a derived type
   using BaseT = ::checkpoint::dispatch::vrt::checkpoint_base_type_t<T>;
   auto serializer_idx = serializer_registry::makeObjIdx<BaseT, SerializerT>();
+
   base->_checkpointDynamicSerialize(&s, serializer_idx, no_type_idx);
 }
 
@@ -146,7 +150,7 @@ struct ReconstructAsVirtualIfNeeded<
   SerializerT,
   typename std::enable_if_t<
     dispatch::vrt::VirtualSerializeTraits<T>::has_not_virtual_serialize and
-    not std::is_same<SerializerT, checkpoint::Footprinter>::value
+    not checkpoint::is_footprinter_v<SerializerT>
   >
 > {
   static T* apply(SerializerT&, dispatch::vrt::TypeIdx) {
@@ -162,7 +166,7 @@ struct ReconstructAsVirtualIfNeeded<
   SerializerT,
   typename std::enable_if_t<
     dispatch::vrt::VirtualSerializeTraits<T>::has_not_virtual_serialize and
-    std::is_same<SerializerT, checkpoint::Footprinter>::value
+    checkpoint::is_footprinter_v<SerializerT>
   >
 > {
   static T* apply(SerializerT&, dispatch::vrt::TypeIdx) { return nullptr; }
