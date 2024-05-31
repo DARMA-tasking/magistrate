@@ -2,8 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                          test_variant_serialize.cc
-//                           DARMA Toolkit v. 1.0.0
+//                          test_variant_serializer.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC

@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                             varaint_serialize.h
+//                             variant_serialize.h
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
