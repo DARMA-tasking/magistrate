@@ -55,6 +55,8 @@ struct TestTuple : TestHarness { };
 struct Base {
   template <typename SerializerT>
   void serialize(SerializerT&) { }
+
+  bool operator==(const Base&) const { return true; }
 };
 struct DerivedEmpty : Base {
   template <typename SerializerT>
@@ -125,10 +127,23 @@ struct Derived4 : Base {
 };
 
 template <typename T>
-static void testTupleSerialization(std::tuple<T, T> before) {
-  auto ret = checkpoint::serialize(before);
-  auto after = checkpoint::deserialize<std::tuple<T, T>>(ret->getBuffer());
+static void testTupleSerialization(std::tuple<T, int> before) {
+  // Calculate serialized buffer size for T
+  auto first_part = std::get<0>(before);
+  auto first_part_size = checkpoint::serialize(first_part)->getSize();
 
+  // calculate serialized buffer size for std::tuple<int>
+  auto second_part = std::make_tuple(std::get<1>(before));
+  auto second_part_size = checkpoint::serialize(second_part)->getSize();
+
+  // Calculate serialized buffer size for std::tuple<T, int>
+  auto ret = checkpoint::serialize(before);
+  auto before_size = ret->getSize();
+
+  auto after = checkpoint::deserialize<std::tuple<T, int>>(ret->getBuffer());
+
+  // Check sizes and content of the tuples
+  EXPECT_EQ(first_part_size + second_part_size, before_size);
   EXPECT_NE(after, nullptr);
   EXPECT_EQ(sizeof(before), sizeof(*after));
   EXPECT_EQ(std::get<0>(before), std::get<0>(*after));
@@ -146,14 +161,23 @@ TEST_F(TestTuple, test_tuple_simple_types) {
 TEST_F(TestTuple, test_tuple_empty_base_optimization) {
   // Expect Empty Base Optimization to be aplied
   EXPECT_GE(sizeof(Base), 1);
-  EXPECT_EQ(sizeof(Derived), sizeof(int));
+  EXPECT_NE(sizeof(Base) + sizeof(int), sizeof(Derived));
 
-  testTupleSerialization<DerivedEmpty>(
-    std::make_tuple(DerivedEmpty(), DerivedEmpty()));
-  testTupleSerialization<Derived>(std::make_tuple(Derived(1), Derived(2)));
-  testTupleSerialization<Derived2>(std::make_tuple(Derived2(3), Derived2(4)));
-  testTupleSerialization<Derived3>(std::make_tuple(Derived3(5), Derived3(6)));
-  testTupleSerialization<Derived4>(std::make_tuple(Derived4(7), Derived4(8)));
+  // Check serialization buffer sizes for the types without tuple
+  auto base = Base();
+  auto base_size = checkpoint::serialize(base)->getSize();
+  auto some_int = 4;
+  auto some_int_size = checkpoint::serialize(some_int)->getSize();
+  auto derived = Derived(12345);
+  auto derived_size = checkpoint::serialize(derived)->getSize();
+  EXPECT_EQ(base_size + some_int_size, derived_size);
+
+  testTupleSerialization<Base>(std::make_tuple(Base(), 0));
+  testTupleSerialization<DerivedEmpty>(std::make_tuple(DerivedEmpty(), 0));
+  testTupleSerialization<Derived>(std::make_tuple(Derived(1), 1));
+  testTupleSerialization<Derived2>(std::make_tuple(Derived2(3), 2));
+  testTupleSerialization<Derived3>(std::make_tuple(Derived3(5), 3));
+  testTupleSerialization<Derived4>(std::make_tuple(Derived4(7), 4));
 }
 
 }}} // end namespace checkpoint::tests::unit
