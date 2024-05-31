@@ -13,12 +13,12 @@ done
 modified_files=$(git ls-files -m)
 
 if [ -n "$modified_files" ]; then
-  echo "The following files have been modified by updating the license or header guards:"
+  echo "The following files require an update to the license or header guards:"
   echo "$modified_files"
 
   if [ "$show_fix_command" == true ]; then
-    echo ""
     echo "Please run the following command from main magistrate directory to fix them:"
     echo "./scripts/check_guards.sh ."
   fi
+  exit 1
 fi
