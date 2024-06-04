@@ -3,7 +3,8 @@ name: Check License and Header Guards
 on: pull_request
 
 jobs:
-  check-license-and-guards:
+  check:
+    name: Check License/Guards
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
