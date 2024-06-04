@@ -41,8 +41,8 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_TEST_HARNESS
-#define INCLUDED_CHECKPOINT_TEST_HARNESS
+#if !defined INCLUDED_UNIT_TEST_HARNESS_H
+#define INCLUDED_UNIT_TEST_HARNESS_H
 
 #include <gtest/gtest.h>
 
@@ -89,4 +89,4 @@ using TestHarness = TestHarnessAny<testing::Test>;
 
 }}} // end namespace checkpoint::tests::unit
 
-#endif /*INCLUDED_CHECKPOINT_TEST_HARNESS*/
+#endif /*INCLUDED_UNIT_TEST_HARNESS_H*/

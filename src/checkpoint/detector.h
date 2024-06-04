@@ -91,4 +91,4 @@ using is_detected_convertible = std::is_convertible<detected_t<Op, Args...>, T>;
 
 }  // end detection
 
-#endif /* INCLUDED_CHECKPOINT_DETECTOR_H */
+#endif /*INCLUDED_CHECKPOINT_DETECTOR_H*/

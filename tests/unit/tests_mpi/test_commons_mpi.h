@@ -40,8 +40,9 @@
 // *****************************************************************************
 //@HEADER
 */
-#ifndef TEST_COMMONS_MPI_H
-#define TEST_COMMONS_MPI_H
+
+#if !defined INCLUDED_UNIT_TESTS_MPI_TEST_COMMONS_MPI_H
+#define INCLUDED_UNIT_TESTS_MPI_TEST_COMMONS_MPI_H
 
 #include "test_commons.h"
 #include "test_kokkos_0d_commons.h"
@@ -88,4 +89,4 @@ void serializeAnyMPI(T& view, std::function<void(T const&,T const&)> compare) {
 }
 } // end namespace
 
-#endif // TEST_COMMONS_MPI_H
+#endif /*INCLUDED_UNIT_TESTS_MPI_TEST_COMMONS_MPI_H*/
