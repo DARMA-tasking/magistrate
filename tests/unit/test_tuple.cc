@@ -133,8 +133,12 @@ static void testTupleSerialization(std::tuple<T, int> before) {
   auto first_part_size = checkpoint::serialize(first_part)->getSize();
 
   // calculate serialized buffer size for std::tuple<int>
+#if defined(SERIALIZATION_ERROR_CHECKING)
   auto second_part = std::make_tuple(std::get<1>(before));
   auto second_part_size = checkpoint::serialize(second_part)->getSize();
+#else
+  auto second_part_size = sizeof(std::tuple<int>);
+#endif
 
   // Calculate serialized buffer size for std::tuple<T, int>
   auto ret = checkpoint::serialize(before);
@@ -164,13 +168,18 @@ TEST_F(TestTuple, test_tuple_empty_base_optimization) {
   EXPECT_NE(sizeof(Base) + sizeof(int), sizeof(Derived));
 
   // Check serialization buffer sizes for the types without tuple
-  auto base = Base();
-  auto base_size = checkpoint::serialize(base)->getSize();
   auto some_int = 4;
   auto some_int_size = checkpoint::serialize(some_int)->getSize();
   auto derived = Derived(12345);
   auto derived_size = checkpoint::serialize(derived)->getSize();
+
+#if defined(SERIALIZATION_ERROR_CHECKING)
+  auto base = Base();
+  auto base_size = checkpoint::serialize(base)->getSize();
   EXPECT_EQ(base_size + some_int_size, derived_size);
+#else
+  EXPECT_EQ(some_int_size, derived_size);
+#endif
 
   testTupleSerialization<Base>(std::make_tuple(Base(), 0));
   testTupleSerialization<DerivedEmpty>(std::make_tuple(DerivedEmpty(), 0));
