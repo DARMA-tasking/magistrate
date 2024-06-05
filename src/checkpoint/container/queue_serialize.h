@@ -51,8 +51,46 @@
 
 namespace checkpoint {
 
+template<typename SerializerT, typename T>
+void deserializeQueueElems(SerializerT& s, std::queue<T>& q, typename std::queue<T>::size_type size) {
+  using Reconstructor =
+    dispatch::Reconstructor<typename dispatch::CleanType<T>::CleanT>;
+
+  dispatch::Allocator<T> allocated;
+  for (typename std::queue<T>::size_type i = 0; i < size; ++i) {
+    auto* reconstructed = Reconstructor::construct(allocated.buf);
+    s | *reconstructed;
+    q.push(std::move(*reconstructed));
+  }
+}
+
+template<typename SerializerT, typename T>
+void serializeQueueElems(SerializerT& s, std::queue<T> q) {
+  while(!q.empty()) {
+    s | q.front();
+    q.pop();
+  }
+}
+
+template <
+  typename SerializerT,
+  typename T,
+  typename = std::enable_if_t<
+    not std::is_same_v<SerializerT, checkpoint::Footprinter>
+  >
+>
+void serializeQueueLikeContainer(SerializerT& s, std::queue<T>& q) {
+  typename std::queue<T>::size_type size = serializeContainerSize(s, q);
+
+  if (s.isUnpacking()) {
+    deserializeQueueElems(s, q, size);
+  } else {
+    serializeQueueElems(s, q);
+  }
+}
+
 template <typename Serializer, typename T>
-void serialize(Serializer& s, const std::queue<T>& q) {
+void serialize(Serializer& s, std::queue<T>& q) {
   serializeQueueLikeContainer(s, q);
 }
 
@@ -70,10 +108,7 @@ template <
   typename SerializerT,
   typename Q,
   typename = std::enable_if_t<
-    std::is_same<
-      SerializerT,
-      checkpoint::Footprinter
-    >::value
+    std::is_same_v<SerializerT, checkpoint::Footprinter>
   >
 >
 void serializeQueueLikeContainer(SerializerT& s, const Q& q) {
