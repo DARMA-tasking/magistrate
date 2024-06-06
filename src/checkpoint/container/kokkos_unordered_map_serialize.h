@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                      kokkos_unordered_map_serialize.h
+//                       kokkos_unordered_map_serialize.h
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC

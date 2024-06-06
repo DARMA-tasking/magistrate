@@ -2,8 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                           reconstructor_traits.h
-//                           DARMA Toolkit v. 1.0.0
+//                            reconstructor_traits.h
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC

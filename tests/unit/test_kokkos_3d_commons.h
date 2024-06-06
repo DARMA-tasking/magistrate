@@ -40,8 +40,9 @@
 // *****************************************************************************
 //@HEADER
 */
-#ifndef TEST_KOKKOS_3D_COMMONS_H
-#define TEST_KOKKOS_3D_COMMONS_H
+
+#if !defined INCLUDED_UNIT_TEST_KOKKOS_3D_COMMONS_H
+#define INCLUDED_UNIT_TEST_KOKKOS_3D_COMMONS_H
 
 #include "test_commons.h"
 
@@ -191,4 +192,4 @@ TYPED_TEST_P(KokkosViewTest3D, test_3d_any) {
   }
 }
 
-#endif // TEST_KOKKOS_3D_COMMONS_H
+#endif /*INCLUDED_UNIT_TEST_KOKKOS_3D_COMMONS_H*/

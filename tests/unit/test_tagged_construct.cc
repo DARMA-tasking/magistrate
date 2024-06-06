@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                          test_tagged_construct.cc
+//                           test_tagged_construct.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC

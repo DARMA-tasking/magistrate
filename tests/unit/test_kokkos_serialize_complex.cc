@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                  test_kokkos_serialize_complex.cc
+//                       test_kokkos_serialize_complex.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC

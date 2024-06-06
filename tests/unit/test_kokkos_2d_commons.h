@@ -40,8 +40,9 @@
 // *****************************************************************************
 //@HEADER
 */
-#ifndef TEST_KOKKOS_2D_COMMONS_H
-#define TEST_KOKKOS_2D_COMMONS_H
+
+#if !defined INCLUDED_UNIT_TEST_KOKKOS_2D_COMMONS_H
+#define INCLUDED_UNIT_TEST_KOKKOS_2D_COMMONS_H
 
 #include "test_commons.h"
 
@@ -154,4 +155,4 @@ using Test2DConstTypesStride =
 
 #endif
 
-#endif // TEST_KOKKOS_2D_COMMONS_H
+#endif /*INCLUDED_UNIT_TEST_KOKKOS_2D_COMMONS_H*/

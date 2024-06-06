@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                         kokkos_pair_serialize.h
+//                           kokkos_pair_serialize.h
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC

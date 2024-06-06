@@ -40,8 +40,9 @@
 // *****************************************************************************
 //@HEADER
 */
-#ifndef MPIINIT_H
-#define MPIINIT_H
+
+#if !defined INCLUDED_UNIT_TESTS_MPI_MPI_INIT_H
+#define INCLUDED_UNIT_TESTS_MPI_MPI_INIT_H
 
 #include <gtest/gtest.h>
 #include <test_harness.h>
@@ -94,4 +95,4 @@ private:
 
 };
 
-#endif // MPIINIT_H
+#endif /*INCLUDED_UNIT_TESTS_MPI_MPI_INIT_H*/

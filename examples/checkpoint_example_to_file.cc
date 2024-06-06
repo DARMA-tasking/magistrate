@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                           checkpoint_example_to_file.cc
+//                        checkpoint_example_to_file.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC

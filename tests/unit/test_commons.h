@@ -40,8 +40,9 @@
 // *****************************************************************************
 //@HEADER
 */
-#ifndef TEST_COMMONS_H
-#define TEST_COMMONS_H
+
+#if !defined INCLUDED_UNIT_TEST_COMMONS_H
+#define INCLUDED_UNIT_TEST_COMMONS_H
 
 #include "test_harness.h"
 
@@ -179,4 +180,4 @@ std::unique_ptr<T> serializeAny(
 }
 } //end namespace
 
-#endif // TEST_COMMONS_H
+#endif /*INCLUDED_UNIT_TEST_COMMONS_H*/

@@ -40,8 +40,9 @@
 // *****************************************************************************
 //@HEADER
 */
-#ifndef TEST_KOKKOS_1D_COMMONS_H
-#define TEST_KOKKOS_1D_COMMONS_H
+
+#if !defined INCLUDED_UNIT_TEST_KOKKOS_1D_COMMONS_H
+#define INCLUDED_UNIT_TEST_KOKKOS_1D_COMMONS_H
 
 #include "test_commons.h"
 
@@ -185,4 +186,4 @@ using DynRankViewTestTypes = testing::Types<
 
 #endif
 
-#endif // TEST_KOKKOS_1D_COMMONS_H
+#endif /*INCLUDED_UNIT_TEST_KOKKOS_1D_COMMONS_H*/
