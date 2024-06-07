@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                            optional_serialize.h
+//                             optional_serialize.h
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
