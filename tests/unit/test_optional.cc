@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                 checkpoint.h
+//                               test_optional.cc
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -41,40 +41,53 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CHECKPOINT_H
-#define INCLUDED_CHECKPOINT_CHECKPOINT_H
+#include <gtest/gtest.h>
 
-#include "checkpoint/serializers/serializers_headers.h"
-#include "checkpoint/dispatch/dispatch.h"
-#include "checkpoint/traits/serializable_traits.h"
+#include "test_harness.h"
 
-#include "checkpoint/container/array_serialize.h"
-#include "checkpoint/container/atomic_serialize.h"
-#include "checkpoint/container/chrono_serialize.h"
-#include "checkpoint/container/enum_serialize.h"
-#include "checkpoint/container/function_serialize.h"
-#include "checkpoint/container/list_serialize.h"
-#include "checkpoint/container/map_serialize.h"
-#include "checkpoint/container/queue_serialize.h"
-#include "checkpoint/container/raw_ptr_serialize.h"
-#include "checkpoint/container/shared_ptr_serialize.h"
-#include "checkpoint/container/string_serialize.h"
-#include "checkpoint/container/thread_serialize.h"
-#include "checkpoint/container/tuple_serialize.h"
-#include "checkpoint/container/vector_serialize.h"
-#include "checkpoint/container/unique_ptr_serialize.h"
-#include "checkpoint/container/view_serialize.h"
-#include "checkpoint/container/variant_serialize.h"
-#include "checkpoint/container/optional_serialize.h"
+#include <checkpoint/checkpoint.h>
 
-#include "checkpoint/container/kokkos_unordered_map_serialize.h"
-#include "checkpoint/container/kokkos_pair_serialize.h"
-#include "checkpoint/container/kokkos_complex_serialize.h"
+#include <optional>
+#include <string>
 
-#include "checkpoint/checkpoint_api.h"
-#include "checkpoint/checkpoint_api.impl.h"
+namespace checkpoint { namespace tests { namespace unit {
 
-// Add namespace alias for the new name of the library
-namespace magistrate = checkpoint;
+using TestOptional = TestHarness;
 
-#endif /*INCLUDED_CHECKPOINT_CHECKPOINT_H*/
+template <typename T>
+void testOptional(std::optional<T> before) {
+    // Test serialization when containing the value
+    {
+        auto ret = checkpoint::serialize(before);
+        auto after = checkpoint::deserialize<std::optional<T>>(ret->getBuffer());
+
+        EXPECT_TRUE(nullptr != after);
+        EXPECT_EQ(before.has_value(), after->has_value());
+        EXPECT_EQ(before, *after);
+    }
+
+    before.reset();
+
+    // Test serialization when there is not value
+    {
+        auto ret = checkpoint::serialize(before);
+        auto after = checkpoint::deserialize<std::optional<T>>(ret->getBuffer());
+
+        EXPECT_TRUE(nullptr != after);
+        EXPECT_EQ(before.has_value(), after->has_value());
+        EXPECT_EQ(before, *after);
+    }
+}
+
+TEST_F(TestOptional, test_optional) {
+    testOptional<bool>({true});
+    testOptional<uint8_t>({1});
+    testOptional<uint16_t>({2});
+    testOptional<int>({3});
+    testOptional<long long>({4});
+    testOptional<float>({5});
+    testOptional<double>({6});
+    testOptional<std::string>({"7"});
+}
+
+}}} // end namespace checkpoint::tests::unit

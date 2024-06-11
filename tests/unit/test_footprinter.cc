@@ -533,6 +533,27 @@ TEST_F(TestFootprinter, test_vector) {
   }
 }
 
+TEST_F(TestFootprinter, test_optional_footprint) {
+  {
+    std::optional<bool> opt = true;
+    EXPECT_EQ(checkpoint::getMemoryFootprint(opt), sizeof(opt) + sizeof(bool));
+    opt.reset();
+    EXPECT_EQ(checkpoint::getMemoryFootprint(opt), sizeof(opt));
+  }
+  {
+    std::optional<long long> opt = 123;
+    EXPECT_EQ(checkpoint::getMemoryFootprint(opt), sizeof(opt) + sizeof(long long));
+    opt.reset();
+    EXPECT_EQ(checkpoint::getMemoryFootprint(opt), sizeof(opt));
+  }
+  {
+    std::optional<std::string> opt = "999";
+    EXPECT_EQ(checkpoint::getMemoryFootprint(opt), sizeof(opt) + sizeof(std::string("999")));
+    opt.reset();
+    EXPECT_EQ(checkpoint::getMemoryFootprint(opt), sizeof(opt));
+  }
+}
+
 TEST_F(TestFootprinter, test_virtual_serialize) {
   {
     std::unique_ptr<TestBase> ptr = std::make_unique<TestDerived2>(0);

@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                 checkpoint.h
+//                             optional_serialize.h
 //                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -41,40 +41,55 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CHECKPOINT_H
-#define INCLUDED_CHECKPOINT_CHECKPOINT_H
+#if !defined INCLUDED_CHECKPOINT_CONTAINER_OPTIONAL_SERIALIZE_H
+#define INCLUDED_CHECKPOINT_CONTAINER_OPTIONAL_SERIALIZE_H
 
-#include "checkpoint/serializers/serializers_headers.h"
-#include "checkpoint/dispatch/dispatch.h"
-#include "checkpoint/traits/serializable_traits.h"
+#include "checkpoint/common.h"
 
-#include "checkpoint/container/array_serialize.h"
-#include "checkpoint/container/atomic_serialize.h"
-#include "checkpoint/container/chrono_serialize.h"
-#include "checkpoint/container/enum_serialize.h"
-#include "checkpoint/container/function_serialize.h"
-#include "checkpoint/container/list_serialize.h"
-#include "checkpoint/container/map_serialize.h"
-#include "checkpoint/container/queue_serialize.h"
-#include "checkpoint/container/raw_ptr_serialize.h"
-#include "checkpoint/container/shared_ptr_serialize.h"
-#include "checkpoint/container/string_serialize.h"
-#include "checkpoint/container/thread_serialize.h"
-#include "checkpoint/container/tuple_serialize.h"
-#include "checkpoint/container/vector_serialize.h"
-#include "checkpoint/container/unique_ptr_serialize.h"
-#include "checkpoint/container/view_serialize.h"
-#include "checkpoint/container/variant_serialize.h"
-#include "checkpoint/container/optional_serialize.h"
+#include <optional>
 
-#include "checkpoint/container/kokkos_unordered_map_serialize.h"
-#include "checkpoint/container/kokkos_pair_serialize.h"
-#include "checkpoint/container/kokkos_complex_serialize.h"
+namespace checkpoint {
 
-#include "checkpoint/checkpoint_api.h"
-#include "checkpoint/checkpoint_api.impl.h"
+template <typename SerializerT, typename T>
+void deserializeOptional(SerializerT& s, std::optional<T>& optional) {
+  using BoolReconstructor =
+    dispatch::Reconstructor<typename dispatch::CleanType<bool>::CleanT>;
+  using ValReconstructor =
+    dispatch::Reconstructor<typename dispatch::CleanType<T>::CleanT>;
 
-// Add namespace alias for the new name of the library
-namespace magistrate = checkpoint;
+  dispatch::Allocator<bool> boolAllocated;
+  dispatch::Allocator<T> valAllocated;
 
-#endif /*INCLUDED_CHECKPOINT_CHECKPOINT_H*/
+  auto* has_value = BoolReconstructor::construct(boolAllocated.buf);
+  s | *has_value;
+  if (*has_value) {
+    auto* value = ValReconstructor::construct(valAllocated.buf);
+    s | *value;
+    optional = *value;
+  } else {
+    optional.reset();
+  }
+}
+
+template <typename SerializerT, typename T>
+void serialize(SerializerT& s, std::optional<T>& optional) {
+  if (s.isFootprinting()) {
+    s.countBytes(optional);
+    if (optional.has_value()) {
+      s.addBytes(sizeof(*optional));
+    }
+  } else if (s.isUnpacking()) {
+    deserializeOptional(s, optional);
+  } else {
+    bool has_value = optional.has_value();
+
+    s | has_value;
+    if (has_value) {
+      s | *optional;
+    }
+  }
+}
+
+} /* end namespace checkpoint */
+
+#endif /*INCLUDED_CHECKPOINT_CONTAINER_OPTIONAL_SERIALIZE_H*/
