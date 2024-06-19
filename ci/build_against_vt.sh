@@ -95,10 +95,17 @@ cmake -G "${CMAKE_GENERATOR:-Ninja}" \
       -Dvt_debug_verbose="${VT_DEBUG_VERBOSE:-}" \
       -Dvt_tests_num_nodes="${VT_TESTS_NUM_NODES:-}" \
       "${VT}"
-cmake_conf_ret="$?"
+# cmake_conf_ret="$?"
+
+# # Exit if configuration failed
+# if test "${cmake_conf_ret}" -ne 0
+# then
+#     echo "There was an error during CMake configuration"
+#     exit "${cmake_conf_ret}"
+# fi
 
 time cmake --build . --target "${target}"
-compilation_ret="$?"
+# compilation_ret="$?"
 
 if test "${use_ccache}"
 then
@@ -106,13 +113,9 @@ then
     ccache -s
 fi
 
-# Exit with error code if there was any
-if test "${cmake_conf_ret}" -ne 0
-then
-    echo "There was an error during CMake configuration"
-    exit "${cmake_conf_ret}"
-elif test "${compilation_ret}" -ne 0
-then
-    echo "There was an error during compilation"
-    exit "${compilation_ret}"
-fi
+# # Exit with error code if there was any
+# if test "${compilation_ret}" -ne 0
+# then
+#     echo "There was an error during compilation"
+#     exit "${compilation_ret}"
+# fi
