@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.23)
-project(checkpoint VERSION 1.4.0)
+project(magistrate VERSION 1.4.0)
 
 include(cmake/turn_on_warnings.cmake)
 
@@ -14,25 +14,32 @@ endif()
 include (CTest)
 enable_testing()
 
-option(checkpoint_tests_enabled "Enable checkpoint tests" OFF)
-option(checkpoint_mpi_enabled "Enable checkpoint tests with MPI" OFF)
-option(checkpoint_examples_enabled "Enable checkpoint examples" OFF)
-option(checkpoint_warnings_as_errors "Enable warnings to generate errors" OFF)
-option(checkpoint_asan_enabled "Enable address sanitizer in Checkpoint" OFF)
-option(
-  checkpoint_ubsan_enabled
-  "Enable undefined behavior sanitizer in Checkpoint" OFF
-)
+function(deprecated_option old_option new_option description default_value)
+  option(${new_option} "${description}" ${default_value})
+  if(DEFINED ${old_option})
+    message(DEPRECATION "Warning: ${old_option} is deprecated and will be removed in a future version. Use ${new_option} instead.")
+    set(${new_option} "${${old_option}}" CACHE BOOL "${description}" FORCE)
+  endif()
+endfunction()
+
+deprecated_option(checkpoint_tests_enabled magistrate_tests_enabled "Enable magistrate tests" OFF)
+deprecated_option(checkpoint_mpi_enabled magistrate_mpi_enabled "Enable magistrate tests with MPI" OFF)
+deprecated_option(checkpoint_examples_enabled magistrate_examples_enabled "Enable magistrate examples" OFF)
+deprecated_option(checkpoint_warnings_as_errors magistrate_warnings_as_errors "Enable warnings to generate errors" OFF)
+deprecated_option(checkpoint_asan_enabled magistrate_asan_enabled "Enable address sanitizer in magistrate" OFF)
+deprecated_option(checkpoint_ubsan_enabled magistrate_ubsan_enabled "Enable undefined behavior sanitizer in magistrate" OFF)
 
 option(CODE_COVERAGE "Enable coverage reporting" OFF)
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug" OR "${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
-  option(checkpoint_serialization_error_checking_enabled "Enable extensive serialization error checking" ON)
+  set(error_check ON)
 else()
-  option(checkpoint_serialization_error_checking_enabled "Enable extensive serialization error checking" OFF)
+  set(error_check OFF)
 endif()
+deprecated_option(checkpoint_serialization_error_checking_enabled
+  magistrate_serialization_error_checking_enabled "Enable extensive serialization error checking" ${error_check})
 
-if(checkpoint_serialization_error_checking_enabled)
+if(magistrate_serialization_error_checking_enabled)
   add_definitions(-DSERIALIZATION_ERROR_CHECKING)
   message(STATUS "Building with serialization error checking enabled")
 endif()
@@ -46,30 +53,28 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR AND NOT DEFINED CMAKE_CXX_
 endif()
 
 # MPI package
-if(checkpoint_mpi_enabled)
+if(magistrate_mpi_enabled)
  include(cmake/load_mpi_package.cmake)
  set(
-   CHECK_POINT_MPI_PROC 2 CACHE STRING
+   MAGISTRATE_MPI_PROC 2 CACHE STRING
    "Set number of proc used by MPI for the tests. 2 is the default."
  )
 endif()
 
-message (STATUS "Checkpoint build tests: ${checkpoint_tests_enabled}")
-message (STATUS "Checkpoint build examples: ${checkpoint_examples_enabled}")
+message (STATUS "Magistrate build tests: ${magistrate_tests_enabled}")
+message (STATUS "Magistrate build examples: ${magistrate_examples_enabled}")
 
 include(cmake/load_package.cmake)
 
-option(
-  checkpoint_doxygen_enabled "Build doxygen documentation for checkpoint" OFF
-)
+deprecated_option(checkpoint_doxygen_enabled magistrate_doxygen_enabled "Build doxygen documentation for checkpoint" OFF)
 
 # Doxygen library
-if (${checkpoint_doxygen_enabled})
+if (${magistrate_doxygen_enabled})
   include(cmake/load_doxygen.cmake)
 endif()
 
 # Optionally enable address sanitizer library in build
-if (checkpoint_asan_enabled)
+if (magistrate_asan_enabled)
   if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR
      CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR
      (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
@@ -84,7 +89,7 @@ if (checkpoint_asan_enabled)
   endif()
 endif()
 
-if (checkpoint_ubsan_enabled)
+if (magistrate_ubsan_enabled)
   if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR
      CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR
      (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
@@ -142,7 +147,7 @@ else()
 endif()
 
 # If checkpoint build tests require the GTest package
-if (${checkpoint_tests_enabled})
+if (${magistrate_tests_enabled})
   if(NOT hasParent)
     find_package(GTest REQUIRED)
     set(CHECKPOINT_HAS_GTEST TRUE)

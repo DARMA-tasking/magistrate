@@ -2,7 +2,7 @@
 set(PROJECT_TEST_UNIT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/unit)
 set(PROJECT_TEST_MPI_UNIT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/unit/tests_mpi)
 
-if(checkpoint_mpi_enabled)
+if(magistrate_mpi_enabled)
   message(STATUS "Building unit tests with MPI")
   file(
       GLOB
@@ -38,7 +38,7 @@ macro(checkpoint_link_target target has_mpi)
   endif()
 endmacro()
 
-if (checkpoint_tests_enabled)
+if (magistrate_tests_enabled)
   if (NOT CHECKPOINT_HAS_GTEST)
     message(
       STATUS
@@ -61,7 +61,7 @@ if (checkpoint_tests_enabled)
     #System's threading library info (eg pthread)
     find_package(Threads REQUIRED)
 
-    if(checkpoint_mpi_enabled)
+    if(magistrate_mpi_enabled)
       set(
         TEST_HEADER_FILES ${TEST_HEADER_FILES}
         ${PROJECT_TEST_MPI_UNIT_DIR}/mpi-init.h
@@ -120,7 +120,7 @@ if (checkpoint_tests_enabled)
 
         set(
           CHECKPOINT_TEST_PARAM_MPI ${MPI_NUMPROC_FLAG}
-          ${CHECK_POINT_MPI_PROC} "${CMAKE_CURRENT_BINARY_DIR}/${TEST}"
+          ${MAGISTRATE_MPI_PROC} "${CMAKE_CURRENT_BINARY_DIR}/${TEST}"
         )
         add_test(
           NAME checkpoint:${TEST}

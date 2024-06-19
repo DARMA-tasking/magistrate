@@ -41,7 +41,6 @@ cmake -G "${CMAKE_GENERATOR:-Ninja}" \
       -Dcheckpoint_asan_enabled="${CHECKPOINT_ASAN_ENABLED:-0}" \
       -Dcheckpoint_ubsan_enabled="${CHECKPOINT_UBSAN_ENABLED:-0}" \
       -Dcheckpoint_serialization_error_checking_enabled="${CHECKPOINT_SERIALIZATION_ERROR_CHECKING_ENABLED:-$is_debug}" \
-      -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
       -DCMAKE_BUILD_TYPE="${cmake_build_type}" \
       -DCMAKE_CXX_COMPILER="${CXX:-c++}" \
       -DCMAKE_C_COMPILER="${CC:-cc}" \
