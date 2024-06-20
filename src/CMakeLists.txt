@@ -71,7 +71,7 @@ add_library(
   ${HEADER_FILES} ${SOURCE_FILES}
 )
 
-add_library(${CHECKPOINT_LIBRARY_NS} ALIAS ${CHECKPOINT_LIBRARY})
+add_library(${MAGISTRATE_LIBRARY_NS} ALIAS ${CHECKPOINT_LIBRARY})
 
 target_compile_features(${CHECKPOINT_LIBRARY} PUBLIC cxx_std_17)
 
