@@ -151,13 +151,13 @@ install(
 install(
   EXPORT                    ${MAGISTRATE_LIBRARY}
   DESTINATION               cmake
-  FILE                      "checkpointTargets.cmake"
+  FILE                      "magistrateTargets.cmake"
   NAMESPACE                 vt::lib::
   COMPONENT                 runtime
 )
 
 export(
   TARGETS                   ${MAGISTRATE_LIBRARY}
-  FILE                      "checkpointTargets.cmake"
+  FILE                      "magistrateTargets.cmake"
   NAMESPACE                 vt::lib::
 )
