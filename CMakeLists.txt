@@ -66,7 +66,7 @@ message (STATUS "Magistrate build examples: ${magistrate_examples_enabled}")
 
 include(cmake/load_package.cmake)
 
-deprecated_option(checkpoint_doxygen_enabled magistrate_doxygen_enabled "Build doxygen documentation for checkpoint" OFF)
+deprecated_option(checkpoint_doxygen_enabled magistrate_doxygen_enabled "Build doxygen documentation for magistrate" OFF)
 
 # Doxygen library
 if (${magistrate_doxygen_enabled})
@@ -75,33 +75,19 @@ endif()
 
 # Optionally enable address sanitizer library in build
 if (magistrate_asan_enabled)
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR
-     CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR
-     (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
-       AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "4.8"))
-    set(
-      CMAKE_CXX_FLAGS
-      "${CMAKE_CXX_FLAGS} -fsanitize=address"
-    )
-    message(STATUS "Building with address sanitizer enabled")
-  else()
-    message(SEND_ERROR "Cannot use ASan without clang or gcc >= 4.8")
-  endif()
+  set(
+    CMAKE_CXX_FLAGS
+    "${CMAKE_CXX_FLAGS} -fsanitize=address"
+  )
+  message(STATUS "Building with address sanitizer enabled")
 endif()
 
 if (magistrate_ubsan_enabled)
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR
-     CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR
-     (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
-       AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "4.8"))
-    set(
-      CMAKE_CXX_FLAGS
-      "${CMAKE_CXX_FLAGS} -fsanitize=undefined"
-    )
-    message(STATUS "Building with undefined behavior sanitizer enabled")
-  else()
-    message(SEND_ERROR "Cannot use UBSan without clang or gcc >= 4.8")
-  endif()
+  set(
+    CMAKE_CXX_FLAGS
+    "${CMAKE_CXX_FLAGS} -fsanitize=undefined"
+  )
+  message(STATUS "Building with undefined behavior sanitizer enabled")
 endif()
 
 set(CHECKPOINT_LIBRARY checkpoint CACHE INTERNAL "" FORCE )
