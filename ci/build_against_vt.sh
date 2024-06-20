@@ -88,31 +88,17 @@ cmake -G "${CMAKE_GENERATOR:-Ninja}" \
       -DCMAKE_CXX_COMPILER="${CXX:-c++}" \
       -DCMAKE_C_COMPILER="${CC:-cc}" \
       -DCMAKE_EXE_LINKER_FLAGS="${CMAKE_EXE_LINKER_FLAGS:-}" \
-      -Dcheckpoint_DIR="${CHECKPOINT_BUILD}/install" \
+      -Dcheckpoint_ROOT="${CHECKPOINT_BUILD}/install" \
       -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH:-}" \
       -DCMAKE_INSTALL_PREFIX="${VT_BUILD}/install" \
       -Dvt_ci_build="${VT_CI_BUILD:-1}" \
       -Dvt_debug_verbose="${VT_DEBUG_VERBOSE:-}" \
       -Dvt_tests_num_nodes="${VT_TESTS_NUM_NODES:-}" \
       "${VT}"
-cmake_conf_ret="$?"
-
 time cmake --build . --target "${target}"
-compilation_ret="$?"
 
 if test "${use_ccache}"
 then
     { echo -e "===\n=== ccache statistics after build\n==="; } 2>/dev/null
     ccache -s
-fi
-
-# Exit with error code if there was any
-if test "${cmake_conf_ret}" -ne 0
-then
-    echo "There was an error during CMake configuration"
-    exit "${cmake_conf_ret}"
-elif test "${compilation_ret}" -ne 0
-then
-    echo "There was an error during compilation"
-    exit "${compilation_ret}"
 fi
