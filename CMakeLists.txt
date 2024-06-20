@@ -74,24 +74,34 @@ if (${magistrate_doxygen_enabled})
 endif()
 
 # Optionally enable address sanitizer library in build
+list(APPEND asan_ubsan_supported_compilers "AppleClang" "Clang" "GNU")
+
 if (magistrate_asan_enabled)
-  set(
-    CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -fsanitize=address"
-  )
-  message(STATUS "Building with address sanitizer enabled")
+  if(CMAKE_CXX_COMPILER_ID IN_LIST asan_ubsan_supported_compilers)
+    set(
+      CMAKE_CXX_FLAGS
+      "${CMAKE_CXX_FLAGS} -fsanitize=address"
+    )
+    message(STATUS "Building with address sanitizer enabled")
+  else()
+    message(SEND_ERROR "Cannot use ASan without clang or gcc")
+  endif()
 endif()
 
 if (magistrate_ubsan_enabled)
-  set(
-    CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -fsanitize=undefined"
-  )
-  message(STATUS "Building with undefined behavior sanitizer enabled")
+  if(CMAKE_CXX_COMPILER_ID IN_LIST asan_ubsan_supported_compilers)
+    set(
+      CMAKE_CXX_FLAGS
+      "${CMAKE_CXX_FLAGS} -fsanitize=undefined"
+    )
+    message(STATUS "Building with undefined behavior sanitizer enabled")
+  else()
+    message(SEND_ERROR "Cannot use UBSan without clang or gcc")
+  endif()
 endif()
 
-set(CHECKPOINT_LIBRARY checkpoint CACHE INTERNAL "" FORCE )
-set(MAGISTRATE_LIBRARY_NS vt::lib::checkpoint "" CACHE INTERNAL "" FORCE )
+set(MAGISTRATE_LIBRARY checkpoint CACHE INTERNAL "" FORCE )
+set(MAGISTRATE_LIBRARY_NS vt::lib::magistrate "" CACHE INTERNAL "" FORCE )
 
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -105,9 +115,9 @@ if (NOT kokkos_DISABLE)
   if (${Kokkos_DIR_FOUND})
     find_package_local(Kokkos)
     # Used to properly setup transitive dependency in checkpointConfig.cmake.in
-    set(CHECKPOINT_HAS_KOKKOS_LIBRARY 1)
+    set(MAGISTRATE_HAS_KOKKOS_LIBRARY 1)
   else()
-    set(CHECKPOINT_HAS_KOKKOS_LIBRARY 0)
+    set(MAGISTRATE_HAS_KOKKOS_LIBRARY 0)
   endif()
 endif()
 
@@ -118,34 +128,34 @@ if (NOT kokkos_kernels_DISABLE)
   if (${KokkosKernels_DIR_FOUND})
     find_package_local(KokkosKernels)
     # Used to properly setup transitive dependency in checkpointConfig.cmake.in
-    set(CHECKPOINT_HAS_KOKKOS_KERNELS_LIBRARY 1)
+    set(MAGISTRATE_HAS_KOKKOS_KERNELS_LIBRARY 1)
   else()
-    set(CHECKPOINT_HAS_KOKKOS_KERNELS_LIBRARY 0)
+    set(MAGISTRATE_HAS_KOKKOS_KERNELS_LIBRARY 0)
   endif()
 endif()
 
 get_directory_property(hasParent PARENT_DIRECTORY)
 
 if(hasParent)
-  message(STATUS "Checkpoint: building as a sub-directory")
+  message(STATUS "Magistrate: building as a sub-directory")
 else()
-  message(STATUS "Checkpoint: building as top-level")
+  message(STATUS "Magistrate: building as top-level")
 endif()
 
-# If checkpoint build tests require the GTest package
+# If magistrate build tests require the GTest package
 if (${magistrate_tests_enabled})
   if(NOT hasParent)
     find_package(GTest REQUIRED)
-    set(CHECKPOINT_HAS_GTEST TRUE)
+    set(MAGISTRATE_HAS_GTEST TRUE)
   else()
     if (NOT DISABLE_TPL_GTEST)
-      set(CHECKPOINT_HAS_GTEST TRUE)
+      set(MAGISTRATE_HAS_GTEST TRUE)
     else()
-      set(CHECKPOINT_HAS_GTEST FALSE)
+      set(MAGISTRATE_HAS_GTEST FALSE)
     endif()
   endif()
 else()
-  set(CHECKPOINT_HAS_GTEST FALSE)
+  set(MAGISTRATE_HAS_GTEST FALSE)
 endif()
 
 set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -157,10 +167,10 @@ enable_testing()
 
 add_subdirectory(src)
 
-add_custom_target(checkpoint_examples)
+add_custom_target(magistrate_examples)
 add_subdirectory(examples)
 
-add_custom_target(checkpoint_tests)
+add_custom_target(magistrate_tests)
 add_subdirectory(tests)
 
 configure_file(
