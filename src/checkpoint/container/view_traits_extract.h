@@ -47,7 +47,7 @@
 #include "checkpoint/common.h"
 #include "checkpoint/serializers/serializers_headers.h"
 
-#if KOKKOS_ENABLED_CHECKPOINT
+#if MAGISTRATE_KOKKOS_ENABLED
 
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DynamicView.hpp>
@@ -117,6 +117,6 @@ struct CountDims<ViewType, T[N]> {
 
 } /* end namespace checkpoint */
 
-#endif /*KOKKOS_ENABLED_CHECKPOINT*/
+#endif /*MAGISTRATE_KOKKOS_ENABLED*/
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_VIEW_TRAITS_EXTRACT_H*/

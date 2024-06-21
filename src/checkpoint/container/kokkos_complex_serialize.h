@@ -50,7 +50,7 @@
 #include "checkpoint/dispatch/dispatch.h"
 #include "checkpoint/dispatch/reconstructor.h"
 
-#if KOKKOS_ENABLED_CHECKPOINT
+#if MAGISTRATE_KOKKOS_ENABLED
 
 #include <Kokkos_Complex.hpp>
 
@@ -65,6 +65,6 @@ void serialize(SerializerT& s, Kokkos::complex<T1>& complex)
 
 } // namespace checkpoint
 
-#endif /*KOKKOS_ENABLED_CHECKPOINT*/
+#endif /*MAGISTRATE_KOKKOS_ENABLED*/
 
 #endif /*INCLUDED_CHECKPOINT_CONTAINER_KOKKOS_COMPLEX_SERIALIZE_H*/

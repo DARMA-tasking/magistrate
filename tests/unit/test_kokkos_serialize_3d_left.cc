@@ -40,7 +40,7 @@
 // *****************************************************************************
 //@HEADER
 */
-#if KOKKOS_ENABLED_CHECKPOINT
+#if MAGISTRATE_KOKKOS_ENABLED
 
 #include "test_harness.h"
 #include "test_commons.h"
