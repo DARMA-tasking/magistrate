@@ -82,12 +82,11 @@ macro(optional_pkg_directory pkg_name pkg_user_name assume_found_if_hasparent)
     endif()
   else()
     #message(STATUS "optional_pkg_directory: name=${pkg_name}")
-    option(${pkg_name}_DIR "Root folder for ${pkg_user_name} installation" OFF)
-    if (NOT ${pkg_name}_DIR)
+    if (NOT ${pkg_name}_DIR AND NOT ${pkg_name}_ROOT)
       message(
         STATUS
         "Path for ${pkg_user_name} library (optional) not specified "
-        "with -D${pkg_name}_DIR="
+        "with -D${pkg_name}_DIR= or -D${pkg_name}_ROOT="
       )
       message(
         STATUS
@@ -98,7 +97,7 @@ macro(optional_pkg_directory pkg_name pkg_user_name assume_found_if_hasparent)
       message(
         STATUS
         "Path for ${pkg_user_name} library (optional) specified "
-        "with -D${pkg_name}_DIR=${${pkg_name}_DIR}"
+        "with -D${pkg_name}_DIR=${${pkg_name}_DIR} -D${pkg_name}_ROOT=${${pkg_name}_ROOT}"
       )
       set(${pkg_name}_DIR_FOUND 1)
     endif()
