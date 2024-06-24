@@ -33,7 +33,12 @@ macro(find_package_local pkg_name pkg_other_name)
     #message(STATUS "skipping find_package for ${pkg_name}")
   else()
     if(DEFINED ${pkg_name}_DIR AND NOT DEFINED ${pkg_name}_ROOT)
-      set(${pkg_name}_ROOT ${${pkg_name}_DIR})
+      set(${pkg_name}_ROOT "${${pkg_name}_DIR}"
+                           "${${pkg_name}_DIR}/cmake/${pkg_name}/"
+                           "${${pkg_name}_DIR}/cmake/${pkg_other_name}/"
+                           "${${pkg_name}_DIR}/CMake/${pkg_name}/"
+                           "${${pkg_name}_DIR}/CMake/${pkg_other_name}/"
+      )
     endif()
 
     message(
