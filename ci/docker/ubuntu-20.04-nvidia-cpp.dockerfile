@@ -34,7 +34,7 @@ ENV CC=gcc \
     CXX=g++
 
 COPY ./ci/deps/cmake.sh cmake.sh
-RUN ./cmake.sh 3.18.4
+RUN ./cmake.sh 3.23.4 ${arch}
 
 COPY ./ci/deps/mpich.sh mpich.sh
 RUN ./mpich.sh 3.3.2 -j4

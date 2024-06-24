@@ -38,8 +38,6 @@ RUN ln -s \
 ENV CC=${compiler} \
     CXX=clang++
 
-ARG arch
-
 COPY ./ci/deps/cmake.sh cmake.sh
 RUN ./cmake.sh 3.23.4 ${arch}
 

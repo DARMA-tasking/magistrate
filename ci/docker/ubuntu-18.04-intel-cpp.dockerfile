@@ -35,8 +35,10 @@ RUN ln -s \
     /opt/intel/install/bin/icc \
     /opt/intel/install/bin/gcc
 
+ARG arch
+
 COPY ./ci/deps/cmake.sh cmake.sh
-RUN ./cmake.sh 3.18.4
+RUN ./cmake.sh 3.23.4 ${arch}
 ENV PATH=/cmake/bin/:$PATH
 
 COPY ./ci/deps/gtest.sh gtest.sh
