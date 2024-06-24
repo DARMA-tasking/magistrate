@@ -70,7 +70,7 @@ add_library(
   ${MAGISTRATE_LIBRARY}
   ${HEADER_FILES} ${SOURCE_FILES}
 )
-
+set_property(TARGET ${MAGISTRATE_LIBRARY} PROPERTY EXPORT_NAME checkpoint)
 add_library(${MAGISTRATE_LIBRARY_NS} ALIAS ${MAGISTRATE_LIBRARY})
 
 target_compile_features(${MAGISTRATE_LIBRARY} PUBLIC cxx_std_17)
