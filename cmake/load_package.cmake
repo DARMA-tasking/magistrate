@@ -45,9 +45,6 @@ macro(find_package_local pkg_name pkg_other_name)
       STATUS "find_package_local: pkg name=\"${pkg_name}\", ${pkg_name}_ROOT=\"${${pkg_name}_ROOT}\""
     )
 
-    # Whether we loaded the package in the following loop with find_package()
-    set(${pkg_name}_PACKAGE_LOADED 0)
-
     # Search locally only for package based on the user's supplied path;
     find_package(
       ${pkg_name}
@@ -60,10 +57,6 @@ macro(find_package_local pkg_name pkg_other_name)
       QUIET
       REQUIRED
     )
-
-    if(${pkg_name}_FOUND)
-      set(${pkg_name}_PACKAGE_LOADED 1)
-    endif()
   endif()
 endmacro(find_package_local)
 
