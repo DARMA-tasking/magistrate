@@ -11,9 +11,6 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   add_compile_options(-fcolor-diagnostics)
 endif()
 
-include (CTest)
-enable_testing()
-
 function(deprecated_option old_option new_option description default_value)
   option(${new_option} "${description}" ${default_value})
   if(DEFINED ${old_option})
@@ -162,16 +159,23 @@ set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(PROJECT_EXAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/examples)
 set(PROJECT_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
-include (CTest)
-enable_testing()
-
 add_subdirectory(src)
 
-add_custom_target(magistrate_examples)
-add_subdirectory(examples)
+if (magistrate_tests_enabled
+   AND "${CMAKE_PROJECT_NAME}" STREQUAL "${PROJECT_NAME}")
+  # CTest implies enable_testing() and defines the BUILD_TESTING option.
+  # The default of BUILD_TESTING is ON.
+  # Testing is only enabled if the actual project being built is VT.
+  include(CTest)
 
-add_custom_target(magistrate_tests)
-add_subdirectory(tests)
+  add_custom_target(magistrate_tests)
+  add_subdirectory(tests)
+endif()
+
+if(magistrate_examples_enabled)
+  add_custom_target(magistrate_examples)
+  add_subdirectory(examples)
+endif()
 
 configure_file(
   cmake/checkpointConfig.cmake.in

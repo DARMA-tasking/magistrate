@@ -30,6 +30,7 @@ if (magistrate_examples_enabled)
       ${EXAMPLE}
       ${PROJECT_EXAMPLE_DIR}/${EXAMPLE}.cc
     )
+    add_dependencies(magistrate_examples ${EXAMPLE})
     target_include_directories(${EXAMPLE} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../src)
 
     add_test_for_example_magistrate(

@@ -87,6 +87,7 @@ if (magistrate_tests_enabled)
         ${PROJECT_TEST_UNIT_DIR}/${TEST}.cc
       )
 
+      add_dependencies(magistrate_tests ${TEST})
       magistrate_link_target(${TEST} 0)
 
       add_test(
