@@ -50,8 +50,8 @@ cmake -G "${CMAKE_GENERATOR:-Ninja}" \
       -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH:-}" \
       -DCMAKE_INSTALL_PREFIX="$CHECKPOINT_BUILD/install" \
       -DGTEST_ROOT="${GTEST_ROOT}" \
-      -Dkokkos_DIR="${KOKKOS_ROOT}" \
-      -DKokkosKernels_DIR="${KOKKOS_KERNELS_ROOT}" \
+      -DKokkos_ROOT="${KOKKOS_ROOT}" \
+      -DKokkosKernels_ROOT="${KOKKOS_KERNELS_ROOT}" \
       "$CHECKPOINT"
 
 if test "${CHECKPOINT_DOXYGEN_ENABLED:-0}" -eq 1

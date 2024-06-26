@@ -109,12 +109,12 @@ option(kokkos_kernels_DISABLE "Disable Kokkos Kernels" OFF)
 
 if (NOT kokkos_DISABLE)
   # optional packages
-  optional_pkg_directory(kokkos "Kokkos" 1)
+  optional_pkg_directory(Kokkos "Kokkos" 1)
 
-  if (${kokkos_DIR_FOUND})
-    find_package_local(kokkos Kokkos)
-  # Used to properly setup transitive dependency in checkpointConfig.cmake.in
-  set(CHECKPOINT_HAS_KOKKOS_LIBRARY 1)
+  if (${Kokkos_DIR_FOUND})
+    find_package_local(Kokkos)
+    # Used to properly setup transitive dependency in checkpointConfig.cmake.in
+    set(CHECKPOINT_HAS_KOKKOS_LIBRARY 1)
   else()
     set(CHECKPOINT_HAS_KOKKOS_LIBRARY 0)
   endif()
@@ -124,8 +124,8 @@ if (NOT kokkos_kernels_DISABLE)
   # optional packages
   optional_pkg_directory(KokkosKernels "Kokkos kernels" 1)
 
-  if (KokkosKernels_DIR_FOUND)
-    find_package_local(KokkosKernels KokkosKernels)
+  if (${KokkosKernels_DIR_FOUND})
+    find_package_local(KokkosKernels)
     # Used to properly setup transitive dependency in checkpointConfig.cmake.in
     set(CHECKPOINT_HAS_KOKKOS_KERNELS_LIBRARY 1)
   else()

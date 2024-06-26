@@ -22,7 +22,7 @@ build configuration:
 | CMake Variable                                       | Default Value | Description                                   |
 | ---------------------------------------------------- | ------------- | --------------------------------------------- |
 | `gtest_DIR`                                          |               | Install directory for googletest              |
-| `kokkos_DIR`                                         |               | Install directory for kokkos                  |
+| `Kokkos_DIR`                                         |               | Install directory for kokkos                  |
 | `KokkosKernels_DIR`                                  |               | Install directory for kokkoskernels           |
 | `checkpoint_tests_enabled`                           | 0             | Build *checkpoint* tests                      |
 | `checkpoint_mpi_enabled`                             | 0             | Build *checkpoint* with MPI for tests         |

@@ -31,7 +31,7 @@ mkdir build
 cd build
 
 cmake -G "${CMAKE_GENERATOR:-Ninja}" \
-      -DCMAKE_PREFIX_PATH="${KOKKOS_ROOT}/cmake" \
+      -DCMAKE_PREFIX_PATH="${KOKKOS_ROOT}/lib/cmake" \
       -DCMAKE_INSTALL_PREFIX="$kokkos_build/install" \
       "$kokkos"
 cmake --build . --target install

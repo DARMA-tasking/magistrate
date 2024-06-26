@@ -21,7 +21,7 @@ macro(require_pkg_directory pkg_name pkg_user_name)
   endif()
 endmacro(require_pkg_directory)
 
-macro(find_package_local pkg_name pkg_other_name)
+macro(find_package_local pkg_name)
   get_directory_property(hasParent PARENT_DIRECTORY)
   if(hasParent)
     # Skip this logic when this macro was not invoked from the
@@ -35,9 +35,7 @@ macro(find_package_local pkg_name pkg_other_name)
     if(DEFINED ${pkg_name}_DIR AND NOT DEFINED ${pkg_name}_ROOT)
       set(${pkg_name}_ROOT "${${pkg_name}_DIR}"
                            "${${pkg_name}_DIR}/cmake/${pkg_name}/"
-                           "${${pkg_name}_DIR}/cmake/${pkg_other_name}/"
                            "${${pkg_name}_DIR}/CMake/${pkg_name}/"
-                           "${${pkg_name}_DIR}/CMake/${pkg_other_name}/"
       )
     endif()
 
@@ -45,10 +43,9 @@ macro(find_package_local pkg_name pkg_other_name)
       STATUS "find_package_local: pkg name=\"${pkg_name}\", ${pkg_name}_ROOT=\"${${pkg_name}_ROOT}\""
     )
 
-    # Search locally only for package based on the user's supplied path;
     find_package(
       ${pkg_name}
-      NAMES ${pkg_name} ${pkg_other_name}
+      NAMES ${pkg_name}
       NO_CMAKE_PACKAGE_REGISTRY
       NO_CMAKE_BUILDS_PATH
       NO_CMAKE_SYSTEM_PATH

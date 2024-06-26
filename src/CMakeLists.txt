@@ -77,8 +77,8 @@ target_compile_features(${CHECKPOINT_LIBRARY} PUBLIC cxx_std_17)
 
 include(CMakePrintHelpers)
 
-if (${kokkos_DIR_FOUND})
-  if (KokkosKernels_DIR_FOUND)
+if (${Kokkos_DIR_FOUND})
+  if (${KokkosKernels_DIR_FOUND})
     message(STATUS "Checkpoint: Kokkos kernels enabled")
     set(KERNELS 1)
     # Kokkos Kernels historically installed its EXPORT targets in the Kokkos:: namespace, and several
