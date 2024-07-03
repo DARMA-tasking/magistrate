@@ -20,14 +20,14 @@
 #   ULIMIT_CORE=0
 #
 # DARMA/checkpoint Configuration Variables:
-#   CHECKPOINT_TESTS=1                        # Enable checkpoint tests
-#   CHECKPOINT_EXAMPLES=1                     # Enable checkpoint examples
-#   CHECKPOINT_MPI=1                          # Enable checkpoint MPI tests
-#   CHECKPOINT_WARNINGS_AS_ERRORS=0           # Treat warnings as errors in compilation
-#   CHECKPOINT_ASAN=0                         # Enable address sanitizer in build
-#   CHECKPOINT_UBSAN=0                        # Enable undefined behavior sanitizer in build
-#   CHECKPOINT_DOCS=0                         # Enable doxygen build
-#   CHECKPOINT_SERIALIZATION_ERROR_CHECKING=0 # Enable extensive serialization error checking
+#   MAGISTRATE_TESTS=1                        # Enable checkpoint tests
+#   MAGISTRATE_EXAMPLES=1                     # Enable checkpoint examples
+#   MAGISTRATE_MPI=1                          # Enable checkpoint MPI tests
+#   MAGISTRATE_WARNINGS_AS_ERRORS=0           # Treat warnings as errors in compilation
+#   MAGISTRATE_ASAN=0                         # Enable address sanitizer in build
+#   MAGISTRATE_UBSAN=0                        # Enable undefined behavior sanitizer in build
+#   MAGISTRATE_DOCS=0                         # Enable doxygen build
+#   MAGISTRATE_SERIALIZATION_ERROR_CHECKING=0 # Enable extensive serialization error checking
 #   BUILD_TYPE=release                        # CMake build type
 #   CODE_COVERAGE=0                           # Enable generation of code coverage reports
 #
@@ -93,15 +93,15 @@ x-ccache: &ccache
 
 # Define rules for CheckPoint configuration options across various services
 x-checkpointopts: &checkpointopts
-  CHECKPOINT_TESTS_ENABLED: ${CHECKPOINT_TESTS:-1}
-  CHECKPOINT_EXAMPLES_ENABLED: ${CHECKPOINT_EXAMPLES:-1}
-  CHECKPOINT_MPI_ENABLED: ${CHECKPOINT_MPI:-1}
-  CHECKPOINT_ASAN_ENABLED: ${CHECKPOINT_ASAN:-0}
-  CHECKPOINT_UBSAN_ENABLED: ${CHECKPOINT_UBSAN:-0}
-  CHECKPOINT_WARNINGS_AS_ERRORS: ${CHECKPOINT_WARNINGS_AS_ERRORS:-0}
-  CHECKPOINT_DOXYGEN_ENABLED: ${CHECKPOINT_DOCS:-0}
+  MAGISTRATE_TESTS_ENABLED: ${MAGISTRATE_TESTS:-1}
+  MAGISTRATE_EXAMPLES_ENABLED: ${MAGISTRATE_EXAMPLES:-1}
+  MAGISTRATE_MPI_ENABLED: ${MAGISTRATE_MPI:-1}
+  MAGISTRATE_ASAN_ENABLED: ${MAGISTRATE_ASAN:-0}
+  MAGISTRATE_UBSAN_ENABLED: ${MAGISTRATE_UBSAN:-0}
+  MAGISTRATE_WARNINGS_AS_ERRORS: ${MAGISTRATE_WARNINGS_AS_ERRORS:-0}
+  MAGISTRATE_DOXYGEN_ENABLED: ${MAGISTRATE_DOCS:-0}
   CMAKE_BUILD_TYPE: ${BUILD_TYPE:-release}
-  CHECKPOINT_SERIALIZATION_ERROR_CHECKING_ENABLED: ${CHECKPOINT_SERIALIZATION_ERROR_CHECKING:-0}
+  MAGISTRATE_SERIALIZATION_ERROR_CHECKING_ENABLED: ${MAGISTRATE_SERIALIZATION_ERROR_CHECKING:-0}
   CODE_COVERAGE: ${CODE_COVERAGE:-0}
   https_proxy: ${PROXY-}
   http_proxy: ${PROXY-}
@@ -196,7 +196,7 @@ services:
     ulimits: *ulimits
     environment:
       <<: *ccache
-      CHECKPOINT_DOXYGEN_ENABLED: 1
+      MAGISTRATE_DOXYGEN_ENABLED: 1
       CMAKE_BUILD_TYPE: ${BUILD_TYPE:-release}
     volumes: *ubuntu-volumes
     command: &docs-cpp-command >
