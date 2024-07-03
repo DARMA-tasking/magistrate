@@ -35,8 +35,10 @@ RUN ln -s \
     /opt/intel/install/bin/icc \
     /opt/intel/install/bin/gcc
 
+ARG arch
+
 COPY ./ci/deps/cmake.sh cmake.sh
-RUN ./cmake.sh 3.18.4
+RUN ./cmake.sh 3.23.4 ${arch}
 ENV PATH=/cmake/bin/:$PATH
 
 COPY ./ci/deps/gtest.sh gtest.sh
@@ -53,11 +55,11 @@ ENV CC=/opt/intel/install/bin/icc \
 
 COPY ./ci/deps/kokkos.sh kokkos.sh
 RUN ./kokkos.sh 4.1.00 /pkgs 1
-ENV KOKKOS_ROOT=/pkgs/kokkos/install/lib
+ENV KOKKOS_ROOT=/pkgs/kokkos/install
 
 COPY ./ci/deps/kokkos-kernels.sh kokkos-kernels.sh
 RUN ./kokkos-kernels.sh 4.1.00 /pkgs
-ENV KOKKOS_KERNELS_ROOT=/pkgs/kokkos-kernels/install/lib
+ENV KOKKOS_KERNELS_ROOT=/pkgs/kokkos-kernels/install
 
 ENV MPI_EXTRA_FLAGS="" \
     PATH=/usr/lib/ccache/:$PATH \

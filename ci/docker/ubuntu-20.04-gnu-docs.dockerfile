@@ -36,7 +36,7 @@ RUN apt-get update -y -q && \
     rm -rf /var/lib/apt/lists/*
 
 COPY ./ci/deps/cmake.sh cmake.sh
-RUN ./cmake.sh 3.18.4
+RUN ./cmake.sh 3.23.4 ${arch}
 
 ENV PATH=/cmake/bin/:$PATH
 ENV LESSCHARSET=utf-8
@@ -47,11 +47,11 @@ ENV GTEST_ROOT=/pkgs/gtest/install
 
 COPY ./ci/deps/kokkos.sh kokkos.sh
 RUN ./kokkos.sh 4.1.00 /pkgs 1
-ENV KOKKOS_ROOT=/pkgs/kokkos/install/lib
+ENV KOKKOS_ROOT=/pkgs/kokkos/install
 
 COPY ./ci/deps/kokkos-kernels.sh kokkos-kernels.sh
 RUN ./kokkos-kernels.sh 4.1.00 /pkgs
-ENV KOKKOS_KERNELS_ROOT=/pkgs/kokkos-kernels/install/lib
+ENV KOKKOS_KERNELS_ROOT=/pkgs/kokkos-kernels/install
 
 ENV MPI_EXTRA_FLAGS="" \
     CMAKE_PREFIX_PATH="/lib/x86_64-linux-gnu/" \

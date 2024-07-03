@@ -34,7 +34,7 @@ ENV CC=gcc \
     CXX=g++
 
 COPY ./ci/deps/cmake.sh cmake.sh
-RUN ./cmake.sh 3.18.4
+RUN ./cmake.sh 3.23.4 ${arch}
 
 COPY ./ci/deps/mpich.sh mpich.sh
 RUN ./mpich.sh 3.3.2 -j4
@@ -48,7 +48,7 @@ ENV GTEST_ROOT=/pkgs/gtest/install
 
 COPY ./ci/deps/kokkos.sh kokkos.sh
 RUN ./kokkos.sh 4.1.00 /pkgs 0
-ENV KOKKOS_ROOT=/pkgs/kokkos/install/lib
+ENV KOKKOS_ROOT=/pkgs/kokkos/install
 
 RUN mkdir -p /nvcc_wrapper/build && \
     wget https://raw.githubusercontent.com/kokkos/kokkos/master/bin/nvcc_wrapper -P /nvcc_wrapper/build && \
@@ -60,7 +60,7 @@ ENV MPI_EXTRA_FLAGS="" \
 
 COPY ./ci/deps/kokkos-kernels.sh kokkos-kernels.sh
 RUN ./kokkos-kernels.sh 4.1.00 /pkgs
-ENV KOKKOS_KERNELS_ROOT=/pkgs/kokkos-kernels/install/lib
+ENV KOKKOS_KERNELS_ROOT=/pkgs/kokkos-kernels/install
 
 FROM base as build
 COPY . /checkpoint
