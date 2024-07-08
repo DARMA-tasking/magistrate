@@ -40,9 +40,9 @@ cd build
 rm -Rf ./*
 cmake -G "${CMAKE_GENERATOR:-Ninja}" \
         -DCMAKE_INSTALL_PREFIX="${CHECKPOINT_BUILD}/install" \
-        -Dcheckpoint_asan_enabled="${CHECKPOINT_ASAN_ENABLED:-1}" \
-        -Dcheckpoint_ubsan_enabled="${CHECKPOINT_UBSAN_ENABLED:-1}" \
-        -Dcheckpoint_serialization_error_checking_enabled="${CHECKPOINT_SERIALIZATION_ERROR_CHECKING_ENABLED:-1}" \
+        -Dcheckpoint_asan_enabled="${MAGISTRATE_ASAN_ENABLED:-1}" \
+        -Dcheckpoint_ubsan_enabled="${MAGISTRATE_UBSAN_ENABLED:-1}" \
+        -Dcheckpoint_serialization_error_checking_enabled="${MAGISTRATE_SERIALIZATION_ERROR_CHECKING_ENABLED:-1}" \
         "${CHECKPOINT}"
 cmake --build . --target install
 

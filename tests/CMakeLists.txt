@@ -2,7 +2,7 @@
 set(PROJECT_TEST_UNIT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/unit)
 set(PROJECT_TEST_MPI_UNIT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/unit/tests_mpi)
 
-if(checkpoint_mpi_enabled)
+if(magistrate_mpi_enabled)
   message(STATUS "Building unit tests with MPI")
   file(
       GLOB
@@ -22,14 +22,14 @@ file(
 )
 
 #
-# Setup a potential target (a test, example, etc. that uses checkpoint) will all
+# Setup a potential target (a test, example, etc. that uses magistrate) will all
 # the libraries to link, include directories, definitions
 #
-macro(checkpoint_link_target target has_mpi)
+macro(magistrate_link_target target has_mpi)
   target_include_directories(${target} PUBLIC ${PROJECT_TEST_UNIT_DIR})
   target_link_libraries(${target} PRIVATE GTest::gtest GTest::gtest_main)
   target_link_libraries(${target} PRIVATE Threads::Threads)
-  target_link_libraries(${target} PUBLIC ${CHECKPOINT_LIBRARY})
+  target_link_libraries(${target} PUBLIC ${MAGISTRATE_LIBRARY})
 
   if (${has_mpi})
     target_link_libraries(${target} PUBLIC ${MPI_LIBRARIES})
@@ -38,17 +38,17 @@ macro(checkpoint_link_target target has_mpi)
   endif()
 endmacro()
 
-if (checkpoint_tests_enabled)
-  if (NOT CHECKPOINT_HAS_GTEST)
+if (magistrate_tests_enabled)
+  if (NOT MAGISTRATE_HAS_GTEST)
     message(
       STATUS
-      "Checkpoint: Unit test are disabled because GoogleTest is not setup:"
+      "Magistrate: Unit test are disabled because GoogleTest is not setup:"
       "gtest_DIR=${gtest_DIR}"
     )
   else()
     message(
       STATUS
-      "Checkpoint: GTEST package is found: unit tests are enabled "
+      "Magistrate: GTEST package is found: unit tests are enabled "
       "gtest_DIR=${gtest_DIR}, GTEST_ROOT=${GTEST_ROOT}"
     )
 
@@ -61,7 +61,7 @@ if (checkpoint_tests_enabled)
     #System's threading library info (eg pthread)
     find_package(Threads REQUIRED)
 
-    if(checkpoint_mpi_enabled)
+    if(magistrate_mpi_enabled)
       set(
         TEST_HEADER_FILES ${TEST_HEADER_FILES}
         ${PROJECT_TEST_MPI_UNIT_DIR}/mpi-init.h
@@ -87,22 +87,23 @@ if (checkpoint_tests_enabled)
         ${PROJECT_TEST_UNIT_DIR}/${TEST}.cc
       )
 
-      checkpoint_link_target(${TEST} 0)
+      add_dependencies(magistrate_tests ${TEST})
+      magistrate_link_target(${TEST} 0)
 
       add_test(
-        checkpoint:${TEST}
+        magistrate:${TEST}
         ${CMAKE_CURRENT_BINARY_DIR}/${TEST}
       )
 
       set_tests_properties(
-        checkpoint:${TEST}
+        magistrate:${TEST}
         PROPERTIES TIMEOUT 60
         FAIL_REGULAR_EXPRESSION "FAILED;should be deleted but never is"
         PASS_REGULAR_EXPRESSION "PASSED"
       )
     endforeach()
 
-    if(checkpoint_mpi_enabled)
+    if(magistrate_mpi_enabled)
       foreach(TEST_FULL ${PROJECT_TEST_LIST_MPI})
         GET_FILENAME_COMPONENT(
           TEST
@@ -116,19 +117,19 @@ if (checkpoint_tests_enabled)
           ${PROJECT_TEST_MPI_UNIT_DIR}/${TEST}.cc
         )
 
-        checkpoint_link_target(${TEST} 1)
+        magistrate_link_target(${TEST} 1)
 
         set(
-          CHECKPOINT_TEST_PARAM_MPI ${MPI_NUMPROC_FLAG}
-          ${CHECK_POINT_MPI_PROC} "${CMAKE_CURRENT_BINARY_DIR}/${TEST}"
+          MAGISTRATE_TEST_PARAM_MPI ${MPI_NUMPROC_FLAG}
+          ${MAGISTRATE_MPI_PROC} "${CMAKE_CURRENT_BINARY_DIR}/${TEST}"
         )
         add_test(
-          NAME checkpoint:${TEST}
-          COMMAND ${MPI_RUN_COMMAND} ${CHECKPOINT_TEST_PARAM_MPI}
+          NAME magistrate:${TEST}
+          COMMAND ${MPI_RUN_COMMAND} ${MAGISTRATE_TEST_PARAM_MPI}
         )
 
         set_tests_properties(
-          checkpoint:${TEST}
+          magistrate:${TEST}
           PROPERTIES TIMEOUT 60
           FAIL_REGULAR_EXPRESSION "FAILED;should be deleted but never is"
           PASS_REGULAR_EXPRESSION "PASSED"

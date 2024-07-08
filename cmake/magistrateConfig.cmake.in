@@ -1,0 +1,19 @@
+# Get compiler and flags
+get_filename_component(SELF_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+
+include(${SELF_DIR}/magistrateTargets.cmake)
+
+add_library(vt::lib::magistrate ALIAS vt::lib::checkpoint)
+# set(vt::lib::magistrate vt::lib::checkpoint)
+
+include(CMakeFindDependencyMacro)
+
+if (@MAGISTRATE_HAS_KOKKOS_LIBRARY@)
+  set (kokkos_DIR @kokkos_DIR@)
+  find_dependency(kokkos REQUIRED HINTS @kokkos_DIR@ NAMES Kokkos)
+endif()
+
+if (@MAGISTRATE_HAS_KOKKOS_KERNELS_LIBRARY@)
+  set (KokkosKernels_DIR @KokkosKernels_DIR@)
+  find_dependency(KokkosKernels REQUIRED HINTS @KokkosKernels_DIR@ NAMES KokkosKernels)
+endif()

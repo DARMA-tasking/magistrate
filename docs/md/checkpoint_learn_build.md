@@ -51,16 +51,16 @@ most configuration parameters.
 | `GTEST_ROOT`                                      | <empty>       | Install directory for googletest                  |
 | `KOKKOS_ROOT`                                     | <empty>       | Install directory for kokkos                      |
 | `KOKKOS_KERNELS_ROOT`                             | <empty>       | Install directory for kokkos-kernels              |
-| `CHECKPOINT_DOXYGEN_ENABLED`                      | 0             | Enable doxygen generation                         |
-| `CHECKPOINT_ASAN_ENABLED`                         | 0             | Enable building with address sanitizer            |
-| `CHECKPOINT_UBSAN_ENABLED`                        | 0             | Enable building with undefined behavior sanitizer |
-| `CHECKPOINT_TESTS_ENABLED`                        | 1             | Enable checkpoint tests                           |
-| `CHECKPOINT_EXAMPLES_ENABLED`                     | 1             | Enable checkpoint examples                        |
-| `CHECKPOINT_WARNINGS_AS_ERRORS`                   | 0             | Make all warnings errors during build             |
-| `CHECKPOINT_SERIALIZATION_ERROR_CHECKING_ENABLED` | 0             | Enable extensive error checking of serialization  |
-| `CHECKPOINT_MPI_ENABLED`                          | 1             | Enable checkpoint MPI for testing                 |
+| `MAGISTRATE_DOXYGEN_ENABLED`                      | 0             | Enable doxygen generation                         |
+| `MAGISTRATE_ASAN_ENABLED`                         | 0             | Enable building with address sanitizer            |
+| `MAGISTRATE_UBSAN_ENABLED`                        | 0             | Enable building with undefined behavior sanitizer |
+| `MAGISTRATE_TESTS_ENABLED`                        | 1             | Enable checkpoint tests                           |
+| `MAGISTRATE_EXAMPLES_ENABLED`                     | 1             | Enable checkpoint examples                        |
+| `MAGISTRATE_WARNINGS_AS_ERRORS`                   | 0             | Make all warnings errors during build             |
+| `MAGISTRATE_SERIALIZATION_ERROR_CHECKING_ENABLED` | 0             | Enable extensive error checking of serialization  |
+| `MAGISTRATE_MPI_ENABLED`                          | 1             | Enable checkpoint MPI for testing                 |
 
-* note that if `CHECKPOINT_SERIALIZATION_ERROR_CHECKING_ENABLED` is not explicitly enabled or disabled, it will be **enabled** for `Debug` and `RelWithDebInfo` builds and disabled for others.
+* note that if `MAGISTRATE_SERIALIZATION_ERROR_CHECKING_ENABLED` is not explicitly enabled or disabled, it will be **enabled** for `Debug` and `RelWithDebInfo` builds and disabled for others.
 
 With these set, invoke the script with two arguments: the path to the
 *checkpoint* root directory and the build path. Here's an example assuming that
@@ -104,14 +104,14 @@ The default set of the docker configuration options is located in
 #   ULIMIT_CORE=0
 #
 # DARMA/checkpoint Configuration Variables:
-#   CHECKPOINT_TESTS=1                        # Enable checkpoint tests
-#   CHECKPOINT_EXAMPLES=1                     # Enable checkpoint examples
-#   CHECKPOINT_MPI=1                          # Enable checkpoint MPI tests
-#   CHECKPOINT_WARNINGS_AS_ERRORS=0           # Treat warnings as errors in compilation
-#   CHECKPOINT_ASAN=0                         # Enable address sanitizer in build
-#   CHECKPOINT_UBSAN=0                        # Enable undefined behavior sanitizer in build
-#   CHECKPOINT_SERIALIZATION_ERROR_CHECKING=0 # Enable extensive serialization error checking
-#   CHECKPOINT_DOCS=0                         # Enable doxygen build
+#   MAGISTRATE_TESTS=1                        # Enable checkpoint tests
+#   MAGISTRATE_EXAMPLES=1                     # Enable checkpoint examples
+#   MAGISTRATE_MPI=1                          # Enable checkpoint MPI tests
+#   MAGISTRATE_WARNINGS_AS_ERRORS=0           # Treat warnings as errors in compilation
+#   MAGISTRATE_ASAN=0                         # Enable address sanitizer in build
+#   MAGISTRATE_UBSAN=0                        # Enable undefined behavior sanitizer in build
+#   MAGISTRATE_SERIALIZATION_ERROR_CHECKING=0 # Enable extensive serialization error checking
+#   MAGISTRATE_DOCS=0                         # Enable doxygen build
 #   BUILD_TYPE=release                        # CMake build type
 #   CODE_COVERAGE=0                           # Enable generation of code coverage reports
 ```

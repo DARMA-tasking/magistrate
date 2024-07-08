@@ -5,7 +5,7 @@ set -ex
 source_dir=${1}
 build_dir=${2}
 
-if test "${CHECKPOINT_DOXYGEN_ENABLED:-0}" -eq 1
+if test "${MAGISTRATE_DOXYGEN_ENABLED:-0}" -eq 1
 then
     token=${3}
 else
@@ -33,15 +33,14 @@ fi
 
 cmake -G "${CMAKE_GENERATOR:-Ninja}" \
       -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
-      -Dcheckpoint_doxygen_enabled="${CHECKPOINT_DOXYGEN_ENABLED:-0}" \
-      -Dcheckpoint_tests_enabled="${CHECKPOINT_TESTS_ENABLED:-1}" \
-      -Dcheckpoint_examples_enabled="${CHECKPOINT_EXAMPLES_ENABLED:-1}" \
-      -Dcheckpoint_warnings_as_errors="${CHECKPOINT_WARNINGS_AS_ERRORS:-0}" \
-      -Dcheckpoint_mpi_enabled="${CHECKPOINT_MPI_ENABLED:-1}" \
-      -Dcheckpoint_asan_enabled="${CHECKPOINT_ASAN_ENABLED:-0}" \
-      -Dcheckpoint_ubsan_enabled="${CHECKPOINT_UBSAN_ENABLED:-0}" \
-      -Dcheckpoint_serialization_error_checking_enabled="${CHECKPOINT_SERIALIZATION_ERROR_CHECKING_ENABLED:-$is_debug}" \
-      -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
+      -Dmagistrate_doxygen_enabled="${MAGISTRATE_DOXYGEN_ENABLED:-0}" \
+      -Dmagistrate_tests_enabled="${MAGISTRATE_TESTS_ENABLED:-1}" \
+      -Dmagistrate_examples_enabled="${MAGISTRATE_EXAMPLES_ENABLED:-1}" \
+      -Dmagistrate_warnings_as_errors="${MAGISTRATE_WARNINGS_AS_ERRORS:-0}" \
+      -Dmagistrate_mpi_enabled="${MAGISTRATE_MPI_ENABLED:-1}" \
+      -Dmagistrate_asan_enabled="${MAGISTRATE_ASAN_ENABLED:-0}" \
+      -Dmagistrate_ubsan_enabled="${MAGISTRATE_UBSAN_ENABLED:-0}" \
+      -Dmagistrate_serialization_error_checking_enabled="${MAGISTRATE_SERIALIZATION_ERROR_CHECKING_ENABLED:-$is_debug}" \
       -DCMAKE_BUILD_TYPE="${cmake_build_type}" \
       -DCMAKE_CXX_COMPILER="${CXX:-c++}" \
       -DCMAKE_C_COMPILER="${CC:-cc}" \
@@ -54,7 +53,7 @@ cmake -G "${CMAKE_GENERATOR:-Ninja}" \
       -DKokkosKernels_ROOT="${KOKKOS_KERNELS_ROOT}" \
       "$CHECKPOINT"
 
-if test "${CHECKPOINT_DOXYGEN_ENABLED:-0}" -eq 1
+if test "${MAGISTRATE_DOXYGEN_ENABLED:-0}" -eq 1
 then
     MCSS=$PWD/m.css
     GHPAGE=$PWD/DARMA-tasking.github.io

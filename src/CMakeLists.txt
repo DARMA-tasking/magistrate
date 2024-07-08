@@ -3,13 +3,13 @@ set(
   traits container serializers traits buffer dispatch
 )
 
-set(CHECKPOINT_INSTALL_DESTINATION "include/checkpoint")
-set(CHECKPOINT_EXTERNAL_DESTINATION "include")
+set(MAGISTRATE_INSTALL_DESTINATION "include/checkpoint")
+set(MAGISTRATE_EXTERNAL_DESTINATION "include")
 
 foreach(DIR ${TOP_LEVEL_SUBDIRS})
   install(
     DIRECTORY "checkpoint/${DIR}"
-    DESTINATION ${CHECKPOINT_INSTALL_DESTINATION}
+    DESTINATION ${MAGISTRATE_INSTALL_DESTINATION}
     FILES_MATCHING PATTERN "*.h"
   )
 endforeach()
@@ -18,7 +18,7 @@ file(GLOB TOP_HEADERS "checkpoint/*.h")
 
 install(
   FILES ${TOP_HEADERS}
-  DESTINATION ${CHECKPOINT_INSTALL_DESTINATION}
+  DESTINATION ${MAGISTRATE_INSTALL_DESTINATION}
 )
 
 file(
@@ -67,57 +67,54 @@ foreach(SUB_DIR ${TOP_LEVEL_SUBDIRS})
 endforeach()
 
 add_library(
-  ${CHECKPOINT_LIBRARY}
+  ${MAGISTRATE_LIBRARY}
   ${HEADER_FILES} ${SOURCE_FILES}
 )
+set_property(TARGET ${MAGISTRATE_LIBRARY} PROPERTY EXPORT_NAME checkpoint)
+add_library(${MAGISTRATE_LIBRARY_NS} ALIAS ${MAGISTRATE_LIBRARY})
 
-add_library(${CHECKPOINT_LIBRARY_NS} ALIAS ${CHECKPOINT_LIBRARY})
-
-target_compile_features(${CHECKPOINT_LIBRARY} PUBLIC cxx_std_17)
+target_compile_features(${MAGISTRATE_LIBRARY} PUBLIC cxx_std_17)
 
 include(CMakePrintHelpers)
 
 if (${Kokkos_DIR_FOUND})
   if (${KokkosKernels_DIR_FOUND})
-    message(STATUS "Checkpoint: Kokkos kernels enabled")
+    message(STATUS "Magistrate: Kokkos kernels enabled")
     set(KERNELS 1)
     # Kokkos Kernels historically installed its EXPORT targets in the Kokkos:: namespace, and several
     # downstream packages import it as such, so it's not readily changed.
     # Meanwhile, Trilinos installs it under the more consistent KokkosKernels:: namespace.
     # Account for both possible routes of acquiring Kokkos Kernels here
     if(TARGET KokkosKernels::kokkoskernels)
-      target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC KokkosKernels::kokkoskernels)
+      target_link_libraries(${MAGISTRATE_LIBRARY} PUBLIC KokkosKernels::kokkoskernels)
     else()
-      target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC Kokkos::kokkoskernels)
+      target_link_libraries(${MAGISTRATE_LIBRARY} PUBLIC Kokkos::kokkoskernels)
     endif()
   else()
-    message(STATUS "Checkpoint: Kokkos kernels disabled")
+    message(STATUS "Magistrate: Kokkos kernels disabled")
     set(KERNELS 0)
   endif()
   target_compile_definitions(
-    ${CHECKPOINT_LIBRARY} PUBLIC
+    ${MAGISTRATE_LIBRARY} PUBLIC
     MAGISTRATE_KOKKOS_ENABLED=1 MAGISTRATE_KOKKOS_KERNELS_ENABLED=${KERNELS}
   )
-  message(STATUS "Checkpoint: Kokkos enabled")
-  target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC Kokkos::kokkos)
+  message(STATUS "Magistrate: Kokkos enabled")
+  target_link_libraries(${MAGISTRATE_LIBRARY} PUBLIC Kokkos::kokkos)
 endif()
 
-target_link_libraries(${CHECKPOINT_LIBRARY} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(${MAGISTRATE_LIBRARY} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 
 if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-  message(STATUS "Checkpoint: enabling code coverage generation")
+  message(STATUS "Magistrate: enabling code coverage generation")
   # Add required flags (GCC & LLVM/Clang)
   target_compile_options(
-    ${CHECKPOINT_LIBRARY} PUBLIC
+    ${MAGISTRATE_LIBRARY} PUBLIC
     -O0        # no optimization
     -g         # generate debug info
     --coverage # sets all required flags
   )
-  if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.13)
-    target_link_options(${CHECKPOINT_LIBRARY} INTERFACE --coverage)
-  else()
-    target_link_libraries(${CHECKPOINT_LIBRARY} INTERFACE --coverage)
-  endif()
+
+  target_link_options(${MAGISTRATE_LIBRARY} INTERFACE --coverage)
 endif()
 
 configure_file(
@@ -131,36 +128,36 @@ install(
 )
 
 target_include_directories(
-  ${CHECKPOINT_LIBRARY} PUBLIC
+  ${MAGISTRATE_LIBRARY} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   $<INSTALL_INTERFACE:include>
 )
 
 target_include_directories(
-  ${CHECKPOINT_LIBRARY} PUBLIC
+  ${MAGISTRATE_LIBRARY} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:include>
 )
 
 install(
-  TARGETS                   ${CHECKPOINT_LIBRARY}
-  EXPORT                    ${CHECKPOINT_LIBRARY}
+  TARGETS                   ${MAGISTRATE_LIBRARY}
+  EXPORT                    ${MAGISTRATE_LIBRARY}
   LIBRARY DESTINATION       lib
   ARCHIVE DESTINATION       lib
   RUNTIME DESTINATION       bin
-  INCLUDES DESTINATION      ${CHECKPOINT_EXTERNAL_DESTINATION}
+  INCLUDES DESTINATION      ${MAGISTRATE_EXTERNAL_DESTINATION}
 )
 
 install(
-  EXPORT                    ${CHECKPOINT_LIBRARY}
+  EXPORT                    ${MAGISTRATE_LIBRARY}
   DESTINATION               cmake
-  FILE                      "checkpointTargets.cmake"
+  FILE                      "magistrateTargets.cmake"
   NAMESPACE                 vt::lib::
   COMPONENT                 runtime
 )
 
 export(
-  TARGETS                   ${CHECKPOINT_LIBRARY}
-  FILE                      "checkpointTargets.cmake"
+  TARGETS                   ${MAGISTRATE_LIBRARY}
+  FILE                      "magistrateTargets.cmake"
   NAMESPACE                 vt::lib::
 )
