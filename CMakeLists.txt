@@ -97,8 +97,9 @@ if (magistrate_ubsan_enabled)
   endif()
 endif()
 
-set(MAGISTRATE_LIBRARY checkpoint CACHE INTERNAL "" FORCE )
+set(MAGISTRATE_LIBRARY magistrate CACHE INTERNAL "" FORCE )
 set(MAGISTRATE_LIBRARY_NS vt::lib::magistrate "" CACHE INTERNAL "" FORCE )
+set(CHECKPOINT_LIBRARY_NS vt::lib::checkpoint "" CACHE INTERNAL "" FORCE )
 
 set(CMAKE_CXX_EXTENSIONS OFF)
 
