@@ -4,7 +4,7 @@ set -ex
 
 vt_source_dir="${1}"
 vt_build_dir="${2}"
-checkpoint_source_dir="${3}"
+magistrate_source_dir="${3}"
 
 mkdir -p "$vt_source_dir"
 cd "$vt_source_dir"
@@ -30,20 +30,20 @@ mkdir -p "${vt_build_dir}"
 cd "${vt_build_dir}"
 rm -Rf ./*
 
-export CHECKPOINT=${checkpoint_source_dir}
-export CHECKPOINT_BUILD=${vt_build_dir}/checkpoint
-mkdir -p "${CHECKPOINT_BUILD}"
-cd "${CHECKPOINT_BUILD}"
+export MAGISTRATE=${magistrate_source_dir}
+export MAGISTRATE_BUILD=${vt_build_dir}/checkpoint
+mkdir -p "${MAGISTRATE_BUILD}"
+cd "${MAGISTRATE_BUILD}"
 rm -Rf ./*
 mkdir -p build
 cd build
 rm -Rf ./*
 cmake -G "${CMAKE_GENERATOR:-Ninja}" \
-        -DCMAKE_INSTALL_PREFIX="${CHECKPOINT_BUILD}/install" \
-        -Dcheckpoint_asan_enabled="${MAGISTRATE_ASAN_ENABLED:-1}" \
-        -Dcheckpoint_ubsan_enabled="${MAGISTRATE_UBSAN_ENABLED:-1}" \
-        -Dcheckpoint_serialization_error_checking_enabled="${MAGISTRATE_SERIALIZATION_ERROR_CHECKING_ENABLED:-1}" \
-        "${CHECKPOINT}"
+        -DCMAKE_INSTALL_PREFIX="${MAGISTRATE_BUILD}/install" \
+        -Dmagistrate_asan_enabled="${MAGISTRATE_ASAN_ENABLED:-1}" \
+        -Dmagistrate_ubsan_enabled="${MAGISTRATE_UBSAN_ENABLED:-1}" \
+        -Dmagistrate_serialization_error_checking_enabled="${MAGISTRATE_SERIALIZATION_ERROR_CHECKING_ENABLED:-1}" \
+        "${MAGISTRATE}"
 cmake --build . --target install
 
 if test "${VT_ZOLTAN_ENABLED:-0}" -eq 1
@@ -88,7 +88,7 @@ cmake -G "${CMAKE_GENERATOR:-Ninja}" \
       -DCMAKE_CXX_COMPILER="${CXX:-c++}" \
       -DCMAKE_C_COMPILER="${CC:-cc}" \
       -DCMAKE_EXE_LINKER_FLAGS="${CMAKE_EXE_LINKER_FLAGS:-}" \
-      -Dcheckpoint_ROOT="${CHECKPOINT_BUILD}/install" \
+      -Dmagistrate_ROOT="${MAGISTRATE_BUILD}/install" \
       -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH:-}" \
       -DCMAKE_INSTALL_PREFIX="${VT_BUILD}/install" \
       -Dvt_ci_build="${VT_CI_BUILD:-1}" \
