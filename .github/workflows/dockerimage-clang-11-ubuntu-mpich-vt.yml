@@ -39,7 +39,7 @@ jobs:
     - name: Prepare caching timestamp
       run: |
         echo "timestamp=$(TZ=UTC date +"%Y-%m-%d-%H;%M;%S")" >> $GITHUB_ENV
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       env:
         cache-name: ubuntu-clang-11-cache
       with:
@@ -47,11 +47,11 @@ jobs:
         key: ${{ runner.os }}-${{ env.cache-name }}-${{ steps.cache_ts.outputs.timestamp }}
         restore-keys: |
           ${{ runner.os }}-${{ env.cache-name }}-
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         repository: DARMA-tasking/vt
         ref: develop
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Prepare the base Docker image
