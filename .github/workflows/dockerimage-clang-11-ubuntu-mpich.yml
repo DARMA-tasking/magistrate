@@ -43,7 +43,7 @@ jobs:
     - name: Prepare caching timestamp
       run: |
         echo "timestamp=$(TZ=UTC date +"%Y-%m-%d-%H;%M;%S")" >> $GITHUB_ENV
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       env:
         cache-name: ubuntu-clang-11-cache
       with:
@@ -51,7 +51,7 @@ jobs:
         key: ${{ runner.os }}-${{ env.cache-name }}-${{ env.timestamp }}
         restore-keys: |
           ${{ runner.os }}-${{ env.cache-name }}-
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Prepare the base Docker image
@@ -73,11 +73,11 @@ jobs:
       run: |
         zip -j LastTest.log.gz ${{ env.BUILD_ROOT }}/checkpoint/Testing/Temporary/LastTest.log
         zip -j cmake-output.log.gz ${{ env.BUILD_ROOT }}/checkpoint/cmake-output.log
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v4
       with:
         name: CMake test output
         path: cmake-output.log.gz
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v4
       with:
         name: CMake full output
         path: LastTest.log.gz

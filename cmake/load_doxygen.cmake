@@ -1,4 +1,4 @@
-if (${checkpoint_doxygen_enabled})
+if (${magistrate_doxygen_enabled})
   find_package(Doxygen)
 
   if (DOXYGEN_FOUND)

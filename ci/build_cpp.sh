@@ -57,10 +57,10 @@ if test "${MAGISTRATE_DOXYGEN_ENABLED:-0}" -eq 1
 then
     MCSS=$PWD/m.css
     GHPAGE=$PWD/DARMA-tasking.github.io
-    git clone "https://${token}@github.com/DARMA-tasking/DARMA-tasking.github.io"
+    git clone --depth=1 "https://${token}@github.com/DARMA-tasking/DARMA-tasking.github.io"
     git clone https://github.com/mosra/m.css
     cd m.css
-    git checkout 6eefd92c2aa3e0a257503d31b1a469867dfff8b6
+    git checkout 5235066
     cd ../
     "$MCSS/documentation/doxygen.py" Doxyfile-mcss
     CKPT_NAME=checkpoint_docs
