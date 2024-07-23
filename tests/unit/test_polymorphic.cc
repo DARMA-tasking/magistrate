@@ -115,7 +115,7 @@ void testPolymorphicTypes(int val) {
   EXPECT_EQ(val, out->getVal());
 }
 
-TEST_F(TestPolymorphic, test_polumorphic_type) {
+TEST_F(TestPolymorphic, test_polymorphic_type) {
   testPolymorphicTypes<Derived2, Derived2>(5);
   testPolymorphicTypes<Derived1, Derived2>(50);
   testPolymorphicTypes<Base, Derived2>(500);

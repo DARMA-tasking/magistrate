@@ -222,6 +222,14 @@ struct Prefixed {
    */
   template <typename T, typename UnpackerT, typename... Args>
   static T* unpack(T* mem, bool check_type, bool check_mem, Args&&... args);
+
+  /**
+   * \brief Check if prefix is valid
+   *
+   * \param[in] prefix the prefix to be validated
+   */
+  template <typename T>
+  static void validatePrefix(vrt::TypeIdx prefix);
 };
 
 template <typename T>
@@ -233,19 +241,19 @@ template <typename Serializer, typename T>
 inline void serializeArray(Serializer& s, T* array, SerialSizeType const len);
 
 template <typename T>
-typename std::enable_if<std::is_class<T>::value && vrt::VirtualSerializeTraits<T>::has_virtual_serialize, buffer::ImplReturnType>::type
+typename std::enable_if<vrt::VirtualSerializeTraits<T>::has_virtual_serialize, buffer::ImplReturnType>::type
 serializeType(T& target, BufferObtainFnType fn = nullptr);
 
 template <typename T>
-typename std::enable_if<!std::is_class<T>::value || !vrt::VirtualSerializeTraits<T>::has_virtual_serialize, buffer::ImplReturnType>::type
+typename std::enable_if<!vrt::VirtualSerializeTraits<T>::has_virtual_serialize, buffer::ImplReturnType>::type
 serializeType(T& target, BufferObtainFnType fn = nullptr);
 
 template <typename T>
-typename std::enable_if<std::is_class<T>::value && vrt::VirtualSerializeTraits<T>::has_virtual_serialize, T*>::type
+typename std::enable_if<vrt::VirtualSerializeTraits<T>::has_virtual_serialize, T*>::type
 deserializeType(SerialByteType* data, SerialByteType* allocBuf = nullptr);
 
 template <typename T>
-typename std::enable_if<!std::is_class<T>::value || !vrt::VirtualSerializeTraits<T>::has_virtual_serialize, T*>::type
+typename std::enable_if<!vrt::VirtualSerializeTraits<T>::has_virtual_serialize, T*>::type
 deserializeType(SerialByteType* data, SerialByteType* allocBuf = nullptr);
 
 template <typename T>

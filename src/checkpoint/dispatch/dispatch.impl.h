@@ -304,7 +304,7 @@ packBuffer(T& target, SerialSizeType size, BufferObtainFnType fn) {
 
 template <typename T>
 typename std::enable_if<
-  !std::is_class<T>::value || !vrt::VirtualSerializeTraits<T>::has_virtual_serialize,
+  !vrt::VirtualSerializeTraits<T>::has_virtual_serialize,
   buffer::ImplReturnType>::type
 serializeType(T& target, BufferObtainFnType fn) {
   auto len = Standard::size<T, Sizer>(target);
@@ -314,7 +314,7 @@ serializeType(T& target, BufferObtainFnType fn) {
 
 template <typename T>
 typename std::enable_if<
-  !std::is_class<T>::value || !vrt::VirtualSerializeTraits<T>::has_virtual_serialize,
+  !vrt::VirtualSerializeTraits<T>::has_virtual_serialize,
   T*>::type
 deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
   auto mem = allocBuf ? allocBuf : Standard::allocate<T>();
@@ -348,7 +348,7 @@ struct PrefixedType {
 
 template <typename T>
 typename std::enable_if<
-  std::is_class<T>::value && vrt::VirtualSerializeTraits<T>::has_virtual_serialize,
+  vrt::VirtualSerializeTraits<T>::has_virtual_serialize,
   buffer::ImplReturnType>::type
 serializeType(T& target, BufferObtainFnType fn) {
   auto prefixed = PrefixedType(&target);
@@ -358,8 +358,18 @@ serializeType(T& target, BufferObtainFnType fn) {
 }
 
 template <typename T>
+void Prefixed::validatePrefix(vrt::TypeIdx prefix) {
+  if (!vrt::objregistry::isValidIdx<T>(prefix)) {
+    std::string const err = std::string("Unpacking invalid prefix type (") +
+      std::to_string(prefix) + std::string(") from object registry for type=") +
+      std::string(typeregistry::getTypeName<T>());
+    throw serialization_error(err);
+  }
+}
+
+template <typename T>
 typename std::enable_if<
-  std::is_class<T>::value && vrt::VirtualSerializeTraits<T>::has_virtual_serialize,
+  vrt::VirtualSerializeTraits<T>::has_virtual_serialize,
   T*>::type
 deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
   using BaseType = vrt::checkpoint_base_type_t<T>;
@@ -370,6 +380,8 @@ deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
   vrt::TypeIdx* prefix =
     Prefixed::unpack<vrt::TypeIdx, UnpackerBuffer<buffer::UserBuffer>>(prefix_buf.get(), false, false, data);
   prefix_buf.release();
+
+  Prefixed::validatePrefix<BaseType>(*prefix);
 
   // allocate memory based on the readed TypeIdx
   auto mem = allocBuf ? allocBuf : vrt::objregistry::allocateConcreteType<BaseType>(*prefix);
