@@ -188,6 +188,42 @@ struct Standard {
   static SerialByteType* allocate();
 };
 
+/**
+ * \struct Prefixed
+ *
+ * \brief Traversal for polymorphic types prefixed with the vrt::TypeIdx
+ */
+struct Prefixed {
+  /**
+   * \brief Traverse a \c target of type \c T recursively with a general \c
+   * TraverserT that gets applied to each element.
+   * Allows to traverse only part of the data.
+   *
+   * \param[in,out] target the target to traverse
+   * \param[in] len the len of the target. If > 1, \c target is an array
+   * \param[in] check_type the flag to control type validation
+   * \param[in] check_mem the flag to control memory validation
+   * \param[in] args the args to pass to the traverser for construction
+   *
+   * \return the traverser after traversal is complete
+   */
+  template <typename T, typename TraverserT, typename... Args>
+  static TraverserT traverse(T& target, SerialSizeType len, bool check_type, bool check_mem, Args&&... args);
+
+  /**
+   * \brief Unpack \c T from packed byte-buffer \c mem
+   *
+   * \param[in] t_buf bytes holding a serialized \c T
+   * \param[in] check_type the flag to control type validation
+   * \param[in] check_mem the flag to control memory validation
+   * \param[in] args arguments to the unpacker's constructor
+   *
+   * \return a pointer to an unpacked \c T
+   */
+  template <typename T, typename UnpackerT, typename... Args>
+  static T* unpack(T* t_buf, bool check_type = true, bool check_mem = true, Args&&... args);
+};
+
 template <typename T>
 buffer::ImplReturnType packBuffer(
   T& target, SerialSizeType size, BufferObtainFnType fn
@@ -197,10 +233,20 @@ template <typename Serializer, typename T>
 inline void serializeArray(Serializer& s, T* array, SerialSizeType const len);
 
 template <typename T>
-buffer::ImplReturnType serializeType(T& target, BufferObtainFnType fn = nullptr);
+typename std::enable_if<std::is_class<T>::value && vrt::VirtualSerializeTraits<T>::has_virtual_serialize, buffer::ImplReturnType>::type
+serializeType(T& target, BufferObtainFnType fn = nullptr);
 
 template <typename T>
-T* deserializeType(SerialByteType* data, SerialByteType* allocBuf = nullptr);
+typename std::enable_if<!std::is_class<T>::value || !vrt::VirtualSerializeTraits<T>::has_virtual_serialize, buffer::ImplReturnType>::type
+serializeType(T& target, BufferObtainFnType fn = nullptr);
+
+template <typename T>
+typename std::enable_if<std::is_class<T>::value && vrt::VirtualSerializeTraits<T>::has_virtual_serialize, T*>::type
+deserializeType(SerialByteType* data, SerialByteType* allocBuf = nullptr);
+
+template <typename T>
+typename std::enable_if<!std::is_class<T>::value || !vrt::VirtualSerializeTraits<T>::has_virtual_serialize, T*>::type
+deserializeType(SerialByteType* data, SerialByteType* allocBuf = nullptr);
 
 template <typename T>
 void deserializeType(InPlaceTag, SerialByteType* data, T* t);

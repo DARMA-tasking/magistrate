@@ -71,7 +71,7 @@ struct serialization_error : public std::runtime_error {
 };
 
 template <typename T, typename TraverserT>
-TraverserT& withTypeIdx(TraverserT& t) {
+TraverserT& withTypeIdx(TraverserT& t, bool check_type = true) {
   using CleanT = typename CleanType<typeregistry::DecodedIndex>::CleanT;
   using DispatchType =
     typename TraverserT::template DispatcherType<TraverserT, CleanT>;
@@ -87,9 +87,9 @@ TraverserT& withTypeIdx(TraverserT& t) {
     auto val = cleanType(&serTypeIdx);
     ap(t, val, len);
 
-    if (
-      typeregistry::validateIndex(serTypeIdx) == false ||
-      thisTypeIdx != serTypeIdx
+    if (check_type &&
+      (typeregistry::validateIndex(serTypeIdx) == false ||
+      thisTypeIdx != serTypeIdx)
     ) {
       auto const err = std::string("Unpacking wrong type, got=") +
         typeregistry::getTypeNameForIdx(thisTypeIdx) +
@@ -105,7 +105,7 @@ TraverserT& withTypeIdx(TraverserT& t) {
 }
 
 template <typename T, typename TraverserT>
-TraverserT& withMemUsed(TraverserT& t, SerialSizeType len) {
+TraverserT& withMemUsed(TraverserT& t, SerialSizeType len, bool check_mem = true) {
   using DispatchType =
     typename TraverserT::template DispatcherType<TraverserT, SerialSizeType>;
   SerializerDispatch<TraverserT, SerialSizeType, DispatchType> ap;
@@ -120,7 +120,7 @@ TraverserT& withMemUsed(TraverserT& t, SerialSizeType len) {
     auto val = cleanType(&serMemUsed);
     ap(t, val, memUsedLen);
 
-    if (memUsed != serMemUsed) {
+    if (check_mem && memUsed != serMemUsed) {
       using CleanT = typename CleanType<T>::CleanT;
       std::string msg = "For type '" + typeregistry::getTypeName<CleanT>() +
         "' serialization used " + std::to_string(serMemUsed) +
@@ -129,6 +129,37 @@ TraverserT& withMemUsed(TraverserT& t, SerialSizeType len) {
       throw serialization_error(msg);
     }
   }
+
+  return t;
+}
+
+template <typename T, typename TraverserT, typename... Args>
+TraverserT Prefixed::traverse(T& target, SerialSizeType len, bool check_type, bool check_mem, Args&&... args) {
+  using CleanT = typename CleanType<T>::CleanT;
+  using DispatchType =
+    typename TraverserT::template DispatcherType<TraverserT, CleanT>;
+
+  TraverserT t(std::forward<Args>(args)...);
+
+  withTypeIdx<CleanT>(t, check_type);
+
+  auto val = cleanType(&target);
+  SerializerDispatch<TraverserT, CleanT, DispatchType> ap;
+
+  #if defined(SERIALIZATION_ERROR_CHECKING)
+  try {
+    ap(t, val, len);
+  } catch (serialization_error const& err) {
+    auto const depth = err.depth_ + 1;
+    auto const what = std::string(err.what()) + "\n#" + std::to_string(depth) +
+      " " + typeregistry::getTypeName<T>();
+    throw serialization_error(what, depth);
+  }
+  #else
+  ap(t, val, len);
+  #endif
+
+  withMemUsed<CleanT>(t, 1, check_mem);
 
   return t;
 }
@@ -221,6 +252,12 @@ T* Standard::unpack(T* t_buf, Args&&... args) {
   return t_buf;
 }
 
+template <typename T, typename UnpackerT, typename... Args>
+T* Prefixed::unpack(T* t_buf, bool check_type, bool check_mem, Args&&... args) {
+  Prefixed::traverse<T, UnpackerT>(*t_buf, 1, check_type, check_mem, std::forward<Args>(args)...);
+  return t_buf;
+}
+
 template <typename T>
 T* Standard::construct(SerialByteType* mem) {
   return Traverse::reconstruct<T>(mem);
@@ -266,14 +303,17 @@ packBuffer(T& target, SerialSizeType size, BufferObtainFnType fn) {
 }
 
 template <typename T>
-buffer::ImplReturnType serializeType(T& target, BufferObtainFnType fn) {
+typename std::enable_if<!std::is_class<T>::value || !vrt::VirtualSerializeTraits<T>::has_virtual_serialize, buffer::ImplReturnType>::type
+serializeType(T& target, BufferObtainFnType fn) {
   auto len = Standard::size<T, Sizer>(target);
   debug_checkpoint("serializeType: len=%ld\n", len);
   return packBuffer<T>(target, len, fn);
 }
 
 template <typename T>
-T* deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
+typename std::enable_if<!std::is_class<T>::value
+  || !vrt::VirtualSerializeTraits<T>::has_virtual_serialize, T*>::type
+deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
   auto mem = allocBuf ? allocBuf : Standard::allocate<T>();
   auto t_buf = std::unique_ptr<T>(Standard::construct<T>(mem));
   T* traverser =
@@ -282,9 +322,56 @@ T* deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
   return traverser;
 }
 
+// TODO: this also needs to be updated
 template <typename T>
 void deserializeType(InPlaceTag, SerialByteType* data, T* t) {
   Standard::unpack<T, UnpackerBuffer<buffer::UserBuffer>>(t, data);
+}
+
+template <typename T>
+struct PrefixedType {
+  explicit PrefixedType(T* target) : target_(target) {
+    prefix_ = target->_checkpointDynamicTypeIndex();
+  }
+
+  vrt::TypeIdx prefix_;
+  T* target_;
+
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    s | prefix_;
+    s | *target_;
+  }
+};
+
+template <typename T>
+typename std::enable_if<std::is_class<T>::value && vrt::VirtualSerializeTraits<T>::has_virtual_serialize, buffer::ImplReturnType>::type
+serializeType(T& target, BufferObtainFnType fn) {
+  auto prefixed = PrefixedType(&target);
+  auto len = Standard::size<PrefixedType<T>, Sizer>(prefixed);
+  debug_checkpoint("serializeType: len=%ld\n", len);
+  return packBuffer<PrefixedType<T>>(prefixed, len, fn);
+}
+
+template <typename T>
+typename std::enable_if<std::is_class<T>::value
+  && vrt::VirtualSerializeTraits<T>::has_virtual_serialize, T*>::type
+deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
+  using BaseType = vrt::checkpoint_base_type_t<T>;
+
+  auto prefix_mem = Standard::allocate<vrt::TypeIdx>();
+  auto prefix_buf = std::unique_ptr<vrt::TypeIdx>(Standard::construct<vrt::TypeIdx>(prefix_mem));
+  vrt::TypeIdx* prefix =
+    Prefixed::unpack<vrt::TypeIdx, UnpackerBuffer<buffer::UserBuffer>>(prefix_buf.get(), false, false, data);
+  prefix_buf.release();
+
+  auto mem = allocBuf ? allocBuf : vrt::objregistry::allocateConcreteType<BaseType>(*prefix);
+  auto t_buf = vrt::objregistry::constructConcreteType<BaseType>(*prefix, mem);
+  auto prefixed = PrefixedType(t_buf);
+
+  auto* traverser =
+    Prefixed::unpack<decltype(prefixed), UnpackerBuffer<buffer::UserBuffer>>(&prefixed, false, true, data);
+  return static_cast<T*>(traverser->target_);
 }
 
 }} /* end namespace checkpoint::dispatch */
