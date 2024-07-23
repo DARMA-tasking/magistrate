@@ -221,7 +221,7 @@ struct Prefixed {
    * \return a pointer to an unpacked \c T
    */
   template <typename T, typename UnpackerT, typename... Args>
-  static T* unpack(T* mem, bool check_type = true, bool check_mem = true, Args&&... args);
+  static T* unpack(T* mem, bool check_type, bool check_mem, Args&&... args);
 };
 
 template <typename T>
