@@ -213,7 +213,7 @@ struct Prefixed {
   /**
    * \brief Unpack \c T from packed byte-buffer \c mem
    *
-   * \param[in] t_buf bytes holding a serialized \c T
+   * \param[in] mem bytes holding a serialized \c T
    * \param[in] check_type the flag to control type validation
    * \param[in] check_mem the flag to control memory validation
    * \param[in] args arguments to the unpacker's constructor
@@ -221,7 +221,7 @@ struct Prefixed {
    * \return a pointer to an unpacked \c T
    */
   template <typename T, typename UnpackerT, typename... Args>
-  static T* unpack(T* t_buf, bool check_type = true, bool check_mem = true, Args&&... args);
+  static T* unpack(T* mem, bool check_type = true, bool check_mem = true, Args&&... args);
 };
 
 template <typename T>

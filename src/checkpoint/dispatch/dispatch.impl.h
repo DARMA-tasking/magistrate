@@ -303,7 +303,9 @@ packBuffer(T& target, SerialSizeType size, BufferObtainFnType fn) {
 }
 
 template <typename T>
-typename std::enable_if<!std::is_class<T>::value || !vrt::VirtualSerializeTraits<T>::has_virtual_serialize, buffer::ImplReturnType>::type
+typename std::enable_if<
+  !std::is_class<T>::value || !vrt::VirtualSerializeTraits<T>::has_virtual_serialize,
+  buffer::ImplReturnType>::type
 serializeType(T& target, BufferObtainFnType fn) {
   auto len = Standard::size<T, Sizer>(target);
   debug_checkpoint("serializeType: len=%ld\n", len);
@@ -311,8 +313,9 @@ serializeType(T& target, BufferObtainFnType fn) {
 }
 
 template <typename T>
-typename std::enable_if<!std::is_class<T>::value
-  || !vrt::VirtualSerializeTraits<T>::has_virtual_serialize, T*>::type
+typename std::enable_if<
+  !std::is_class<T>::value || !vrt::VirtualSerializeTraits<T>::has_virtual_serialize,
+  T*>::type
 deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
   auto mem = allocBuf ? allocBuf : Standard::allocate<T>();
   auto t_buf = std::unique_ptr<T>(Standard::construct<T>(mem));
@@ -322,7 +325,6 @@ deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
   return traverser;
 }
 
-// TODO: this also needs to be updated
 template <typename T>
 void deserializeType(InPlaceTag, SerialByteType* data, T* t) {
   Standard::unpack<T, UnpackerBuffer<buffer::UserBuffer>>(t, data);
@@ -345,30 +347,35 @@ struct PrefixedType {
 };
 
 template <typename T>
-typename std::enable_if<std::is_class<T>::value && vrt::VirtualSerializeTraits<T>::has_virtual_serialize, buffer::ImplReturnType>::type
+typename std::enable_if<
+  std::is_class<T>::value && vrt::VirtualSerializeTraits<T>::has_virtual_serialize,
+  buffer::ImplReturnType>::type
 serializeType(T& target, BufferObtainFnType fn) {
   auto prefixed = PrefixedType(&target);
-  auto len = Standard::size<PrefixedType<T>, Sizer>(prefixed);
+  auto len = Standard::size<decltype(prefixed), Sizer>(prefixed);
   debug_checkpoint("serializeType: len=%ld\n", len);
-  return packBuffer<PrefixedType<T>>(prefixed, len, fn);
+  return packBuffer<decltype(prefixed)>(prefixed, len, fn);
 }
 
 template <typename T>
-typename std::enable_if<std::is_class<T>::value
-  && vrt::VirtualSerializeTraits<T>::has_virtual_serialize, T*>::type
+typename std::enable_if<
+  std::is_class<T>::value && vrt::VirtualSerializeTraits<T>::has_virtual_serialize,
+  T*>::type
 deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
   using BaseType = vrt::checkpoint_base_type_t<T>;
 
   auto prefix_mem = Standard::allocate<vrt::TypeIdx>();
   auto prefix_buf = std::unique_ptr<vrt::TypeIdx>(Standard::construct<vrt::TypeIdx>(prefix_mem));
+  // Unpack TypeIdx, ignore checks for type and memory used - unpacking will only use a part of the data
   vrt::TypeIdx* prefix =
     Prefixed::unpack<vrt::TypeIdx, UnpackerBuffer<buffer::UserBuffer>>(prefix_buf.get(), false, false, data);
   prefix_buf.release();
 
+  // allocate memory based on the readed TypeIdx
   auto mem = allocBuf ? allocBuf : vrt::objregistry::allocateConcreteType<BaseType>(*prefix);
   auto t_buf = vrt::objregistry::constructConcreteType<BaseType>(*prefix, mem);
   auto prefixed = PrefixedType(t_buf);
-
+  // Unpack PrefixedType, ignore checks for unpacked type and execute checks for memory used
   auto* traverser =
     Prefixed::unpack<decltype(prefixed), UnpackerBuffer<buffer::UserBuffer>>(&prefixed, false, true, data);
   return static_cast<T*>(traverser->target_);
