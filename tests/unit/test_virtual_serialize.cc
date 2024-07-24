@@ -624,6 +624,7 @@ void testDeserializationFromBase() {
   auto out = checkpoint::deserialize<Base>(std::move(ret));
 
   EXPECT_TRUE(nullptr != out);
+  EXPECT_EQ(TestEnum::Derived2, out->getID());
   out->check();
 }
 
