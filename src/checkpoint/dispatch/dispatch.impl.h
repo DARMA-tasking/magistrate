@@ -342,9 +342,7 @@ deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
   auto prefix_struct = PrefixedType(prefix_buf);
   // Disable memory check during first unpacking.
   // Unpacking BaseType will always result in memory amount missmatch between serialization/deserialization
-  auto* prefix =
-    Standard::unpack<PrefixedType, UnpackerBuffer<buffer::UserBuffer>>(&prefix_struct, data, false);
-  delete prefix_buf;
+  auto* prefix = Standard::unpack<PrefixedType, UnpackerBuffer<buffer::UserBuffer>>(&prefix_struct, data, false);
 
   validatePrefix<BaseType>(prefix->prefix_);
 
@@ -352,8 +350,9 @@ deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
   auto mem = allocBuf ? allocBuf : vrt::objregistry::allocateConcreteType<BaseType>(prefix->prefix_);
   auto t_buf = vrt::objregistry::constructConcreteType<BaseType>(prefix->prefix_, mem);
   auto prefixed = PrefixedType(t_buf);
-  auto* traverser =
-    Standard::unpack<PrefixedType, UnpackerBuffer<buffer::UserBuffer>>(&prefixed, data);
+  auto* traverser = Standard::unpack<PrefixedType, UnpackerBuffer<buffer::UserBuffer>>(&prefixed, data);
+
+  delete prefix_buf;
   return static_cast<T*>(traverser->target_);
 }
 
