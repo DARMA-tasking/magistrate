@@ -72,7 +72,8 @@ template <typename BufferT>
 template <typename... Args>
 UnpackerBuffer<BufferT>::UnpackerBuffer(Args&&... args)
   : MemorySerializer(ModeType::Unpacking),
-    buffer_(std::make_unique<BufferT>(std::forward<Args>(args)...))
+    buffer_(std::make_unique<BufferT>(std::forward<Args>(args)...)),
+    validate_memory_(true)
 {
   MemorySerializer::initializeBuffer(buffer_->getBuffer());
 
