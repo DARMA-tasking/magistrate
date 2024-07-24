@@ -71,7 +71,7 @@ struct serialization_error : public std::runtime_error {
 };
 
 template <typename T, typename TraverserT>
-TraverserT& withTypeIdx(TraverserT& t, bool check_type = true) {
+TraverserT& withTypeIdx(TraverserT& t) {
   using CleanT = typename CleanType<typeregistry::DecodedIndex>::CleanT;
   using DispatchType =
     typename TraverserT::template DispatcherType<TraverserT, CleanT>;
@@ -87,9 +87,9 @@ TraverserT& withTypeIdx(TraverserT& t, bool check_type = true) {
     auto val = cleanType(&serTypeIdx);
     ap(t, val, len);
 
-    if (check_type &&
-      (typeregistry::validateIndex(serTypeIdx) == false ||
-      thisTypeIdx != serTypeIdx)
+    if (
+      typeregistry::validateIndex(serTypeIdx) == false ||
+      thisTypeIdx != serTypeIdx
     ) {
       auto const err = std::string("Unpacking wrong type, got=") +
         typeregistry::getTypeNameForIdx(thisTypeIdx) +
@@ -105,7 +105,7 @@ TraverserT& withTypeIdx(TraverserT& t, bool check_type = true) {
 }
 
 template <typename T, typename TraverserT>
-TraverserT& withMemUsed(TraverserT& t, SerialSizeType len, bool check_mem = true) {
+TraverserT& withMemUsed(TraverserT& t, SerialSizeType len) {
   using DispatchType =
     typename TraverserT::template DispatcherType<TraverserT, SerialSizeType>;
   SerializerDispatch<TraverserT, SerialSizeType, DispatchType> ap;
@@ -120,7 +120,7 @@ TraverserT& withMemUsed(TraverserT& t, SerialSizeType len, bool check_mem = true
     auto val = cleanType(&serMemUsed);
     ap(t, val, memUsedLen);
 
-    if (check_mem && memUsed != serMemUsed) {
+    if (t.shouldValidateMemory() && memUsed != serMemUsed) {
       using CleanT = typename CleanType<T>::CleanT;
       std::string msg = "For type '" + typeregistry::getTypeName<CleanT>() +
         "' serialization used " + std::to_string(serMemUsed) +
@@ -129,37 +129,6 @@ TraverserT& withMemUsed(TraverserT& t, SerialSizeType len, bool check_mem = true
       throw serialization_error(msg);
     }
   }
-
-  return t;
-}
-
-template <typename T, typename TraverserT, typename... Args>
-TraverserT Prefixed::traverse(T& target, SerialSizeType len, bool check_type, bool check_mem, Args&&... args) {
-  using CleanT = typename CleanType<T>::CleanT;
-  using DispatchType =
-    typename TraverserT::template DispatcherType<TraverserT, CleanT>;
-
-  TraverserT t(std::forward<Args>(args)...);
-
-  withTypeIdx<CleanT>(t, check_type);
-
-  auto val = cleanType(&target);
-  SerializerDispatch<TraverserT, CleanT, DispatchType> ap;
-
-  #if defined(SERIALIZATION_ERROR_CHECKING)
-  try {
-    ap(t, val, len);
-  } catch (serialization_error const& err) {
-    auto const depth = err.depth_ + 1;
-    auto const what = std::string(err.what()) + "\n#" + std::to_string(depth) +
-      " " + typeregistry::getTypeName<T>();
-    throw serialization_error(what, depth);
-  }
-  #else
-  ap(t, val, len);
-  #endif
-
-  withMemUsed<CleanT>(t, 1, check_mem);
 
   return t;
 }
@@ -252,12 +221,6 @@ T* Standard::unpack(T* t_buf, Args&&... args) {
   return t_buf;
 }
 
-template <typename T, typename UnpackerT, typename... Args>
-T* Prefixed::unpack(T* t_buf, bool check_type, bool check_mem, Args&&... args) {
-  Prefixed::traverse<T, UnpackerT>(*t_buf, 1, check_type, check_mem, std::forward<Args>(args)...);
-  return t_buf;
-}
-
 template <typename T>
 T* Standard::construct(SerialByteType* mem) {
   return Traverse::reconstruct<T>(mem);
@@ -313,9 +276,7 @@ serializeType(T& target, BufferObtainFnType fn) {
 }
 
 template <typename T>
-typename std::enable_if<
-  !vrt::VirtualSerializeTraits<T>::has_virtual_serialize,
-  T*>::type
+typename std::enable_if<!vrt::VirtualSerializeTraits<T>::has_virtual_serialize, T*>::type
 deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
   auto mem = allocBuf ? allocBuf : Standard::allocate<T>();
   auto t_buf = std::unique_ptr<T>(Standard::construct<T>(mem));
@@ -351,14 +312,17 @@ typename std::enable_if<
   vrt::VirtualSerializeTraits<T>::has_virtual_serialize,
   buffer::ImplReturnType>::type
 serializeType(T& target, BufferObtainFnType fn) {
+  using BaseType = vrt::checkpoint_base_type_t<T>;
+  using PrefixedType = PrefixedType<BaseType>;
+
   auto prefixed = PrefixedType(&target);
-  auto len = Standard::size<decltype(prefixed), Sizer>(prefixed);
+  auto len = Standard::size<PrefixedType, Sizer>(prefixed);
   debug_checkpoint("serializeType: len=%ld\n", len);
-  return packBuffer<decltype(prefixed)>(prefixed, len, fn);
+  return packBuffer<PrefixedType>(prefixed, len, fn);
 }
 
 template <typename T>
-void Prefixed::validatePrefix(vrt::TypeIdx prefix) {
+void validatePrefix(vrt::TypeIdx prefix) {
   if (!vrt::objregistry::isValidIdx<T>(prefix)) {
     std::string const err = std::string("Unpacking invalid prefix type (") +
       std::to_string(prefix) + std::string(") from object registry for type=") +
@@ -368,28 +332,28 @@ void Prefixed::validatePrefix(vrt::TypeIdx prefix) {
 }
 
 template <typename T>
-typename std::enable_if<
-  vrt::VirtualSerializeTraits<T>::has_virtual_serialize,
-  T*>::type
+typename std::enable_if<vrt::VirtualSerializeTraits<T>::has_virtual_serialize, T*>::type
 deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
   using BaseType = vrt::checkpoint_base_type_t<T>;
+  using PrefixedType = PrefixedType<BaseType>;
 
-  auto prefix_mem = Standard::allocate<vrt::TypeIdx>();
-  auto prefix_buf = std::unique_ptr<vrt::TypeIdx>(Standard::construct<vrt::TypeIdx>(prefix_mem));
-  // Unpack TypeIdx, ignore checks for type and memory used - unpacking will only use a part of the data
-  vrt::TypeIdx* prefix =
-    Prefixed::unpack<vrt::TypeIdx, UnpackerBuffer<buffer::UserBuffer>>(prefix_buf.get(), false, false, data);
-  prefix_buf.release();
+  auto prefix_mem = allocBuf ? allocBuf : vrt::objregistry::allocateConcreteType<BaseType>(0);
+  auto prefix_buf = vrt::objregistry::constructConcreteType<BaseType>(0, prefix_mem);
+  auto prefix_struct = PrefixedType(prefix_buf);
+  // Disable memory check during first unpacking.
+  // Unpacking BaseType will always result in memory amount missmatch between serialization/deserialization
+  auto* prefix =
+    Standard::unpack<PrefixedType, UnpackerBuffer<buffer::UserBuffer>>(&prefix_struct, data, false);
+  delete prefix_buf;
 
-  Prefixed::validatePrefix<BaseType>(*prefix);
+  validatePrefix<BaseType>(prefix->prefix_);
 
   // allocate memory based on the readed TypeIdx
-  auto mem = allocBuf ? allocBuf : vrt::objregistry::allocateConcreteType<BaseType>(*prefix);
-  auto t_buf = vrt::objregistry::constructConcreteType<BaseType>(*prefix, mem);
+  auto mem = allocBuf ? allocBuf : vrt::objregistry::allocateConcreteType<BaseType>(prefix->prefix_);
+  auto t_buf = vrt::objregistry::constructConcreteType<BaseType>(prefix->prefix_, mem);
   auto prefixed = PrefixedType(t_buf);
-  // Unpack PrefixedType, ignore checks for unpacked type and execute checks for memory used
   auto* traverser =
-    Prefixed::unpack<decltype(prefixed), UnpackerBuffer<buffer::UserBuffer>>(&prefixed, false, true, data);
+    Standard::unpack<PrefixedType, UnpackerBuffer<buffer::UserBuffer>>(&prefixed, data);
   return static_cast<T*>(traverser->target_);
 }
 

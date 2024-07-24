@@ -54,7 +54,7 @@ template <typename BufferT>
 struct UnpackerBuffer : MemorySerializer {
   using BufferPtrType = std::unique_ptr<BufferT>;
 
-  explicit UnpackerBuffer(SerialByteType* buf);
+  explicit UnpackerBuffer(SerialByteType* buf, bool validate = true);
 
   template <typename... Args>
   explicit UnpackerBuffer(Args&&... args);
@@ -62,11 +62,15 @@ struct UnpackerBuffer : MemorySerializer {
   void contiguousBytes(void* ptr, SerialSizeType size, SerialSizeType num_elms);
   SerialSizeType usedBufferSize() const;
 
+  bool shouldValidateMemory() const;
+
 private:
   // Size of the actually used memory (for error checking)
   SerialSizeType usedSize_ = 0;
 
   BufferPtrType buffer_ = nullptr;
+
+  bool validate_memory_ = true;
 };
 
 using Unpacker = UnpackerBuffer<buffer::UserBuffer>;

@@ -54,9 +54,10 @@
 namespace checkpoint {
 
 template <typename BufferT>
-UnpackerBuffer<BufferT>::UnpackerBuffer(SerialByteType* buf)
+UnpackerBuffer<BufferT>::UnpackerBuffer(SerialByteType* buf, bool validate)
   : MemorySerializer(ModeType::Unpacking),
-    buffer_(std::make_unique<BufferT>(buf, 0))
+    buffer_(std::make_unique<BufferT>(buf, 0)),
+    validate_memory_(validate)
 {
   MemorySerializer::initializeBuffer(buffer_->getBuffer());
 
@@ -101,6 +102,11 @@ void UnpackerBuffer<BufferT>::contiguousBytes(
 template <typename BufferT>
 SerialSizeType UnpackerBuffer<BufferT>::usedBufferSize() const {
   return usedSize_;
+}
+
+template <typename BufferT>
+bool UnpackerBuffer<BufferT>::shouldValidateMemory() const {
+  return validate_memory_;
 }
 
 } /* end namespace checkpoint */
