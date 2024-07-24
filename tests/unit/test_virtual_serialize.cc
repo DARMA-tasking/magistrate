@@ -618,20 +618,21 @@ INSTANTIATE_TYPED_TEST_CASE_P(
 using TestDeserializationFromBase = TestHarness;
 
 template<typename Base, typename Derived>
-void testDeserializationFromBase() {
+void testDeserializationFromBase(TestEnum expected_id) {
   std::unique_ptr<Base> task(new Derived(TEST_CONSTRUCT{}));
   auto ret = checkpoint::serialize<Base>(*task);
   auto out = checkpoint::deserialize<Base>(std::move(ret));
 
   EXPECT_TRUE(nullptr != out);
-  EXPECT_EQ(TestEnum::Derived2, out->getID());
+  EXPECT_EQ(expected_id, out->getID());
   out->check();
 }
 
-TEST_F(TestDeserializationFromBase, test_deserilization_from_base) {
-  testDeserializationFromBase<test_1::TestBase, test_1::TestDerived2>();
-  testDeserializationFromBase<test_2::TestBase, test_2::TestDerived2>();
-  testDeserializationFromBase<test_3::TestBase, test_3::TestDerived2>();
+TEST_F(TestDeserializationFromBase, test_deserialization_from_base) {
+  testDeserializationFromBase<test_2::TestBase, test_2::TestDerived3>(
+    TestEnum::Derived3);
+  testDeserializationFromBase<test_3::TestBase, test_3::TestDerived2>(
+    TestEnum::Derived2);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
