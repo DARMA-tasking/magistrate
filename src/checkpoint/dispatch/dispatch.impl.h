@@ -292,17 +292,43 @@ void deserializeType(InPlaceTag, SerialByteType* data, T* t) {
 }
 
 template <typename T>
+void validatePrefix(vrt::TypeIdx prefix) {
+  if (!vrt::objregistry::isValidIdx<T>(prefix)) {
+    std::string const err = std::string("Unpacking invalid prefix type (") +
+      std::to_string(prefix) + std::string(") from object registry for type=") +
+      std::string(typeregistry::getTypeName<T>());
+    throw serialization_error(err);
+  }
+}
+
+template <typename T>
 struct PrefixedType {
+  using BaseType = vrt::checkpoint_base_type_t<T>;
+
   explicit PrefixedType(T* target) : target_(target) {
     prefix_ = target->_checkpointDynamicTypeIndex();
   }
 
-  vrt::TypeIdx prefix_;
-  T* target_;
+  explicit PrefixedType(SerialByteType* allocBuf)
+  : unpack_buf_(allocBuf) {
+  }
+
+  vrt::TypeIdx prefix_ = 0;
+  T* target_ = nullptr;
+  SerialByteType* unpack_buf_ = nullptr;
 
   template <typename SerializerT>
   void serialize(SerializerT& s) {
     s | prefix_;
+
+    // Determine the correct type and allocate memory
+    if (s.isUnpacking()) {
+      validatePrefix<BaseType>(prefix_);
+
+      auto mem = unpack_buf_ ? unpack_buf_ : vrt::objregistry::allocateConcreteType<BaseType>(prefix_);
+      target_ = vrt::objregistry::constructConcreteType<BaseType>(prefix_, mem);
+    }
+
     s | *target_;
   }
 };
@@ -322,37 +348,13 @@ serializeType(T& target, BufferObtainFnType fn) {
 }
 
 template <typename T>
-void validatePrefix(vrt::TypeIdx prefix) {
-  if (!vrt::objregistry::isValidIdx<T>(prefix)) {
-    std::string const err = std::string("Unpacking invalid prefix type (") +
-      std::to_string(prefix) + std::string(") from object registry for type=") +
-      std::string(typeregistry::getTypeName<T>());
-    throw serialization_error(err);
-  }
-}
-
-template <typename T>
 typename std::enable_if<vrt::VirtualSerializeTraits<T>::has_virtual_serialize, T*>::type
 deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
   using BaseType = vrt::checkpoint_base_type_t<T>;
   using PrefixedType = PrefixedType<BaseType>;
 
-  auto prefix_mem = allocBuf ? allocBuf : vrt::objregistry::allocateConcreteType<BaseType>(0);
-  auto prefix_buf = vrt::objregistry::constructConcreteType<BaseType>(0, prefix_mem);
-  auto prefix_struct = PrefixedType(prefix_buf);
-  // Disable memory check during first unpacking.
-  // Unpacking BaseType will always result in memory amount missmatch between serialization/deserialization
-  auto* prefix = Standard::unpack<PrefixedType, UnpackerBuffer<buffer::UserBuffer>>(&prefix_struct, data, false);
-
-  validatePrefix<BaseType>(prefix->prefix_);
-
-  // allocate memory based on the readed TypeIdx
-  auto mem = allocBuf ? allocBuf : vrt::objregistry::allocateConcreteType<BaseType>(prefix->prefix_);
-  auto t_buf = vrt::objregistry::constructConcreteType<BaseType>(prefix->prefix_, mem);
-  auto prefixed = PrefixedType(t_buf);
+  auto prefixed = PrefixedType(allocBuf);
   auto* traverser = Standard::unpack<PrefixedType, UnpackerBuffer<buffer::UserBuffer>>(&prefixed, data);
-
-  delete prefix_buf;
   return static_cast<T*>(traverser->target_);
 }
 
