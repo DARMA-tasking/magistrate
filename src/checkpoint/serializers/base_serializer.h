@@ -203,13 +203,6 @@ struct BaseSerializer {
    */
   void setVirtualDisabled(bool val) { virtual_disabled_ = val; }
 
-  /**
-   * \brief Check if used memory should be validated
-   *
-   * \return whether memory should be validated
-   */
-  bool shouldValidateMemory() const { return true; }
-
 protected:
   ModeType cur_mode_ = ModeType::Invalid; /**< The current mode */
   bool virtual_disabled_ = false;         /**< Virtual serialization disabled */
