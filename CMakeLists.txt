@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.23)
-project(magistrate VERSION 1.4.0)
+project(magistrate VERSION 1.5.0)
 
 include(cmake/turn_on_warnings.cmake)
 
