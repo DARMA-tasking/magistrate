@@ -3,7 +3,7 @@
 // *****************************************************************************
 //
 //                                 checkpoint.h
-//                 DARMA/checkpoint => Serialization Library
+//                 DARMA/magistrate => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
@@ -41,8 +41,8 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CHECKPOINT_H
-#define INCLUDED_CHECKPOINT_CHECKPOINT_H
+#if !defined INCLUDED_SRC_CHECKPOINT_CHECKPOINT_H
+#define INCLUDED_SRC_CHECKPOINT_CHECKPOINT_H
 
 #include "checkpoint/serializers/serializers_headers.h"
 #include "checkpoint/dispatch/dispatch.h"
@@ -77,4 +77,4 @@
 // Add namespace alias for the new name of the library
 namespace magistrate = checkpoint;
 
-#endif /*INCLUDED_CHECKPOINT_CHECKPOINT_H*/
+#endif /*INCLUDED_SRC_CHECKPOINT_CHECKPOINT_H*/

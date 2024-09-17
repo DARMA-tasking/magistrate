@@ -3,7 +3,7 @@
 // *****************************************************************************
 //
 //                             reconstructor_tag.h
-//                 DARMA/checkpoint => Serialization Library
+//                 DARMA/magistrate => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
@@ -41,8 +41,8 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_DISPATCH_RECONSTRUCTOR_TAG_H
-#define INCLUDED_CHECKPOINT_DISPATCH_RECONSTRUCTOR_TAG_H
+#if !defined INCLUDED_SRC_CHECKPOINT_DISPATCH_RECONSTRUCTOR_TAG_H
+#define INCLUDED_SRC_CHECKPOINT_DISPATCH_RECONSTRUCTOR_TAG_H
 
 namespace checkpoint { namespace dispatch {
 
@@ -56,4 +56,4 @@ using SERIALIZE_CONSTRUCT_TAG = dispatch::SERIALIZE_CONSTRUCT_TAG;
 
 } /* end namespace checkpoint */
 
-#endif /*INCLUDED_CHECKPOINT_DISPATCH_RECONSTRUCTOR_TAG_H*/
+#endif /*INCLUDED_SRC_CHECKPOINT_DISPATCH_RECONSTRUCTOR_TAG_H*/

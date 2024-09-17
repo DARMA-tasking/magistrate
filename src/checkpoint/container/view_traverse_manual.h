@@ -3,7 +3,7 @@
 // *****************************************************************************
 //
 //                            view_traverse_manual.h
-//                 DARMA/checkpoint => Serialization Library
+//                 DARMA/magistrate => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
@@ -41,8 +41,8 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CONTAINER_VIEW_TRAVERSE_MANUAL_H
-#define INCLUDED_CHECKPOINT_CONTAINER_VIEW_TRAVERSE_MANUAL_H
+#if !defined INCLUDED_SRC_CHECKPOINT_CONTAINER_VIEW_TRAVERSE_MANUAL_H
+#define INCLUDED_SRC_CHECKPOINT_CONTAINER_VIEW_TRAVERSE_MANUAL_H
 
 #include "checkpoint/common.h"
 #include "checkpoint/serializers/serializers_headers.h"
@@ -347,4 +347,4 @@ struct TraverseManual<SerializerT,ViewType,8> {
 
 #endif /*MAGISTRATE_KOKKOS_ENABLED*/
 
-#endif /*INCLUDED_CHECKPOINT_CONTAINER_VIEW_TRAVERSE_MANUAL_H*/
+#endif /*INCLUDED_SRC_CHECKPOINT_CONTAINER_VIEW_TRAVERSE_MANUAL_H*/

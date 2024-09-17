@@ -3,7 +3,7 @@
 // *****************************************************************************
 //
 //                 checkpoint_example_traversal_nonintrusive.cc
-//                 DARMA/checkpoint => Serialization Library
+//                 DARMA/magistrate => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.

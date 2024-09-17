@@ -3,7 +3,7 @@
 // *****************************************************************************
 //
 //                                 clean_type.h
-//                 DARMA/checkpoint => Serialization Library
+//                 DARMA/magistrate => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
@@ -41,8 +41,8 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_DISPATCH_CLEAN_TYPE_H
-#define INCLUDED_CHECKPOINT_DISPATCH_CLEAN_TYPE_H
+#if !defined INCLUDED_SRC_CHECKPOINT_DISPATCH_CLEAN_TYPE_H
+#define INCLUDED_SRC_CHECKPOINT_DISPATCH_CLEAN_TYPE_H
 
 #include "checkpoint/common.h"
 
@@ -83,4 +83,4 @@ typename CleanType<T>::CleanT* cleanType(T* val) {
 
 }} /* end namespace checkpoint::dispatch */
 
-#endif /*INCLUDED_CHECKPOINT_DISPATCH_CLEAN_TYPE_H*/
+#endif /*INCLUDED_SRC_CHECKPOINT_DISPATCH_CLEAN_TYPE_H*/

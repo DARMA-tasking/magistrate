@@ -3,7 +3,7 @@
 // *****************************************************************************
 //
 //                              test_commons_mpi.h
-//                 DARMA/checkpoint => Serialization Library
+//                 DARMA/magistrate => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
@@ -41,8 +41,8 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_UNIT_TESTS_MPI_TEST_COMMONS_MPI_H
-#define INCLUDED_UNIT_TESTS_MPI_TEST_COMMONS_MPI_H
+#if !defined INCLUDED_TESTS_UNIT_TESTS_MPI_TEST_COMMONS_MPI_H
+#define INCLUDED_TESTS_UNIT_TESTS_MPI_TEST_COMMONS_MPI_H
 
 #include "test_commons.h"
 #include "test_kokkos_0d_commons.h"
@@ -89,4 +89,4 @@ void serializeAnyMPI(T& view, std::function<void(T const&,T const&)> compare) {
 }
 } // end namespace
 
-#endif /*INCLUDED_UNIT_TESTS_MPI_TEST_COMMONS_MPI_H*/
+#endif /*INCLUDED_TESTS_UNIT_TESTS_MPI_TEST_COMMONS_MPI_H*/

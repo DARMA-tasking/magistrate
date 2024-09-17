@@ -3,7 +3,7 @@
 // *****************************************************************************
 //
 //                            dispatch_serializer.h
-//                 DARMA/checkpoint => Serialization Library
+//                 DARMA/magistrate => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
@@ -41,8 +41,8 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_SERIALIZER_H
-#define INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_SERIALIZER_H
+#if !defined INCLUDED_SRC_CHECKPOINT_DISPATCH_DISPATCH_SERIALIZER_H
+#define INCLUDED_SRC_CHECKPOINT_DISPATCH_DISPATCH_SERIALIZER_H
 
 #include "checkpoint/common.h"
 #include "checkpoint/traits/serializable_traits.h"
@@ -70,4 +70,4 @@ using SerializerDispatch = SerializerDispatchByte<SerializerT, T, Dispatcher>;
 
 }} /* end namespace checkpoint::dispatch */
 
-#endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_SERIALIZER_H*/
+#endif /*INCLUDED_SRC_CHECKPOINT_DISPATCH_DISPATCH_SERIALIZER_H*/

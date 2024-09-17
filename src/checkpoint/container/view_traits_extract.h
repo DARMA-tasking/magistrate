@@ -3,7 +3,7 @@
 // *****************************************************************************
 //
 //                            view_traits_extract.h
-//                 DARMA/checkpoint => Serialization Library
+//                 DARMA/magistrate => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
@@ -41,8 +41,8 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CONTAINER_VIEW_TRAITS_EXTRACT_H
-#define INCLUDED_CHECKPOINT_CONTAINER_VIEW_TRAITS_EXTRACT_H
+#if !defined INCLUDED_SRC_CHECKPOINT_CONTAINER_VIEW_TRAITS_EXTRACT_H
+#define INCLUDED_SRC_CHECKPOINT_CONTAINER_VIEW_TRAITS_EXTRACT_H
 
 #include "checkpoint/common.h"
 #include "checkpoint/serializers/serializers_headers.h"
@@ -119,4 +119,4 @@ struct CountDims<ViewType, T[N]> {
 
 #endif /*MAGISTRATE_KOKKOS_ENABLED*/
 
-#endif /*INCLUDED_CHECKPOINT_CONTAINER_VIEW_TRAITS_EXTRACT_H*/
+#endif /*INCLUDED_SRC_CHECKPOINT_CONTAINER_VIEW_TRAITS_EXTRACT_H*/

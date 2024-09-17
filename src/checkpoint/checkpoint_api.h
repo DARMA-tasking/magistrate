@@ -3,7 +3,7 @@
 // *****************************************************************************
 //
 //                               checkpoint_api.h
-//                 DARMA/checkpoint => Serialization Library
+//                 DARMA/magistrate => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
@@ -41,8 +41,8 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CHECKPOINT_API_H
-#define INCLUDED_CHECKPOINT_CHECKPOINT_API_H
+#if !defined INCLUDED_SRC_CHECKPOINT_CHECKPOINT_API_H
+#define INCLUDED_SRC_CHECKPOINT_CHECKPOINT_API_H
 
 #include <cstdlib>
 #include <functional>
@@ -263,4 +263,4 @@ void deserializeInPlaceFromStream(StreamT& stream, T* buf);
 
 } /* end namespace checkpoint */
 
-#endif /*INCLUDED_CHECKPOINT_CHECKPOINT_API_H*/
+#endif /*INCLUDED_SRC_CHECKPOINT_CHECKPOINT_API_H*/

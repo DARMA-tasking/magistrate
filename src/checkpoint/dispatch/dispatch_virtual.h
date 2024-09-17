@@ -3,7 +3,7 @@
 // *****************************************************************************
 //
 //                              dispatch_virtual.h
-//                 DARMA/checkpoint => Serialization Library
+//                 DARMA/magistrate => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
@@ -41,8 +41,8 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_VIRTUAL_H
-#define INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_VIRTUAL_H
+#if !defined INCLUDED_SRC_CHECKPOINT_DISPATCH_DISPATCH_VIRTUAL_H
+#define INCLUDED_SRC_CHECKPOINT_DISPATCH_DISPATCH_VIRTUAL_H
 
 #include "checkpoint/dispatch/dispatch.h"
 #include "checkpoint/dispatch/vrt/virtual_serialize.h"
@@ -171,4 +171,4 @@
  *
  */
 
-#endif /*INCLUDED_CHECKPOINT_DISPATCH_DISPATCH_VIRTUAL_H*/
+#endif /*INCLUDED_SRC_CHECKPOINT_DISPATCH_DISPATCH_VIRTUAL_H*/

@@ -3,7 +3,7 @@
 // *****************************************************************************
 //
 //                                  derived.h
-//                 DARMA/checkpoint => Serialization Library
+//                 DARMA/magistrate => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
@@ -41,8 +41,8 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_DISPATCH_VRT_DERIVED_H
-#define INCLUDED_CHECKPOINT_DISPATCH_VRT_DERIVED_H
+#if !defined INCLUDED_SRC_CHECKPOINT_DISPATCH_VRT_DERIVED_H
+#define INCLUDED_SRC_CHECKPOINT_DISPATCH_VRT_DERIVED_H
 
 #include "checkpoint/dispatch/vrt/registry_common.h"
 #include "checkpoint/dispatch/vrt/object_registry.h"
@@ -136,4 +136,4 @@ using SerializableDerived = dispatch::vrt::SerializableDerived<DerivedT, BaseT>;
 
 } /* end namespace checkpoint */
 
-#endif /*INCLUDED_CHECKPOINT_DISPATCH_VRT_DERIVED_H*/
+#endif /*INCLUDED_SRC_CHECKPOINT_DISPATCH_VRT_DERIVED_H*/

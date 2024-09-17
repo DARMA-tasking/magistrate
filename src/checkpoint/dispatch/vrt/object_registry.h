@@ -3,7 +3,7 @@
 // *****************************************************************************
 //
 //                              object_registry.h
-//                 DARMA/checkpoint => Serialization Library
+//                 DARMA/magistrate => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
@@ -41,8 +41,8 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_DISPATCH_VRT_OBJECT_REGISTRY_H
-#define INCLUDED_CHECKPOINT_DISPATCH_VRT_OBJECT_REGISTRY_H
+#if !defined INCLUDED_SRC_CHECKPOINT_DISPATCH_VRT_OBJECT_REGISTRY_H
+#define INCLUDED_SRC_CHECKPOINT_DISPATCH_VRT_OBJECT_REGISTRY_H
 
 #include "checkpoint/common.h"
 #include "checkpoint/dispatch/vrt/registry_common.h"
@@ -146,4 +146,4 @@ inline TypeIdx makeObjIdx() {
 
 }}}} /* end namespace checkpoint::dispatch::vrt::objregistry */
 
-#endif /*INCLUDED_CHECKPOINT_DISPATCH_VRT_OBJECT_REGISTRY_H*/
+#endif /*INCLUDED_SRC_CHECKPOINT_DISPATCH_VRT_OBJECT_REGISTRY_H*/

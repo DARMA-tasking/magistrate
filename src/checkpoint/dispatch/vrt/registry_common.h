@@ -3,7 +3,7 @@
 // *****************************************************************************
 //
 //                              registry_common.h
-//                 DARMA/checkpoint => Serialization Library
+//                 DARMA/magistrate => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
@@ -41,8 +41,8 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_DISPATCH_VRT_REGISTRY_COMMON_H
-#define INCLUDED_CHECKPOINT_DISPATCH_VRT_REGISTRY_COMMON_H
+#if !defined INCLUDED_SRC_CHECKPOINT_DISPATCH_VRT_REGISTRY_COMMON_H
+#define INCLUDED_SRC_CHECKPOINT_DISPATCH_VRT_REGISTRY_COMMON_H
 
 #include <type_traits>
 
@@ -72,4 +72,4 @@ using checkpoint_base_type_t =
 
 }}} /* end namespace checkpoint::dispatch::vrt */
 
-#endif /*INCLUDED_CHECKPOINT_DISPATCH_VRT_REGISTRY_COMMON_H*/
+#endif /*INCLUDED_SRC_CHECKPOINT_DISPATCH_VRT_REGISTRY_COMMON_H*/
