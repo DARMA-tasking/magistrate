@@ -51,7 +51,7 @@ jobs:
       shell: bash
       run: $(./scripts/check_containers.sh) [% docker_target %]
     - name: Build the Docker image
-      run: docker-compose run [% docker_target %]
+      run: docker compose run [% docker_target %]
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     - name: Docker Push Base Image

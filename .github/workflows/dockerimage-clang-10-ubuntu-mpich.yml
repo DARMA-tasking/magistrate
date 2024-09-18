@@ -58,7 +58,7 @@ jobs:
       shell: bash
       run: $(./scripts/check_containers.sh) ubuntu-cpp
     - name: Build the Docker image
-      run: docker-compose run ubuntu-cpp
+      run: docker compose run ubuntu-cpp
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     - name: Docker Push Base Image
