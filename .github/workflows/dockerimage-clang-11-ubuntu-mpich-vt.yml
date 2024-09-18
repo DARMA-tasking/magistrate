@@ -68,4 +68,4 @@ jobs:
       run: |
         docker login -u ${{ secrets.DOCKER_USERNAME }} \
                      -p ${{ secrets.DOCKER_PASSWORD }}
-        docker-compose push ubuntu-cpp-vt
+        docker compose push ubuntu-cpp-vt

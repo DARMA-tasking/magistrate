@@ -18,7 +18,7 @@ diff_latest() {
 # Print the modified files list to stderr as well.
 if diff_latest | tee >(cat >&2) | grep -i -q dockerfile
 then
-    echo "docker-compose build --pull"
+    echo "docker compose build --pull"
 else
-    echo "docker-compose pull --ignore-pull-failures"
+    echo "docker compose pull --ignore-pull-failures"
 fi
