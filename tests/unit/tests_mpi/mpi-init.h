@@ -3,7 +3,7 @@
 // *****************************************************************************
 //
 //                                  mpi-init.h
-//                 DARMA/checkpoint => Serialization Library
+//                 DARMA/magistrate => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
@@ -41,8 +41,8 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_UNIT_TESTS_MPI_MPI_INIT_H
-#define INCLUDED_UNIT_TESTS_MPI_MPI_INIT_H
+#if !defined INCLUDED_TESTS_UNIT_TESTS_MPI_MPI_INIT_H
+#define INCLUDED_TESTS_UNIT_TESTS_MPI_MPI_INIT_H
 
 #include <gtest/gtest.h>
 #include <test_harness.h>
@@ -95,4 +95,4 @@ private:
 
 };
 
-#endif /*INCLUDED_UNIT_TESTS_MPI_MPI_INIT_H*/
+#endif /*INCLUDED_TESTS_UNIT_TESTS_MPI_MPI_INIT_H*/

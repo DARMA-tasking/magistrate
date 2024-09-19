@@ -4,10 +4,7 @@ path_to_magistrate=${1}
 show_fix_command=${2}
 cd "$path_to_magistrate" || exit 1
 
-for sub_dir in "src" "tests" "examples"
-do
-  python3 "${path_to_magistrate}/scripts/generate_header_guards_and_license.py" -s=${sub_dir} -l="${path_to_magistrate}/scripts/license-template"
-done
+python3 "${path_to_magistrate}/scripts/generate_header_guards_and_license.py" -s="${path_to_magistrate}" -l="${path_to_magistrate}/scripts/license-template"
 
 # Check for modified files
 modified_files=$(git ls-files -m)

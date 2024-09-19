@@ -3,7 +3,7 @@
 // *****************************************************************************
 //
 //                                test_commons.h
-//                 DARMA/checkpoint => Serialization Library
+//                 DARMA/magistrate => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
@@ -41,8 +41,8 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_UNIT_TEST_COMMONS_H
-#define INCLUDED_UNIT_TEST_COMMONS_H
+#if !defined INCLUDED_TESTS_UNIT_TEST_COMMONS_H
+#define INCLUDED_TESTS_UNIT_TEST_COMMONS_H
 
 #include "test_harness.h"
 
@@ -180,4 +180,4 @@ std::unique_ptr<T> serializeAny(
 }
 } //end namespace
 
-#endif /*INCLUDED_UNIT_TEST_COMMONS_H*/
+#endif /*INCLUDED_TESTS_UNIT_TEST_COMMONS_H*/

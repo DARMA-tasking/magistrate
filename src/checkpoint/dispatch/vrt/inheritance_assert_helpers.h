@@ -3,7 +3,7 @@
 // *****************************************************************************
 //
 //                         inheritance_assert_helpers.h
-//                 DARMA/checkpoint => Serialization Library
+//                 DARMA/magistrate => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
@@ -41,8 +41,8 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_DISPATCH_VRT_INHERITANCE_ASSERT_HELPERS_H
-#define INCLUDED_CHECKPOINT_DISPATCH_VRT_INHERITANCE_ASSERT_HELPERS_H
+#if !defined INCLUDED_SRC_CHECKPOINT_DISPATCH_VRT_INHERITANCE_ASSERT_HELPERS_H
+#define INCLUDED_SRC_CHECKPOINT_DISPATCH_VRT_INHERITANCE_ASSERT_HELPERS_H
 
 #include "checkpoint/common.h"
 
@@ -69,4 +69,4 @@ inline void assertTypeIdxMatch(TypeIdx const expected_idx) {
 
 }}} /* end namespace checkpoint::dispatch::vrt */
 
-#endif /*INCLUDED_CHECKPOINT_DISPATCH_VRT_INHERITANCE_ASSERT_HELPERS_H*/
+#endif /*INCLUDED_SRC_CHECKPOINT_DISPATCH_VRT_INHERITANCE_ASSERT_HELPERS_H*/

@@ -3,7 +3,7 @@
 // *****************************************************************************
 //
 //                                footprinter.h
-//                 DARMA/checkpoint => Serialization Library
+//                 DARMA/magistrate => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
@@ -41,8 +41,8 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_SERIALIZERS_FOOTPRINTER_H
-#define INCLUDED_CHECKPOINT_SERIALIZERS_FOOTPRINTER_H
+#if !defined INCLUDED_SRC_CHECKPOINT_SERIALIZERS_FOOTPRINTER_H
+#define INCLUDED_SRC_CHECKPOINT_SERIALIZERS_FOOTPRINTER_H
 
 #include "checkpoint/common.h"
 #include "checkpoint/serializers/base_serializer.h"
@@ -74,4 +74,4 @@ private:
 
 } /* end namespace checkpoint */
 
-#endif /*INCLUDED_CHECKPOINT_SERIALIZERS_FOOTPRINTER_H*/
+#endif /*INCLUDED_SRC_CHECKPOINT_SERIALIZERS_FOOTPRINTER_H*/

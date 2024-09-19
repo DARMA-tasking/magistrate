@@ -3,7 +3,7 @@
 // *****************************************************************************
 //
 //                             raw_ptr_serialize.h
-//                 DARMA/checkpoint => Serialization Library
+//                 DARMA/magistrate => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
@@ -41,8 +41,8 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CONTAINER_RAW_PTR_SERIALIZE_H
-#define INCLUDED_CHECKPOINT_CONTAINER_RAW_PTR_SERIALIZE_H
+#if !defined INCLUDED_SRC_CHECKPOINT_CONTAINER_RAW_PTR_SERIALIZE_H
+#define INCLUDED_SRC_CHECKPOINT_CONTAINER_RAW_PTR_SERIALIZE_H
 
 #include "checkpoint/common.h"
 
@@ -118,4 +118,4 @@ CHECKPOINT_FOOTPRINT_PIMPL_WITH_SIZEOF_PTR(ompi_request_t)
 struct ompi_win_t;
 CHECKPOINT_FOOTPRINT_PIMPL_WITH_SIZEOF_PTR(ompi_win_t)
 
-#endif /*INCLUDED_CHECKPOINT_CONTAINER_RAW_PTR_SERIALIZE_H*/
+#endif /*INCLUDED_SRC_CHECKPOINT_CONTAINER_RAW_PTR_SERIALIZE_H*/

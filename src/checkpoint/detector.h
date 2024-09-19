@@ -3,7 +3,7 @@
 // *****************************************************************************
 //
 //                                  detector.h
-//                 DARMA/checkpoint => Serialization Library
+//                 DARMA/magistrate => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
@@ -41,8 +41,8 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_DETECTOR_H
-#define INCLUDED_CHECKPOINT_DETECTOR_H
+#if !defined INCLUDED_SRC_CHECKPOINT_DETECTOR_H
+#define INCLUDED_SRC_CHECKPOINT_DETECTOR_H
 
 #include <type_traits>
 
@@ -91,4 +91,4 @@ using is_detected_convertible = std::is_convertible<detected_t<Op, Args...>, T>;
 
 }  // end detection
 
-#endif /*INCLUDED_CHECKPOINT_DETECTOR_H*/
+#endif /*INCLUDED_SRC_CHECKPOINT_DETECTOR_H*/

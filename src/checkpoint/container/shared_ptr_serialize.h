@@ -3,7 +3,7 @@
 // *****************************************************************************
 //
 //                            shared_ptr_serialize.h
-//                 DARMA/checkpoint => Serialization Library
+//                 DARMA/magistrate => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
@@ -41,8 +41,8 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CONTAINER_SHARED_PTR_SERIALIZE_H
-#define INCLUDED_CHECKPOINT_CONTAINER_SHARED_PTR_SERIALIZE_H
+#if !defined INCLUDED_SRC_CHECKPOINT_CONTAINER_SHARED_PTR_SERIALIZE_H
+#define INCLUDED_SRC_CHECKPOINT_CONTAINER_SHARED_PTR_SERIALIZE_H
 
 #include "checkpoint/common.h"
 
@@ -72,4 +72,4 @@ void serialize(SerializerT& s, std::shared_ptr<T>& ptr) {
 
 } /* end namespace checkpoint */
 
-#endif /*INCLUDED_CHECKPOINT_CONTAINER_SHARED_PTR_SERIALIZE_H*/
+#endif /*INCLUDED_SRC_CHECKPOINT_CONTAINER_SHARED_PTR_SERIALIZE_H*/
