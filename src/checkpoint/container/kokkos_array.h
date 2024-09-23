@@ -2,8 +2,8 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                 checkpoint.h
-//                 DARMA/magistrate => Serialization Library
+//                              array_serialize.h
+//                 DARMA/checkpoint => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
@@ -41,41 +41,33 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SRC_CHECKPOINT_CHECKPOINT_H
-#define INCLUDED_SRC_CHECKPOINT_CHECKPOINT_H
+#if !defined INCLUDED_CHECKPOINT_CONTAINER_KOKKOS_ARRAY_H
+#define INCLUDED_CHECKPOINT_CONTAINER_KOKKOS_ARRAY_H
 
+#include "checkpoint/common.h"
 #include "checkpoint/serializers/serializers_headers.h"
-#include "checkpoint/dispatch/dispatch.h"
-#include "checkpoint/traits/serializable_traits.h"
 
-#include "checkpoint/container/array_serialize.h"
-#include "checkpoint/container/atomic_serialize.h"
-#include "checkpoint/container/chrono_serialize.h"
-#include "checkpoint/container/enum_serialize.h"
-#include "checkpoint/container/function_serialize.h"
-#include "checkpoint/container/list_serialize.h"
-#include "checkpoint/container/map_serialize.h"
-#include "checkpoint/container/queue_serialize.h"
-#include "checkpoint/container/raw_ptr_serialize.h"
-#include "checkpoint/container/shared_ptr_serialize.h"
-#include "checkpoint/container/string_serialize.h"
-#include "checkpoint/container/thread_serialize.h"
-#include "checkpoint/container/tuple_serialize.h"
-#include "checkpoint/container/vector_serialize.h"
-#include "checkpoint/container/unique_ptr_serialize.h"
-#include "checkpoint/container/view_serialize.h"
-#include "checkpoint/container/variant_serialize.h"
-#include "checkpoint/container/optional_serialize.h"
+#if MAGISTRATE_KOKKOS_ENABLED
 
-#include "checkpoint/container/kokkos_unordered_map_serialize.h"
-#include "checkpoint/container/kokkos_pair_serialize.h"
-#include "checkpoint/container/kokkos_array.h"
-#include "checkpoint/container/kokkos_complex_serialize.h"
+#include <Kokkos_Array.hpp>
 
-#include "checkpoint/checkpoint_api.h"
-#include "checkpoint/checkpoint_api.impl.h"
+namespace checkpoint {
 
-// Add namespace alias for the new name of the library
-namespace magistrate = checkpoint;
+#if KOKKOS_VERSION_LESS(4, 4, 0)
+template <typename Serializer, typename T, size_t N, class Proxy>
+void serialize(Serializer& s, Kokkos::Array<T, N, Proxy>& array) {
+  static_assert(std::is_void_v< Proxy >, "Magistrate does not support serializing Kokkos Arrays with proxies");
+  dispatch::serializeArray(s, &array[0], array.size());
+}
+#else
+template <typename Serializer, typename T, size_t N>
+void serialize(Serializer& s, Kokkos::Array<T, N>& array) {
+  dispatch::serializeArray(s, &array[0], array.size());
+}
+#endif
 
-#endif /*INCLUDED_SRC_CHECKPOINT_CHECKPOINT_H*/
+} /* end namespace checkpoint */
+
+#endif /*MAGISTRATE_KOKKOS_ENABLED*/
+
+#endif /*INCLUDED_CHECKPOINT_CONTAINER_KOKKOS_ARRAY_H*/

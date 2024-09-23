@@ -73,8 +73,10 @@ TEST_F(KokkosPairTest, test_kokkos_pair) {
     auto pairUnsignedVector = Kokkos::pair<unsigned, std::vector<int>>{30, {2, 3, 4 ,5}};
     test_kokkos_pair(pairUnsignedVector);
 
+#if KOKKOS_VERSION_LESS(4, 4, 0)
     auto pairIntVoid = Kokkos::pair<int, void>(100);
     test_kokkos_pair(pairIntVoid);
+#endif
 }
 
 }}} // namespace checkpoint::tests::unit
