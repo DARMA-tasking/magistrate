@@ -58,22 +58,25 @@ namespace objregistry {
 template <typename T>
 struct ObjectEntry {
 
-  template <typename Allocator, typename Constructor>
+  template <typename Allocator, typename Constructor, typename Caster>
   ObjectEntry(
     TypeIdx in_idx,
     std::size_t in_size,
     Allocator&& in_allocator,
-    Constructor&& in_constructor
+    Constructor&& in_constructor,
+    Caster&& in_caster
   ) : idx_(in_idx),
       size_(in_size),
       allocator_(in_allocator),
-      constructor_(in_constructor)
+      constructor_(in_constructor),
+      caster_(in_caster)
   { }
 
   TypeIdx idx_ = no_type_idx;              /**< The type index for this ObjT */
   std::size_t size_ = 0;                   /**< The registered object size */
   std::function<void*(void)> allocator_;   /**< Do standard allocation for object */
   std::function<T*(void*)> constructor_;   /**< Construct object on memory */
+  std::function<T*(T*)> caster_;           /**< Try to dynamic_cast<ObjT> */
 };
 
 template <typename T>
@@ -110,7 +113,8 @@ Registrar<ObjT>::Registrar() {
       index,
       sizeof(ObjT),
       []()          -> void*       { return std::allocator<ObjT>{}.allocate(1); },
-      [](void* buf) -> BaseType*   { return dispatch::Reconstructor<ObjT>::constructAllowFail(buf); }
+      [](void* buf) -> BaseType*   { return dispatch::Reconstructor<ObjT>::constructAllowFail(buf); },
+      [](BaseType* buf) -> ObjT*   { return dynamic_cast<ObjT*>(buf); }
     }
   );
 }
