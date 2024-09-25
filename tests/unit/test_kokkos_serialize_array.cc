@@ -65,8 +65,20 @@ static void test_kokkos_array(Kokkos::Array<T, N>& refArray) {
 TEST_F(KokkosArrayTest, test_kokkos_array) {
     using namespace ::checkpoint;
 
-    auto arr1 = Kokkos::Array{ 1, 2, 3, 4, 5 };
+    auto arr1 = Kokkos::Array< int, 5 >{ 1, 2, 3, 4, 5 };
     test_kokkos_array(arr1);
+
+    auto arr2 = Kokkos::Array< float, 3 >{ 3.14f, 2.71f, 365.242f };
+    test_kokkos_array(arr2);
+
+    auto arr3 = Kokkos::Array< double, 2 >{ 3.14, 2.71 };
+    test_kokkos_array(arr3);
+
+    auto arr4 = Kokkos::Array< int, 1 >{ 3 };
+    test_kokkos_array(arr4);
+
+    auto empty_arr = Kokkos::Array< double, 0 >{};
+    test_kokkos_array(empty_arr);
 }
 
 }}} // namespace checkpoint::tests::unit

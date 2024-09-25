@@ -62,7 +62,7 @@ void serialize(Serializer& s, Kokkos::Array<T, N, Proxy>& array) {
 #else
 template <typename Serializer, typename T, size_t N>
 void serialize(Serializer& s, Kokkos::Array<T, N>& array) {
-  dispatch::serializeArray(s, &array[0], array.size());
+  dispatch::serializeArray(s, array.data(), array.size());
 }
 #endif
 
