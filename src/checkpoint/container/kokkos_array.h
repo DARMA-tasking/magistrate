@@ -57,7 +57,7 @@ namespace checkpoint {
 template <typename Serializer, typename T, size_t N, class Proxy>
 void serialize(Serializer& s, Kokkos::Array<T, N, Proxy>& array) {
   static_assert(std::is_void_v< Proxy >, "Magistrate does not support serializing Kokkos Arrays with proxies");
-  dispatch::serializeArray(s, &array[0], array.size());
+  dispatch::serializeArray(s, array.data(), array.size());
 }
 #else
 template <typename Serializer, typename T, size_t N>
