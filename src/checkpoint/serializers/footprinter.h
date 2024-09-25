@@ -72,6 +72,20 @@ private:
   SerialSizeType num_bytes_ = 0;
 };
 
+namespace {
+    template <typename>
+    struct is_footprinter_impl : public std::false_type {};
+
+    template <>
+    struct is_footprinter_impl<Footprinter> : public std::true_type {};
+}
+
+template<typename U>
+using is_footprinter = is_footprinter_impl<std::decay_t<U>>;
+
+template<typename U>
+static constexpr const bool is_footprinter_v = is_footprinter<U>::value;
+
 } /* end namespace checkpoint */
 
 #endif /*INCLUDED_SRC_CHECKPOINT_SERIALIZERS_FOOTPRINTER_H*/
