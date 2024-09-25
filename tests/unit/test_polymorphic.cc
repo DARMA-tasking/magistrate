@@ -112,6 +112,8 @@ void testPolymorphicTypes(int val) {
   auto out = checkpoint::deserialize<Base>(std::move(ret));
 
   EXPECT_TRUE(nullptr != out);
+  EXPECT_EQ(typeid(*task), typeid(*out));
+  EXPECT_TRUE(nullptr != dynamic_cast<Derived*>(out.get()));
   EXPECT_EQ(val, out->getVal());
 }
 
