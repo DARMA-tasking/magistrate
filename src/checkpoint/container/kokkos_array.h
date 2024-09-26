@@ -3,7 +3,7 @@
 // *****************************************************************************
 //
 //                                kokkos_array.h
-//                 DARMA/checkpoint => Serialization Library
+//                 DARMA/magistrate => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
 // (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
@@ -41,8 +41,8 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_CHECKPOINT_CONTAINER_KOKKOS_ARRAY_H
-#define INCLUDED_CHECKPOINT_CONTAINER_KOKKOS_ARRAY_H
+#if !defined INCLUDED_SRC_CHECKPOINT_CONTAINER_KOKKOS_ARRAY_H
+#define INCLUDED_SRC_CHECKPOINT_CONTAINER_KOKKOS_ARRAY_H
 
 #include "checkpoint/common.h"
 #include "checkpoint/serializers/serializers_headers.h"
@@ -70,4 +70,4 @@ void serialize(Serializer& s, Kokkos::Array<T, N>& array) {
 
 #endif /*MAGISTRATE_KOKKOS_ENABLED*/
 
-#endif /*INCLUDED_CHECKPOINT_CONTAINER_KOKKOS_ARRAY_H*/
+#endif /*INCLUDED_SRC_CHECKPOINT_CONTAINER_KOKKOS_ARRAY_H*/
