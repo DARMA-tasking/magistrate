@@ -611,6 +611,30 @@ INSTANTIATE_TYPED_TEST_CASE_P(
   test_virtual_serialize_inst, TestVirtualSerialize, ConstructTypes,
 );
 
+/*
+ * Test for deserialization when using the base class type
+ */
+
+using TestDeserializationFromBase = TestHarness;
+
+template<typename Base, typename Derived>
+void testDeserializationFromBase(TestEnum expected_id) {
+  std::unique_ptr<Base> task(new Derived(TEST_CONSTRUCT{}));
+  auto ret = checkpoint::serialize<Base>(*task);
+  auto out = checkpoint::deserialize<Base>(std::move(ret));
+
+  EXPECT_TRUE(nullptr != out);
+  EXPECT_EQ(expected_id, out->getID());
+  out->check();
+}
+
+TEST_F(TestDeserializationFromBase, test_deserialization_from_base) {
+  testDeserializationFromBase<test_2::TestBase, test_2::TestDerived3>(
+    TestEnum::Derived3);
+  testDeserializationFromBase<test_3::TestBase, test_3::TestDerived2>(
+    TestEnum::Derived2);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////

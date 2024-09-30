@@ -266,14 +266,18 @@ packBuffer(T& target, SerialSizeType size, BufferObtainFnType fn) {
 }
 
 template <typename T>
-buffer::ImplReturnType serializeType(T& target, BufferObtainFnType fn) {
+typename std::enable_if<
+  !vrt::VirtualSerializeTraits<T>::has_virtual_serialize,
+  buffer::ImplReturnType>::type
+serializeType(T& target, BufferObtainFnType fn) {
   auto len = Standard::size<T, Sizer>(target);
   debug_checkpoint("serializeType: len=%ld\n", len);
   return packBuffer<T>(target, len, fn);
 }
 
 template <typename T>
-T* deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
+typename std::enable_if<!vrt::VirtualSerializeTraits<T>::has_virtual_serialize, T*>::type
+deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
   auto mem = allocBuf ? allocBuf : Standard::allocate<T>();
   auto t_buf = std::unique_ptr<T>(Standard::construct<T>(mem));
   T* traverser =
@@ -285,6 +289,77 @@ T* deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
 template <typename T>
 void deserializeType(InPlaceTag, SerialByteType* data, T* t) {
   Standard::unpack<T, UnpackerBuffer<buffer::UserBuffer>>(t, data);
+}
+
+template <typename T>
+struct PrefixedType {
+  using BaseType = vrt::checkpoint_base_type_t<T>;
+
+  // Create PrefixedType for serialization purposes
+  explicit PrefixedType(BaseType* target) : target_(target) {
+    prefix_ = target->_checkpointDynamicTypeIndex();
+  }
+
+  // Create PrefixedType for deserialization purposes
+  explicit PrefixedType(SerialByteType* allocBuf) : unpack_buf_(allocBuf) { }
+
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    s | prefix_;
+
+    // Determine the correct type and allocate memory
+    if (s.isUnpacking()) {
+      validatePrefix(prefix_);
+
+      auto mem = unpack_buf_ ? unpack_buf_ : vrt::objregistry::allocateConcreteType<BaseType>(prefix_);
+      target_ = vrt::objregistry::constructConcreteType<BaseType>(prefix_, mem);
+    }
+
+    s | *target_;
+  }
+
+  BaseType* getTarget() const {
+    return target_;
+  }
+
+private:
+  void validatePrefix(vrt::TypeIdx prefix) {
+    if (!vrt::objregistry::isValidIdx<BaseType>(prefix)) {
+      std::string const err = std::string("Unpacking invalid prefix type (") +
+        std::to_string(prefix) + std::string(") from object registry for type=") +
+        std::string(typeregistry::getTypeName<BaseType>());
+      throw serialization_error(err);
+    }
+  }
+
+  vrt::TypeIdx prefix_ = 0;
+  BaseType* target_ = nullptr;
+  SerialByteType* unpack_buf_ = nullptr;
+};
+
+template <typename T>
+typename std::enable_if<
+  vrt::VirtualSerializeTraits<T>::has_virtual_serialize,
+  buffer::ImplReturnType>::type
+serializeType(T& target, BufferObtainFnType fn) {
+  using BaseType = vrt::checkpoint_base_type_t<T>;
+  using PrefixedType = PrefixedType<BaseType>;
+
+  auto prefixed = PrefixedType(&target);
+  auto len = Standard::size<PrefixedType, Sizer>(prefixed);
+  debug_checkpoint("serializeType: len=%ld\n", len);
+  return packBuffer<PrefixedType>(prefixed, len, fn);
+}
+
+template <typename T>
+typename std::enable_if<vrt::VirtualSerializeTraits<T>::has_virtual_serialize, T*>::type
+deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
+  using BaseType = vrt::checkpoint_base_type_t<T>;
+  using PrefixedType = PrefixedType<BaseType>;
+
+  auto prefixed = PrefixedType(allocBuf);
+  auto* traverser = Standard::unpack<PrefixedType, UnpackerBuffer<buffer::UserBuffer>>(&prefixed, data);
+  return static_cast<T*>(traverser->getTarget());
 }
 
 }} /* end namespace checkpoint::dispatch */
