@@ -665,12 +665,15 @@ TEST_F(TestFootprinter, test_kokkos_pair) {
     EXPECT_EQ(checkpoint::getMemoryFootprint(pairIntInt), expected_size);
   }
   // 'pair' without second element
+  // This is deprecated in Kokkos >= 4.4
+#if KOKKOS_VERSION_LESS(4, 4, 0)
   {
     auto pairIntVoid = Kokkos::pair<int, void>(10);
     auto expected_size = sizeof(pairIntVoid.first);
 
     EXPECT_EQ(checkpoint::getMemoryFootprint(pairIntVoid), expected_size);
   }
+#endif  // KOKKOS_VERSION_LESS(4, 4, 0)
 }
 
 TEST_F(TestFootprinter, test_kokkos_complex) {

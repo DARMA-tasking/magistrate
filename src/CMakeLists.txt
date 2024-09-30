@@ -95,11 +95,11 @@ if (${Kokkos_DIR_FOUND})
     message(STATUS "Magistrate: Kokkos kernels disabled")
     set(KERNELS 0)
   endif()
+  message(STATUS "Magistrate: Kokkos (Version ${Kokkos_VERSION}) enabled")
   target_compile_definitions(
     ${MAGISTRATE_LIBRARY} PUBLIC
     MAGISTRATE_KOKKOS_ENABLED=1 MAGISTRATE_KOKKOS_KERNELS_ENABLED=${KERNELS}
   )
-  message(STATUS "Magistrate: Kokkos enabled")
   target_link_libraries(${MAGISTRATE_LIBRARY} PUBLIC Kokkos::kokkos)
 endif()
 

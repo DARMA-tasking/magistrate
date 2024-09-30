@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                 checkpoint.h
+//                        test_kokkos_serialize_array.cc
 //                 DARMA/magistrate => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -41,41 +41,46 @@
 //@HEADER
 */
 
-#if !defined INCLUDED_SRC_CHECKPOINT_CHECKPOINT_H
-#define INCLUDED_SRC_CHECKPOINT_CHECKPOINT_H
+#include <Kokkos_Array.hpp>
+#if MAGISTRATE_KOKKOS_ENABLED
 
-#include "checkpoint/serializers/serializers_headers.h"
-#include "checkpoint/dispatch/dispatch.h"
-#include "checkpoint/traits/serializable_traits.h"
+#include "test_commons.h"
 
-#include "checkpoint/container/array_serialize.h"
-#include "checkpoint/container/atomic_serialize.h"
-#include "checkpoint/container/chrono_serialize.h"
-#include "checkpoint/container/enum_serialize.h"
-#include "checkpoint/container/function_serialize.h"
-#include "checkpoint/container/list_serialize.h"
-#include "checkpoint/container/map_serialize.h"
-#include "checkpoint/container/queue_serialize.h"
-#include "checkpoint/container/raw_ptr_serialize.h"
-#include "checkpoint/container/shared_ptr_serialize.h"
-#include "checkpoint/container/string_serialize.h"
-#include "checkpoint/container/thread_serialize.h"
-#include "checkpoint/container/tuple_serialize.h"
-#include "checkpoint/container/vector_serialize.h"
-#include "checkpoint/container/unique_ptr_serialize.h"
-#include "checkpoint/container/view_serialize.h"
-#include "checkpoint/container/variant_serialize.h"
-#include "checkpoint/container/optional_serialize.h"
+namespace checkpoint { namespace tests { namespace unit {
 
-#include "checkpoint/container/kokkos_unordered_map_serialize.h"
-#include "checkpoint/container/kokkos_pair_serialize.h"
-#include "checkpoint/container/kokkos_array.h"
-#include "checkpoint/container/kokkos_complex_serialize.h"
+struct KokkosArrayTest : virtual testing::Test { };
 
-#include "checkpoint/checkpoint_api.h"
-#include "checkpoint/checkpoint_api.impl.h"
+template <typename T, size_t N>
+static void test_kokkos_array(Kokkos::Array<T, N>& refArray) {
+    using array_type = Kokkos::Array<T, N>;
 
-// Add namespace alias for the new name of the library
-namespace magistrate = checkpoint;
+    auto serialized = checkpoint::serialize<array_type>(refArray);
+    auto deserialized = checkpoint::deserialize<array_type>(serialized->getBuffer());
+    auto& outArray = *deserialized;
 
-#endif /*INCLUDED_SRC_CHECKPOINT_CHECKPOINT_H*/
+    for (size_t i = 0; i < N; ++i )
+        ASSERT_EQ(refArray[i], outArray[i]);
+}
+
+TEST_F(KokkosArrayTest, test_kokkos_array) {
+    using namespace ::checkpoint;
+
+    auto arr1 = Kokkos::Array< int, 5 >{ 1, 2, 3, 4, 5 };
+    test_kokkos_array(arr1);
+
+    auto arr2 = Kokkos::Array< float, 3 >{ 3.14f, 2.71f, 365.242f };
+    test_kokkos_array(arr2);
+
+    auto arr3 = Kokkos::Array< double, 2 >{ 3.14, 2.71 };
+    test_kokkos_array(arr3);
+
+    auto arr4 = Kokkos::Array< int, 1 >{ 3 };
+    test_kokkos_array(arr4);
+
+    auto empty_arr = Kokkos::Array< double, 0 >{};
+    test_kokkos_array(empty_arr);
+}
+
+}}} // namespace checkpoint::tests::unit
+
+#endif /*MAGISTRATE_KOKKOS_ENABLED*/
