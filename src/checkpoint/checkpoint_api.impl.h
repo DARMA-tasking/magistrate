@@ -53,9 +53,9 @@
 
 namespace checkpoint {
 
-template <typename T>
+template <typename T, typename... Traits>
 SerializedReturnType serialize(T& target, BufferCallbackType fn) {
-  auto ret = dispatch::serializeType<T>(target, fn);
+  auto ret = dispatch::serializeType<T, UserTraitHolder<Traits...>>(target, fn);
   auto& buf = std::get<0>(ret);
   std::unique_ptr<SerializedInfo> base_ptr(
     static_cast<SerializedInfo*>(buf.release())
@@ -63,87 +63,87 @@ SerializedReturnType serialize(T& target, BufferCallbackType fn) {
   return base_ptr;
 }
 
-template <typename T>
+template <typename T, typename... Traits>
 T* deserialize(char* buf, char* object_buf) {
-  return dispatch::deserializeType<T>(buf, object_buf);
+  return dispatch::deserializeType<T, UserTraitHolder<Traits...>>(buf, object_buf);
 }
 
-template <typename T>
+template <typename T, typename... Traits>
 std::unique_ptr<T> deserialize(char* buf) {
-  auto t = dispatch::deserializeType<T>(buf);
+  auto t = dispatch::deserializeType<T, UserTraitHolder<Traits...>>(buf);
   return std::unique_ptr<T>(t);
 }
 
-template <typename T>
+template <typename T, typename... Traits>
 std::unique_ptr<T> deserialize(SerializedReturnType&& in) {
-  auto t = dispatch::deserializeType<T>(in->getBuffer());
+  auto t = dispatch::deserializeType<T, UserTraitHolder<Traits...>>(in->getBuffer());
   return std::unique_ptr<T>(t);
 }
 
-template <typename T>
+template <typename T, typename... Traits>
 void deserializeInPlace(char* buf, T* t) {
-  return dispatch::deserializeType<T>(dispatch::InPlaceTag{}, buf, t);
+  return dispatch::deserializeType<T, UserTraitHolder<Traits...>>(dispatch::InPlaceTag{}, buf, t);
 }
 
-template <typename T>
+template <typename T, typename... Traits>
 std::size_t getSize(T& target) {
-  return dispatch::Standard::size<T, Sizer>(target);
+  return dispatch::Standard::size<T, Sizer, UserTraitHolder<Traits...>>(target);
 }
 
-template <typename T>
+template <typename T, typename... Traits>
 std::size_t getMemoryFootprint(T& target, std::size_t size_offset) {
   return size_offset + std::max(
-    dispatch::Standard::footprint<T, Footprinter>(target),
+    dispatch::Standard::footprint<T, Footprinter, UserTraitHolder<Traits...>>(target),
     sizeof(target)
   );
 }
 
-template <typename T>
+template <typename T, typename... Traits>
 void serializeToFile(T& target, std::string const& file) {
-  auto len = getSize<T>(target);
-  dispatch::Standard::pack<T, PackerBuffer<buffer::IOBuffer>>(
+  auto len = getSize<Traits...>(target);
+  dispatch::Standard::pack<T, PackerBuffer<buffer::IOBuffer>, UserTraitHolder<Traits...>>(
     target, len, buffer::IOBuffer::WriteToFileTag{}, len, file
   );
 }
 
-template <typename T>
+template <typename T, typename... Traits>
 std::unique_ptr<T> deserializeFromFile(std::string const& file) {
   auto mem = dispatch::Standard::allocate<T>();
   T* t_buf = dispatch::Standard::construct<T>(mem);
-  auto t = dispatch::Standard::unpack<T, UnpackerBuffer<buffer::IOBuffer>>(
+  auto t = dispatch::Standard::unpack<T, UnpackerBuffer<buffer::IOBuffer>, UserTraitHolder<Traits...>>(
     t_buf, buffer::IOBuffer::ReadFromFileTag{}, file
   );
   return std::unique_ptr<T>(t);
 }
 
-template <typename T>
+template <typename T, typename... Traits>
 void deserializeInPlaceFromFile(std::string const& file, T* t) {
-  dispatch::Standard::unpack<T, UnpackerBuffer<buffer::IOBuffer>>(
+  dispatch::Standard::unpack<T, UnpackerBuffer<buffer::IOBuffer>, UserTraitHolder<Traits...>>(
     t, buffer::IOBuffer::ReadFromFileTag{}, file
   );
 }
 
-template <typename T, typename StreamT>
+template <typename T, typename... Traits, typename StreamT>
 void serializeToStream(T& target, StreamT& stream) {
   auto len = getSize<T>(target);
-  dispatch::Standard::pack<T, StreamPacker<StreamT>>(
+  dispatch::Standard::pack<T, StreamPacker<StreamT>, UserTraitHolder<Traits...>>(
     target, len, stream
   );
 }
 
-template <typename T, typename StreamT>
+template <typename T, typename... Traits, typename StreamT>
 std::unique_ptr<T> deserializeFromStream(StreamT& stream) {
   auto mem = dispatch::Standard::allocate<T>();
   T* t_buf = dispatch::Standard::construct<T>(mem);
-  auto t = dispatch::Standard::unpack<T, StreamUnpacker<StreamT>>(
+  auto t = dispatch::Standard::unpack<T, StreamUnpacker<StreamT>, UserTraitHolder<Traits...>>(
     t_buf, stream
   );
   return std::unique_ptr<T>(t);
 }
 
-template <typename T, typename StreamT>
+template <typename T, typename... Traits, typename StreamT>
 void deserializeInPlaceFromStream(StreamT& stream, T* t) {
-  dispatch::Standard::unpack<T, StreamUnpacker<StreamT>>(
+  dispatch::Standard::unpack<T, StreamUnpacker<StreamT>, UserTraitHolder<Traits...>>(
     t, stream
   );
 }

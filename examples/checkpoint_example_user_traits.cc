@@ -2,7 +2,7 @@
 //@HEADER
 // *****************************************************************************
 //
-//                                footprinter.h
+//                      checkpoint_example_user_traits.cc
 //                 DARMA/magistrate => Serialization Library
 //
 // Copyright 2019 National Technology & Engineering Solutions of Sandia, LLC
@@ -40,55 +40,21 @@
 // *****************************************************************************
 //@HEADER
 */
+#include "checkpoint/checkpoint.h"
 
-#if !defined INCLUDED_SRC_CHECKPOINT_SERIALIZERS_FOOTPRINTER_H
-#define INCLUDED_SRC_CHECKPOINT_SERIALIZERS_FOOTPRINTER_H
+#include "checkpoint_example_user_traits.hpp"
 
-#include "checkpoint/common.h"
-#include "checkpoint/serializers/base_serializer.h"
+int main(int, char**){
+  test::TestObj obj;
 
-namespace checkpoint {
-
-struct Footprinter : BaseSerializer {
-  Footprinter() : BaseSerializer(ModeType::Footprinting) { }
-
-  SerialSizeType getMemoryFootprint() const {
-    return num_bytes_;
-  }
-  void contiguousBytes(void*, SerialSizeType size, SerialSizeType num_elms) {
-    num_bytes_ += size * num_elms;
-  }
-
-  template<typename T>
-  void countBytes(const T& t) {
-    num_bytes_ += sizeof(t);
-  }
-
-  void addBytes(std::size_t s) {
-    num_bytes_ += s;
-  }
-
-private:
-  SerialSizeType num_bytes_ = 0;
-};
-
-namespace {
-    template <typename>
-    struct is_footprinter_impl : public std::false_type {};
-
-    template <typename UserTraits>
-    struct is_footprinter_impl<SerializerRef<Footprinter, UserTraits>> : std::true_type {};
-
-    template <>
-    struct is_footprinter_impl<Footprinter> : public std::true_type {};
+  //Each invocation will be handled based on the traits attached
+  auto s_info_a = checkpoint::serialize(obj);
+  auto s_info_b = checkpoint::serialize<test::TestObj, checkpoint_trait>(obj);
+  auto s_info_c = checkpoint::serialize<test::TestObj, checkpoint_trait, checkpoint_trait>(obj);
+  auto s_info_d = checkpoint::serialize<test::TestObj, test::random_trait, checkpoint_trait>(obj);
+  auto s_info_e = checkpoint::serialize<test::TestObj, checkpoint_trait, test::random_trait>(obj);
+  auto s_info_f = checkpoint::serialize<test::TestObj, test::random_trait, test::random_trait>(obj);
+  auto s_info_g = checkpoint::serialize<test::TestObj, shallow_trait>(obj);
+  auto s_info_h = checkpoint::serialize<test::TestObj, misc::namespace_trait>(obj);
+  auto s_info_i = checkpoint::serialize<test::TestObj, misc::hook_all_trait>(obj);
 }
-
-template<typename U>
-using is_footprinter = is_footprinter_impl<std::decay_t<U>>;
-
-template<typename U>
-static constexpr const bool is_footprinter_v = is_footprinter<U>::value;
-
-} /* end namespace checkpoint */
-
-#endif /*INCLUDED_SRC_CHECKPOINT_SERIALIZERS_FOOTPRINTER_H*/
