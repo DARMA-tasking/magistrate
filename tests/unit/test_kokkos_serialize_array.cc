@@ -41,8 +41,8 @@
 //@HEADER
 */
 
-#include <Kokkos_Array.hpp>
 #if MAGISTRATE_KOKKOS_ENABLED
+#include <Kokkos_Array.hpp>
 
 #include "test_commons.h"
 
