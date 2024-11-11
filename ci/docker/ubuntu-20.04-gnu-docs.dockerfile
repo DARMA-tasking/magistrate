@@ -1,6 +1,6 @@
 
 ARG arch=amd64
-FROM ${arch}/ubuntu:20.04 as base
+FROM ${arch}/ubuntu:20.04 AS base
 
 ARG proxy=""
 ARG compiler=gcc-8
@@ -13,33 +13,33 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -y -q && \
     apt-get install -y -q --no-install-recommends \
-    ca-certificates \
-    curl \
-    cmake \
-    git \
-    mpich \
-    libmpich-dev \
-    wget \
-    ${compiler} \
-    zlib1g \
-    zlib1g-dev \
-    ninja-build \
-    doxygen \
-    unzip \
-    python3 \
-    python3-jinja2 \
-    python3-pygments \
-    texlive-font-utils \
-    ghostscript \
-    ccache && \
+        ${compiler} \
+        ca-certificates \
+        ccache \
+        curl \
+        ghostscript \
+        git \
+        libmpich-dev \
+        mpich \
+        ninja-build \
+        python3 \
+        python3-jinja2 \
+        python3-pygments \
+        texlive-font-utils \
+        unzip \
+        wget \
+        zlib1g \
+        zlib1g-dev &&\
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 COPY ./ci/deps/cmake.sh cmake.sh
 RUN ./cmake.sh 3.23.4 ${arch}
-
 ENV PATH=/cmake/bin/:$PATH
-ENV LESSCHARSET=utf-8
+
+COPY ./ci/deps/doxygen.sh doxygen.sh
+RUN ./doxygen.sh 1.8.16
+ENV PATH=/doxygen/bin/:$PATH
 
 COPY ./ci/deps/gtest.sh gtest.sh
 RUN ./gtest.sh 1.8.1 /pkgs
@@ -57,9 +57,10 @@ ENV MPI_EXTRA_FLAGS="" \
     CMAKE_PREFIX_PATH="/lib/x86_64-linux-gnu/" \
     CC=mpicc \
     CXX=mpicxx \
+    LESSCHARSET=utf-8 \
     PATH=/usr/lib/ccache/:$PATH
 
-FROM base as build
+FROM base AS build
 COPY . /checkpoint
 
 ARG token
