@@ -1,4 +1,4 @@
-\mainpage Introduction
+\mainpage DARMA/magistrate => serialization and checkpointing library
 
 \section ckpt_what_is What is magistrate?
 
@@ -12,9 +12,7 @@ snapshots of objects to disk.
 
 \section License
 
-@m_class{m-note m-dim}
-
-@parblock
+@m_class{m-note m-dim} @parblock
 Copyright 2021 National Technology & Engineering Solutions of Sandia, LLC
 (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.
