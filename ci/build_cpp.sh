@@ -60,7 +60,7 @@ then
     git clone --depth=1 "https://${token}@github.com/DARMA-tasking/DARMA-tasking.github.io"
     git clone https://github.com/mosra/m.css
     cd m.css
-    git checkout 5235066
+    git checkout 699abdd5
     cd ../
     "$MCSS/documentation/doxygen.py" Doxyfile-mcss
     CKPT_NAME=checkpoint_docs
@@ -70,7 +70,7 @@ then
     git config --global user.email "jliffla@sandia.gov"
     git config --global user.name "Jonathan Lifflander"
     git add "$CKPT_NAME"
-    git commit -m "Update checkpoint_docs (auto-build)"
+    git commit -m "Update magistrate_docs (auto-build)"
     git push origin master
 else
     time cmake --build . --target "${target}"
