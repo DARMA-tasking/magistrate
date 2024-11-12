@@ -2,7 +2,7 @@
 
 *Serialization* is the process of recursively traversing C++ objects into a
 simple format that can be stored or transmitted and reconstructed later.
-*checkpoint* translates the object into a set of contiguous bits and provides
+*magistrate* translates the object into a set of contiguous bits and provides
 the steps to reverse the process, i.e. to reconstitute the object from the set
 of bits.
 
@@ -55,15 +55,15 @@ to actually perform the serialization.
 
 \subsection reconstruct_class Class reconstruction
 
-There are several ways to allow *checkpoint* to reconstruct a
-class. *checkpoint* will try to detect a reconstruction strategy in the
+There are several ways to allow *magistrate* to reconstruct a
+class. *magistrate* will try to detect a reconstruction strategy in the
 following resolution order:
-  1. Tagged constructor: `MyClass(checkpoint::SERIALIZE_CONSTRUCT_TAG) {}`
+  1. Tagged constructor: `MyClass(magistrate::SERIALIZE_CONSTRUCT_TAG) {}`
   1. Reconstruction `MyClass::reconstruct(buf)` or `reconstruct(MyClass, buf)`
   1. Default constructor: `MyClass()`
 
-If no reconstruct strategy is detected with type traits, *checkpoint* will fail
-at compile-time with a static assertion indicating that *checkpoint* can't
+If no reconstruct strategy is detected with type traits, *magistrate* will fail
+at compile-time with a static assertion indicating that *magistrate* can't
 reconstruct the class.
 
 The example in \ref ckpt_learn_ex1 illustrates the reconstruct method.
@@ -83,10 +83,10 @@ serialization of the class state.
 To serialize polymorphic class hierarchies, one must write serializers for each
 class in the hierarchy. Then, the user should either insert macros
 `checkpoint_virtual_serialize_root()` and
-`checkpoint_virtual_serialize_derived_from(T)` to inform *checkpoint* of the
+`checkpoint_virtual_serialize_derived_from(T)` to inform *magistrate* of the
 hierarchy so it can automatically traverse the hierarchy. Alternatively, the
-user may use the inheritance wrappers `checkpoint::SerializableBase<T>` and
-`checkpoint::SerializableDerived<T, U>` to achieve the same effect.
+user may use the inheritance wrappers `magistrate::SerializableBase<T>` and
+`magistrate::SerializableDerived<T, U>` to achieve the same effect.
 
 The example in \ref ckpt_learn_ex6_polymorphic_macro illustrates the
 approach uses the macros. The example in \ref ckpt_learn_example_polymorphic
@@ -99,6 +99,6 @@ illustrates this approach.
   type.
 
 - If one has a raw pointer, `Teuchos::RCP<T>`, or `std::shared_ptr<T>`,
-   `checkpoint::allocateConstructForPointer<SerializerT,T>(s, ptr)` can be
+   `magistrate::allocateConstructForPointer<SerializerT,T>(s, ptr)` can be
    invoked to properly allocate and construct the concrete class depending on
    runtime type.

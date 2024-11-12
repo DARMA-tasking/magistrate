@@ -1,6 +1,6 @@
 \page ckpt_learn_ex2 Program Example 2
 
-The full code for this *checkpoint* example can be found here:
+The full code for this *magistrate* example can be found here:
 `examples/checkpoint_example_2.cc`
 
 \subsubsection ex2 Example source code:

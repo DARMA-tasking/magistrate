@@ -1,21 +1,21 @@
 \page ckpt_learn_build How to Build
 
-checkpoint can be built with `cmake`.
+magistrate can be built with `cmake`.
 
 \section ckpt_how-to-build Building
 
-To build *checkpoint*, one must obtain the following dependencies:
+To build *magistrate*, one must obtain the following dependencies:
 
 \subsection ckpt_optional-deps Optional
 
-  - gtest,   (if testing *checkpoint* is enabled)
+  - gtest,   (if testing *magistrate* is enabled)
   - MPI,   (if MPI tests are enabled)
   - [Kokkos](https://github.com/kokkos/kokkos),  (if Kokkos views need to be serialized)
   - [KokkosKernels](https://github.com/kokkos/kokkos-kernels),  (if Kokkos kernel data structures need to be serialized)
 
 \subsection ckpt_use-cmake-directly-vars Using cmake directly
 
-One may use `cmake` to build *checkpoint* once the dependencies are installed.
+One may use `cmake` to build *magistrate* once the dependencies are installed.
 The following are some options that can be provided to `cmake` to change the
 build configuration:
 
@@ -24,22 +24,22 @@ build configuration:
 | `gtest_DIR`                                          |               | Install directory for googletest              |
 | `Kokkos_DIR`                                         |               | Install directory for kokkos                  |
 | `KokkosKernels_DIR`                                  |               | Install directory for kokkoskernels           |
-| `checkpoint_tests_enabled`                           | 0             | Build *checkpoint* tests                      |
-| `checkpoint_mpi_enabled`                             | 0             | Build *checkpoint* with MPI for tests         |
-| `checkpoint_examples_enabled`                        | 0             | Build *checkpoint* examples                   |
-| `checkpoint_warnings_as_errors`                      | 0             | Make all warnings errors during build         |
-| `checkpoint_doxygen_enabled`                         | 0             | Enable doxygen generation                     |
-| `checkpoint_asan_enabled`                            | 0             | Enable address sanitizer                      |
-| `checkpoint_ubsan_enabled`                           | 0             | Enable undefined behavior sanitizer           |
-| `checkpoint_serialization_error_checking_enabled(*)` | 0             | Enable extensive serialization error checking |
+| `magistrate_tests_enabled`                           | 0             | Build *magistrate* tests                      |
+| `magistrate_mpi_enabled`                             | 0             | Build *magistrate* with MPI for tests         |
+| `magistrate_examples_enabled`                        | 0             | Build *magistrate* examples                   |
+| `magistrate_warnings_as_errors`                      | 0             | Make all warnings errors during build         |
+| `magistrate_doxygen_enabled`                         | 0             | Enable doxygen generation                     |
+| `magistrate_asan_enabled`                            | 0             | Enable address sanitizer                      |
+| `magistrate_ubsan_enabled`                           | 0             | Enable undefined behavior sanitizer           |
+| `magistrate_serialization_error_checking_enabled(*)` | 0             | Enable extensive serialization error checking |
 | `CODE_COVERAGE`                                      | 0             | Generate code coverage report                 |
 
-* note that if `checkpoint_serialization_error_checking_enabled` is not explicitly enabled or disabled, it will be **enabled** for `Debug` and `RelWithDebInfo` builds and disabled for others.
+* note that if `magistrate_serialization_error_checking_enabled` is not explicitly enabled or disabled, it will be **enabled** for `Debug` and `RelWithDebInfo` builds and disabled for others.
 
 \subsection using-the-build-script Using the Build Script
 
-Instead of running `cmake`, one may invoke the `checkpoint/ci/build_cpp.sh`
-script which will run `cmake` for *checkpoint* with environment variables for
+Instead of running `cmake`, one may invoke the `magistrate/ci/build_cpp.sh`
+script which will run `cmake` for *magistrate* with environment variables for
 most configuration parameters.
 
 \subsubsection building-environment-variables Build Script Environment Variables
@@ -54,27 +54,27 @@ most configuration parameters.
 | `MAGISTRATE_DOXYGEN_ENABLED`                      | 0             | Enable doxygen generation                         |
 | `MAGISTRATE_ASAN_ENABLED`                         | 0             | Enable building with address sanitizer            |
 | `MAGISTRATE_UBSAN_ENABLED`                        | 0             | Enable building with undefined behavior sanitizer |
-| `MAGISTRATE_TESTS_ENABLED`                        | 1             | Enable checkpoint tests                           |
-| `MAGISTRATE_EXAMPLES_ENABLED`                     | 1             | Enable checkpoint examples                        |
+| `MAGISTRATE_TESTS_ENABLED`                        | 1             | Enable magistrate tests                           |
+| `MAGISTRATE_EXAMPLES_ENABLED`                     | 1             | Enable magistrate examples                        |
 | `MAGISTRATE_WARNINGS_AS_ERRORS`                   | 0             | Make all warnings errors during build             |
 | `MAGISTRATE_SERIALIZATION_ERROR_CHECKING_ENABLED` | 0             | Enable extensive error checking of serialization  |
-| `MAGISTRATE_MPI_ENABLED`                          | 1             | Enable checkpoint MPI for testing                 |
+| `MAGISTRATE_MPI_ENABLED`                          | 1             | Enable magistrate MPI for testing                 |
 
 * note that if `MAGISTRATE_SERIALIZATION_ERROR_CHECKING_ENABLED` is not explicitly enabled or disabled, it will be **enabled** for `Debug` and `RelWithDebInfo` builds and disabled for others.
 
 With these set, invoke the script with two arguments: the path to the
-*checkpoint* root directory and the build path. Here's an example assuming that
-*checkpoint* is cloned into `/usr/src/checkpoint` with trace enabled in debug mode.
+*magistrate* root directory and the build path. Here's an example assuming that
+*magistrate* is cloned into `/usr/src/magistrate` with trace enabled in debug mode.
 
 **Usage for building:**
 
 ```bash
-$ checkpoint/ci/build_cpp.sh <full-path-to-checkpoint-source> <full-path-to-build-dir>
+$ magistrate/ci/build_cpp.sh <full-path-to-magistrate-source> <full-path-to-build-dir>
 ```
 
 \subsection docker-build Building with docker containerization
 
-The easiest way to build *checkpoint* is by using `docker` with the available
+The easiest way to build *magistrate* is by using `docker` with the available
 containers that contain the proper compilers, MPI, and all other
 dependencies. First, install `docker` on the system. On some systems,
 `docker-compose` might also need to be installed.
@@ -88,7 +88,7 @@ Nvidia) and compiler version, Linux distro (ubuntu or alpine), and distro
 version.
 
 The default set of the docker configuration options is located in
-`checkpoint/.env`, which `docker-compose` will read.
+`magistrate/.env`, which `docker-compose` will read.
 
 ```
 # Variables:
@@ -103,10 +103,10 @@ The default set of the docker configuration options is located in
 #   UBUNTU={18.04, 20.04}
 #   ULIMIT_CORE=0
 #
-# DARMA/checkpoint Configuration Variables:
-#   MAGISTRATE_TESTS=1                        # Enable checkpoint tests
-#   MAGISTRATE_EXAMPLES=1                     # Enable checkpoint examples
-#   MAGISTRATE_MPI=1                          # Enable checkpoint MPI tests
+# DARMA/magistrate Configuration Variables:
+#   MAGISTRATE_TESTS=1                        # Enable magistrate tests
+#   MAGISTRATE_EXAMPLES=1                     # Enable magistrate examples
+#   MAGISTRATE_MPI=1                          # Enable magistrate MPI tests
 #   MAGISTRATE_WARNINGS_AS_ERRORS=0           # Treat warnings as errors in compilation
 #   MAGISTRATE_ASAN=0                         # Enable address sanitizer in build
 #   MAGISTRATE_UBSAN=0                        # Enable undefined behavior sanitizer in build
@@ -121,7 +121,7 @@ ubuntu. Or, to speed up the build process, the base container can be pulled for
 many of the common configurations: `docker-compose pull ubuntu-cpp`.
 
 ```bash
-$ cd checkpoint
+$ cd magistrate
 $ docker-compose run -e BUILD_TYPE=debug ubuntu-cpp
 ```
 
@@ -129,8 +129,8 @@ For an interactive build with ubuntu, where one can build, debug, and run
 `valgrind`, etc:
 
 ```bash
-$ cd checkpoint
+$ cd magistrate
 $ docker-compose run -e BUILD_TYPE=debug ubuntu-cpp-interactive
-# /checkpoint/ci/build_cpp.sh /checkpoint /build
-# /checkpoint/ci/test_cpp.sh /checkpoint /build
+# /magistrate/ci/build_cpp.sh /magistrate /build
+# /magistrate/ci/test_cpp.sh /magistrate /build
 ```
