@@ -42,9 +42,6 @@
 #  $ COMPILER=gcc-8 docker-compose run ubuntu-cpp
 #
 
-# Need verision >= 3.5 for the features in use
-version: '3.5'
-
 # Named volumes must be predefined according the docker compose rules. Many
 # combinations have already been added, but if a needed configuration is missing
 # add it to this list.
@@ -113,18 +110,7 @@ services:
   # Ubuntu gcc-8 debug build:
   #   docker-compose run -e CMAKE_BUILD_TYPE=debug ubuntu-cpp
   ubuntu-cpp:
-    image: ${REPO}:${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
-    build:
-      context: .
-      target: base
-      dockerfile: ci/docker/ubuntu-${UBUNTU}-${COMPILER_TYPE}-cpp.dockerfile
-      cache_from:
-        - ${REPO}:${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
-      args: &default-args
-        arch: ${ARCH}
-        proxy: ${PROXY}
-        compiler: ${COMPILER}
-        distro: ${UBUNTU}
+    image: ${REPO}:wf-${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
     ulimits: &ulimits
       core: ${ULIMIT_CORE}
     environment:
@@ -139,13 +125,6 @@ services:
 
   ubuntu-cpp-vt:
     image: ${REPO}:${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
-    build:
-      context: .
-      target: base
-      dockerfile: ci/docker/ubuntu-${UBUNTU}-${COMPILER_TYPE}-cpp.dockerfile
-      cache_from:
-        - ${REPO}:${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
-      args: *default-args
     ulimits: *ulimits
     environment:
       <<: [*ccache, *checkpointopts]
@@ -167,13 +146,6 @@ services:
   #   $ /checkpoint/ci/test_cpp.sh  /checkpoint /build
   ubuntu-cpp-interactive:
     image: ${REPO}:${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
-    build:
-      context: .
-      target: base
-      dockerfile: ci/docker/ubuntu-${UBUNTU}-${COMPILER_TYPE}-cpp.dockerfile
-      cache_from:
-        - ${REPO}:${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
-      args: *default-args
     ulimits: *ulimits
     environment:
       <<: [*ccache, *checkpointopts]
@@ -184,15 +156,6 @@ services:
   # container baseline.
   ubuntu-docs:
     image: ${REPO}:${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-docs
-    build:
-      context: .
-      target: base
-      dockerfile: ci/docker/ubuntu-${UBUNTU}-${COMPILER_TYPE}-docs.dockerfile
-      cache_from:
-        - ${REPO}:${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
-      args:
-        <<: *default-args
-        token: ${TOKEN}
     ulimits: *ulimits
     environment:
       <<: *ccache
