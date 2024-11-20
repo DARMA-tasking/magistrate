@@ -115,7 +115,7 @@ TEST_F(TestObject, test_serialization_error_checking) {
 }
 
 struct Base {
-  checkpoint_virtual_serialize_root()
+  magistrate_virtual_serialize_root()
 
   virtual ~Base() = default;
 
@@ -128,7 +128,7 @@ struct Base {
 };
 
 struct Derived : public Base {
-  checkpoint_virtual_serialize_derived_from(Base)
+  magistrate_virtual_serialize_derived_from(Base)
 
   int dd{4};
 

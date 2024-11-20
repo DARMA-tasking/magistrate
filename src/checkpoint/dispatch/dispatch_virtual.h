@@ -68,8 +68,8 @@
  *
  *   - Insert checkpoint macros in your virtual class hierarchy for derived and
  *     base classes with the corresponding macros:
- *     - \c checkpoint_virtual_serialize_root()
- *     - \c checkpoint_virtual_serialize_derived_from(ParentT)
+ *     - \c magistrate_virtual_serialize_root()
+ *     - \c magistrate_virtual_serialize_derived_from(ParentT)
  *
  * --------------------------- Invocation ------------------------------------
  *

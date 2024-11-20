@@ -83,7 +83,7 @@ void serialize(Serializer& s, Test2 t) {
 
 struct TestBase {
 
-  checkpoint_virtual_serialize_root()
+  magistrate_virtual_serialize_root()
 
   virtual ~TestBase() = default;
 
@@ -100,7 +100,7 @@ struct TestDerived2 : TestBase {
   explicit TestDerived2(int) {}
   explicit TestDerived2(SERIALIZE_CONSTRUCT_TAG) {}
 
-  checkpoint_virtual_serialize_derived_from(TestBase)
+  magistrate_virtual_serialize_derived_from(TestBase)
 
   template <
     typename SerializerT,

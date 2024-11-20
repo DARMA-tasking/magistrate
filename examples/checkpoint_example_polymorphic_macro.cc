@@ -57,7 +57,7 @@ struct MyBase {
   virtual ~MyBase() = default;
 
   // Add serializing macro
-  checkpoint_virtual_serialize_root()
+  magistrate_virtual_serialize_root()
 
   int val_ = 0;
 
@@ -76,7 +76,7 @@ struct MyObj : public MyBase {
   explicit MyObj(::magistrate::SERIALIZE_CONSTRUCT_TAG) {}
 
   // Add macro for serialization
-  checkpoint_virtual_serialize_derived_from(MyBase)
+  magistrate_virtual_serialize_derived_from(MyBase)
 
   template <typename SerializerT>
   void serialize(SerializerT&) {
@@ -94,7 +94,7 @@ struct MyObj2 : public MyBase {
   explicit MyObj2(::magistrate::SERIALIZE_CONSTRUCT_TAG) {}
 
   // Add macro for serialization
-  checkpoint_virtual_serialize_derived_from(MyBase)
+  magistrate_virtual_serialize_derived_from(MyBase)
 
   template <typename SerializerT>
   void serialize(SerializerT&) {
@@ -114,7 +114,7 @@ struct MyObj3 : public MyBase {
   explicit MyObj3(::magistrate::SERIALIZE_CONSTRUCT_TAG) {}
 
   // Add macro for serialization
-  checkpoint_virtual_serialize_derived_from(MyBase)
+  magistrate_virtual_serialize_derived_from(MyBase)
 
   template <typename SerializerT>
   void serialize(SerializerT& s) {
