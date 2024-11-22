@@ -41,9 +41,7 @@
 //@HEADER
 */
 #if MAGISTRATE_KOKKOS_ENABLED
-
-#include "test_harness.h"
-#include "test_commons.h"
+#include <Kokkos_Core.hpp>
 
 #include "test_kokkos_integration_commons.h"
 
@@ -89,16 +87,25 @@ struct KokkosViewOfVIewTest : KokkosBaseTest { };
 
 TEST_F(KokkosViewOfVIewTest, test_view_of_view_init_1) {
   using namespace checkpoint;
-  using ViewType = Kokkos::View<Kokkos::View<double*>[3]>;
+  using Kokkos::view_alloc;
+  using InnerViewType = Kokkos::View<double*>;
+  using OuterViewType = Kokkos::View<InnerViewType*>;
+  constexpr int size_outer = 3;
 
   // Default construct
-  ViewType test_data = Kokkos::View<Kokkos::View<double*>[3]>("test");
-  test_data(0) = Kokkos::View<double*>();
-  test_data(1) = Kokkos::View<double*>();
-  test_data(2) = Kokkos::View<double*>();
+  OuterViewType test_data = OuterViewType( view_alloc("outer", Kokkos::WithoutInitializing), size_outer);
+  new (&test_data(0)) InnerViewType(view_alloc("inner-0", Kokkos::WithoutInitializing), 4);
+  new (&test_data(1)) InnerViewType(view_alloc("inner-1", Kokkos::WithoutInitializing), 4);
+  new (&test_data(2)) InnerViewType(view_alloc("inner-2", Kokkos::WithoutInitializing), 4);
 
-  auto ret = serialize<ViewType>(test_data);
-  deserialize<ViewType>(std::move(ret));
+  auto ret = serialize<OuterViewType>(test_data);
+  deserialize<OuterViewType>(std::move(ret));
+
+  Kokkos::fence();
+  for (int i = 0; i < size_outer; i++) {
+    test_data(i).~InnerViewType();
+  }
+  test_data = OuterViewType();
 }
 
 TEST_F(KokkosViewOfVIewTest, test_view_of_view_init_2) {

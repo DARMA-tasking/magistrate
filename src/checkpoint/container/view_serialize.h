@@ -45,10 +45,8 @@
 #define INCLUDED_SRC_CHECKPOINT_CONTAINER_VIEW_SERIALIZE_H
 
 #include "checkpoint/common.h"
-#include "checkpoint/serializers/serializers_headers.h"
 #include "checkpoint/container/view_traits_extract.h"
 #include "checkpoint/container/view_traverse_manual.h"
-#include "checkpoint/container/view_traverse_ndim.h"
 
 #if MAGISTRATE_KOKKOS_ENABLED
 
@@ -56,32 +54,24 @@
 #include <Kokkos_DynamicView.hpp>
 #include <Kokkos_DynRankView.hpp>
 
-#if KOKKOS_VERSION > 30699L
-#define CHECKPOINT_KOKKOS_WITHOUTINIT Kokkos::WithoutInitializing,
-#else
-#define CHECKPOINT_KOKKOS_WITHOUTINIT
-#endif
-
 #if MAGISTRATE_KOKKOS_KERNELS_ENABLED
 #include <Kokkos_StaticCrsGraph.hpp>
 #include <KokkosSparse_CrsMatrix.hpp>
 #endif
 
-#include <array>
 #include <cassert>
-#include <tuple>
-#include <type_traits>
-#include <utility>
 #include <cstdio>
-#include <tuple>
 #include <type_traits>
-
-#define CHECKPOINT_DEBUG_ENABLED 0
 
 // I am shutting the n-dim traversal off by default for now, due to the extra
 // template complexity that needs to be tested more extensively on different
 // compiler versions
 #define CHECKPOINT_KOKKOS_NDIM_TRAVERSE 0
+#if CHECKPOINT_KOKKOS_NDIM_TRAVERSE
+#include "checkpoint/container/view_traverse_ndim.h"
+#endif
+
+#define CHECKPOINT_DEBUG_ENABLED 0
 
 #if CHECKPOINT_DEBUG_ENABLED
   #define DEBUG_PRINT_CHECKPOINT(ser, str, ...) do {                     \
@@ -192,7 +182,7 @@ inline void serialize(
 
   // Kokkos::deep_copy between DynamicView instances is not yet implemented
 #if 0
-  auto host_view = Kokkos::create_mirror_view(CHECKPOINT_KOKKOS_WITHOUTINIT view);
+  auto host_view = Kokkos::create_mirror_view(Kokkos::WithoutInitializing, view);
   if (s.isPacking()) {
     deepCopyWithLocalFence(host_view, view);
   }
@@ -282,7 +272,7 @@ inline void serialize_impl(SerializerT& s, Kokkos::DynRankView<T,Args...>& view)
   s | init;
 
   if (init) {
-    auto host_view = Kokkos::create_mirror_view(CHECKPOINT_KOKKOS_WITHOUTINIT view);
+    auto host_view = Kokkos::create_mirror_view(Kokkos::WithoutInitializing, view);
     using HostViewType = decltype(host_view);
 
     if (s.isPacking()) {

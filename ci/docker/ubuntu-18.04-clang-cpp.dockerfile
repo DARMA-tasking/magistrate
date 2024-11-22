@@ -52,11 +52,11 @@ RUN ./gtest.sh 1.8.1 /pkgs
 ENV GTEST_ROOT=/pkgs/gtest/install
 
 COPY ./ci/deps/kokkos.sh kokkos.sh
-RUN ./kokkos.sh 4.1.00 /pkgs 0
+RUN ./kokkos.sh 4.4.01 /pkgs 0
 ENV KOKKOS_ROOT=/pkgs/kokkos/install
 
 COPY ./ci/deps/kokkos-kernels.sh kokkos-kernels.sh
-RUN ./kokkos-kernels.sh 4.1.00 /pkgs
+RUN ./kokkos-kernels.sh 4.4.01 /pkgs
 ENV KOKKOS_KERNELS_ROOT=/pkgs/kokkos-kernels/install
 
 ENV MPI_EXTRA_FLAGS="" \
