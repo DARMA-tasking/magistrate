@@ -3,5 +3,5 @@
 with the VT documentation.
 
 - These Markdown files should not include any reference to
-Markdown files in the directory `checkpoint/docs/md`
+Markdown files in the directory `magistrate/docs/md`
 

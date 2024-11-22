@@ -2,7 +2,7 @@
 
 \attention All Non-Intrusive serialize methods <b>MUST</b> be placed in the namespace of type which they serialize.
 
-The full code for this *checkpoint* example can be found here:
+The full code for this *magistrate* example can be found here:
 `examples/checkpoint_example_3_nonintrusive.cc`
 
 \subsubsection ex3 Example source code:
