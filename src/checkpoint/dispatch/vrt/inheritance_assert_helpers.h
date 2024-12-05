@@ -60,7 +60,7 @@ inline void assertTypeIdxMatch(TypeIdx const expected_idx) {
     "\" does not matched expected value. "
     "You are probably missing a SerializableBase<T> or SerializableDerived<T> "
     "in the virtual class hierarchy; or, if you are using macros: "
-    "checkpoint_virtual_serialize_root() or checkpoint_virtual_serialize_derived_from(..)";
+    "magistrate_virtual_serialize_root() or magistrate_virtual_serialize_derived_from(..)";
   checkpointAssert(
     obj_idx == expected_idx or expected_idx == no_type_idx, debug_str.c_str()
   );

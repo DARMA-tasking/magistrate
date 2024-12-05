@@ -50,7 +50,17 @@
 #include "checkpoint/dispatch/vrt/inheritance_assert_helpers.h"
 #include "checkpoint/dispatch/vrt/serialize_instantiator.h"
 
-#define checkpoint_virtual_serialize_root()                                                      \
+[[deprecated("checkpoint_virtual_serialize_root is deprecated,"
+             " please use magistrate_virtual_serialize_root")]]
+constexpr bool checkpoint_virtual_serialize_root_is_deprecated() {
+  return true;
+}
+
+#define checkpoint_virtual_serialize_root                           \
+  static_assert(checkpoint_virtual_serialize_root_is_deprecated()); \
+  magistrate_virtual_serialize_root
+
+#define magistrate_virtual_serialize_root()                                                      \
   auto _CheckpointVSBaseTypeFn() -> decltype(auto) { return this; }                              \
   virtual void _checkpointDynamicSerialize(                                                      \
     void* s,                                                                                     \
@@ -74,7 +84,17 @@
     return ::checkpoint::dispatch::vrt::objregistry::makeObjIdx<_CheckpointBaseType>();          \
   }
 
-#define checkpoint_virtual_serialize_base(BASE) checkpoint_virtual_serialize_root()
+[[deprecated("checkpoint_virtual_serialize_base is deprecated,"
+             " please use magistrate_virtual_serialize_base")]]
+constexpr bool checkpoint_virtual_serialize_base_is_deprecated() {
+  return true;
+}
+
+#define checkpoint_virtual_serialize_base                           \
+  static_assert(checkpoint_virtual_serialize_base_is_deprecated()); \
+  magistrate_virtual_serialize_base
+
+#define magistrate_virtual_serialize_base(BASE) magistrate_virtual_serialize_root()
 
 namespace checkpoint { namespace dispatch { namespace vrt {
 
@@ -86,7 +106,7 @@ namespace checkpoint { namespace dispatch { namespace vrt {
  */
 template <typename BaseT>
 struct SerializableBase {
-  checkpoint_virtual_serialize_root()
+  magistrate_virtual_serialize_root()
 
   virtual ~SerializableBase() {}
 };

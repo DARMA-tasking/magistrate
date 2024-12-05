@@ -50,7 +50,17 @@
 #include "checkpoint/dispatch/vrt/inheritance_assert_helpers.h"
 #include "checkpoint/dispatch/vrt/serialize_instantiator.h"
 
-#define checkpoint_virtual_serialize_derived_from(PARENT)                                   \
+[[deprecated("checkpoint_virtual_serialize_derived_from is deprecated,"
+             " please use magistrate_virtual_serialize_derived_from")]]
+constexpr bool checkpoint_virtual_serialize_derived_from_is_deprecated() {
+  return true;
+}
+
+#define checkpoint_virtual_serialize_derived_from                           \
+  static_assert(checkpoint_virtual_serialize_derived_from_is_deprecated()); \
+  magistrate_virtual_serialize_derived_from
+
+#define magistrate_virtual_serialize_derived_from(PARENT)                                   \
   void _checkpointDynamicSerialize(                                                         \
     void* s,                                                                                \
     ::checkpoint::dispatch::vrt::TypeIdx base_ser_idx,                                      \
@@ -85,7 +95,17 @@
     return ::checkpoint::dispatch::vrt::objregistry::makeObjIdx<_CheckpointDerivedType>();  \
   }
 
-#define checkpoint_virtual_serialize_derived(DERIVED, PARENT) checkpoint_virtual_serialize_derived_from(PARENT)
+[[deprecated("checkpoint_virtual_serialize_derived is deprecated,"
+             " please use magistrate_virtual_serialize_derived")]]
+constexpr bool checkpoint_virtual_serialize_derived_is_deprecated() {
+  return true;
+}
+
+#define checkpoint_virtual_serialize_derived                           \
+  static_assert(checkpoint_virtual_serialize_derived_is_deprecated()); \
+  magistrate_virtual_serialize_derived
+
+#define magistrate_virtual_serialize_derived(DERIVED, PARENT) magistrate_virtual_serialize_derived_from(PARENT)
 
 namespace checkpoint { namespace dispatch { namespace vrt {
 
@@ -124,7 +144,7 @@ struct SerializableDerived : BaseT {
 
   SerializableDerived() = default;
 
-  checkpoint_virtual_serialize_derived(DerivedT, BaseT)
+  magistrate_virtual_serialize_derived(DerivedT, BaseT)
 };
 
 }}} /* end namespace checkpoint::dispatch::vrt */

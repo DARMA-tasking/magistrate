@@ -82,8 +82,8 @@ serialization of the class state.
 
 To serialize polymorphic class hierarchies, one must write serializers for each
 class in the hierarchy. Then, the user should either insert macros
-`checkpoint_virtual_serialize_root()` and
-`checkpoint_virtual_serialize_derived_from(T)` to inform *magistrate* of the
+`magistrate_virtual_serialize_root()` and
+`magistrate_virtual_serialize_derived_from(T)` to inform *magistrate* of the
 hierarchy so it can automatically traverse the hierarchy. Alternatively, the
 user may use the inheritance wrappers `magistrate::SerializableBase<T>` and
 `magistrate::SerializableDerived<T, U>` to achieve the same effect.

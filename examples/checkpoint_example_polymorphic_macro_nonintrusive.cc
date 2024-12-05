@@ -58,7 +58,7 @@ struct MyBase {
   virtual ~MyBase() = default;
 
   // Add serializing macro
-  checkpoint_virtual_serialize_root()
+  magistrate_virtual_serialize_root()
 
   int val_ = 0;
 
@@ -71,7 +71,7 @@ struct MyObj : public MyBase {
   explicit MyObj(::checkpoint::SERIALIZE_CONSTRUCT_TAG) {}
 
   // Add macro for serialization
-  checkpoint_virtual_serialize_derived_from(MyBase)
+  magistrate_virtual_serialize_derived_from(MyBase)
 
   void test() override {
     printf("test MyObj 10 == %d ?\n", val_);
@@ -84,7 +84,7 @@ struct MyObj2 : public MyBase {
   explicit MyObj2(::checkpoint::SERIALIZE_CONSTRUCT_TAG) {}
 
   // Add macro for serialization
-  checkpoint_virtual_serialize_derived_from(MyBase)
+  magistrate_virtual_serialize_derived_from(MyBase)
 
   void test() override {
     printf("test MyObj2 20 == %d ?\n", val_);
@@ -100,7 +100,7 @@ struct MyObj3 : public MyBase {
   explicit MyObj3(::checkpoint::SERIALIZE_CONSTRUCT_TAG) {}
 
   // Add macro for serialization
-  checkpoint_virtual_serialize_derived_from(MyBase)
+  magistrate_virtual_serialize_derived_from(MyBase)
 
   void test() override {
     printf("val_ 30  a 10 b 20 c 100 = %d %d %d %d\n", val_, a, b, c);
