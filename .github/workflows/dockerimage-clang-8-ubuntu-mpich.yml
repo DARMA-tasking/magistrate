@@ -20,7 +20,7 @@ jobs:
     env:
       REPO: lifflander1/vt
       ARCH: amd64
-      UBUNTU: 18.04
+      UBUNTU: 20.04
       COMPILER_TYPE: clang
       COMPILER: clang-8
       BUILD_TYPE: release
