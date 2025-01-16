@@ -125,7 +125,7 @@ services:
         /checkpoint/ci/test_cpp.sh  /checkpoint /build"
 
   ubuntu-cpp-vt:
-    image: ${REPO}:${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
+    image: ${REPO}:wf-${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
     ulimits: *ulimits
     environment:
       <<: [*ccache, *checkpointopts]
@@ -146,7 +146,7 @@ services:
   #   $ /checkpoint/ci/build_cpp.sh /checkpoint /build
   #   $ /checkpoint/ci/test_cpp.sh  /checkpoint /build
   ubuntu-cpp-interactive:
-    image: ${REPO}:${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
+    image: ${REPO}:wf-${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
     ulimits: *ulimits
     environment:
       <<: [*ccache, *checkpointopts]
@@ -156,7 +156,7 @@ services:
   # Build documentation for Checkpoint in the container on ubuntu platform from
   # container baseline.
   ubuntu-docs:
-    image: ${REPO}:${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-docs
+    image: ${REPO}:wf-${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-docs
     ulimits: *ulimits
     environment:
       <<: *ccache
