@@ -22,7 +22,7 @@ jobs:
       ARCH: amd64
       UBUNTU: 20.04
       COMPILER_TYPE: nvidia
-      COMPILER: 11.2.2
+      COMPILER: gcc-9-cuda-11.2.2
       BUILD_TYPE: release
       ULIMIT_CORE: 0
       CODE_COVERAGE: 0
@@ -45,7 +45,7 @@ jobs:
         echo "timestamp=$(TZ=UTC date +"%Y-%m-%d-%H;%M;%S")" >> $GITHUB_ENV
     - uses: actions/cache@v4
       env:
-        cache-name: ubuntu-nvcc-11.2.2-cache
+        cache-name: ubuntu-nvcc-gcc-9-cuda-11.2.2-cache
       with:
         path: ${{ env.BUILD_ROOT }}/ccache
         key: ${{ runner.os }}-${{ env.cache-name }}-${{ env.timestamp }}
