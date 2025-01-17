@@ -156,7 +156,7 @@ services:
   # Build documentation for Checkpoint in the container on ubuntu platform from
   # container baseline.
   ubuntu-docs:
-    image: ${REPO}:wf-${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-docs
+    image: ${REPO}:wf-${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
     ulimits: *ulimits
     environment:
       <<: *ccache
