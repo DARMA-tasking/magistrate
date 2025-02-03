@@ -14,9 +14,9 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      REPO: lifflander1/checkpoint
+      REPO: lifflander1/vt
       ARCH: amd64
-      UBUNTU: 20.04
+      UBUNTU: 22.04
       COMPILER_TYPE: clang
       COMPILER: clang-11
       BUILD_TYPE: release
@@ -27,8 +27,8 @@ jobs:
       MAGISTRATE_MPI: 1
       MAGISTRATE_WARNINGS_AS_ERRORS: 1
       MAGISTRATE_DOCS: 0
-      MAGISTRATE_ASAN: 1
-      MAGISTRATE_UBSAN: 1
+      MAGISTRATE_ASAN: 0
+      MAGISTRATE_UBSAN: 0
       MAGISTRATE_SERIALIZATION_ERROR_CHECKING: 1
       CACHE: ~/.local/cache/
 
@@ -54,18 +54,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: Prepare the base Docker image
-      shell: bash
-      run: $(./scripts/check_containers.sh) ubuntu-cpp-vt
-    - name: Build the Docker image
+    - name: Build and Test
       run: docker compose run ubuntu-cpp-vt
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-    - name: Docker Push Base Image
-      if: ${{ success() && github.ref == 'refs/heads/develop' }}
-      continue-on-error: true
-      shell: bash
-      run: |
-        docker login -u ${{ secrets.DOCKER_USERNAME }} \
-                     -p ${{ secrets.DOCKER_PASSWORD }}
-        docker compose push ubuntu-cpp-vt

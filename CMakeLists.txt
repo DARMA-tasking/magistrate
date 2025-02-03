@@ -58,9 +58,6 @@ if(magistrate_mpi_enabled)
  )
 endif()
 
-message (STATUS "Magistrate build tests: ${magistrate_tests_enabled}")
-message (STATUS "Magistrate build examples: ${magistrate_examples_enabled}")
-
 include(cmake/load_package.cmake)
 
 deprecated_option(checkpoint_doxygen_enabled magistrate_doxygen_enabled "Build doxygen documentation for magistrate" OFF)
@@ -140,39 +137,25 @@ else()
   message(STATUS "Magistrate: building as top-level")
 endif()
 
-# If magistrate build tests require the GTest package
-if (${magistrate_tests_enabled})
-  if(NOT hasParent)
-    find_package(GTest REQUIRED)
-    set(MAGISTRATE_HAS_GTEST TRUE)
-  else()
-    if (NOT DISABLE_TPL_GTEST)
-      set(MAGISTRATE_HAS_GTEST TRUE)
-    else()
-      set(MAGISTRATE_HAS_GTEST FALSE)
-    endif()
-  endif()
-else()
-  set(MAGISTRATE_HAS_GTEST FALSE)
-endif()
-
 set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(PROJECT_EXAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/examples)
 set(PROJECT_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 add_subdirectory(src)
 
+message (STATUS "Magistrate build tests: ${magistrate_tests_enabled}")
 if (magistrate_tests_enabled
    AND "${CMAKE_PROJECT_NAME}" STREQUAL "${PROJECT_NAME}")
   # CTest implies enable_testing() and defines the BUILD_TESTING option.
   # The default of BUILD_TESTING is ON.
-  # Testing is only enabled if the actual project being built is VT.
+  # Testing is only enabled if the actual project being built is magistrate.
   include(CTest)
 
   add_custom_target(magistrate_tests)
   add_subdirectory(tests)
 endif()
 
+message (STATUS "Magistrate build examples: ${magistrate_examples_enabled}")
 if(magistrate_examples_enabled)
   add_custom_target(magistrate_examples)
   add_subdirectory(examples)

@@ -42,9 +42,6 @@
 #  $ COMPILER=gcc-8 docker-compose run ubuntu-cpp
 #
 
-# Need verision >= 3.5 for the features in use
-version: '3.5'
-
 # Named volumes must be predefined according the docker compose rules. Many
 # combinations have already been added, but if a needed configuration is missing
 # add it to this list.
@@ -59,6 +56,7 @@ volumes:
   amd64-ubuntu-20.04-gcc-8-cache:
   amd64-ubuntu-20.04-gcc-9-cache:
   amd64-ubuntu-20.04-gcc-10-cache:
+  amd64-ubuntu-22.04-gcc-11-cache:
   amd64-ubuntu-18.04-icc-18-cache:
   amd64-ubuntu-18.04-icc-19-cache:
   amd64-ubuntu-20.04-nvcc-11.2-cache:
@@ -113,18 +111,7 @@ services:
   # Ubuntu gcc-8 debug build:
   #   docker-compose run -e CMAKE_BUILD_TYPE=debug ubuntu-cpp
   ubuntu-cpp:
-    image: ${REPO}:${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
-    build:
-      context: .
-      target: base
-      dockerfile: ci/docker/ubuntu-${UBUNTU}-${COMPILER_TYPE}-cpp.dockerfile
-      cache_from:
-        - ${REPO}:${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
-      args: &default-args
-        arch: ${ARCH}
-        proxy: ${PROXY}
-        compiler: ${COMPILER}
-        distro: ${UBUNTU}
+    image: ${REPO}:wf-${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
     ulimits: &ulimits
       core: ${ULIMIT_CORE}
     environment:
@@ -138,14 +125,7 @@ services:
         /checkpoint/ci/test_cpp.sh  /checkpoint /build"
 
   ubuntu-cpp-vt:
-    image: ${REPO}:${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
-    build:
-      context: .
-      target: base
-      dockerfile: ci/docker/ubuntu-${UBUNTU}-${COMPILER_TYPE}-cpp.dockerfile
-      cache_from:
-        - ${REPO}:${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
-      args: *default-args
+    image: ${REPO}:wf-${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
     ulimits: *ulimits
     environment:
       <<: [*ccache, *checkpointopts]
@@ -166,14 +146,7 @@ services:
   #   $ /checkpoint/ci/build_cpp.sh /checkpoint /build
   #   $ /checkpoint/ci/test_cpp.sh  /checkpoint /build
   ubuntu-cpp-interactive:
-    image: ${REPO}:${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
-    build:
-      context: .
-      target: base
-      dockerfile: ci/docker/ubuntu-${UBUNTU}-${COMPILER_TYPE}-cpp.dockerfile
-      cache_from:
-        - ${REPO}:${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
-      args: *default-args
+    image: ${REPO}:wf-${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
     ulimits: *ulimits
     environment:
       <<: [*ccache, *checkpointopts]
@@ -183,16 +156,7 @@ services:
   # Build documentation for Checkpoint in the container on ubuntu platform from
   # container baseline.
   ubuntu-docs:
-    image: ${REPO}:${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-docs
-    build:
-      context: .
-      target: base
-      dockerfile: ci/docker/ubuntu-${UBUNTU}-${COMPILER_TYPE}-docs.dockerfile
-      cache_from:
-        - ${REPO}:${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
-      args:
-        <<: *default-args
-        token: ${TOKEN}
+    image: ${REPO}:wf-${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
     ulimits: *ulimits
     environment:
       <<: *ccache
