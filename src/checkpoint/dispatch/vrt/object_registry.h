@@ -125,6 +125,11 @@ inline auto getObjIdx(TypeIdx han) {
 }
 
 template <typename T>
+inline auto isValidIdx(TypeIdx han) {
+  return getRegistry<T>().size() > static_cast<std::size_t>(han);
+}
+
+template <typename T>
 inline auto getSizeConcreteType(TypeIdx han) {
   return getRegistry<T>().at(han).size_;
 }

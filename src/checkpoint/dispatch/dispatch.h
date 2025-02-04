@@ -197,10 +197,20 @@ template <typename Serializer, typename T>
 inline void serializeArray(Serializer& s, T* array, SerialSizeType const len);
 
 template <typename T>
-buffer::ImplReturnType serializeType(T& target, BufferObtainFnType fn = nullptr);
+typename std::enable_if<vrt::VirtualSerializeTraits<T>::has_virtual_serialize, buffer::ImplReturnType>::type
+serializeType(T& target, BufferObtainFnType fn = nullptr);
 
 template <typename T>
-T* deserializeType(SerialByteType* data, SerialByteType* allocBuf = nullptr);
+typename std::enable_if<!vrt::VirtualSerializeTraits<T>::has_virtual_serialize, buffer::ImplReturnType>::type
+serializeType(T& target, BufferObtainFnType fn = nullptr);
+
+template <typename T>
+typename std::enable_if<vrt::VirtualSerializeTraits<T>::has_virtual_serialize, T*>::type
+deserializeType(SerialByteType* data, SerialByteType* allocBuf = nullptr);
+
+template <typename T>
+typename std::enable_if<!vrt::VirtualSerializeTraits<T>::has_virtual_serialize, T*>::type
+deserializeType(SerialByteType* data, SerialByteType* allocBuf = nullptr);
 
 template <typename T>
 void deserializeType(InPlaceTag, SerialByteType* data, T* t);
