@@ -42,7 +42,7 @@
 */
 #include "checkpoint/checkpoint.h"
 
-#include "checkpoint_example_user_traits.hpp"
+#include "checkpoint_example_user_traits.h"
 
 int main(int, char**){
   using namespace test;
