@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import argparse as ap
 
 def has_license_header(lines):
@@ -124,12 +125,16 @@ def main():
     src_dir_abs = os.path.abspath(os.path.expanduser(args.src_dir))
     license_path_abs = os.path.abspath(os.path.expanduser(args.license_path))
     for root, _, files in os.walk(src_dir_abs):
-        if "extern" not in root.split(os.sep): # skip googletest
+        root_split = root.split(os.sep)
+        # skip googletest and generated files
+        if "extern" not in root_split and "CMakeFiles" not in root_split:
             for file in files:
                 if file.endswith('.h') or file.endswith('.cc'):
                     generate_license(os.path.join(root, file), license_path_abs)
                 if file.endswith('.h'):
                     generate_header_guard(os.path.join(root, file), src_dir_abs)
+                if file.endswith('.hpp') or file.endswith('.cpp') or file.endswith('.cxx'):
+                    sys.exit(f"Incorrect file extension for file {os.path.join(root, file)}")
 
 if __name__ == '__main__':
     main()
