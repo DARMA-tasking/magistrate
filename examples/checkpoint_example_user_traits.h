@@ -44,6 +44,8 @@
 #if !defined INCLUDED_EXAMPLES_CHECKPOINT_EXAMPLE_USER_TRAITS_H
 #define INCLUDED_EXAMPLES_CHECKPOINT_EXAMPLE_USER_TRAITS_H
 
+/// [Serialization with user traits (header)]
+
 #include <checkpoint/checkpoint.h>
 
 struct checkpoint_trait {} CheckpointTrait;
@@ -153,5 +155,7 @@ namespace misc {
     myObj.serialize(newS);
   }
 }
+
+/// [Serialization with user traits (header)]
 
 #endif /*INCLUDED_EXAMPLES_CHECKPOINT_EXAMPLE_USER_TRAITS_H*/

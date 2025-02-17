@@ -40,6 +40,9 @@
 // *****************************************************************************
 //@HEADER
 */
+
+/// [Serialization with user traits]
+
 #include "checkpoint/checkpoint.h"
 
 #include "checkpoint_example_user_traits.h"
@@ -59,3 +62,5 @@ int main(int, char**){
   auto s_info_h = checkpoint::serialize<TestObj, misc::namespace_trait>(obj);
   auto s_info_i = checkpoint::serialize<TestObj, misc::hook_all_trait>(obj);
 }
+
+/// [Serialization with user traits]

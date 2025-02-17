@@ -9,6 +9,7 @@
 | checkpoint_example_5_polymorphic | Serialization of polymorphic class hierarchy | \subpage ckpt_learn_ex5_polymorphic |
 | checkpoint_example_6_polymorphic_macro | Serialization of polymorphic class hierarchy with macros | \subpage ckpt_learn_ex6_polymorphic_macro |
 | checkpoint_example_7_traversal | Serialization with custom traverser | \subpage ckpt_learn_ex7_traversal |
+| checkpoint_example_user_traits | Serialization with user traits | \subpage cpkt_learn_user_traits |
 
 &nbsp;
 &nbsp;
