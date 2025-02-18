@@ -70,7 +70,7 @@ then
     git config --global user.email "jliffla@sandia.gov"
     git config --global user.name "Jonathan Lifflander"
     git add "$CKPT_NAME"
-    git commit -m "Update magistrate_docs (auto-build)"
+    git commit --allow-empty -m "Update magistrate_docs (auto-build)"
     git push origin master
 else
     time cmake --build . --target "${target}"
