@@ -134,7 +134,8 @@ def main():
                 if file.endswith('.h'):
                     generate_header_guard(os.path.join(root, file), src_dir_abs)
                 if file.endswith('.hpp') or file.endswith('.cpp') or file.endswith('.cxx'):
-                    sys.exit(f"Incorrect file extension for file {os.path.join(root, file)}")
+                    sys.exit(f"Incorrect file extension for file {os.path.join(root, file)}.\n"
+                             "Use .h and .cc extensions for headers and source files.")
 
 if __name__ == '__main__':
     main()
