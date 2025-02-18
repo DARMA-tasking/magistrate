@@ -98,7 +98,7 @@ struct Traverse {
    *
    * \return the constructed traverser after traversal is complete
    */
-  template <typename T, typename TraverserT, typename... Args>
+  template <typename T, typename TraverserT, typename UserTraits = UserTraitHolder<>, typename... Args>
   static TraverserT with(T& target, Args&&... args);
 
   /**
@@ -131,7 +131,7 @@ struct Standard {
    *
    * \return the number of bytes
    */
-  template <typename T, typename SizerT, typename...Args>
+  template <typename T, typename SizerT, typename UserTraits, typename...Args>
   static SerialSizeType size(T& target, Args&&... args);
 
   /**
@@ -142,20 +142,19 @@ struct Standard {
    *
    * \return memory footprint of \c T
    */
-  template <typename T, typename FootprinterT, typename...Args>
+  template <typename T, typename FootprinterT, typename UserTraits, typename...Args>
   static SerialSizeType footprint(T& target, Args&&... args);
 
   /**
    * \brief Pack \c target that requires \c size number of bytes.
    *
    * \param[in] target the target to pack
-   * \param[in] size the number of bytes for \c target
    * \param[in] args arguments to the packer's constructor
    *
    * \return the packer after packing
    */
-  template <typename T, typename PackerT, typename... Args>
-  static PackerT pack(T& target, SerialSizeType const& size, Args&&... args);
+  template <typename T, typename PackerT, typename UserTraits, typename... Args>
+  static PackerT pack(T& target, Args&&... args);
 
   /**
    * \brief Unpack \c T from packed byte-buffer \c mem
@@ -166,7 +165,7 @@ struct Standard {
    *
    * \return a pointer to an unpacked \c T
    */
-  template <typename T, typename UnpackerT, typename... Args>
+  template <typename T, typename UnpackerT, typename UserTraits, typename... Args>
   static T* unpack(T* mem, Args&&... args);
 
   /**
@@ -188,7 +187,7 @@ struct Standard {
   static SerialByteType* allocate();
 };
 
-template <typename T>
+template <typename T, typename UserTraits>
 buffer::ImplReturnType packBuffer(
   T& target, SerialSizeType size, BufferObtainFnType fn
 );
@@ -196,13 +195,13 @@ buffer::ImplReturnType packBuffer(
 template <typename Serializer, typename T>
 inline void serializeArray(Serializer& s, T* array, SerialSizeType const len);
 
-template <typename T>
+template <typename T, typename UserTraits>
 buffer::ImplReturnType serializeType(T& target, BufferObtainFnType fn = nullptr);
 
-template <typename T>
+template <typename T, typename UserTraits>
 T* deserializeType(SerialByteType* data, SerialByteType* allocBuf = nullptr);
 
-template <typename T>
+template <typename T, typename UserTraits>
 void deserializeType(InPlaceTag, SerialByteType* data, T* t);
 
 template <typename T>
