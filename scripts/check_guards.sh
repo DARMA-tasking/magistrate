@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 path_to_magistrate=${1}
-show_fix_command=${2}
+show_fix_command=${2:-false}
 cd "$path_to_magistrate" || exit 1
 
 python3 "${path_to_magistrate}/scripts/generate_header_guards_and_license.py" -s="${path_to_magistrate}" -l="${path_to_magistrate}/scripts/license-template"
