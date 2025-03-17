@@ -1,13 +1,11 @@
 # *magistrate* => serialization and checkpointing library
 
-[![clang-8 ubuntu mpich](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-8-ubuntu-mpich.yml/badge.svg)](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-8-ubuntu-mpich.yml)
 [![clang-9 ubuntu mpich](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-9-ubuntu-mpich.yml/badge.svg)](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-9-ubuntu-mpich.yml)
 [![clang-10 ubuntu mpich](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-10-ubuntu-mpich.yml/badge.svg)](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-10-ubuntu-mpich.yml)
 [![clang-11 ubuntu mpich](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-11-ubuntu-mpich.yml/badge.svg)](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-11-ubuntu-mpich.yml)
 [![clang-12 ubuntu mpich](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-12-ubuntu-mpich.yml/badge.svg)](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-12-ubuntu-mpich.yml)
 [![clang-13 ubuntu mpich](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-13-ubuntu-mpich.yml/badge.svg)](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-13-ubuntu-mpich.yml)
 [![clang-14 ubuntu mpich](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-14-ubuntu-mpich.yml/badge.svg)](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-clang-14-ubuntu-mpich.yml)
-[![gcc-8 ubuntu mpich](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-gcc-8-ubuntu-mpich.yml/badge.svg)](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-gcc-8-ubuntu-mpich.yml)
 [![gcc-9 ubuntu mpich](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-gcc-9-ubuntu-mpich.yml/badge.svg)](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-gcc-9-ubuntu-mpich.yml)
 [![gcc-10 ubuntu mpich](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-gcc-10-ubuntu-mpich.yml/badge.svg)](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-gcc-10-ubuntu-mpich.yml)
 [![nvcc-11 ubuntu mpich](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-nvcc-11-ubuntu-mpich.yml/badge.svg)](https://github.com/DARMA-tasking/checkpoint/actions/workflows/dockerimage-nvcc-11-ubuntu-mpich.yml)
