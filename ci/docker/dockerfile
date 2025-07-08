@@ -1,0 +1,33 @@
+ARG REPO=lifflander1/vt
+ARG ARCH=amd64
+ARG IMAGE=wf-amd64-ubuntu-22.04-gcc-12-cpp
+
+ARG BASE=${REPO}:${IMAGE}
+
+FROM --platform=${ARCH} ${BASE} AS build
+
+ARG BUILD_SHARED_LIBS
+ARG CMAKE_BUILD_TYPE
+ARG CMAKE_CXX_STANDARD
+ARG CODE_COVERAGE
+ARG MAGISTRATE_TESTS
+ARG MAGISTRATE_EXAMPLES
+ARG MAGISTRATE_MPI
+ARG MAGISTRATE_WARNINGS_AS_ERRORS
+ARG MAGISTRATE_DOCS
+ARG MAGISTRATE_ASAN
+ARG MAGISTRATE_UBSAN
+ARG MAGISTRATE_SERIALIZATION_ERROR_CHECKING
+
+RUN --mount=target=/magistrate \
+<<EOF
+if [ -d magistrate/docker-output/build/ccache ]; then
+    cp -r magistrate/docker-output/build/ccache /build
+    ccache -c
+    ccache -s
+fi
+EOF
+
+RUN --mount=target=/magistrate,rw \
+        /magistrate/ci/build_cpp.sh /magistrate /build && \
+        /magistrate/ci/test_cpp.sh /magistrate /build
