@@ -58,25 +58,23 @@ target "magistrate-build" {
   dockerfile = "ci/docker/dockerfile"
   output = ["type=local,dest=docker-output"]
   platforms = [
-    "linux/amd64",
-    # "linux/arm64"
+    "linux/amd64"
   ]
   ulimits = [
     "core=0"
   ]
-  # FIXME: verify that caching works as intended
-  # cache-from = [
-  #   {
-  #     type = "local",
-  #     src = "~/ccache"
-  #   }
-  # ]
-  # cache-to = [
-  #   {
-  #     type = "local",
-  #     dest = "~/ccache"
-  #   }
-  # ]
+  cache-from = [
+    {
+      type = "local",
+      src = "~/ccache"
+    }
+  ]
+  cache-to = [
+    {
+      type = "local",
+      dest = "~/ccache"
+    }
+  ]
 }
 
 target "magistrate-build-all" {
