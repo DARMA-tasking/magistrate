@@ -47,9 +47,9 @@
 #include "test_kokkos_3d_commons.h"
 
 #if DO_UNIT_TESTS_FOR_VIEW
-REGISTER_TYPED_TEST_CASE_P(KokkosViewTest3D, test_3d_any);
-INSTANTIATE_TYPED_TEST_CASE_P(test_3d_S, KokkosViewTest3D, Test3DTypesStride, );
-INSTANTIATE_TYPED_TEST_CASE_P(test_3d_S_C, KokkosViewTest3D, Test3DConstTypesStride, );
+REGISTER_TYPED_TEST_SUITE_P(KokkosViewTest3D, test_3d_any);
+INSTANTIATE_TYPED_TEST_SUITE_P(test_3d_S, KokkosViewTest3D, Test3DTypesStride, );
+INSTANTIATE_TYPED_TEST_SUITE_P(test_3d_S_C, KokkosViewTest3D, Test3DConstTypesStride, );
 #endif
 
 #endif

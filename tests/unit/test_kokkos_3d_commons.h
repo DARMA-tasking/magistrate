@@ -163,7 +163,7 @@ using Test3DConstTypesStride =
 
 template <typename ParamT> struct KokkosViewTest3D : KokkosViewTest<ParamT> { };
 
-TYPED_TEST_CASE_P(KokkosViewTest3D);
+TYPED_TEST_SUITE_P(KokkosViewTest3D);
 
 TYPED_TEST_P(KokkosViewTest3D, test_3d_any) {
   using namespace checkpoint;

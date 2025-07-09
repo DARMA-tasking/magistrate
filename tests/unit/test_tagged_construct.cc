@@ -55,7 +55,7 @@ namespace checkpoint { namespace tests { namespace unit {
 template <typename T>
 struct TestTaggedConstruct : TestHarness { };
 
-TYPED_TEST_CASE_P(TestTaggedConstruct);
+TYPED_TEST_SUITE_P(TestTaggedConstruct);
 
 static constexpr int const u_val = 43;
 
@@ -132,7 +132,7 @@ using ConstructTypes = ::testing::Types<
   UserObjectA, UserObjectB
 >;
 
-REGISTER_TYPED_TEST_CASE_P(TestTaggedConstruct, test_tagged_construct);
-INSTANTIATE_TYPED_TEST_CASE_P(test_tagged, TestTaggedConstruct, ConstructTypes, );
+REGISTER_TYPED_TEST_SUITE_P(TestTaggedConstruct, test_tagged_construct);
+INSTANTIATE_TYPED_TEST_SUITE_P(test_tagged, TestTaggedConstruct, ConstructTypes, );
 
 }}} // end namespace checkpoint::tests::unit

@@ -47,7 +47,7 @@
 
 template <typename ParamT> struct KokkosViewTest1D : KokkosViewTest<ParamT> { };
 
-TYPED_TEST_CASE_P(KokkosViewTest1D);
+TYPED_TEST_SUITE_P(KokkosViewTest1D);
 
 TYPED_TEST_P(KokkosViewTest1D, test_1d_any) {
   using namespace checkpoint;
@@ -76,16 +76,16 @@ TYPED_TEST_P(KokkosViewTest1D, test_1d_any) {
 }
 
 
-REGISTER_TYPED_TEST_CASE_P(KokkosViewTest1D, test_1d_any);
+REGISTER_TYPED_TEST_SUITE_P(KokkosViewTest1D, test_1d_any);
 
 #if DO_UNIT_TESTS_FOR_VIEW
 
-INSTANTIATE_TYPED_TEST_CASE_P(test_1d_L, KokkosViewTest1D, Test1DTypesLeft,);
-INSTANTIATE_TYPED_TEST_CASE_P(test_1d_R, KokkosViewTest1D, Test1DTypesRight,);
-INSTANTIATE_TYPED_TEST_CASE_P(test_1d_S, KokkosViewTest1D, Test1DTypesStride,);
-INSTANTIATE_TYPED_TEST_CASE_P(test_1d_L_C, KokkosViewTest1D, Test1DConstTypesLeft,);
-INSTANTIATE_TYPED_TEST_CASE_P(test_1d_R_C, KokkosViewTest1D, Test1DConstTypesRight,);
-INSTANTIATE_TYPED_TEST_CASE_P(test_1d_S_C, KokkosViewTest1D, Test1DConstTypesStride,);
+INSTANTIATE_TYPED_TEST_SUITE_P(test_1d_L, KokkosViewTest1D, Test1DTypesLeft,);
+INSTANTIATE_TYPED_TEST_SUITE_P(test_1d_R, KokkosViewTest1D, Test1DTypesRight,);
+INSTANTIATE_TYPED_TEST_SUITE_P(test_1d_S, KokkosViewTest1D, Test1DTypesStride,);
+INSTANTIATE_TYPED_TEST_SUITE_P(test_1d_L_C, KokkosViewTest1D, Test1DConstTypesLeft,);
+INSTANTIATE_TYPED_TEST_SUITE_P(test_1d_R_C, KokkosViewTest1D, Test1DConstTypesRight,);
+INSTANTIATE_TYPED_TEST_SUITE_P(test_1d_S_C, KokkosViewTest1D, Test1DConstTypesStride,);
 
 #endif
 
@@ -96,7 +96,7 @@ INSTANTIATE_TYPED_TEST_CASE_P(test_1d_S_C, KokkosViewTest1D, Test1DConstTypesStr
 template <typename ParamT>
 struct KokkosDynamicViewTest : KokkosViewTest<ParamT> { };
 
-TYPED_TEST_CASE_P(KokkosDynamicViewTest);
+TYPED_TEST_SUITE_P(KokkosDynamicViewTest);
 
 TYPED_TEST_P(KokkosDynamicViewTest, test_dynamic_1d) {
   using namespace checkpoint;
@@ -124,9 +124,9 @@ TYPED_TEST_P(KokkosDynamicViewTest, test_dynamic_1d) {
   serializeAny<ViewType>(in_view, &compare1dDynamic<ViewType>);
 }
 
-REGISTER_TYPED_TEST_CASE_P(KokkosDynamicViewTest, test_dynamic_1d);
+REGISTER_TYPED_TEST_SUITE_P(KokkosDynamicViewTest, test_dynamic_1d);
 
-INSTANTIATE_TYPED_TEST_CASE_P(
+INSTANTIATE_TYPED_TEST_SUITE_P(
   test_dynamic_view_1, KokkosDynamicViewTest, DynamicTestTypes,
 );
 

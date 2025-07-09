@@ -47,7 +47,7 @@
 
 template <typename ParamT> struct KokkosViewTest2DMPI : KokkosViewTest<ParamT> { };
 
-TYPED_TEST_CASE_P(KokkosViewTest2DMPI);
+TYPED_TEST_SUITE_P(KokkosViewTest2DMPI);
 
 TYPED_TEST_P(KokkosViewTest2DMPI, test_2d_any) {
   using namespace checkpoint;
@@ -75,12 +75,12 @@ TYPED_TEST_P(KokkosViewTest2DMPI, test_2d_any) {
   }
 }
 
-REGISTER_TYPED_TEST_CASE_P(KokkosViewTest2DMPI, test_2d_any);
+REGISTER_TYPED_TEST_SUITE_P(KokkosViewTest2DMPI, test_2d_any);
 
 #if DO_UNIT_TESTS_FOR_VIEW
 
-INSTANTIATE_TYPED_TEST_CASE_P(test_2d_L,   KokkosViewTest2DMPI, Test2DTypesLeft, );
-INSTANTIATE_TYPED_TEST_CASE_P(test_2d_L_C, KokkosViewTest2DMPI, Test2DConstTypesLeft, );
+INSTANTIATE_TYPED_TEST_SUITE_P(test_2d_L,   KokkosViewTest2DMPI, Test2DTypesLeft, );
+INSTANTIATE_TYPED_TEST_SUITE_P(test_2d_L_C, KokkosViewTest2DMPI, Test2DConstTypesLeft, );
 
 #endif
 #endif
