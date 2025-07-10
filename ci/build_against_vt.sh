@@ -39,6 +39,7 @@ rm -Rf ./*
 mkdir -p build
 cd build
 rm -Rf ./*
+
 cmake -G "${CMAKE_GENERATOR:-Ninja}" \
         -DCMAKE_INSTALL_PREFIX="${MAGISTRATE_BUILD}/install" \
         -Dmagistrate_asan_enabled="${MAGISTRATE_ASAN_ENABLED:-1}" \
@@ -65,7 +66,8 @@ cmake -G "${CMAKE_GENERATOR:-Ninja}" \
       -Dvt_trace_only="${VT_BUILD_TRACE_ONLY:-0}" \
       -Dvt_doxygen_enabled="${VT_DOXYGEN_ENABLED:-0}" \
       -Dvt_mimalloc_enabled="${VT_MIMALLOC_ENABLED:-0}" \
-      -Dvt_asan_enabled="${VT_ASAN_ENABLED:-0}" \
+      -Dvt_asan_enabled="${MAGISTRATE_ASAN_ENABLED:-1}" \
+      -Dvt_ubsan_enabled="${MAGISTRATE_UBSAN_ENABLED:-1}" \
       -Dvt_werror_enabled="${VT_WERROR_ENABLED:-0}" \
       -Dvt_pool_enabled="${VT_POOL_ENABLED:-1}" \
       -Dvt_build_extended_tests="${VT_EXTENDED_TESTS_ENABLED:-1}" \

@@ -23,7 +23,7 @@ ARG MAGISTRATE_BUILD_AGAINST_VT
 
 ARG IMAGE
 
-RUN --mount=type=cache,id="ccache-${IMAGE}",target=/build/ccache \
+RUN --mount=type=cache,id=ccache-${IMAGE},target=/build/ccache \
     --mount=target=/magistrate \
         if [ "$MAGISTRATE_BUILD_AGAINST_VT" = "1" ]; then \
             /magistrate/ci/build_against_vt.sh /vt /build /magistrate; \

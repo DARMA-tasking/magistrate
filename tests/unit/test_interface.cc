@@ -60,7 +60,7 @@ TEST_F(TestInterface, test_serialize) {
   using namespace ::checkpoint;
 
   using TestType = std::vector<int>;
-  TestType vec{1,2,3,100,200};
+  TestType vec{1,2,3,200,200};
 
   #if TEST_INTERFACE_DEBUG_PRINT
     for (auto&& elm : vec) {

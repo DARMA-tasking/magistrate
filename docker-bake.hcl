@@ -75,10 +75,10 @@ target "magistrate-build-all" {
   inherits = ["magistrate-build"]
   tags = ["${REPO}:vt-${item.image}"]
   cache-from = [
-    "type=local,src=.buildx-cache/${item.image}"
+    "type=local,src=.buildx-cache/${item.image}",
   ]
   cache-to = [
-    "type=local,dest=.buildx-cache/${item.image},mode=max"
+    "type=local,dest=.buildx-cache/${item.image},mode=max",
   ]
 
   args = {
