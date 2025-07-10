@@ -8,21 +8,26 @@ ARG BASE=${REPO}:${IMAGE}
 
 FROM --platform=${ARCH} ${BASE} AS build
 
-ARG BUILD_SHARED_LIBS
 ARG CMAKE_BUILD_TYPE
 ARG CMAKE_CXX_STANDARD
 ARG CODE_COVERAGE
-ARG MAGISTRATE_TESTS
-ARG MAGISTRATE_EXAMPLES
-ARG MAGISTRATE_MPI
+ARG MAGISTRATE_TESTS_ENABLED
+ARG MAGISTRATE_EXAMPLES_ENABLED
+ARG MAGISTRATE_MPI_ENABLED
 ARG MAGISTRATE_WARNINGS_AS_ERRORS
-ARG MAGISTRATE_DOCS
-ARG MAGISTRATE_ASAN
-ARG MAGISTRATE_UBSAN
-ARG MAGISTRATE_SERIALIZATION_ERROR_CHECKING
+ARG MAGISTRATE_DOXYGEN_ENABLED
+ARG MAGISTRATE_ASAN_ENABLED
+ARG MAGISTRATE_UBSAN_ENABLED
+ARG MAGISTRATE_SERIALIZATION_ERROR_CHECKING_ENABLED
+ARG MAGISTRATE_BUILD_AGAINST_VT
 
 ARG IMAGE
+
 RUN --mount=type=cache,id="ccache-${IMAGE}",target=/build/ccache \
     --mount=target=/magistrate \
-        /magistrate/ci/build_cpp.sh /magistrate /build && \
+        if [ "$MAGISTRATE_BUILD_AGAINST_VT" = "1" ]; then \
+            /magistrate/ci/build_against_vt.sh /vt /build /magistrate; \
+        else \
+            /magistrate/ci/build_cpp.sh /magistrate /build; \
+        fi && \
         /magistrate/ci/test_cpp.sh /magistrate /build

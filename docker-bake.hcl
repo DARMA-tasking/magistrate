@@ -52,6 +52,11 @@ function "magistrate_serialization_error_checking" {
   result = lookup(item, "magistrate_serialization_error_checking", "1")
 }
 
+function "magistrate_build_against_vt" {
+  params = [item]
+  result = lookup(item, "magistrate_build_against_vt", "0")
+}
+
 target "magistrate-build" {
   target = "build"
   context = "."
@@ -80,14 +85,15 @@ target "magistrate-build-all" {
     ARCH = arch(item)
     IMAGE = "wf-${item.image}"
     REPO = REPO
-    MAGISTRATE_TESTS = magistrate_tests(item)
-    MAGISTRATE_EXAMPLES = magistrate_examples(item)
-    MAGISTRATE_MPI = magistrate_mpi(item)
+    MAGISTRATE_TESTS_ENABLED = magistrate_tests(item)
+    MAGISTRATE_EXAMPLES_ENABLED = magistrate_examples(item)
+    MAGISTRATE_MPI_ENABLED = magistrate_mpi(item)
     MAGISTRATE_WARNINGS_AS_ERRORS = magistrate_warnings_as_errors(item)
-    MAGISTRATE_DOCS = magistrate_docs(item)
-    MAGISTRATE_ASAN = magistrate_asan(item)
-    MAGISTRATE_UBSAN = magistrate_ubsan(item)
-    MAGISTRATE_SERIALIZATION_ERROR_CHECKING = magistrate_serialization_error_checking(item)
+    MAGISTRATE_DOXYGEN_ENABLED = magistrate_docs(item)
+    MAGISTRATE_ASAN_ENABLED = magistrate_asan(item)
+    MAGISTRATE_UBSAN_ENABLED = magistrate_ubsan(item)
+    MAGISTRATE_SERIALIZATION_ERROR_CHECKING_ENABLED = magistrate_serialization_error_checking(item)
+    MAGISTRATE_BUILD_AGAINST_VT = magistrate_build_against_vt(item)
   }
 
   # to get the list of available images from DARMA-tasking/workflows:
@@ -102,6 +108,9 @@ target "magistrate-build-all" {
       },
       {
         image = "amd64-ubuntu-22.04-clang-11-cpp"
+        magistrate_build_against_vt = 1
+        # TODO: Fix asan issues
+        magistrate_asan = 0
       },
       {
         image = "amd64-ubuntu-22.04-clang-12-cpp"
