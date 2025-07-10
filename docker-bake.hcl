@@ -56,24 +56,12 @@ target "magistrate-build" {
   target = "build"
   context = "."
   dockerfile = "ci/docker/dockerfile"
-  output = ["type=local,dest=docker-output"]
+
   platforms = [
     "linux/amd64"
   ]
   ulimits = [
     "core=0"
-  ]
-  cache-from = [
-    {
-      type = "local",
-      src = "~/ccache"
-    }
-  ]
-  cache-to = [
-    {
-      type = "local",
-      dest = "~/ccache"
-    }
   ]
 }
 
@@ -81,6 +69,12 @@ target "magistrate-build-all" {
   name = "magistrate-build-${replace(item.image, ".", "-")}"
   inherits = ["magistrate-build"]
   tags = ["${REPO}:vt-${item.image}"]
+  cache-from = [
+    "type=local,src=.buildx-cache/${item.image}"
+  ]
+  cache-to = [
+    "type=local,dest=.buildx-cache/${item.image},mode=max"
+  ]
 
   args = {
     ARCH = arch(item)
@@ -108,7 +102,6 @@ target "magistrate-build-all" {
       },
       {
         image = "amd64-ubuntu-22.04-clang-11-cpp"
-        magistrate_asan = 0
       },
       {
         image = "amd64-ubuntu-22.04-clang-12-cpp"
