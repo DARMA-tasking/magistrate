@@ -1,3 +1,5 @@
+#syntax=docker/dockerfile:1.6
+
 ARG REPO=lifflander1/vt
 ARG ARCH=amd64
 ARG IMAGE=wf-amd64-ubuntu-22.04-gcc-12-cpp
@@ -19,15 +21,8 @@ ARG MAGISTRATE_ASAN
 ARG MAGISTRATE_UBSAN
 ARG MAGISTRATE_SERIALIZATION_ERROR_CHECKING
 
-RUN --mount=target=/magistrate \
-<<EOF
-if [ -d magistrate/docker-output/build/ccache ]; then
-    cp -r magistrate/docker-output/build/ccache /build
-    ccache -c
-    ccache -s
-fi
-EOF
-
-RUN --mount=target=/magistrate,rw \
+ARG IMAGE
+RUN --mount=type=cache,id="ccache-${IMAGE}",target=/build/ccache \
+    --mount=target=/magistrate \
         /magistrate/ci/build_cpp.sh /magistrate /build && \
         /magistrate/ci/test_cpp.sh /magistrate /build
