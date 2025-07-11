@@ -75,12 +75,17 @@ target "magistrate-build-all" {
   inherits = ["magistrate-build"]
   tags = ["${REPO}:vt-${item.image}"]
 
+  output = [
+    {
+      type = "local"
+      dest = "docker-output"
+    }
+  ]
+
   cache-from = [
-    "type=local,src=.buildx-cache/${item.image}",
     "type=gha,scope=ccache-${item.image}"
   ]
   cache-to = [
-    "type=local,dest=.buildx-cache/${item.image},mode=max",
     "type=gha,scope=ccache-${item.image},mode=max,ignore-error=true"
   ]
 

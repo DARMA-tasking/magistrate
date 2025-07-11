@@ -40,9 +40,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .buildx-cache
-          key: ${{ runner.os }}-buildx-${{ matrix.target }}
+          key: ${{ matrix.target }}-${{ github.ref }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-buildx-
+            ${{ matrix.target }}-${{ github.ref }}
 
       - name: Build
         uses: docker/bake-action@v6
