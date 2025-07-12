@@ -75,20 +75,6 @@ target "magistrate-build-all" {
   inherits = ["magistrate-build"]
   tags = ["${REPO}:vt-${item.image}"]
 
-  output = [
-    {
-      type = "local"
-      dest = "docker-output"
-    }
-  ]
-
-  cache-from = [
-    "type=gha,scope=ccache-${item.image}"
-  ]
-  cache-to = [
-    "type=gha,scope=ccache-${item.image},mode=max,ignore-error=true"
-  ]
-
   args = {
     ARCH = arch(item)
     IMAGE = "wf-${item.image}"
@@ -108,13 +94,19 @@ target "magistrate-build-all" {
     item = [
       { image = "amd64-ubuntu-20.04-clang-9-cpp" },
       { image = "amd64-ubuntu-20.04-clang-10-cpp" },
-      { image = "amd64-ubuntu-22.04-clang-11-cpp", magistrate_build_against_vt = 1, magistrate_asan = 0 },
+      { image = "amd64-ubuntu-22.04-clang-11-cpp",
+        magistrate_build_against_vt = 1,
+        magistrate_asan = 0 },
       { image = "amd64-ubuntu-22.04-clang-12-cpp" },
       { image = "amd64-ubuntu-22.04-clang-13-cpp" },
       { image = "amd64-ubuntu-22.04-clang-14-cpp" },
       { image = "amd64-ubuntu-20.04-gcc-10-cpp" },
-      { image = "amd64-ubuntu-20.04-gcc-9-cpp", magistrate_code_coverage = 1, magistrate_serialization_error_checking = 0 },
-      { image = "amd64-ubuntu-20.04-gcc-9-cuda-11.4.3-cpp", magistrate_asan = 0, magistrate_serialization_error_checking = 0 }
+      { image = "amd64-ubuntu-20.04-gcc-9-cpp",
+        magistrate_code_coverage = 1,
+        magistrate_serialization_error_checking = 0 },
+      { image = "amd64-ubuntu-20.04-gcc-9-cuda-11.4.3-cpp",
+        magistrate_asan = 0,
+        magistrate_serialization_error_checking = 0 }
     ]
   }
 }

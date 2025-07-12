@@ -1,5 +1,3 @@
-#syntax=docker/dockerfile:1.6
-
 ARG REPO=lifflander1/vt
 ARG ARCH=amd64
 ARG IMAGE=wf-amd64-ubuntu-22.04-gcc-12-cpp
@@ -20,17 +18,19 @@ ARG MAGISTRATE_UBSAN_ENABLED
 ARG MAGISTRATE_SERIALIZATION_ERROR_CHECKING_ENABLED
 ARG MAGISTRATE_BUILD_AGAINST_VT
 ARG IMAGE
+ARG CI_CCACHE_DIR
 
-ENV CCACHE_DIR=/build/ccache \
-    CCACHE_MAXSIZE=500M \
-    CCACHE_COMPRESS=1 \
-    PATH=/usr/lib/ccache:$PATH
+ENV CI_CCACHE_DIR=${CI_CCACHE_DIR}
 
 RUN --mount=type=cache,id=ccache-${IMAGE},target=/build/ccache \
-    --mount=target=/magistrate,rw\
+    --mount=target=/magistrate,rw \
+    if [ -d /magistrate/docker-output/build/ci/ccache ]; then \
+        cp -a /magistrate/docker-output/build/ci/ccache/. /build/ccache/; \
+    fi && \
     if [ "$MAGISTRATE_BUILD_AGAINST_VT" = "1" ]; then \
         /magistrate/ci/build_against_vt.sh /vt /build /magistrate; \
     else \
         /magistrate/ci/build_cpp.sh /magistrate /build; \
     fi && \
-    /magistrate/ci/test_cpp.sh /magistrate /build
+    /magistrate/ci/test_cpp.sh /magistrate /build && \
+    ls /build
