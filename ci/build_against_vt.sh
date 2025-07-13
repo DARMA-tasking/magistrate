@@ -105,3 +105,8 @@ then
     { echo -e "===\n=== ccache statistics after build\n==="; } 2>/dev/null
     ccache -s
 fi
+
+if [ -n "${CI_CCACHE_DIR:-}" ]; then
+    mkdir -p "${CI_CCACHE_DIR}"
+    cp -a "${CCACHE_DIR}/." "${CI_CCACHE_DIR}/"
+fi
