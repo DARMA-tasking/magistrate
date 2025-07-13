@@ -78,10 +78,3 @@ fi
 
 echo -e "===\n=== ccache statistics after build\n==="
 ccache -s
-
-if [ -n "${CI_CCACHE_DIR:-}" ]; then
-    mkdir -p "${CI_CCACHE_DIR}"
-    cp -a "${CCACHE_DIR}/." "${CI_CCACHE_DIR}/"
-fi
-
-

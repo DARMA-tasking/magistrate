@@ -33,14 +33,29 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: docker/setup-buildx-action@v3
+        id: setup-buildx
 
       - name: Restore ccache
+        id: ccache-archive
         uses: actions/cache@v4
         with:
-          path: docker-output/build/ci/ccache
+          path: ccache-archive
           key: ${{ matrix.target }}-${{ github.ref }}-${{ github.sha }}
           restore-keys: |
             ${{ matrix.target }}-${{ github.ref }}
+
+      - name: Inject ccache
+        uses: reproducible-containers/buildkit-cache-dance@v3
+        with:
+          builder: ${{ steps.setup-buildx.outputs.name }}
+          cache-map: |
+            {
+              "ccache-archive": {
+                "target": "/build/ccache",
+                "id": "${{ matrix.target }}"
+              }
+            }
+          skip-extraction: ${{ steps.ccache-archive.outputs.cache-hit }}
 
       - name: Build
         uses: docker/bake-action@v6
@@ -52,6 +67,4 @@ jobs:
           set: |
             *.cache-from=type=gha,scope=${{ matrix.target }}
             *.cache-to=type=gha,scope=${{ matrix.target }},mode=max
-            *.output=type=local,dest=docker-output
-            *.args.CI_CCACHE_DIR=/build/ci/ccache
-            *.target=artifacts
+            *.args.CACHE_ID=${{ matrix.target }}

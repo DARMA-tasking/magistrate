@@ -18,21 +18,13 @@ ARG MAGISTRATE_UBSAN_ENABLED
 ARG MAGISTRATE_SERIALIZATION_ERROR_CHECKING_ENABLED
 ARG MAGISTRATE_BUILD_AGAINST_VT
 ARG IMAGE
-ARG CI_CCACHE_DIR
+ARG CACHE_ID
 
-ENV CI_CCACHE_DIR=${CI_CCACHE_DIR}
-
-RUN --mount=type=cache,id=ccache-${IMAGE},target=/build/ccache \
+RUN --mount=type=cache,id=${CACHE_ID},target=/build/ccache \
     --mount=target=/magistrate,rw \
-    if [ -d /magistrate/docker-output/build/ci/ccache ]; then \
-        cp -a /magistrate/docker-output/build/ci/ccache/. /build/ccache/; \
-    fi && \
     if [ "$MAGISTRATE_BUILD_AGAINST_VT" = "1" ]; then \
         /magistrate/ci/build_against_vt.sh /vt /build /magistrate; \
     else \
         /magistrate/ci/build_cpp.sh /magistrate /build; \
     fi && \
     /magistrate/ci/test_cpp.sh /magistrate /build
-
-FROM scratch AS artifacts
-COPY --from=build /build/ /build/
