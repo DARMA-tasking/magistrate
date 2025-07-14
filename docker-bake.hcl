@@ -71,7 +71,7 @@ target "magistrate-build" {
 }
 
 target "magistrate-build-all" {
-  name = "magistrate-build-${replace(item.image, ".", "-")}${magistrate_build_against_vt(item) == "1" ? "-vt" : ""}"
+  name = "magistrate-build-${replace(item.image, ".", "-")}${magistrate_build_against_vt(item) == 1 ? "-vt" : ""}"
   inherits = ["magistrate-build"]
   tags = ["${REPO}:vt-${item.image}"]
 
