@@ -28,7 +28,7 @@ fi
 
 mkdir -p "${vt_build_dir}"
 cd "${vt_build_dir}"
-rm -Rf ./vt
+rm -Rf ./*
 
 export MAGISTRATE=${magistrate_source_dir}
 export MAGISTRATE_BUILD=${vt_build_dir}/checkpoint
