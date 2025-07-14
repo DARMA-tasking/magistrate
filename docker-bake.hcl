@@ -57,6 +57,11 @@ function "magistrate_build_against_vt" {
   result = lookup(item, "magistrate_build_against_vt", "0")
 }
 
+function "magistrate_asan_options" {
+  params = [item]
+  result = lookup(item, "magistrate_asan_options", "")
+}
+
 target "magistrate-build" {
   target = "build"
   context = "."
@@ -88,6 +93,7 @@ target "magistrate-build-all" {
     MAGISTRATE_UBSAN_ENABLED = magistrate_ubsan(item)
     MAGISTRATE_SERIALIZATION_ERROR_CHECKING_ENABLED = magistrate_serialization_error_checking(item)
     MAGISTRATE_BUILD_AGAINST_VT = magistrate_build_against_vt(item)
+    MAGISTRATE_ASAN_OPTIONS = magistrate_asan_options(item)
   }
 
   matrix = {
@@ -95,11 +101,10 @@ target "magistrate-build-all" {
       { image = "amd64-ubuntu-20.04-clang-9-cpp" },
       { image = "amd64-ubuntu-20.04-clang-10-cpp" },
       { image = "amd64-ubuntu-22.04-clang-11-cpp",
-        magistrate_asan = 0 },
-      { image = "amd64-ubuntu-22.04-clang-11-cpp",
+        magistrate_asan_options = "use_sigaltstack=false" },
+      { image = "amd64-ubuntu-22.04-clang-12-cpp",
         magistrate_build_against_vt = 1,
-        magistrate_asan = 0 },
-      { image = "amd64-ubuntu-22.04-clang-12-cpp" },
+        magistrate_ubsan = 1 },
       { image = "amd64-ubuntu-22.04-clang-13-cpp" },
       { image = "amd64-ubuntu-22.04-clang-14-cpp" },
       { image = "amd64-ubuntu-20.04-gcc-10-cpp" },

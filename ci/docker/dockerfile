@@ -20,6 +20,9 @@ ARG MAGISTRATE_BUILD_AGAINST_VT
 ARG IMAGE
 ARG CACHE_ID=${IMAGE}
 
+ARG MAGISTRATE_ASAN_OPTIONS
+ENV ASAN_OPTIONS=$MAGISTRATE_ASAN_OPTIONS
+
 RUN --mount=type=cache,id=${CACHE_ID},target=/build/ccache \
     --mount=target=/magistrate,rw \
     if [ "$MAGISTRATE_BUILD_AGAINST_VT" = "1" ]; then \
