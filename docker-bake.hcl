@@ -62,6 +62,11 @@ function "magistrate_asan_options" {
   result = lookup(item, "magistrate_asan_options", "")
 }
 
+function "cmake_build_type" {
+  params = [item]
+  result = lookup(item, "cmake_build_type", "Release")
+}
+
 target "magistrate-build" {
   target = "build"
   context = "."
@@ -84,6 +89,7 @@ target "magistrate-build-all" {
     ARCH = arch(item)
     IMAGE = "wf-${item.image}"
     REPO = REPO
+    CMAKE_BUILD_TYPE = cmake_build_type(item)
     MAGISTRATE_TESTS_ENABLED = magistrate_tests(item)
     MAGISTRATE_EXAMPLES_ENABLED = magistrate_examples(item)
     MAGISTRATE_MPI_ENABLED = magistrate_mpi(item)
