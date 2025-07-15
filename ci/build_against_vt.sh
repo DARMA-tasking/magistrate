@@ -6,12 +6,19 @@ vt_source_dir="${1}"
 vt_build_dir="${2}"
 magistrate_source_dir="${3}"
 
+if [ -d "$vt_source_dir" ]; then
+    rm -rf "$vt_source_dir"
+fi
 mkdir -p "$vt_source_dir"
 cd "$vt_source_dir"
-rm -Rf ./*
 git clone -b develop https://github.com/DARMA-tasking/vt.git .
 
 target="${4:-install}"
+
+export CCACHE_BASEDIR="$vt_source_dir"
+export CCACHE_SLOPPINESS=time_macros,file_macro,env_vars,include_file_mtime,system_headers
+export CCACHE_NOHASHDIR=1
+export CCACHE_MAXSIZE="500MB"
 
 if hash ccache &>/dev/null
 then
@@ -99,6 +106,7 @@ cmake -G "${CMAKE_GENERATOR:-Ninja}" \
       -Dvt_ci_build="${VT_CI_BUILD:-1}" \
       -Dvt_debug_verbose="${VT_DEBUG_VERBOSE:-}" \
       -Dvt_tests_num_nodes="${VT_TESTS_NUM_NODES:-}" \
+      -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
       "${VT}"
 time cmake --build . --target "${target}"
 
