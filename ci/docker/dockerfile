@@ -27,8 +27,7 @@ RUN --mount=type=cache,id=${CACHE_ID},target=/build/ccache \
     --mount=target=/magistrate,rw \
     if [ "$MAGISTRATE_BUILD_AGAINST_VT" = "1" ]; then \
         /magistrate/ci/build_against_vt.sh /vt /build_vt /magistrate && \
-        rm -rf /build_vt && \
-        /magistrate/ci/build_against_vt.sh /vt /build_vt /magistrate; \
+        /vt/ci/test_cpp.sh /vt /build_vt; \
     else \
         /magistrate/ci/build_cpp.sh /magistrate /build && \
         /magistrate/ci/test_cpp.sh /magistrate /build; \

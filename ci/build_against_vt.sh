@@ -18,7 +18,7 @@ target="${4:-install}"
 export CCACHE_BASEDIR="$vt_source_dir"
 export CCACHE_SLOPPINESS=time_macros,file_macro,env_vars,include_file_mtime,system_headers
 export CCACHE_NOHASHDIR=1
-export CCACHE_MAXSIZE="500MB"
+export CCACHE_MAXSIZE="700M"
 
 if hash ccache &>/dev/null
 then
