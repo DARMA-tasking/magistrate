@@ -46,7 +46,7 @@
 #include "tests_mpi/test_commons_mpi.h"
 
 template <typename ParamT> struct KokkosViewTest0DMPI : KokkosViewTest<ParamT> { };
-TYPED_TEST_CASE_P(KokkosViewTest0DMPI);
+TYPED_TEST_SUITE_P(KokkosViewTest0DMPI);
 
 TYPED_TEST_P(KokkosViewTest0DMPI, test_0d_any) {
   using namespace checkpoint;
@@ -71,11 +71,11 @@ TYPED_TEST_P(KokkosViewTest0DMPI, test_0d_any) {
   }
 }
 
-REGISTER_TYPED_TEST_CASE_P(KokkosViewTest0DMPI, test_0d_any);
+REGISTER_TYPED_TEST_SUITE_P(KokkosViewTest0DMPI, test_0d_any);
 
 #if DO_UNIT_TESTS_FOR_VIEW
 
-INSTANTIATE_TYPED_TEST_CASE_P(test_0d, KokkosViewTest0DMPI, Test0DTypes, );
+INSTANTIATE_TYPED_TEST_SUITE_P(test_0d, KokkosViewTest0DMPI, Test0DTypes, );
 
 #endif
 #endif

@@ -58,8 +58,8 @@ struct TestSerializeStream : TestHarness { };
 template <typename T>
 struct TestSerializeStreamInPlace : TestHarness { };
 
-TYPED_TEST_CASE_P(TestSerializeStream);
-TYPED_TEST_CASE_P(TestSerializeStreamInPlace);
+TYPED_TEST_SUITE_P(TestSerializeStream);
+TYPED_TEST_SUITE_P(TestSerializeStreamInPlace);
 
 static constexpr int const u_val = 934;
 
@@ -176,10 +176,10 @@ using ConstructTypes = ::testing::Types<
   UserObjectC
 >;
 
-REGISTER_TYPED_TEST_CASE_P(TestSerializeStream, test_serialize_stream_multi);
-REGISTER_TYPED_TEST_CASE_P(TestSerializeStreamInPlace, test_serialize_stream_multi_in_place);
+REGISTER_TYPED_TEST_SUITE_P(TestSerializeStream, test_serialize_stream_multi);
+REGISTER_TYPED_TEST_SUITE_P(TestSerializeStreamInPlace, test_serialize_stream_multi_in_place);
 
-INSTANTIATE_TYPED_TEST_CASE_P(test_file, TestSerializeStream, ConstructTypes, );
-INSTANTIATE_TYPED_TEST_CASE_P(test_file_in_place, TestSerializeStreamInPlace, ConstructTypes, );
+INSTANTIATE_TYPED_TEST_SUITE_P(test_file, TestSerializeStream, ConstructTypes, );
+INSTANTIATE_TYPED_TEST_SUITE_P(test_file_in_place, TestSerializeStreamInPlace, ConstructTypes, );
 
 }}} // end namespace checkpoint::tests::unit

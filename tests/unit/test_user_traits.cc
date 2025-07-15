@@ -53,7 +53,7 @@
 namespace checkpoint { namespace tests { namespace unit {
 template <typename T>
 struct TestUserTraits : TestHarness { };
-TYPED_TEST_CASE_P(TestUserTraits);
+TYPED_TEST_SUITE_P(TestUserTraits);
 
 struct CheckpointTrait {};
 struct CheckpointTraitNonintrusive {};
@@ -138,9 +138,9 @@ TYPED_TEST_P(TestUserTraits, test_serialize_extra) {
   EXPECT_EQ(objA.name, old_name);
   EXPECT_NE(objA.name, new_name);
 }
-REGISTER_TYPED_TEST_CASE_P(TestUserTraits, test_serialize_extra);
+REGISTER_TYPED_TEST_SUITE_P(TestUserTraits, test_serialize_extra);
 using TraitTypes = ::testing::Types<CheckpointTrait, CheckpointTraitNonintrusive, CheckpointNamespace::CheckpointTraitNamespaced>;
-INSTANTIATE_TYPED_TEST_CASE_P(checkpoint_trait, TestUserTraits, TraitTypes, );
+INSTANTIATE_TYPED_TEST_SUITE_P(checkpoint_trait, TestUserTraits, TraitTypes, );
 
 
 
