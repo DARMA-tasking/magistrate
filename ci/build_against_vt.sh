@@ -28,9 +28,7 @@ fi
 if test "${use_ccache}"
 then
     { echo -e "===\n=== ccache statistics before build\n==="; } 2>/dev/null
-    ccache --show-config
-    ccache -s --verbose
-    ccache --print-stats
+    ccache -s
 else
     { echo -e "===\n=== ccache not found, compiling without it\n==="; } 2>/dev/null
 fi
@@ -113,7 +111,5 @@ time cmake --build . --target "${target}"
 if test "${use_ccache}"
 then
     { echo -e "===\n=== ccache statistics after build\n==="; } 2>/dev/null
-    ccache --show-config
-    ccache -s --verbose
-    ccache --print-stats
+    ccache -s
 fi
