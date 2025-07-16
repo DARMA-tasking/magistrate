@@ -40,14 +40,6 @@
 #  $ COMPILER=gcc-9 docker-compose run ubuntu-cpp
 #
 
-# Named volumes must be predefined according the docker compose rules. Many
-# combinations have already been added, but if a needed configuration is missing
-# add it to this list.
-
-volumes:
-  build_cache:
-    name: "${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cache"
-
 # Define basic rules for ccache used across multiple services. The beauty of
 # docker compose with cached volumes is that similarily configured builds will
 # reuse a ccache volume making build speeds much faster than a fresh build each
@@ -88,7 +80,7 @@ services:
       <<: [*ccache, *magistrateopts]
     volumes: &ubuntu-volumes
       - .:/magistrate:delegated
-      - build_cache:/build:delegated
+      - ${CACHE}${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cache:/build:delegated
     command: &vt-cpp-command >
       /bin/bash -c "
         /magistrate/ci/build_cpp.sh /magistrate /build &&
