@@ -17,10 +17,10 @@
 #   UBUNTU={20.04, 22.04}
 #   ULIMIT_CORE=0
 #
-# DARMA/checkpoint Configuration Variables:
-#   MAGISTRATE_TESTS=1                        # Enable checkpoint tests
-#   MAGISTRATE_EXAMPLES=1                     # Enable checkpoint examples
-#   MAGISTRATE_MPI=1                          # Enable checkpoint MPI tests
+# DARMA/magistrate Configuration Variables:
+#   MAGISTRATE_TESTS=1                        # Enable magistrate tests
+#   MAGISTRATE_EXAMPLES=1                     # Enable magistrate examples
+#   MAGISTRATE_MPI=1                          # Enable magistrate MPI tests
 #   MAGISTRATE_WARNINGS_AS_ERRORS=0           # Treat warnings as errors in compilation
 #   MAGISTRATE_ASAN=0                         # Enable address sanitizer in build
 #   MAGISTRATE_UBSAN=0                        # Enable undefined behavior sanitizer in build
@@ -31,7 +31,7 @@
 #
 # In order to run in the container, there are two stages. First, one must build
 # or pull the base container with the variables exported (or using the defaults
-# in `checkpoint/.env` that configure it:
+# in `magistrate/.env` that configure it:
 #
 # For a non-interactive build with gcc-9, since gnu is the default compiler
 # type, one may do the following:
@@ -45,7 +45,8 @@
 # add it to this list.
 
 volumes:
-  name: "${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cache"
+  build_cache:
+    name: "${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cache"
 
 # Define basic rules for ccache used across multiple services. The beauty of
 # docker compose with cached volumes is that similarily configured builds will
@@ -58,8 +59,8 @@ x-ccache: &ccache
   CCACHE_MAXSIZE: 700M
   CCACHE_DIR: /build/ccache
 
-# Define rules for CheckPoint configuration options across various services
-x-checkpointopts: &checkpointopts
+# Define rules for magistrate configuration options across various services
+x-magistrateopts: &magistrateopts
   MAGISTRATE_TESTS_ENABLED: ${MAGISTRATE_TESTS:-1}
   MAGISTRATE_EXAMPLES_ENABLED: ${MAGISTRATE_EXAMPLES:-1}
   MAGISTRATE_MPI_ENABLED: ${MAGISTRATE_MPI:-1}
@@ -76,7 +77,7 @@ x-checkpointopts: &checkpointopts
 
 services:
   ##############################################################################
-  # C++ builds of Checkpoint on linux platform from container baseline
+  # C++ builds of magistrate on linux platform from container baseline
   # Ubuntu gcc-8 debug build:
   #   docker-compose run -e CMAKE_BUILD_TYPE=debug ubuntu-cpp
   ubuntu-cpp:
@@ -84,45 +85,45 @@ services:
     ulimits: &ulimits
       core: ${ULIMIT_CORE}
     environment:
-      <<: [*ccache, *checkpointopts]
+      <<: [*ccache, *magistrateopts]
     volumes: &ubuntu-volumes
-      - .:/checkpoint:delegated
-      - ${CACHE}${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cache:/build:delegated
+      - .:/magistrate:delegated
+      - build_cache:/build:delegated
     command: &vt-cpp-command >
       /bin/bash -c "
-        /checkpoint/ci/build_cpp.sh /checkpoint /build &&
-        /checkpoint/ci/test_cpp.sh  /checkpoint /build"
+        /magistrate/ci/build_cpp.sh /magistrate /build &&
+        /magistrate/ci/test_cpp.sh  /magistrate /build"
 
   ubuntu-cpp-vt:
     image: ${REPO}:wf-${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
     ulimits: *ulimits
     environment:
-      <<: [*ccache, *checkpointopts]
+      <<: [*ccache, *magistrateopts]
     volumes: *ubuntu-volumes
     command: &build-against-vt-cpp-command >
       /bin/bash -c "
-        /checkpoint/ci/build_against_vt.sh /vt /build /checkpoint &&
+        /magistrate/ci/build_against_vt.sh /vt /build /magistrate &&
         /vt/ci/test_cpp.sh /vt /build"
 
   ##############################################################################
-  # Interactive C++ setup of Checkpoint on ubuntu platform from container
+  # Interactive C++ setup of magistrate on ubuntu platform from container
   # baseline.
   #
   # After running:
   #   docker-compose run ubuntu-cpp-interactive
   #
   # You will get a command line where you can run the build command:
-  #   $ /checkpoint/ci/build_cpp.sh /checkpoint /build
-  #   $ /checkpoint/ci/test_cpp.sh  /checkpoint /build
+  #   $ /magistrate/ci/build_cpp.sh /magistrate /build
+  #   $ /magistrate/ci/test_cpp.sh  /magistrate /build
   ubuntu-cpp-interactive:
     image: ${REPO}:wf-${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
     ulimits: *ulimits
     environment:
-      <<: [*ccache, *checkpointopts]
+      <<: [*ccache, *magistrateopts]
     volumes: *ubuntu-volumes
 
   ##############################################################################
-  # Build documentation for Checkpoint in the container on ubuntu platform from
+  # Build documentation for magistrate in the container on ubuntu platform from
   # container baseline.
   ubuntu-docs:
     image: ${REPO}:wf-${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
@@ -134,4 +135,4 @@ services:
     volumes: *ubuntu-volumes
     command: &docs-cpp-command >
       /bin/bash -c "
-        /checkpoint/ci/build_cpp.sh /checkpoint /build ${TOKEN}"
+        /magistrate/ci/build_cpp.sh /magistrate /build ${TOKEN}"
