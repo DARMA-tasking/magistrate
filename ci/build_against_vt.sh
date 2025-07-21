@@ -6,12 +6,19 @@ vt_source_dir="${1}"
 vt_build_dir="${2}"
 magistrate_source_dir="${3}"
 
+if [ -d "$vt_source_dir" ]; then
+    rm -rf "$vt_source_dir"
+fi
 mkdir -p "$vt_source_dir"
 cd "$vt_source_dir"
-rm -Rf ./*
 git clone -b develop https://github.com/DARMA-tasking/vt.git .
 
 target="${4:-install}"
+
+export CCACHE_BASEDIR="$vt_source_dir"
+export CCACHE_SLOPPINESS=time_macros,file_macro,env_vars,include_file_mtime,system_headers
+export CCACHE_NOHASHDIR=1
+export CCACHE_MAXSIZE="700M"
 
 if hash ccache &>/dev/null
 then
@@ -32,12 +39,14 @@ rm -Rf ./*
 
 export MAGISTRATE=${magistrate_source_dir}
 export MAGISTRATE_BUILD=${vt_build_dir}/checkpoint
+
 mkdir -p "${MAGISTRATE_BUILD}"
 cd "${MAGISTRATE_BUILD}"
 rm -Rf ./*
 mkdir -p build
 cd build
 rm -Rf ./*
+
 cmake -G "${CMAKE_GENERATOR:-Ninja}" \
         -DCMAKE_INSTALL_PREFIX="${MAGISTRATE_BUILD}/install" \
         -Dmagistrate_asan_enabled="${MAGISTRATE_ASAN_ENABLED:-1}" \
@@ -64,7 +73,8 @@ cmake -G "${CMAKE_GENERATOR:-Ninja}" \
       -Dvt_trace_only="${VT_BUILD_TRACE_ONLY:-0}" \
       -Dvt_doxygen_enabled="${VT_DOXYGEN_ENABLED:-0}" \
       -Dvt_mimalloc_enabled="${VT_MIMALLOC_ENABLED:-0}" \
-      -Dvt_asan_enabled="${VT_ASAN_ENABLED:-0}" \
+      -Dvt_asan_enabled="${MAGISTRATE_ASAN_ENABLED:-1}" \
+      -Dvt_ubsan_enabled="${MAGISTRATE_UBSAN_ENABLED:-1}" \
       -Dvt_werror_enabled="${VT_WERROR_ENABLED:-0}" \
       -Dvt_pool_enabled="${VT_POOL_ENABLED:-1}" \
       -Dvt_build_extended_tests="${VT_EXTENDED_TESTS_ENABLED:-1}" \
@@ -94,6 +104,7 @@ cmake -G "${CMAKE_GENERATOR:-Ninja}" \
       -Dvt_ci_build="${VT_CI_BUILD:-1}" \
       -Dvt_debug_verbose="${VT_DEBUG_VERBOSE:-}" \
       -Dvt_tests_num_nodes="${VT_TESTS_NUM_NODES:-}" \
+      -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
       "${VT}"
 time cmake --build . --target "${target}"
 
