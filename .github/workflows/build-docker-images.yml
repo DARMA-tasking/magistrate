@@ -20,6 +20,7 @@ jobs:
         uses: docker/bake-action/subaction/list-targets@v6
         with:
           target: magistrate-build-all
+          files: docker-bake.hcl
 
   bake:
     runs-on: ubuntu-latest

@@ -63,8 +63,8 @@ x-magistrateopts: &magistrateopts
   CMAKE_BUILD_TYPE: ${BUILD_TYPE:-release}
   MAGISTRATE_SERIALIZATION_ERROR_CHECKING_ENABLED: ${MAGISTRATE_SERIALIZATION_ERROR_CHECKING:-0}
   CODE_COVERAGE: ${CODE_COVERAGE:-0}
-  https_proxy: ${PROXY-}
-  http_proxy: ${PROXY-}
+  https_proxy: ${PROXY:-}
+  http_proxy: ${PROXY:-}
   CODECOV_TOKEN: ${CODECOV_TOKEN:-}
 
 services:
