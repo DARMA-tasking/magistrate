@@ -11,7 +11,7 @@ pushd "$CHECKPOINT_BUILD"
 
 ctest --output-on-failure | tee cmake-output.log
 
-if test "${CODE_COVERAGE:-0}" -eq 1
+if test "${MAGISTRATE_CODE_COVERAGE:-0}" -eq 1
 then
     export CODECOV_TOKEN="$CODECOV_TOKEN"
     lcov --capture --directory . --output-file coverage.info

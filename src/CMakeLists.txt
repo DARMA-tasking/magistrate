@@ -105,7 +105,7 @@ endif()
 
 target_link_libraries(${MAGISTRATE_LIBRARY} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 
-if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+if(magistrate_code_coverage AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   message(STATUS "Magistrate: enabling code coverage generation")
   # Add required flags (GCC & LLVM/Clang)
   target_compile_options(

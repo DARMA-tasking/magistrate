@@ -105,7 +105,7 @@ target "magistrate-build-all" {
     MAGISTRATE_SERIALIZATION_ERROR_CHECKING_ENABLED = magistrate_serialization_error_checking(item)
     MAGISTRATE_BUILD_AGAINST_VT = magistrate_build_against_vt(item)
     MAGISTRATE_ASAN_OPTIONS = magistrate_asan_options(item)
-    MAGISTRATE_CODE_COVERGAE = magistrate_code_coverage(item)
+    MAGISTRATE_CODE_COVERAGE = magistrate_code_coverage(item)
   }
 
   matrix = {
