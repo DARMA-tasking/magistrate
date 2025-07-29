@@ -76,3 +76,4 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           GIT_BRANCH: ${{ github.head_ref || github.ref_name }}
           GIT_SHA: ${{ github.sha }}
+          PR_NUM: ${{ github.event.pull_request.number }}

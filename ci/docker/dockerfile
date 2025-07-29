@@ -31,6 +31,9 @@ ENV GIT_BRANCH=$GIT_BRANCH
 ARG GIT_SHA
 ENV GIT_SHA=$GIT_SHA
 
+ARG PR_NUM
+ENV PR_NUM=$PR_NUM
+
 RUN --mount=type=cache,id=${CACHE_ID},target=/build/ccache \
     --mount=type=secret,id=CODECOV_TOKEN,env=CODECOV_TOKEN \
     --mount=target=/magistrate,rw \
