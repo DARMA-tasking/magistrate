@@ -76,6 +76,9 @@ jobs:
       - name: Retrieve build artifacts
         if: ${{ matrix.target == 'magistrate-build-amd64-ubuntu-20-04-gcc-9-cpp' }}
         run: |
+          # We rely on the persistence of data on cache mounts with identical IDs and builders.
+          # This allows us to copy build artifacts from the "bake" step and use the Codecov action within the GitHub environment.
+
           echo "
           FROM ubuntu:latest
           RUN --mount=type=cache,id=BUILD-${{ matrix.target }},target=/build/checkpoint \
