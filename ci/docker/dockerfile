@@ -25,6 +25,7 @@ ARG MAGISTRATE_ASAN_OPTIONS
 ENV ASAN_OPTIONS=$MAGISTRATE_ASAN_OPTIONS
 
 RUN --mount=type=cache,id=${CACHE_ID},target=/build/ccache \
+    --mount=type=secret,id=CODECOV_TOKEN,env=CODECOV_TOKEN \
     --mount=target=/magistrate,rw \
     if [ "$MAGISTRATE_BUILD_AGAINST_VT" = "1" ]; then \
         /magistrate/ci/build_against_vt.sh /vt /build_vt /magistrate && \
