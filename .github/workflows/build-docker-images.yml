@@ -72,7 +72,7 @@ jobs:
           push: ${{ github.ref == 'refs/heads/develop' }}
           set: |
             *.args.CACHE_ID=${{ matrix.target }}
-            *.args.GIT_BRANCH: ${{ github.head_ref || github.ref_name }}
-            *.args.GIT_SHA=${{ github.sha }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          GIT_BRANCH: ${{ github.head_ref || github.ref_name }}
+          GIT_SHA: ${{ github.sha }}

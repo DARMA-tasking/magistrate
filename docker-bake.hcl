@@ -2,6 +2,9 @@ variable "REPO" {
   default = "lifflander1/vt"
 }
 
+variable "GIT_BRANCH" {}
+variable "GIT_SHA" {}
+
 function "arch" {
   params = [item]
   result = lookup(item, "arch", "amd64")
@@ -94,6 +97,8 @@ target "magistrate-build-all" {
 
   args = {
     ARCH = arch(item)
+    GIT_BRANCH = "${GIT_BRANCH}"
+    GIT_SHA = "${GIT_SHA}"
     IMAGE = "wf-${item.image}"
     REPO = REPO
     CMAKE_BUILD_TYPE = cmake_build_type(item)
