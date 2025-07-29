@@ -72,8 +72,16 @@ jobs:
           push: ${{ github.ref == 'refs/heads/develop' }}
           set: |
             *.args.CACHE_ID=${{ matrix.target }}
+            ${{ matrix.target }}.output=type=local,dest=build/${{ matrix.target }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           GIT_BRANCH: ${{ github.head_ref || github.ref_name }}
           GIT_SHA: ${{ github.sha }}
           PR_NUM: ${{ github.event.pull_request.number }}
+
+      - name: Upload coverage
+        if: ${{ matrix.target == 'magistrate-build-amd64-ubuntu-20-04-gcc-9-cpp' }}
+        uses: codecov/codecov-action@v5
+        with:
+          files: build/${{ matrix.target }}/checkpoint/coverage.info
+          token: ${{ secrets.CODECOV_TOKEN }}

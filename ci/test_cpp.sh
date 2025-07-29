@@ -18,27 +18,27 @@ then
     lcov --capture --directory . --output-file coverage.info
     lcov --remove coverage.info '/usr/*' --output-file coverage.info
     lcov --list coverage.info
-    pushd "$CHECKPOINT"
+    # pushd "$CHECKPOINT"
 
-    apt-get update && apt-get install -y python3-pip
-    python3 -m pip install --upgrade codecov-cli
+    # apt-get update && apt-get install -y python3-pip
+    # python3 -m pip install --upgrade codecov-cli
 
-    if [ -n "$PR_NUM" ]; then
-      EXTRA_ARGS="--pr $PR_NUM"
-    fi
+    # if [ -n "$PR_NUM" ]; then
+    #   EXTRA_ARGS="--pr $PR_NUM"
+    # fi
 
-    codecovcli --codecov-yml-path $CHECKPOINT/codecov.yml \
-      --verbose upload-process \
-      --disable-search \
-      -f "${CHECKPOINT_BUILD}/coverage.info" \
-      --commit-sha "$GIT_SHA" \
-      --branch "$GIT_BRANCH" \
-      --slug DARMA-tasking/magistrate \
-      --git-service github \
-      --token "$CODECOV_TOKEN" \
-      $EXTRA_ARGS
+    # codecovcli --codecov-yml-path $CHECKPOINT/codecov.yml \
+    #   --verbose upload-process \
+    #   --disable-search \
+    #   -f "${CHECKPOINT_BUILD}/coverage.info" \
+    #   --commit-sha "$GIT_SHA" \
+    #   --branch "$GIT_BRANCH" \
+    #   --slug DARMA-tasking/magistrate \
+    #   --git-service github \
+    #   --token "$CODECOV_TOKEN" \
+    #   $EXTRA_ARGS
 
-    popd
+    # popd
 fi
 
 popd
