@@ -35,6 +35,7 @@ ARG PR_NUM
 ENV PR_NUM=$PR_NUM
 
 RUN --mount=type=cache,id=${CACHE_ID},target=/build/ccache \
+    --mount=type=cache,id=BUILD-${CACHE_ID},target=/build/checkpoint \
     --mount=type=secret,id=CODECOV_TOKEN,env=CODECOV_TOKEN \
     --mount=target=/magistrate,rw \
     if [ "$MAGISTRATE_BUILD_AGAINST_VT" = "1" ]; then \

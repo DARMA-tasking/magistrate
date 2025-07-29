@@ -72,16 +72,29 @@ jobs:
           push: ${{ github.ref == 'refs/heads/develop' }}
           set: |
             *.args.CACHE_ID=${{ matrix.target }}
-            ${{ matrix.target }}.output=type=local,dest=build/${{ matrix.target }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           GIT_BRANCH: ${{ github.head_ref || github.ref_name }}
           GIT_SHA: ${{ github.sha }}
           PR_NUM: ${{ github.event.pull_request.number }}
 
+      - name: Retrieve build artifacts
+        if: ${{ matrix.target == 'magistrate-build-amd64-ubuntu-20-04-gcc-9-cpp' }}
+        run: |
+          echo "
+          FROM ubuntu:latest
+          RUN --mount=type=cache,id=BUILD-${{ matrix.target }},target=/build/checkpoint \
+          mkdir -p /checkpoint \
+          && cp -p -R /build/checkpoint/. /checkpoint/ || true
+          " >> tmp_dockerfile
+
+          docker buildx build --builder ${{ steps.setup-buildx.outputs.name }} -f tmp_dockerfile --output type=local,dest=build .
+
+          ls -R build/checkpoint
+
       - name: Upload coverage
         if: ${{ matrix.target == 'magistrate-build-amd64-ubuntu-20-04-gcc-9-cpp' }}
         uses: codecov/codecov-action@v5
         with:
-          files: build/${{ matrix.target }}/checkpoint/coverage.info
+          files: build/checkpoint/coverage.info
           token: ${{ secrets.CODECOV_TOKEN }}
