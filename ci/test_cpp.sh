@@ -13,32 +13,9 @@ ctest --output-on-failure | tee cmake-output.log
 
 if test "${MAGISTRATE_CODE_COVERAGE:-0}" -eq 1
 then
-    export CODECOV_TOKEN="$CODECOV_TOKEN"
-
     lcov --capture --directory . --output-file coverage.info
     lcov --remove coverage.info '/usr/*' --output-file coverage.info
     lcov --list coverage.info
-    # pushd "$CHECKPOINT"
-
-    # apt-get update && apt-get install -y python3-pip
-    # python3 -m pip install --upgrade codecov-cli
-
-    # if [ -n "$PR_NUM" ]; then
-    #   EXTRA_ARGS="--pr $PR_NUM"
-    # fi
-
-    # codecovcli --codecov-yml-path $CHECKPOINT/codecov.yml \
-    #   --verbose upload-process \
-    #   --disable-search \
-    #   -f "${CHECKPOINT_BUILD}/coverage.info" \
-    #   --commit-sha "$GIT_SHA" \
-    #   --branch "$GIT_BRANCH" \
-    #   --slug DARMA-tasking/magistrate \
-    #   --git-service github \
-    #   --token "$CODECOV_TOKEN" \
-    #   $EXTRA_ARGS
-
-    # popd
 fi
 
 popd

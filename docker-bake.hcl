@@ -2,10 +2,6 @@ variable "REPO" {
   default = "lifflander1/vt"
 }
 
-variable "GIT_BRANCH" {}
-variable "GIT_SHA" {}
-variable "PR_NUM" {}
-
 function "arch" {
   params = [item]
   result = lookup(item, "arch", "amd64")
@@ -87,8 +83,6 @@ target "magistrate-build" {
   ulimits = [
     "core=0"
   ]
-
-  secret = ["id=CODECOV_TOKEN,env=CODECOV_TOKEN"]
 }
 
 target "magistrate-build-all" {
@@ -98,10 +92,7 @@ target "magistrate-build-all" {
 
   args = {
     ARCH = arch(item)
-    GIT_BRANCH = "${GIT_BRANCH}"
-    GIT_SHA = "${GIT_SHA}"
     IMAGE = "wf-${item.image}"
-    PR_NUM = "${PR_NUM}"
     REPO = REPO
     CMAKE_BUILD_TYPE = cmake_build_type(item)
     MAGISTRATE_TESTS_ENABLED = magistrate_tests(item)
