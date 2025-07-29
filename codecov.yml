@@ -15,5 +15,4 @@ comment:
     branches: null          # branch names that can post comment
 
 ignore:
-  - "lib"
-  - "tests/extern"
+  - "build/.*"
