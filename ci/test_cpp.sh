@@ -26,7 +26,8 @@ then
     codecovcli --verbose upload-process \
       --disable-search \
       -f "${CHECKPOINT_BUILD}/coverage.info" \
-      --commit-sha "$GITHUB_SHA" \
+      --commit-sha "$GIT_SHA" \
+      --branch "$GIT_BRANCH" \
       --slug DARMA-tasking/magistrate \
       --git-service github \
       --token "$CODECOV_TOKEN"
