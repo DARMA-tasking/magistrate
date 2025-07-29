@@ -7,9 +7,9 @@ FROM --platform=${ARCH} ${BASE} AS build
 
 ARG CMAKE_BUILD_TYPE
 ARG CMAKE_CXX_STANDARD
-ARG CODE_COVERAGE
 ARG MAGISTRATE_ASAN_ENABLED
 ARG MAGISTRATE_BUILD_AGAINST_VT
+ARG MAGISTRATE_CODE_COVERAGE
 ARG MAGISTRATE_DOXYGEN_ENABLED
 ARG MAGISTRATE_EXAMPLES_ENABLED
 ARG MAGISTRATE_MPI_ENABLED
@@ -25,6 +25,7 @@ ARG MAGISTRATE_ASAN_OPTIONS
 ENV ASAN_OPTIONS=$MAGISTRATE_ASAN_OPTIONS
 
 RUN --mount=type=cache,id=${CACHE_ID},target=/build/ccache \
+    --mount=type=cache,id=BUILD-${CACHE_ID},target=/build/checkpoint \
     --mount=target=/magistrate,rw \
     if [ "$MAGISTRATE_BUILD_AGAINST_VT" = "1" ]; then \
         /magistrate/ci/build_against_vt.sh /vt /build_vt /magistrate && \

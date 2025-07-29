@@ -67,6 +67,11 @@ function "cmake_build_type" {
   result = lookup(item, "cmake_build_type", "Release")
 }
 
+function "magistrate_code_coverage" {
+  params = [item]
+  result = lookup(item, "magistrate_code_coverage", "0")
+}
+
 target "magistrate-build" {
   target = "build"
   context = "."
@@ -100,6 +105,7 @@ target "magistrate-build-all" {
     MAGISTRATE_SERIALIZATION_ERROR_CHECKING_ENABLED = magistrate_serialization_error_checking(item)
     MAGISTRATE_BUILD_AGAINST_VT = magistrate_build_against_vt(item)
     MAGISTRATE_ASAN_OPTIONS = magistrate_asan_options(item)
+    MAGISTRATE_CODE_COVERAGE = magistrate_code_coverage(item)
   }
 
   matrix = {

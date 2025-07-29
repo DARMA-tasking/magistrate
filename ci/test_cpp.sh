@@ -11,15 +11,11 @@ pushd "$CHECKPOINT_BUILD"
 
 ctest --output-on-failure | tee cmake-output.log
 
-if test "${CODE_COVERAGE:-0}" -eq 1
+if test "${MAGISTRATE_CODE_COVERAGE:-0}" -eq 1
 then
-    export CODECOV_TOKEN="$CODECOV_TOKEN"
     lcov --capture --directory . --output-file coverage.info
     lcov --remove coverage.info '/usr/*' --output-file coverage.info
     lcov --list coverage.info
-    pushd "$CHECKPOINT"
-    bash <(curl -s https://codecov.io/bash) -f "${CHECKPOINT_BUILD}/coverage.info" || echo "Codecov did not collect coverage reports"
-    popd
 fi
 
 popd
