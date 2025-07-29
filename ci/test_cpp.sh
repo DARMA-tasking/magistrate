@@ -14,11 +14,23 @@ ctest --output-on-failure | tee cmake-output.log
 if test "${MAGISTRATE_CODE_COVERAGE:-0}" -eq 1
 then
     export CODECOV_TOKEN="$CODECOV_TOKEN"
+
     lcov --capture --directory . --output-file coverage.info
     lcov --remove coverage.info '/usr/*' --output-file coverage.info
     lcov --list coverage.info
     pushd "$CHECKPOINT"
-    bash <(curl -s https://codecov.io/bash) -f "${CHECKPOINT_BUILD}/coverage.info" || echo "Codecov did not collect coverage reports"
+
+    apt-get update && apt-get install -y python3-pip
+    python3 -m pip install --upgrade codecov-cli
+
+    codecovcli --verbose upload-process \
+      --disable-search \
+      -f "${CHECKPOINT_BUILD}/coverage.info" \
+      --commit-sha "$GITHUB_SHA" \
+      --slug DARMA-tasking/magistrate \
+      --git-service github \
+      --token "$CODECOV_TOKEN"
+
     popd
 fi
 

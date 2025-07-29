@@ -24,6 +24,9 @@ ARG CACHE_ID=${IMAGE}
 ARG MAGISTRATE_ASAN_OPTIONS
 ENV ASAN_OPTIONS=$MAGISTRATE_ASAN_OPTIONS
 
+ARG GITHUB_SHA
+ENV GITHUB_SHA=$GITHUB_SHA
+
 RUN --mount=type=cache,id=${CACHE_ID},target=/build/ccache \
     --mount=type=secret,id=CODECOV_TOKEN,env=CODECOV_TOKEN \
     --mount=target=/magistrate,rw \
