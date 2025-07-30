@@ -71,6 +71,7 @@ services:
   ##############################################################################
   # Interactive C++ setup of magistrate on ubuntu platform from container
   # baseline.
+  # Specify the CACHE variable so Docker Compose knows where to store the build volume.
   #
   # After running:
   #   docker-compose run ubuntu-cpp-interactive
