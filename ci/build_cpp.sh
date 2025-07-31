@@ -4,13 +4,7 @@ set -ex
 
 source_dir=${1}
 build_dir=${2}
-
-if test "${MAGISTRATE_DOXYGEN_ENABLED:-0}" -eq 1
-then
-    token=${3}
-else
-    target=${3:-install}
-fi
+target=${3:-install}
 
 echo -e "===\n=== ccache statistics before build\n==="
 ccache -s
@@ -55,13 +49,9 @@ cmake -G "${CMAKE_GENERATOR:-Ninja}" \
 
 if test "${MAGISTRATE_DOXYGEN_ENABLED:-0}" -eq 1
 then
-    if [ -z "${token:-}" ]; then
-        echo "GITHUB_TOKEN missing" >&2
-        exit 1
-    fi
     MCSS=$PWD/m.css
     GHPAGE=$PWD/DARMA-tasking.github.io
-    git clone --depth=1 "https://${token}@github.com/DARMA-tasking/DARMA-tasking.github.io"
+    git clone --depth=1 "https://x-access-token:${TOKEN}@github.com/DARMA-tasking/DARMA-tasking.github.io"
     git clone https://github.com/mosra/m.css
     cd m.css
     git checkout 699abdd5

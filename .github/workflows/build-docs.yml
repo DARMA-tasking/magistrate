@@ -1,7 +1,6 @@
 name: magistrate-docs
 
-on:
-  push:
+on: pull_request
 
 jobs:
   build-docs:
@@ -17,4 +16,4 @@ jobs:
           files: docker-bake.hcl
           push: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}

@@ -90,8 +90,6 @@ target "magistrate-build" {
   ulimits = [
     "core=0"
   ]
-
-  secrets = ["id=GITHUB_TOKEN,env=GITHUB_TOKEN"]
 }
 
 target "magistrate-docs" {
@@ -105,6 +103,8 @@ target "magistrate-docs" {
     REPO = REPO
     MAGISTRATE_DOXYGEN_ENABLED = 1
   }
+
+  secret = ["id=GITHUB_TOKEN,env=GITHUB_TOKEN"]
 }
 
 target "magistrate-build-all" {
