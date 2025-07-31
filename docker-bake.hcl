@@ -72,6 +72,14 @@ function "magistrate_code_coverage" {
   result = lookup(item, "magistrate_code_coverage", "0")
 }
 
+function "magistrate_suffixes" {
+  params = [item]
+  result = join("", compact([
+    magistrate_build_against_vt(item) == 1 ? "-vt" : "",
+    magistrate_docs(item) == 1 ? "-docs" : ""
+  ]))
+}
+
 target "magistrate-build" {
   target = "build"
   context = "."
@@ -83,10 +91,12 @@ target "magistrate-build" {
   ulimits = [
     "core=0"
   ]
+
+  secrets = ["id=GITHUB_TOKEN,env=GITHUB_TOKEN"]
 }
 
 target "magistrate-build-all" {
-  name = "magistrate-build-${replace(item.image, ".", "-")}${magistrate_build_against_vt(item) == 1 ? "-vt" : ""}"
+  name = "magistrate-build-${replace(item.image, ".", "-")}${magistrate_suffixes(item)}"
   inherits = ["magistrate-build"]
   tags = ["${REPO}:magistrate-${item.image}"]
 
@@ -138,6 +148,10 @@ target "magistrate-build-all" {
         image = "amd64-ubuntu-20.04-gcc-9-cpp",
         magistrate_code_coverage = 1,
         magistrate_serialization_error_checking = 0
+      },
+      {
+        image = "amd64-ubuntu-20.04-gcc-9-cpp",
+        magistrate_docs = 1,
       },
       {
         image = "amd64-ubuntu-20.04-gcc-9-cuda-11.4.3-cpp",
