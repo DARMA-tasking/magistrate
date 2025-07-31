@@ -55,6 +55,10 @@ cmake -G "${CMAKE_GENERATOR:-Ninja}" \
 
 if test "${MAGISTRATE_DOXYGEN_ENABLED:-0}" -eq 1
 then
+    if [ -z "${token:-}" ]; then
+        echo "GITHUB_TOKEN missing" >&2
+        exit 1
+    fi
     MCSS=$PWD/m.css
     GHPAGE=$PWD/DARMA-tasking.github.io
     git clone --depth=1 "https://${token}@github.com/DARMA-tasking/DARMA-tasking.github.io"

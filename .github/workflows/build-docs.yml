@@ -1,27 +1,20 @@
-name: Build Documentation
+name: magistrate-docs
 
 on:
   push:
-    branches:
-      - develop
 
 jobs:
-
-  build:
-
+  build-docs:
     runs-on: ubuntu-latest
-
-    env:
-      REPO: lifflander1/vt
-      ARCH: amd64
-      UBUNTU: 20.04
-      COMPILER_TYPE: gnu
-      COMPILER: gcc-9
-      BUILD_TYPE: release
-      ULIMIT_CORE: 0
-      TOKEN: ${{ secrets.GH_PAT }}
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker compose run ubuntu-docs
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/bake-action@v6
+        with:
+          source: .
+          targets: magistrate-docs
+          files: docker-bake.hcl
+          push: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -74,8 +74,8 @@ jobs:
           push: ${{ github.ref == 'refs/heads/develop' }}
           set: |
             *.args.CACHE_ID=${{ matrix.target }}
-          secrets: |
-            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Retrieve build artifacts
         if: ${{ matrix.target == 'magistrate-build-amd64-ubuntu-20-04-gcc-9-cpp' }}

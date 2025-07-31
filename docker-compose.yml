@@ -88,18 +88,3 @@ services:
     volumes: &ubuntu-volumes
       - .:/magistrate:delegated
       - ${CACHE}${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cache:/build:delegated
-
-  ##############################################################################
-  # Build documentation for magistrate in the container on ubuntu platform from
-  # container baseline.
-  ubuntu-docs:
-    image: ${REPO}:wf-${ARCH}-ubuntu-${UBUNTU}-${COMPILER}-cpp
-    ulimits: *ulimits
-    environment:
-      <<: *ccache
-      MAGISTRATE_DOXYGEN_ENABLED: 1
-      CMAKE_BUILD_TYPE: ${BUILD_TYPE:-release}
-    volumes: *ubuntu-volumes
-    command: &docs-cpp-command >
-      /bin/bash -c "
-        /magistrate/ci/build_cpp.sh /magistrate /build ${TOKEN}"
