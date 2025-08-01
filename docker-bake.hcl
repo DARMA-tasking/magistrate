@@ -74,12 +74,14 @@ function "magistrate_code_coverage" {
   result = lookup(item, "magistrate_code_coverage", "0")
 }
 
-function "magistrate_suffixes" {
+function "variant" {
   params = [item]
-  result = join("", compact([
-    magistrate_build_against_vt(item) == 1 ? "-vt" : "",
-    magistrate_docs(item) == 1 ? "-docs" : ""
-  ]))
+  result = lookup(item, "variant", "")
+}
+
+function "target_suffix" {
+  params = [item]
+  result = variant(item) == "" ? "" : "-${variant(item)}"
 }
 
 target "magistrate-build" {
@@ -98,7 +100,7 @@ target "magistrate-build" {
 }
 
 target "magistrate-build-all" {
-  name = "magistrate-build-${replace(item.image, ".", "-")}${magistrate_suffixes(item)}"
+  name = "magistrate-build-${replace(item.image, ".", "-")}${target_suffix(item)}"
   inherits = ["magistrate-build"]
   tags = ["${REPO}:magistrate-${item.image}"]
 
@@ -136,6 +138,7 @@ target "magistrate-build-all" {
       {
         image = "amd64-ubuntu-22.04-clang-12-cpp",
         magistrate_build_against_vt = 1,
+        variant = "vt",
         magistrate_ubsan = 1
       },
       {
@@ -154,7 +157,8 @@ target "magistrate-build-all" {
       },
       {
         image = "amd64-ubuntu-20.04-gcc-9-cpp",
-        magistrate_docs = 1
+        magistrate_docs = 1,
+        variant = "docs",
       },
       {
         image = "amd64-ubuntu-20.04-gcc-9-cuda-11.4.3-cpp",

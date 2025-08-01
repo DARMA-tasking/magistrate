@@ -52,7 +52,7 @@ then
     MCSS=$PWD/m.css
     GHPAGE=$PWD/DARMA-tasking.github.io
 
-    git clone --depth=1 "https://x-access-token:${TOKEN}@github.com/DARMA-tasking/DARMA-tasking.github.io"
+    git clone --depth=1 "https://x-access-token:${GITHUB_TOKEN}@github.com/DARMA-tasking/DARMA-tasking.github.io"
     git clone https://github.com/mosra/m.css
     cd m.css
     git checkout 699abdd5
