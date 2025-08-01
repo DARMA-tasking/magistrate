@@ -51,21 +51,26 @@ if test "${MAGISTRATE_DOXYGEN_ENABLED:-0}" -eq 1
 then
     MCSS=$PWD/m.css
     GHPAGE=$PWD/DARMA-tasking.github.io
+
     git clone --depth=1 "https://x-access-token:${TOKEN}@github.com/DARMA-tasking/DARMA-tasking.github.io"
     git clone https://github.com/mosra/m.css
     cd m.css
     git checkout 699abdd5
     cd ../
     "$MCSS/documentation/doxygen.py" Doxyfile-mcss
-    CKPT_NAME=checkpoint_docs
-    mv docs "$CKPT_NAME"
-    cp  -R "$CKPT_NAME" "$GHPAGE"
-    cd "$GHPAGE"
-    git config --global user.email "jliffla@sandia.gov"
-    git config --global user.name "Jonathan Lifflander"
-    git add "$CKPT_NAME"
-    git commit --allow-empty -m "Update magistrate_docs (auto-build)"
-    git push origin master
+
+    if test "${GIT_BRANCH:-}" = "develop"
+    then
+        CKPT_NAME=checkpoint_docs
+        mv docs "$CKPT_NAME"
+        cp  -R "$CKPT_NAME" "$GHPAGE"
+        cd "$GHPAGE"
+        git config --global user.email "jliffla@sandia.gov"
+        git config --global user.name "Jonathan Lifflander"
+        git add "$CKPT_NAME"
+        git commit --allow-empty -m "Update magistrate_docs (auto-build)"
+        git push origin master
+    fi
 else
     time cmake --build . --target "${target}"
 fi

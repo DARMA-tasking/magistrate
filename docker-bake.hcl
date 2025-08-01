@@ -2,6 +2,8 @@ variable "REPO" {
   default = "lifflander1/vt"
 }
 
+variable "GIT_BRANCH" {}
+
 function "arch" {
   params = [item]
   result = lookup(item, "arch", "amd64")
@@ -75,7 +77,8 @@ function "magistrate_code_coverage" {
 function "magistrate_suffixes" {
   params = [item]
   result = join("", compact([
-    magistrate_build_against_vt(item) == 1 ? "-vt" : ""
+    magistrate_build_against_vt(item) == 1 ? "-vt" : "",
+    magistrate_docs(item) == 1 ? "-docs" : ""
   ]))
 }
 
@@ -90,19 +93,6 @@ target "magistrate-build" {
   ulimits = [
     "core=0"
   ]
-}
-
-target "magistrate-docs" {
-  inherits = ["magistrate-build"]
-
-  tags = ["${REPO}:magistrate-amd64-ubuntu-20.04-gcc-9-cpp-docs"]
-
-  args = {
-    ARCH = "amd64"
-    IMAGE = "wf-amd64-ubuntu-20.04-gcc-9-cpp"
-    REPO = REPO
-    MAGISTRATE_DOXYGEN_ENABLED = 1
-  }
 
   secret = ["id=GITHUB_TOKEN,env=GITHUB_TOKEN"]
 }
@@ -114,6 +104,7 @@ target "magistrate-build-all" {
 
   args = {
     ARCH = arch(item)
+    GIT_BRANCH = "${GIT_BRANCH}"
     IMAGE = "wf-${item.image}"
     REPO = REPO
     CMAKE_BUILD_TYPE = cmake_build_type(item)
@@ -160,6 +151,10 @@ target "magistrate-build-all" {
         image = "amd64-ubuntu-20.04-gcc-9-cpp",
         magistrate_code_coverage = 1,
         magistrate_serialization_error_checking = 0
+      },
+      {
+        image = "amd64-ubuntu-20.04-gcc-9-cpp",
+        magistrate_docs = 1
       },
       {
         image = "amd64-ubuntu-20.04-gcc-9-cuda-11.4.3-cpp",
