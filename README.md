@@ -11,7 +11,7 @@
 [![](https://github.com/DARMA-tasking/badge-generator/wiki/DARMA-tasking/magistrate/magistrate-build-amd64-ubuntu-22-04-clang-12-cpp-vt-badge.svg)](https://github.com/DARMA-tasking/magistrate/actions/workflows/build-docker-images.yml?query=branch%3Adevelop)
 [![](https://github.com/DARMA-tasking/badge-generator/wiki/DARMA-tasking/magistrate/magistrate-build-amd64-ubuntu-20-04-gcc-9-cuda-11-4-3-cpp-badge.svg)](https://github.com/DARMA-tasking/magistrate/actions/workflows/build-docker-images.yml?query=branch%3Adevelop)
 [![](https://github.com/DARMA-tasking/badge-generator/wiki/DARMA-tasking/magistrate/magistrate-build-amd64-ubuntu-22-04-clang-14-cpp-badge.svg)](https://github.com/DARMA-tasking/magistrate/actions/workflows/build-docker-images.yml?query=branch%3Adevelop)
-[![Docs](https://github.com/DARMA-tasking/checkpoint/actions/workflows/build-docs.yml/badge.svg)](https://github.com/DARMA-tasking/checkpoint/actions/workflows/build-docs.yml)
+[![](https://github.com/DARMA-tasking/badge-generator/wiki/DARMA-tasking/magistrate/magistrate-build-amd64-ubuntu-20-04-gcc-9-cpp-docs-badge.svg)](https://github.com/DARMA-tasking/magistrate/actions/workflows/build-docker-images.yml?query=branch%3Adevelop)
 
 ## Read the documentation
 
