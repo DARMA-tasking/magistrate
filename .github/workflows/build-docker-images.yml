@@ -20,6 +20,7 @@ jobs:
         uses: docker/bake-action/subaction/list-targets@v6
         with:
           target: magistrate-build-all
+          files: docker-bake.hcl
 
   bake:
     runs-on: ubuntu-latest
@@ -43,6 +44,7 @@ jobs:
           key: ${{ matrix.target }}-${{ github.ref }}-${{ github.sha }}
           restore-keys: |
             ${{ matrix.target }}-${{ github.ref }}
+            ${{ matrix.target }}-
 
       - name: Inject ccache
         uses: reproducible-containers/buildkit-cache-dance@v3
@@ -72,6 +74,9 @@ jobs:
           push: ${{ github.ref == 'refs/heads/develop' }}
           set: |
             *.args.CACHE_ID=${{ matrix.target }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          GIT_BRANCH: ${{ github.head_ref || github.ref_name }}
 
       - name: Retrieve build artifacts
         if: ${{ matrix.target == 'magistrate-build-amd64-ubuntu-20-04-gcc-9-cpp' }}

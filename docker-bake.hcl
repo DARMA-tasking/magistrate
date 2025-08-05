@@ -2,6 +2,8 @@ variable "REPO" {
   default = "lifflander1/vt"
 }
 
+variable "GIT_BRANCH" {}
+
 function "arch" {
   params = [item]
   result = lookup(item, "arch", "amd64")
@@ -72,6 +74,16 @@ function "magistrate_code_coverage" {
   result = lookup(item, "magistrate_code_coverage", "0")
 }
 
+function "variant" {
+  params = [item]
+  result = lookup(item, "variant", "")
+}
+
+function "target_suffix" {
+  params = [item]
+  result = variant(item) == "" ? "" : "-${variant(item)}"
+}
+
 target "magistrate-build" {
   target = "build"
   context = "."
@@ -83,15 +95,18 @@ target "magistrate-build" {
   ulimits = [
     "core=0"
   ]
+
+  secret = ["id=GITHUB_TOKEN,env=GITHUB_TOKEN"]
 }
 
 target "magistrate-build-all" {
-  name = "magistrate-build-${replace(item.image, ".", "-")}${magistrate_build_against_vt(item) == 1 ? "-vt" : ""}"
+  name = "magistrate-build-${replace(item.image, ".", "-")}${target_suffix(item)}"
   inherits = ["magistrate-build"]
   tags = ["${REPO}:magistrate-${item.image}"]
 
   args = {
     ARCH = arch(item)
+    GIT_BRANCH = "${GIT_BRANCH}"
     IMAGE = "wf-${item.image}"
     REPO = REPO
     CMAKE_BUILD_TYPE = cmake_build_type(item)
@@ -123,6 +138,7 @@ target "magistrate-build-all" {
       {
         image = "amd64-ubuntu-22.04-clang-12-cpp",
         magistrate_build_against_vt = 1,
+        variant = "vt",
         magistrate_ubsan = 1
       },
       {
@@ -138,6 +154,11 @@ target "magistrate-build-all" {
         image = "amd64-ubuntu-20.04-gcc-9-cpp",
         magistrate_code_coverage = 1,
         magistrate_serialization_error_checking = 0
+      },
+      {
+        image = "amd64-ubuntu-20.04-gcc-9-cpp",
+        magistrate_docs = 1,
+        variant = "docs",
       },
       {
         image = "amd64-ubuntu-20.04-gcc-9-cuda-11.4.3-cpp",

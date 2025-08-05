@@ -5,9 +5,14 @@ ARG BASE=${REPO}:${IMAGE}
 
 FROM --platform=${ARCH} ${BASE} AS build
 
+ARG IMAGE
+
+ARG GIT_BRANCH
+ARG CACHE_ID=${IMAGE}
 ARG CMAKE_BUILD_TYPE
 ARG CMAKE_CXX_STANDARD
 ARG MAGISTRATE_ASAN_ENABLED
+ARG MAGISTRATE_ASAN_OPTIONS
 ARG MAGISTRATE_BUILD_AGAINST_VT
 ARG MAGISTRATE_CODE_COVERAGE
 ARG MAGISTRATE_DOXYGEN_ENABLED
@@ -18,18 +23,18 @@ ARG MAGISTRATE_TESTS_ENABLED
 ARG MAGISTRATE_UBSAN_ENABLED
 ARG MAGISTRATE_WARNINGS_AS_ERRORS
 
-ARG IMAGE
-ARG CACHE_ID=${IMAGE}
-
-ARG MAGISTRATE_ASAN_OPTIONS
 ENV ASAN_OPTIONS=$MAGISTRATE_ASAN_OPTIONS
+ENV GIT_BRANCH=$GIT_BRANCH
 
 RUN --mount=type=cache,id=${CACHE_ID},target=/build/ccache \
     --mount=type=cache,id=BUILD-${CACHE_ID},target=/build/checkpoint \
+    --mount=type=secret,id=GITHUB_TOKEN,env=GITHUB_TOKEN \
     --mount=target=/magistrate,rw \
     if [ "$MAGISTRATE_BUILD_AGAINST_VT" = "1" ]; then \
         /magistrate/ci/build_against_vt.sh /vt /build_vt /magistrate && \
         /vt/ci/test_cpp.sh /vt /build_vt; \
+    elif [ "$MAGISTRATE_DOXYGEN_ENABLED" = "1" ]; then \
+        /magistrate/ci/build_cpp.sh /magistrate /build; \
     else \
         /magistrate/ci/build_cpp.sh /magistrate /build && \
         /magistrate/ci/test_cpp.sh /magistrate /build; \
