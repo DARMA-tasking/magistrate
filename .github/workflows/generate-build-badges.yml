@@ -3,6 +3,7 @@ name: Generate Build Badges
 on:
   workflow_run:
     workflows: ["CI"]
+    branches: develop
     types:
       - completed
 
@@ -14,7 +15,7 @@ jobs:
         run: |
           data=$(gh api /repos/DARMA-tasking/magistrate/actions/runs/$RUN_ID/jobs)
 
-          printf "names<<EOF\n%s\nEOF\n"   "$(echo "$data" | jq -r '.jobs[] | select(.name | startswith("bake")) | .name | ltrimstr("bake (") | rtrimstr(")")')" >>"$GITHUB_OUTPUT"
+          printf "names<<EOF\n%s\nEOF\n"   "$(echo "$data" | jq -r '.jobs[] | select(.name | startswith("bake")) | .name | ltrimstr("bake (magistrate-build-amd64-") | rtrimstr(")")')" >>"$GITHUB_OUTPUT"
           printf "results<<EOF\n%s\nEOF\n" "$(echo "$data" | jq -r '.jobs[] | select(.name | startswith("bake")) | .conclusion')" >>"$GITHUB_OUTPUT"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
