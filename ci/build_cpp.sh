@@ -12,10 +12,10 @@ ccache -s
 mkdir -p "${build_dir}"
 pushd "${build_dir}"
 
-export CHECKPOINT=${source_dir}
-export CHECKPOINT_BUILD=${build_dir}/checkpoint
-mkdir -p "$CHECKPOINT_BUILD"
-cd "$CHECKPOINT_BUILD"
+export MAGISTRATE=${source_dir}
+export MAGISTRATE_BUILD=${build_dir}/magistrate
+mkdir -p "$MAGISTRATE_BUILD"
+cd "$MAGISTRATE_BUILD"
 rm -Rf ./*
 
 cmake_build_type="${CMAKE_BUILD_TYPE:-Release}"
@@ -41,11 +41,11 @@ cmake -G "${CMAKE_GENERATOR:-Ninja}" \
       -DCMAKE_C_COMPILER="${CC:-cc}" \
       -DCMAKE_EXE_LINKER_FLAGS="${CMAKE_EXE_LINKER_FLAGS:-}" \
       -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH:-}" \
-      -DCMAKE_INSTALL_PREFIX="$CHECKPOINT_BUILD/install" \
+      -DCMAKE_INSTALL_PREFIX="$MAGISTRATE_BUILD/install" \
       -DGTEST_ROOT="${GTEST_ROOT}" \
       -DKokkos_ROOT="${KOKKOS_ROOT}" \
       -DKokkosKernels_ROOT="${KOKKOS_KERNELS_ROOT}" \
-      "$CHECKPOINT"
+      "$MAGISTRATE"
 cmake_conf_ret=$?
 
 if test "${MAGISTRATE_DOXYGEN_ENABLED:-0}" -eq 1
@@ -62,7 +62,7 @@ then
 
     if test "${GIT_BRANCH:-}" = "develop"
     then
-        CKPT_NAME=checkpoint_docs
+        CKPT_NAME=magistrate_docs
         mv docs "$CKPT_NAME"
         cp  -R "$CKPT_NAME" "$GHPAGE"
         cd "$GHPAGE"

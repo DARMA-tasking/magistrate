@@ -27,7 +27,7 @@ ENV ASAN_OPTIONS=$MAGISTRATE_ASAN_OPTIONS
 ENV GIT_BRANCH=$GIT_BRANCH
 
 RUN --mount=type=cache,id=${CACHE_ID},target=/build/ccache \
-    --mount=type=cache,id=BUILD-${CACHE_ID},target=/build/checkpoint \
+    --mount=type=cache,id=BUILD-${CACHE_ID},target=/build/magistrate \
     --mount=type=secret,id=GITHUB_TOKEN,env=GITHUB_TOKEN \
     --mount=target=/magistrate,rw \
     if [ "$MAGISTRATE_BUILD_AGAINST_VT" = "1" ]; then \

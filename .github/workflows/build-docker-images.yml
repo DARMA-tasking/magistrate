@@ -67,6 +67,7 @@ jobs:
 
       - name: Build
         uses: docker/bake-action@v6
+        id: build-image
         with:
           source: .
           targets: ${{ matrix.target }}
@@ -79,16 +80,15 @@ jobs:
           GIT_BRANCH: ${{ github.head_ref || github.ref_name }}
 
       - name: Retrieve build artifacts
-        if: ${{ matrix.target == 'magistrate-build-amd64-ubuntu-20-04-gcc-9-cpp' }}
         run: |
           # We rely on the persistence of data on cache mounts with identical IDs and builders.
           # This allows us to copy build artifacts from the "bake" step and use the Codecov action within the GitHub environment.
 
           echo "
           FROM ubuntu:latest
-          RUN --mount=type=cache,id=BUILD-${{ matrix.target }},target=/build/checkpoint \
-          mkdir -p /checkpoint \
-          && cp -p -R /build/checkpoint/. /checkpoint/ || true
+          RUN --mount=type=cache,id=BUILD-${{ matrix.target }},target=/build/magistrate \
+          mkdir -p /magistrate \
+          && cp -p -R /build/magistrate/. /magistrate/ || true
           " >> tmp_dockerfile
 
           docker buildx build --builder ${{ steps.setup-buildx.outputs.name }} -f tmp_dockerfile --output type=local,dest=build .
@@ -99,8 +99,8 @@ jobs:
         run: |
           comment_content=$(
           ./scripts/generate_comment_body.sh           \
-            "build/vt/compilation_errors_warnings.out" \
-            "build/vt/cmake-output.log"                \
+            "build/magistrate/compilation_errors_warnings.out" \
+            "build/magistrate/cmake-output.log"                \
             "${{ matrix.target }}"                     \
             "${{ steps.build-image.outcome }}"
           )
@@ -125,5 +125,5 @@ jobs:
         if: ${{ matrix.target == 'magistrate-build-amd64-ubuntu-20-04-gcc-9-cpp' }}
         uses: codecov/codecov-action@v5
         with:
-          files: build/checkpoint/coverage.info
+          files: build/magistrate/coverage.info
           token: ${{ secrets.CODECOV_TOKEN }}
