@@ -3,6 +3,7 @@ name: Generate Build Badges
 on:
   workflow_run:
     workflows: ["CI"]
+    branches: develop
     types:
       - completed
 
@@ -12,13 +13,12 @@ jobs:
     steps:
       - id: extract
         run: |
-          data=$(gh api /repos/DARMA-tasking/magistrate/actions/runs/$RUN_ID/jobs)
+          data=$(gh api /repos/DARMA-tasking/magistrate/actions/runs/${{ github.event.workflow_run.id }}/jobs)
 
-          printf "names<<EOF\n%s\nEOF\n"   "$(echo "$data" | jq -r '.jobs[] | select(.name | startswith("bake")) | .name | ltrimstr("bake (") | rtrimstr(")")')" >>"$GITHUB_OUTPUT"
+          printf "names<<EOF\n%s\nEOF\n"   "$(echo "$data" | jq -r '.jobs[] | select(.name | startswith("bake")) | .name | ltrimstr("bake (magistrate-build-amd64-") | rtrimstr(")") | gsub("-cpp"; "")')" >>"$GITHUB_OUTPUT"
           printf "results<<EOF\n%s\nEOF\n" "$(echo "$data" | jq -r '.jobs[] | select(.name | startswith("bake")) | .conclusion')" >>"$GITHUB_OUTPUT"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RUN_ID: ${{ github.event.workflow_run.id }}
 
       - uses: DARMA-tasking/badge-generator@master
         with:

@@ -5,9 +5,9 @@ set -exo pipefail
 source_dir=${1}
 build_dir=${2}
 
-export CHECKPOINT=${source_dir}
-export CHECKPOINT_BUILD=${build_dir}/checkpoint
-pushd "$CHECKPOINT_BUILD"
+export MAGISTRATE=${source_dir}
+export MAGISTRATE_BUILD=${build_dir}/magistrate
+pushd "$MAGISTRATE_BUILD"
 
 ctest --output-on-failure | tee cmake-output.log
 
