@@ -68,7 +68,7 @@ struct SerializeEntry<Arg, Args...> {
         using Reconstructor =
           dispatch::Reconstructor<typename dispatch::CleanType<Arg>::CleanT>;
         Alloc allocated;
-        auto* reconstructed = Reconstructor::construct(allocated.buf);
+        auto reconstructed = Reconstructor::construct(allocated.buf);
         s | *reconstructed;
         v = std::move(*reconstructed);
       } else {

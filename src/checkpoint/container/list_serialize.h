@@ -67,7 +67,7 @@ deserializeOrderedElems(
     dispatch::Reconstructor<typename dispatch::CleanType<ElmT>::CleanT>;
 
   Alloc allocated;
-  auto* reconstructed = Reconstructor::construct(allocated.buf);
+  auto reconstructed = Reconstructor::construct(allocated.buf);
   cont.resize(size, *reconstructed);
   for (auto& val : cont) {
     s | val;
@@ -88,7 +88,7 @@ deserializeOrderedElems(
 
   Alloc allocated;
   for (typename ContainerT::size_type i = 0; i < size; ++i) {
-    auto* reconstructed = Reconstructor::construct(allocated.buf);
+    auto reconstructed = Reconstructor::construct(allocated.buf);
     s | *reconstructed;
     cont.emplace_back(std::move(*reconstructed));
   }

@@ -110,7 +110,10 @@ Registrar<ObjT>::Registrar() {
       index,
       sizeof(ObjT),
       []()          -> void*       { return std::allocator<ObjT>{}.allocate(1); },
-      [](void* buf) -> BaseType*   { return dispatch::Reconstructor<ObjT>::constructAllowFail(buf); }
+      [](void* buf) -> BaseType*   {
+        using ReconsObjT = dispatch::Reconstructor<ObjT>;
+        return ReconsObjT::constructAllowFail(buf).transferOwnership();
+      }
     }
   );
 }

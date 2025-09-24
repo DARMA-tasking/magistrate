@@ -69,7 +69,7 @@ inline typename std::enable_if_t<
 
   Alloc allocated;
   for (typename ContainerT::size_type i = 0; i < size; i++) {
-    auto* reconstructed = Reconstructor::construct(allocated.buf);
+    auto reconstructed = Reconstructor::construct(allocated.buf);
     s | *reconstructed;
     cont.emplace(std::move(*reconstructed));
   }

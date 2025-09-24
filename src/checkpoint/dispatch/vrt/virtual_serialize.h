@@ -156,7 +156,9 @@ struct ReconstructAsVirtualIfNeeded<
   static T* apply(SerializerT&, dispatch::vrt::TypeIdx) {
     // no type idx needed in this case, static construction in default case
     auto t = std::allocator<T>{}.allocate(1);
-    return dispatch::Reconstructor<T>::construct(t);
+    // assumes that user will handle calling the destructor (typically by
+    // putting this in shared_ptr/unique_ptr or calling delete themselves)
+    return dispatch::Reconstructor<T>::construct(t).transferOwnership();
   }
 };
 
@@ -186,8 +188,8 @@ struct ReconstructAsVirtualIfNeeded<
     // use type idx here, registration needed for proper type re-construction
     auto t = dispatch::vrt::objregistry::allocateConcreteType<BaseT>(entry);
     return static_cast<T*>(
-                           dispatch::vrt::objregistry::constructConcreteType<BaseT>(entry, t)
-                           );
+      dispatch::vrt::objregistry::constructConcreteType<BaseT>(entry, t)
+    );
   }
 };
 

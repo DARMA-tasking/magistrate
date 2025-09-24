@@ -109,9 +109,9 @@ void serializeToFile(T& target, std::string const& file) {
 template <typename T, typename... Traits>
 std::unique_ptr<T> deserializeFromFile(std::string const& file) {
   auto mem = dispatch::Standard::allocate<T>();
-  T* t_buf = dispatch::Standard::construct<T>(mem);
+  auto wrapper = dispatch::Standard::construct<T>(mem);
   auto t = dispatch::Standard::unpack<T, UnpackerBuffer<buffer::IOBuffer>, UserTraitHolder<Traits...>>(
-    t_buf, buffer::IOBuffer::ReadFromFileTag{}, file
+    wrapper.transferOwnership(), buffer::IOBuffer::ReadFromFileTag{}, file
   );
   return std::unique_ptr<T>(t);
 }
@@ -134,9 +134,9 @@ void serializeToStream(T& target, StreamT& stream) {
 template <typename T, typename... Traits, typename StreamT>
 std::unique_ptr<T> deserializeFromStream(StreamT& stream) {
   auto mem = dispatch::Standard::allocate<T>();
-  T* t_buf = dispatch::Standard::construct<T>(mem);
+  auto wrapper = dispatch::Standard::construct<T>(mem);
   auto t = dispatch::Standard::unpack<T, StreamUnpacker<StreamT>, UserTraitHolder<Traits...>>(
-    t_buf, stream
+    wrapper.transferOwnership(), stream
   );
   return std::unique_ptr<T>(t);
 }

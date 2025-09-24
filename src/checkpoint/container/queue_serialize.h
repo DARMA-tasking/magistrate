@@ -58,7 +58,7 @@ void deserializeQueueElems(SerializerT& s, std::queue<T>& q, typename std::queue
 
   dispatch::Allocator<T> allocated;
   for (typename std::queue<T>::size_type i = 0; i < size; ++i) {
-    auto* reconstructed = Reconstructor::construct(allocated.buf);
+    auto reconstructed = Reconstructor::construct(allocated.buf);
     s | *reconstructed;
     q.push(std::move(*reconstructed));
   }

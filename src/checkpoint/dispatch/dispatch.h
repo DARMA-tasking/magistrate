@@ -109,10 +109,10 @@ struct Traverse {
    *
    * \param[in] mem The memory to in-place construct on
    *
-   * \return a pointer to \c T
+   * \return in-place wrapper for <T> which will destruct the type
    */
   template <typename T>
-  static T* reconstruct(SerialByteType* mem);
+  static InPlaceWrapper<T> reconstruct(SerialByteType* mem);
 
 };
 
@@ -173,10 +173,10 @@ struct Standard {
    *
    * \param[in] mem allocated buffer
    *
-   * \return constructed pointer to \c T
+   * \return in-place wrapper for \code T
    */
   template <typename T>
-  static T* construct(SerialByteType* mem);
+  static InPlaceWrapper<T> construct(SerialByteType* mem);
 
   /**
    * \brief Allocate memory for \c T

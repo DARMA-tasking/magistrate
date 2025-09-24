@@ -86,7 +86,7 @@ void constructVectorData(
     dispatch::Reconstructor<typename dispatch::CleanType<T>::CleanT>;
 
   Alloc allocated;
-  auto* reconstructed = Reconstructor::construct(allocated.buf);
+  auto reconstructed = Reconstructor::construct(allocated.buf);
   vec.resize(vec_size, *reconstructed);
 }
 
@@ -101,7 +101,7 @@ void constructVectorData(
 
   Alloc allocated;
   for (SerialSizeType i = 0; i < vec_size; ++i) {
-    auto* reconstructed = Reconstructor::construct(allocated.buf);
+    auto reconstructed = Reconstructor::construct(allocated.buf);
     vec.emplace_back(std::move(*reconstructed));
   }
 }
