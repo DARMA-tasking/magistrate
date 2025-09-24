@@ -73,6 +73,7 @@ static void testEqualityContainerOrdered(ContainerT& c1, ContainerT& t1) {
 
 template <typename ContainerT>
 static void testEqualityContainerUnordered(ContainerT& c1, ContainerT& t1) {
+  EXPECT_EQ(c1.size(), t1.size());
   for (auto&& elm1 : c1) {
     bool found = false;
     for (auto&& elm2 : t1) {
