@@ -84,30 +84,13 @@ inline typename std::enable_if_t<
   Serializer&, ContainerT&, typename ContainerT::size_type
 ) { }
 
-// Template to determine the clean value type for a container
-namespace {
-
-template <typename T, typename = void>
-struct get_value_type : std::false_type {
-  using value_type = typename T::value_type;
-};
-
-template <typename T>
-struct get_value_type<
-  T, std::void_t<typename T::mapped_type>
-> : std::true_type {
-  using value_type = std::pair<typename T::key_type, typename T::mapped_type>;
-};
-
-} /* end anon namespace */
-
 template <typename Serializer, typename ContainerT>
 inline void serializeMapLikeContainer(Serializer& s, ContainerT& cont) {
   typename ContainerT::size_type size = serializeContainerSize(s, cont);
 
   if (s.isUnpacking()) {
     // pair for maps types, raw value_type for set, etc.
-    using ValueT = typename get_value_type<ContainerT>::value_type;
+    using ValueT = typename detail::get_value_type<ContainerT>::value_type;
     deserializeEmplaceElems<Serializer, ContainerT, ValueT>(s, cont, size);
   } else {
     serializeContainerElems<Serializer, ContainerT>(s, cont);

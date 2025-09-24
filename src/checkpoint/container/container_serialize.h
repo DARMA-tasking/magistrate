@@ -49,6 +49,23 @@
 
 namespace checkpoint {
 
+// Template to determine the clean value type for a container
+namespace detail {
+
+template <typename T, typename = void>
+struct get_value_type : std::false_type {
+  using value_type = typename T::value_type;
+};
+
+template <typename T>
+struct get_value_type<
+  T, std::void_t<typename T::mapped_type>
+> : std::true_type {
+  using value_type = std::pair<typename T::key_type, typename T::mapped_type>;
+};
+
+} /* end detail namespace */
+
 template <typename Serializer, typename ContainerT>
 inline typename ContainerT::size_type
 serializeContainerSize(Serializer& s, ContainerT& cont) {
@@ -73,8 +90,23 @@ serializeContainerCapacity(Serializer& s, ContainerT& cont) {
 
 template <typename Serializer, typename ContainerT>
 inline void serializeContainerElems(Serializer& s, ContainerT& cont) {
-  for (auto&& elm : cont) {
-    s | elm;
+  // JL: Without error checking we can simply iterate and seriialize
+  // these. However, since we are changing the type to remove const from
+  // std::pair<X const, Y>, error checking detects the mis-alignment. Here we
+  // detect and massage the types to match what is happening in the
+  // serialization path based on the how the value_type comes out. For example,
+  // for std::set, the value_type is always const because elements can't be
+  // modified, so we have to const_cast this out.
+
+  using ValueT = typename detail::get_value_type<ContainerT>::value_type;
+  for (auto& elm : cont) {
+    if constexpr (std::is_same<ValueT&, decltype(elm)>::value) {
+      s | elm;
+    } else if constexpr (std::is_same<ValueT const&, decltype(elm)>::value) {
+      s | const_cast<ValueT&>(elm);
+    } else {
+      s | reinterpret_cast<ValueT&>(elm);
+    }
   }
 }
 
