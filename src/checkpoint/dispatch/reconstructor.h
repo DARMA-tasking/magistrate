@@ -57,13 +57,14 @@ namespace checkpoint { namespace dispatch {
 /**
  * \struct InPlaceWrapper
  *
- * \brief Wrapper class for a in-place allocation which may not have a paired
- * destructor. If a user has a pre-existing allocation which magistrate
- * de-serializes into, it may never be destructed as it is copied or moved
- * around. This type wraps that allocation and forces it to be destroyed or
- * explicity requires \c transferOwnership to be called to document that the
- * user is now responsible for destructing it (normally when the type if put in
- * a managed pointer, e.g., a std::unique_ptr with a standard deleter.
+ * \brief A wrapper class for in-place allocations that may not have a
+ * corresponding destructor. If a user has an existing allocation that is
+ * deserialized into, it may never be destructed as it gets copied or
+ * moved. This class encapsulates that allocation and ensures it is properly
+ * destroyed, or it explicitly requires \c transferOwnership to be invoked,
+ * indicating that the user is now responsible for its destruction. This
+ * typically occurs when the user or system places the type in a managed
+ * pointer, such as a \c std::unique_ptr<T> with a standard deleter.
  */
 template <typename T>
 struct InPlaceWrapper {

@@ -90,24 +90,39 @@ serializeContainerCapacity(Serializer& s, ContainerT& cont) {
 
 template <typename Serializer, typename ContainerT>
 inline void serializeContainerElems(Serializer& s, ContainerT& cont) {
-  // JL: Without error checking we can simply iterate and seriialize
-  // these. However, since we are changing the type to remove const from
-  // std::pair<X const, Y>, error checking detects the mis-alignment. Here we
-  // detect and massage the types to match what is happening in the
-  // serialization path based on the how the value_type comes out. For example,
-  // for std::set, the value_type is always const because elements can't be
-  // modified, so we have to const_cast this out.
+  // Without error checking, we can easily iterate and serialize by iterating
+  // through. However, since we are modifying the type to eliminate const from
+  // std::pair<X const, Y>, error checking identifies the type mismatch. Here,
+  // we adjust the types to align with the serialization process based on the
+  // resulting value_type. For instance, in the case of std::set, the value_type
+  // is always const because the elements cannot be altered, necessitating the
+  // use of const_cast to remove the const qualifier.
 
+#if defined(SERIALIZATION_ERROR_CHECKING)
   using ValueT = typename detail::get_value_type<ContainerT>::value_type;
   for (auto& elm : cont) {
     if constexpr (std::is_same<ValueT&, decltype(elm)>::value) {
+      // Case where get_value_type<ContainerT>::value_type matches the
+      // value_type of the container (no type change is necessary)
       s | elm;
     } else if constexpr (std::is_same<ValueT const&, decltype(elm)>::value) {
+      // Case where get_value_type<ContainerT>::value_type just has an added
+      // const, this occurs for \c std::set<T>, because the elements can not be
+      // modified during iteration, but the deserialization uses the non-const
+      // type to reconstruct value_type and put it in the container
       s | const_cast<ValueT&>(elm);
     } else {
+      // Case where get_value_type<ContainerT>::value_type has a const removed
+      // inside a pair, occurring for std::map, which can't be handled with
+      // const_cast. Thus, we reinterpret_cast the const out for error checking.
       s | reinterpret_cast<ValueT&>(elm);
     }
   }
+#else
+  for (auto& elm : cont) {
+    s | elm;
+  }
+#endif
 }
 
 } /* end namespace checkpoint */
