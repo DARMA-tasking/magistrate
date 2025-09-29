@@ -63,7 +63,9 @@ void tuple_helper(Serializer& s, std::tuple<T...>& tup, std::index_sequence<Idxs
 template <typename... T, size_t... Idxs>
 void tuple_helper_reconstruct(std::tuple<T...>*& tup, std::index_sequence<Idxs...>) {
   std::forward_as_tuple(
-    (dispatch::Reconstructor<T>::construct(&std::get<Idxs>(*tup)))...
+    (dispatch::Reconstructor<T>::construct(
+      &std::get<Idxs>(*tup)
+    ).transferOwnership())...
   );
 }
 
