@@ -117,7 +117,7 @@ struct Derived4 : Base {
   {
     *y = 29;
   }
-  Derived4() : x(1), y(nullptr) {}
+  explicit Derived4(SERIALIZE_CONSTRUCT_TAG) : x(1), y(nullptr) {}
 
   // Copy constructor
   Derived4(const Derived4& other)
@@ -162,9 +162,7 @@ struct Derived4 : Base {
     if (s.isUnpacking()) {
       y = new int;
     }
-    if (y) {
-      s | *y;
-    }
+    s | *y;
   }
 };
 
