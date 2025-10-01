@@ -60,10 +60,10 @@ void deserializeOptional(SerializerT& s, std::optional<T>& optional) {
   dispatch::Allocator<bool> boolAllocated;
   dispatch::Allocator<T> valAllocated;
 
-  auto* has_value = BoolReconstructor::construct(boolAllocated.buf);
+  auto has_value = BoolReconstructor::construct(boolAllocated.buf);
   s | *has_value;
   if (*has_value) {
-    auto* value = ValReconstructor::construct(valAllocated.buf);
+    auto value = ValReconstructor::construct(valAllocated.buf);
     s | *value;
     optional = *value;
   } else {

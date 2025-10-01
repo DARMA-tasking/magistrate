@@ -189,7 +189,7 @@ TraverserT Traverse::with(T& target, Args&&... args) {
 }
 
 template <typename T>
-T* Traverse::reconstruct(SerialByteType* mem) {
+InPlaceWrapper<T> Traverse::reconstruct(SerialByteType* mem) {
   return Reconstructor<typename CleanType<T>::CleanT>::construct(mem);
 }
 
@@ -223,7 +223,7 @@ T* Standard::unpack(T* t_buf, Args&&... args) {
 }
 
 template <typename T>
-T* Standard::construct(SerialByteType* mem) {
+InPlaceWrapper<T> Standard::construct(SerialByteType* mem) {
   return Traverse::reconstruct<T>(mem);
 }
 
@@ -275,8 +275,15 @@ buffer::ImplReturnType serializeType(T& target, BufferObtainFnType fn) {
 
 template <typename T, typename UserTraits>
 T* deserializeType(SerialByteType* data, SerialByteType* allocBuf) {
+  /// @todo: JL: I think there is a bug here where if a non-standard allocator
+  /// is used a non-standard deleter is needed for the unique_ptr. We need to
+  /// specialize this case so the proper deletion/destruction happens
+
   auto mem = allocBuf ? allocBuf : Standard::allocate<T>();
-  auto t_buf = std::unique_ptr<T>(Standard::construct<T>(mem));
+
+  // Transfer ownership of T* to the unique_ptr, which is now responsible for
+  // destructing it
+  auto t_buf = std::unique_ptr<T>(Standard::construct<T>(mem).transferOwnership());
   T* traverser =
     Standard::unpack<T, UnpackerBuffer<buffer::UserBuffer>, UserTraits>(t_buf.get(), data);
   t_buf.release();

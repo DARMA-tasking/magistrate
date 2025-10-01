@@ -47,6 +47,9 @@
 
 #include <checkpoint/checkpoint.h>
 
+#include <map>
+#include <string>
+
 namespace checkpoint { namespace tests { namespace unit {
 
 template <typename ContainerT>
@@ -73,6 +76,7 @@ static void testEqualityContainerOrdered(ContainerT& c1, ContainerT& t1) {
 
 template <typename ContainerT>
 static void testEqualityContainerUnordered(ContainerT& c1, ContainerT& t1) {
+  EXPECT_EQ(c1.size(), t1.size());
   for (auto&& elm1 : c1) {
     bool found = false;
     for (auto&& elm2 : t1) {
@@ -291,7 +295,6 @@ INSTANTIATE_TYPED_TEST_SUITE_P(TestMultiDouble_int64_t, TestMultiContainer, Cont
 INSTANTIATE_TYPED_TEST_SUITE_P(TestMultiDouble_int16_t, TestMultiContainer, ContainerMultiTypesDouble<int16_t>, );
 INSTANTIATE_TYPED_TEST_SUITE_P(TestMultiDouble_float, TestMultiContainer, ContainerMultiTypesDouble<float>, );
 
-
 INSTANTIATE_TYPED_TEST_SUITE_P(TestMulti_int, TestMultiContainerUnordered, ContainerMultiTypesUnordered<int>, );
 INSTANTIATE_TYPED_TEST_SUITE_P(TestMulti_double, TestMultiContainerUnordered, ContainerMultiTypesUnordered<double>, );
 INSTANTIATE_TYPED_TEST_SUITE_P(TestMulti_int64_t, TestMultiContainerUnordered, ContainerMultiTypesUnordered<int64_t>, );
@@ -302,5 +305,102 @@ INSTANTIATE_TYPED_TEST_SUITE_P(TestMultiDouble_int, TestMultiContainerUnordered,
 INSTANTIATE_TYPED_TEST_SUITE_P(TestMultiDouble_int64_t, TestMultiContainerUnordered, ContainerMultiTypesUnorderedDouble<int64_t>, );
 INSTANTIATE_TYPED_TEST_SUITE_P(TestMultiDouble_int16_t, TestMultiContainerUnordered, ContainerMultiTypesUnorderedDouble<int16_t>, );
 INSTANTIATE_TYPED_TEST_SUITE_P(TestMultiDouble_float, TestMultiContainerUnordered, ContainerMultiTypesUnorderedDouble<float>, );
+
+using TestMapLikeAdvanced = TestHarness;
+
+struct AllocatingType {
+
+  AllocatingType() {
+    data = new int();
+    *data = 10;
+    printf("constructing AllocatingType %p\n", (void*)data);
+  }
+
+  AllocatingType(AllocatingType&& other) = delete;
+
+  // AllocatingType(AllocatingType&& other)
+  // {
+  //   std::swap(data, other.data);
+  //   printf("moving AllocatingType %p other %p\n", (void*)data, (void*)other.data);
+  // }
+
+  AllocatingType(AllocatingType const& other) {
+    data = new int();
+    printf("copy construct AllocatingType %p\n", (void*)data);
+    assert(other.data);
+    *data = *other.data;
+  }
+
+  ~AllocatingType() {
+    printf("destructing AllocatingType %p\n", (void*)data);
+    if (data) {
+      delete data;
+    }
+  }
+
+  friend bool operator<(AllocatingType const& a, AllocatingType const& b) {
+    return a.data < b.data;
+  }
+  friend bool operator==(AllocatingType const& a, AllocatingType const& b) {
+    return *a.data == *b.data;
+  }
+
+  template <typename SerializerT>
+  void serialize(SerializerT& s) {
+    s | *data;
+  }
+
+  int* data = nullptr;
+};
+
+TEST_F(TestMapLikeAdvanced, test_map_string_int) {
+  using ContainerType = std::map<std::string, int>;
+
+  ContainerType c1{
+    {"test1", 10},
+    {"test2", 20},
+    {"test_a_really_long_non_sso_optimized_string_that_allocates_memory", 30}
+  };
+
+  auto ret = checkpoint::serialize(c1);
+  auto t1 = checkpoint::deserialize<ContainerType>(ret->getBuffer());
+
+  EXPECT_EQ(c1.size(), t1->size());
+
+  testEqualityContainerUnordered(c1, *t1);
+}
+
+TEST_F(TestMapLikeAdvanced, test_map_allocating_type_int) {
+  using ContainerType = std::map<AllocatingType, int>;
+
+  ContainerType c1;
+  c1.emplace(AllocatingType{}, 10);
+  c1.emplace(AllocatingType{}, 20);
+  c1.emplace(AllocatingType{}, 30);
+
+  auto ret = checkpoint::serialize(c1);
+  auto t1 = checkpoint::deserialize<ContainerType>(ret->getBuffer());
+
+  EXPECT_EQ(c1.size(), t1->size());
+
+  testEqualityContainerUnordered(c1, *t1);
+}
+
+TEST_F(TestMapLikeAdvanced, test_set_const_string_int) {
+  using ContainerType = std::set<std::pair<std::string const, int>>;
+
+  ContainerType c1{
+    {"test1", 10},
+    {"test2", 20},
+    {"test_a_really_long_non_sso_optimized_string_that_allocates_memory", 30},
+  };
+
+  auto ret = checkpoint::serialize(c1);
+  auto t1 = checkpoint::deserialize<ContainerType>(ret->getBuffer());
+
+  EXPECT_EQ(c1.size(), t1->size());
+
+  testEqualityContainerUnordered(c1, *t1);
+}
 
 }}} // end namespace checkpoint::tests::unit

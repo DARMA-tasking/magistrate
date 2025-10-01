@@ -49,9 +49,85 @@
 #include "checkpoint/dispatch/reconstructor_tag.h"
 
 #include <tuple>
+#include <utility>
 #include <cstdlib>
 
 namespace checkpoint { namespace dispatch {
+
+/**
+ * \struct InPlaceWrapper
+ *
+ * \brief A wrapper class for in-place allocations that may not have a
+ * corresponding destructor. If a user has an existing allocation that is
+ * deserialized into, it may never be destructed as it gets copied or
+ * moved. This class encapsulates that allocation and ensures it is properly
+ * destroyed, or it explicitly requires \c transferOwnership to be invoked,
+ * indicating that the user is now responsible for its destruction. This
+ * typically occurs when the user or system places the type in a managed
+ * pointer, such as a \c std::unique_ptr<T> with a standard deleter.
+ */
+template <typename T>
+struct InPlaceWrapper {
+  // Constructor: Takes ownership of an already constructed object
+  explicit InPlaceWrapper(T* inPlaceObject) : object(inPlaceObject) {}
+
+  // Destructor: Calls the destructor of T
+  ~InPlaceWrapper() {
+    if (object) {
+      object->~T(); // Explicitly call the destructor
+    }
+  }
+
+  // Delete copy constructor and copy assignment to avoid accidental copying
+  InPlaceWrapper(const InPlaceWrapper&) = delete;
+  InPlaceWrapper& operator=(const InPlaceWrapper&) = delete;
+
+  // Allow move semantics
+  InPlaceWrapper(InPlaceWrapper&& other) noexcept : object(nullptr) {
+    std::swap(object, other.object);
+  }
+
+  InPlaceWrapper& operator=(InPlaceWrapper&& other) noexcept {
+    if (this != &other) {
+      if (object) {
+        object->~T();
+      }
+      object = nullptr;
+      std::swap(object, other.object);
+    }
+    return *this;
+  }
+
+  // Access the wrapped object
+  T* operator->() {
+    return object;
+  }
+
+  const T* operator->() const {
+    return object;
+  }
+
+  T& operator*() {
+    return *object;
+  }
+
+  const T& operator*() const {
+    return *object;
+  }
+
+  /**
+   * \brief Tranfer the ownership out of this container. Now the responsbility
+   * of where it was transfered to destroy it.
+   */
+  T* transferOwnership() {
+    auto ptr = object;
+    object = nullptr;
+    return ptr;
+  }
+
+private:
+  T* object; ///> Pointer to the already constructed object
+};
 
 template <typename T>
 struct Reconstructor {
@@ -140,19 +216,19 @@ struct Reconstructor {
   }
 
   template <typename U = T>
-  static T* construct(void* buf) {
-    return constructTag<U>(buf);
+  static InPlaceWrapper<T> construct(void* buf) {
+    return InPlaceWrapper<T>{constructTag<U>(buf)};
   }
 
   /// Overloads that allow failure to reconstruct so SFINAE overloads don't
   /// static assert out
   template <typename U = T>
-  static T* constructAllowFailImpl(void* buf, isConstructible<U>* = nullptr) {
+  static InPlaceWrapper<T> constructAllowFailImpl(void* buf, isConstructible<U>* = nullptr) {
     return construct<U>(buf);
   }
 
   template <typename U = T>
-  static T* constructAllowFailImpl(void*, isNotConstructible<U>* = nullptr) {
+  static InPlaceWrapper<T> constructAllowFailImpl(void*, isNotConstructible<U>* = nullptr) {
     constexpr int max_buffer_length = 32768;
     std::unique_ptr<char[]> msg = std::make_unique<char[]>(max_buffer_length);
     snprintf(
@@ -164,13 +240,13 @@ struct Reconstructor {
       typeid(T).name()
     );
     checkpointAssert(false, msg.get());
-    return nullptr;
+    return InPlaceWrapper<T>{nullptr};
   }
 
   // Used for instantiating reconstructor on abstract types that might not be
   // reconstructible
   template <typename U = T>
-  static T* constructAllowFail(void* buf) {
+  static auto constructAllowFail(void* buf) {
     return constructAllowFailImpl<U>(buf);
   }
 };

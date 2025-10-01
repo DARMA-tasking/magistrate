@@ -53,6 +53,7 @@
 #include <unordered_map>
 #include <set>
 #include <unordered_set>
+#include <type_traits>
 
 namespace checkpoint {
 
@@ -69,7 +70,7 @@ inline typename std::enable_if_t<
 
   Alloc allocated;
   for (typename ContainerT::size_type i = 0; i < size; i++) {
-    auto* reconstructed = Reconstructor::construct(allocated.buf);
+    auto reconstructed = Reconstructor::construct(allocated.buf);
     s | *reconstructed;
     cont.emplace(std::move(*reconstructed));
   }
@@ -85,11 +86,11 @@ inline typename std::enable_if_t<
 
 template <typename Serializer, typename ContainerT>
 inline void serializeMapLikeContainer(Serializer& s, ContainerT& cont) {
-  using ValueT = typename ContainerT::value_type;
-
   typename ContainerT::size_type size = serializeContainerSize(s, cont);
 
   if (s.isUnpacking()) {
+    // pair for maps types, raw value_type for set, etc.
+    using ValueT = typename detail::get_value_type<ContainerT>::value_type;
     deserializeEmplaceElems<Serializer, ContainerT, ValueT>(s, cont, size);
   } else {
     serializeContainerElems<Serializer, ContainerT>(s, cont);

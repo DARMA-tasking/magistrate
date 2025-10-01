@@ -150,14 +150,21 @@ struct TaggedCtor {
   static constexpr int val_tagged_ctor = 104;
 
   int i;
+  std::pair<std::string const, int> str;
 
   TaggedCtor() = delete;
-  explicit TaggedCtor(int ii) : i{ii} { }
-  explicit TaggedCtor(SERIALIZE_CONSTRUCT_TAG) : i{val_tagged_ctor} { }
+  TaggedCtor(TaggedCtor const&) = delete;
+  TaggedCtor(TaggedCtor&&) = default;
+  explicit TaggedCtor(int ii)
+    : i{ii},
+      str{std::make_pair("my_very_long_non_sso_string_that_allocates",10)}
+  { }
+  explicit TaggedCtor(SERIALIZE_CONSTRUCT_TAG) : i{val_tagged_ctor}, str{} { }
 
   template <typename Serializer>
   void serialize(Serializer& s) {
     s | i;
+    s | str;
   }
 };
 
@@ -165,9 +172,10 @@ constexpr int TaggedCtor::val_ctor;
 constexpr int TaggedCtor::val_tagged_ctor;
 
 TEST_F(VectorTest, test_vector_tagged_ctor) {
-  std::vector<TaggedCtor> tcs{
-    TaggedCtor{TaggedCtor::val_ctor}, TaggedCtor{TaggedCtor::val_ctor},
-    TaggedCtor{TaggedCtor::val_ctor}};
+  std::vector<TaggedCtor> tcs;
+  tcs.emplace_back(TaggedCtor{TaggedCtor::val_ctor});
+  tcs.emplace_back(TaggedCtor{TaggedCtor::val_ctor});
+  tcs.emplace_back(TaggedCtor{TaggedCtor::val_ctor});
   auto ret = serialize<std::vector<TaggedCtor>>(tcs);
   auto deser = deserialize<std::vector<TaggedCtor>>(ret->getBuffer());
 

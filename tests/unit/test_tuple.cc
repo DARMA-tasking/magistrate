@@ -66,8 +66,8 @@ struct DerivedEmpty : Base {
 };
 
 struct Derived : Base {
-  Derived(int in_x) : x(in_x){};
-  Derived() : x(1){};
+  Derived(int in_x) : x(in_x){}
+  Derived() : x(1){}
   int x;
 
   bool operator==(const Derived& rhs) const { return x == rhs.x; }
@@ -79,8 +79,8 @@ struct Derived : Base {
 };
 
 struct Derived2 : Base {
-  Derived2(int in_x) : x(in_x){};
-  Derived2() : x(1){};
+  Derived2(int in_x) : x(in_x){}
+  Derived2() : x(1){}
 
   Base base;
   int x;
@@ -95,8 +95,8 @@ struct Derived2 : Base {
 };
 
 struct Derived3 : Base {
-  Derived3(int in_x) : x(in_x){};
-  Derived3() : x(1){};
+  Derived3(int in_x) : x(in_x){}
+  Derived3() : x(1){}
 
   Derived base;
   int x;
@@ -111,11 +111,47 @@ struct Derived3 : Base {
 };
 
 struct Derived4 : Base {
-  Derived4(int in_x) : x(in_x){};
-  Derived4() : x(1){};
+  Derived4(int in_x)
+    : x(in_x),
+      y(new int)
+  {
+    *y = 29;
+  }
+  explicit Derived4(SERIALIZE_CONSTRUCT_TAG) : x(1), y(nullptr) {}
+
+  // Copy constructor
+  Derived4(const Derived4& other)
+    : Base(other), // Call base class copy constructor
+      base(other.base), // Copy base member
+      x(other.x),
+      y(other.y ? new int(*other.y) : nullptr) // Deep copy of y
+  { }
+
+  // Copy assignment operator
+  Derived4& operator=(const Derived4& other) {
+    if (this != &other) { // Self-assignment check
+      Base::operator=(other); // Call base class assignment operator
+      x = other.x;
+      // Clean up existing resource
+      delete y;
+      // Deep copy of y
+      y = other.y ? new int(*other.y) : nullptr;
+      base = other.base; // Copy base member
+    }
+    return *this;
+  }
+
+  Derived4(Derived4&&) = delete;
 
   Derived3 base;
   int x;
+  int* y = nullptr;
+
+  virtual ~Derived4() {
+    assert(y != nullptr && "Y must have a valid value");
+    delete y;
+    y = nullptr;
+  }
 
   bool operator==(const Derived4& rhs) const { return x == rhs.x; }
 
@@ -123,6 +159,10 @@ struct Derived4 : Base {
   void serialize(SerializerT& s) {
     s | base;
     s | x;
+    if (s.isUnpacking()) {
+      y = new int;
+    }
+    s | *y;
   }
 };
 

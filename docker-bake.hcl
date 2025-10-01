@@ -133,7 +133,7 @@ target "magistrate-build-all" {
       },
       {
         image = "amd64-ubuntu-22.04-clang-11-cpp",
-        magistrate_asan_options = "use_sigaltstack=false"
+        magistrate_asan_options = "use_sigaltstack=false detect_leaks=1 abort_on_error=1"
       },
       {
         image = "amd64-ubuntu-22.04-clang-12-cpp",

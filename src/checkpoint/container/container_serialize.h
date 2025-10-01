@@ -49,6 +49,23 @@
 
 namespace checkpoint {
 
+// Template to determine the clean value type for a container
+namespace detail {
+
+template <typename T, typename = void>
+struct get_value_type : std::false_type {
+  using value_type = typename T::value_type;
+};
+
+template <typename T>
+struct get_value_type<
+  T, std::void_t<typename T::mapped_type>
+> : std::true_type {
+  using value_type = std::pair<typename T::key_type, typename T::mapped_type>;
+};
+
+} /* end detail namespace */
+
 template <typename Serializer, typename ContainerT>
 inline typename ContainerT::size_type
 serializeContainerSize(Serializer& s, ContainerT& cont) {
@@ -73,9 +90,39 @@ serializeContainerCapacity(Serializer& s, ContainerT& cont) {
 
 template <typename Serializer, typename ContainerT>
 inline void serializeContainerElems(Serializer& s, ContainerT& cont) {
-  for (auto&& elm : cont) {
+  // Without error checking, we can easily iterate and serialize by iterating
+  // through. However, since we are modifying the type to eliminate const from
+  // std::pair<X const, Y>, error checking identifies the type mismatch. Here,
+  // we adjust the types to align with the serialization process based on the
+  // resulting value_type. For instance, in the case of std::set, the value_type
+  // is always const because the elements cannot be altered, necessitating the
+  // use of const_cast to remove the const qualifier.
+
+#if defined(SERIALIZATION_ERROR_CHECKING)
+  using ValueT = typename detail::get_value_type<ContainerT>::value_type;
+  for (auto& elm : cont) {
+    if constexpr (std::is_same<ValueT&, decltype(elm)>::value) {
+      // Case where get_value_type<ContainerT>::value_type matches the
+      // value_type of the container (no type change is necessary)
+      s | elm;
+    } else if constexpr (std::is_same<ValueT const&, decltype(elm)>::value) {
+      // Case where get_value_type<ContainerT>::value_type just has an added
+      // const, this occurs for \c std::set<T>, because the elements can not be
+      // modified during iteration, but the deserialization uses the non-const
+      // type to reconstruct value_type and put it in the container
+      s | const_cast<ValueT&>(elm);
+    } else {
+      // Case where get_value_type<ContainerT>::value_type has a const removed
+      // inside a pair, occurring for std::map, which can't be handled with
+      // const_cast. Thus, we reinterpret_cast the const out for error checking.
+      s | reinterpret_cast<ValueT&>(elm);
+    }
+  }
+#else
+  for (auto& elm : cont) {
     s | elm;
   }
+#endif
 }
 
 } /* end namespace checkpoint */
