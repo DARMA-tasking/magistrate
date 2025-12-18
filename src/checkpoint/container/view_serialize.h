@@ -63,7 +63,7 @@
 #endif
 
 #if MAGISTRATE_KOKKOS_KERNELS_ENABLED
-#include <Kokkos_StaticCrsGraph.hpp>
+#include <KokkosSparse_StaticCrsGraph.hpp>
 #include <KokkosSparse_CrsMatrix.hpp>
 #endif
 
@@ -590,7 +590,7 @@ void serializeContentsOnly(SerializerT& s, Kokkos::View<T, Ts...>& v) {
 
 #if MAGISTRATE_KOKKOS_KERNELS_ENABLED
 template< typename Serializer, typename T, typename... Ts >
-inline void serialize( Serializer &s, Kokkos::StaticCrsGraph<T, Ts...> &graph ) {
+inline void serialize( Serializer &s, KokkosSparse::StaticCrsGraph<T, Ts...> &graph ) {
   s | graph.entries | graph.row_map | graph.row_block_offsets;
 }
 
