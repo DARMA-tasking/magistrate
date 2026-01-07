@@ -26,6 +26,9 @@ deprecated_option(checkpoint_warnings_as_errors magistrate_warnings_as_errors "E
 deprecated_option(checkpoint_asan_enabled magistrate_asan_enabled "Enable address sanitizer in magistrate" OFF)
 deprecated_option(checkpoint_ubsan_enabled magistrate_ubsan_enabled "Enable undefined behavior sanitizer in magistrate" OFF)
 
+option(magistrate_enable_export_of_targets "Enables export of magistrate targets. Only disable this for embedded builds where the top level project handles magistrate target exports." ON)
+message(STATUS "Magistrate export targets: ${magistrate_enable_export_of_targets}")
+
 option(CODE_COVERAGE "Enable coverage reporting" OFF)
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug" OR "${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
@@ -161,26 +164,28 @@ if(magistrate_examples_enabled)
   add_subdirectory(examples)
 endif()
 
-configure_file(
-  cmake/checkpointConfig.cmake.in
-  "${PROJECT_BINARY_DIR}/checkpointConfig.cmake" @ONLY
-)
+if(magistrate_enable_export_of_targets)
+  configure_file(
+    cmake/checkpointConfig.cmake.in
+    "${PROJECT_BINARY_DIR}/checkpointConfig.cmake" @ONLY
+  )
 
-install(
-  FILES "${PROJECT_BINARY_DIR}/checkpointConfig.cmake"
-  DESTINATION cmake
-  COMPONENT extCfg
-)
+  install(
+    FILES "${PROJECT_BINARY_DIR}/checkpointConfig.cmake"
+    DESTINATION cmake
+    COMPONENT extCfg
+  )
 
-configure_file(
-  cmake/magistrateConfig.cmake.in
-  "${PROJECT_BINARY_DIR}/magistrateConfig.cmake" @ONLY
-)
+  configure_file(
+    cmake/magistrateConfig.cmake.in
+    "${PROJECT_BINARY_DIR}/magistrateConfig.cmake" @ONLY
+  )
 
-install(
-  FILES "${PROJECT_BINARY_DIR}/magistrateConfig.cmake"
-  DESTINATION cmake
-  COMPONENT extCfg
-)
+  install(
+    FILES "${PROJECT_BINARY_DIR}/magistrateConfig.cmake"
+    DESTINATION cmake
+    COMPONENT extCfg
+  )
+endif()
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})

@@ -149,16 +149,18 @@ install(
   INCLUDES DESTINATION      ${MAGISTRATE_EXTERNAL_DESTINATION}
 )
 
-install(
-  EXPORT                    ${MAGISTRATE_LIBRARY}
-  DESTINATION               cmake
-  FILE                      "magistrateTargets.cmake"
-  NAMESPACE                 vt::lib::
-  COMPONENT                 runtime
-)
+if(magistrate_enable_export_of_targets)
+  install(
+    EXPORT                    ${MAGISTRATE_LIBRARY}
+    DESTINATION               cmake
+    FILE                      "magistrateTargets.cmake"
+    NAMESPACE                 vt::lib::
+    COMPONENT                 runtime
+  )
 
-export(
-  TARGETS                   ${MAGISTRATE_LIBRARY}
-  FILE                      "magistrateTargets.cmake"
-  NAMESPACE                 vt::lib::
-)
+  export(
+    TARGETS                   ${MAGISTRATE_LIBRARY}
+    FILE                      "magistrateTargets.cmake"
+    NAMESPACE                 vt::lib::
+  )
+endif()
