@@ -29,8 +29,15 @@ mkdir -p "$kokkos_build"
 cd "$kokkos_build"
 mkdir build
 cd build
+
+if [ "$CXX" == "nvcc_wrapper" ]; then
+    backend="-DKokkos_ENABLE_OPENMP:BOOL=${openmp}"
+else
+    backend="-DKokkos_ENABLE_CUDA:BOOL=1"
+fi
+
 cmake -G "${CMAKE_GENERATOR:-Ninja}" \
-      -DKokkos_ENABLE_OPENMP:BOOL="${openmp}" \
+      ${backend} \
       -DCMAKE_INSTALL_PREFIX="$kokkos_install" \
       "$kokkos"
 cmake --build . --target install
