@@ -102,8 +102,8 @@ void deserializeInsertElems(
   KeyAlloc keyAllocated;
   ValueAlloc valAllocated;
   for (SerialSizeType i = 0; i < map_size; i++) {
-    auto* key = KeyReconstructor::construct(keyAllocated.buf);
-    auto* val = ValReconstructor::construct(valAllocated.buf);
+    auto key = KeyReconstructor::construct(keyAllocated.buf);
+    auto val = ValReconstructor::construct(valAllocated.buf);
 
     s | *key;
     s | *val;

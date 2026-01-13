@@ -79,7 +79,7 @@ struct Data : BaseData {
   using Kokkos_ViewType3 = ::Kokkos::View<float***, AtomicTrait>;
   using Kokkos_ViewType4 = ::Kokkos::View<int*[2]>;
   #if MAGISTRATE_KOKKOS_KERNELS_ENABLED
-  using Kokkos_CrsType = ::Kokkos::StaticCrsGraph<double, Kokkos::DefaultExecutionSpace>;
+  using Kokkos_CrsType = ::KokkosSparse::StaticCrsGraph<double, Kokkos::DefaultExecutionSpace>;
   using Kokkos_CrsMatrix = ::KokkosSparse::CrsMatrix<double, int, Kokkos::DefaultExecutionSpace>;
   #endif
   using DimType          = typename Kokkos_ViewType1::size_type;
@@ -132,7 +132,7 @@ struct Data : BaseData {
        }
     }
 
-    crs = Kokkos::create_staticcrsgraph<Kokkos_CrsType>( "crs_type" , graph );
+    crs = KokkosSparse::create_staticcrsgraph<Kokkos_CrsType>( "crs_type" , graph );
 
     int nrow = 5, ncol = 7;
     size_t nnz = 11;
