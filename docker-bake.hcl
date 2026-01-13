@@ -176,6 +176,12 @@ target "magistrate-build-all" {
         image = "amd64-ubuntu-20.04-gcc-9-cuda-11.4.3-cpp",
         magistrate_asan = 0,
         magistrate_serialization_error_checking = 0
+      },
+      {
+        image = "amd64-ubuntu-20.04-gcc-9-cuda-12.2.0-cpp",
+        magistrate_asan = 0,
+        magistrate_serialization_error_checking = 0,
+        magistrate_kokkos_enabled = 1
       }
     ]
   }
