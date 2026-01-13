@@ -74,6 +74,11 @@ function "magistrate_code_coverage" {
   result = lookup(item, "magistrate_code_coverage", "0")
 }
 
+function magistrate_kokkos_enabled {
+  params = [item]
+  result = lookup(item, "magistrate_kokkos_enabled", "0")
+}
+
 function "variant" {
   params = [item]
   result = lookup(item, "variant", "")
@@ -121,6 +126,7 @@ target "magistrate-build-all" {
     MAGISTRATE_BUILD_AGAINST_VT = magistrate_build_against_vt(item)
     MAGISTRATE_ASAN_OPTIONS = magistrate_asan_options(item)
     MAGISTRATE_CODE_COVERAGE = magistrate_code_coverage(item)
+    MAGISTRATE_KOKKOS_ENABLED = magistrate_kokkos_enabled(item)
   }
 
   matrix = {
@@ -146,9 +152,15 @@ target "magistrate-build-all" {
       },
       {
         image = "amd64-ubuntu-22.04-clang-14-cpp"
+        magistrate_kokkos_enabled = 1
+      },
+      {
+        image = "amd64-ubuntu-22.04-clang-15-cpp"
+        magistrate_kokkos_enabled = 1
       },
       {
         image = "amd64-ubuntu-20.04-gcc-10-cpp"
+        magistrate_kokkos_enabled = 1
       },
       {
         image = "amd64-ubuntu-20.04-gcc-9-cpp",

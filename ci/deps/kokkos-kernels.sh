@@ -2,36 +2,36 @@
 
 set -exo pipefail
 
-if test $# -lt 2
+if test $# -lt 3
 then
-    echo "usage: ./$0 <kokkos-kernels-version> <build-dir>"
+    echo "usage: ./$0 <kokkos-kernels-version> <build-dir> <kokkos-root>"
     exit 1
 fi
 
-kokkos_version=$1
-kokkos_zip_name=${kokkos_version}.zip
+kokkos_kernels_version=$1
+kokkos_DIR=$3
 
 build_dir=$2
 
-echo "${kokkos_version}"
-echo "${kokkos_zip_name}"
+echo "${kokkos_kernels_version}"
 
-wget -O kokkos-kernels.zip "http://github.com/kokkos/kokkos-kernels/archive/${kokkos_zip_name}"
-
-unzip kokkos-kernels.zip
+git clone https://github.com/kokkos/kokkos-kernels.git
+cd kokkos-kernels
+kokkos_kernels_dir=`pwd`
+git checkout ${kokkos_kernels_version}
 
 mkdir -p "${build_dir}"
 pushd "${build_dir}"
 
-export kokkos=/kokkos-kernels-${kokkos_version}
-export kokkos_build=${build_dir}/kokkos-kernels
-mkdir -p "$kokkos_build"
-cd "$kokkos_build"
+export kokkos_kernels="$kokkos_kernels_dir"
+export kokkos_kernels_build=${build_dir}/kokkos-kernels
+mkdir -p "$kokkos_kernels_build"
+cd "$kokkos_kernels_build"
 mkdir build
 cd build
 
 cmake -G "${CMAKE_GENERATOR:-Ninja}" \
-      -DCMAKE_PREFIX_PATH="${KOKKOS_ROOT}/lib/cmake" \
-      -DCMAKE_INSTALL_PREFIX="$kokkos_build/install" \
-      "$kokkos"
+      -DCMAKE_INSTALL_PREFIX="$kokkos_kernels_build/kokkos-kernels-install" \
+      -DKokkos_ROOT="${kokkos_DIR}" \
+      "$kokkos_kernels"
 cmake --build . --target install
