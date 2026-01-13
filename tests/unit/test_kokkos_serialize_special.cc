@@ -47,6 +47,14 @@
 
 struct KokkosViewContentsTest : virtual testing::Test { };
 
+void initialize_test_view_contents(const Kokkos::View<int*>& original)
+{
+  Kokkos::parallel_for("original",1,KOKKOS_LAMBDA(int ) {
+    original(0) = 10;
+    original(1) = 20;
+  });
+  Kokkos::fence();
+}
 
 TEST_F(KokkosViewContentsTest, test_view_contents) {
   using ViewType = Kokkos::View<int*>;
@@ -54,11 +62,11 @@ TEST_F(KokkosViewContentsTest, test_view_contents) {
   ViewType original = ViewType("my view", 2);
   ViewType alias = original;
 
-  original(0) = 10;
-  original(1) = 20;
+  initialize_test_view_contents(original);
 
-  EXPECT_EQ(10, alias(0));
-  EXPECT_EQ(20, alias(1));
+  auto host_alias = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(),alias);
+  EXPECT_EQ(10, host_alias(0));
+  EXPECT_EQ(20, host_alias(1));
 
   using namespace checkpoint;
 
@@ -75,8 +83,20 @@ TEST_F(KokkosViewContentsTest, test_view_contents) {
 
   serializeContentsOnly(unpacker, original);
 
-  EXPECT_EQ(10, alias(0));
-  EXPECT_EQ(20, alias(1));
+  Kokkos::deep_copy(host_alias,alias);
+  EXPECT_EQ(10, host_alias(0));
+  EXPECT_EQ(20, host_alias(1));
+}
+
+void initialize_test_view_contents_2d_layout(const Kokkos::View<int**, Kokkos::LayoutLeft>& original)
+{
+  Kokkos::parallel_for("original",1,KOKKOS_LAMBDA(int ) {
+    original(0,0) = 10;
+    original(0,1) = 20;
+    original(1,0) = 30;
+    original(1,1) = 40;
+  });
+  Kokkos::fence();
 }
 
 TEST_F(KokkosViewContentsTest, test_view_contents_2d_layout) {
@@ -85,15 +105,13 @@ TEST_F(KokkosViewContentsTest, test_view_contents_2d_layout) {
   ViewType original = ViewType("my view", 2, 2);
   ViewType alias = original;
 
-  original(0,0) = 10;
-  original(0,1) = 20;
-  original(1,0) = 30;
-  original(1,1) = 40;
+  initialize_test_view_contents_2d_layout(original);
 
-  EXPECT_EQ(10, alias(0,0));
-  EXPECT_EQ(20, alias(0,1));
-  EXPECT_EQ(30, alias(1,0));
-  EXPECT_EQ(40, alias(1,1));
+  auto host_alias = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(),alias);
+  EXPECT_EQ(10, host_alias(0,0));
+  EXPECT_EQ(20, host_alias(0,1));
+  EXPECT_EQ(30, host_alias(1,0));
+  EXPECT_EQ(40, host_alias(1,1));
 
   using namespace checkpoint;
 
@@ -110,10 +128,11 @@ TEST_F(KokkosViewContentsTest, test_view_contents_2d_layout) {
 
   serializeContentsOnly(unpacker, original);
 
-  EXPECT_EQ(10, alias(0,0));
-  EXPECT_EQ(20, alias(0,1));
-  EXPECT_EQ(30, alias(1,0));
-  EXPECT_EQ(40, alias(1,1));
+  Kokkos::deep_copy(host_alias,alias);
+  EXPECT_EQ(10, host_alias(0,0));
+  EXPECT_EQ(20, host_alias(0,1));
+  EXPECT_EQ(30, host_alias(1,0));
+  EXPECT_EQ(40, host_alias(1,1));
 }
 
 #if defined(KOKKOS_ENABLE_CUDA)

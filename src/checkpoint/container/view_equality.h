@@ -313,7 +313,7 @@ struct ViewEquality {
   static bool compareData(ViewT const& v1, ViewU const& v2, EqT eq) {
     using checkpoint::TraverseRecursive;
 
-    using TupleType     = std::tuple<ViewT,ViewT>;
+    using TupleType     = std::tuple<typename ViewT::host_mirror_type,typename ViewT::host_mirror_type>;
 
     constexpr auto dims = CountDimType::dynamic;
 
@@ -332,9 +332,11 @@ struct ViewEquality {
     };
 
     // Returns the number of comparisons in the inner data that returned false
+    auto host_v1 = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(),v1);
+    auto host_v2 = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(),v2);
     using FnT = decltype(fn);
     auto const neq = TraverseRecursive<TupleType,DataType,dims,FnT>::apply(
-      std::make_tuple(v1,v2),fn
+      std::make_tuple(host_v1,host_v2),fn
     );
 
     return neq == 0;

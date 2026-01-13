@@ -48,14 +48,19 @@
 
 template <typename ViewT>
 static void compare0d(ViewT const& k1, ViewT const& k2) {
-  compareBasic(k1,k2);
-  EXPECT_EQ(k1.operator()(), k2.operator()());
+  auto host_k1 = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(),k1);
+  auto host_k2 = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(),k2);
+  compareBasic(host_k1,host_k2);
+  EXPECT_EQ(host_k1.operator()(), host_k2.operator()());
 }
 
 // 0-D initialization
 template <typename T, typename... Args>
 static inline void init0d(Kokkos::View<T,Args...> const& v) {
-  v.operator()() = 29;
+  Kokkos::parallel_for("init0d",1,KOKKOS_LAMBDA(const int){
+    v.operator()() = 29;
+  });
+  Kokkos::fence();
 }
 
 #if DO_UNIT_TESTS_FOR_VIEW

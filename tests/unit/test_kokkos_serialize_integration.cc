@@ -84,7 +84,7 @@ TEST_F(KokkosNullTest, test_null_1) {
 ///////////////////////////////////////////////////////////////////////////////
 // Kokkos::View unit test with view of view
 /////////////////////// ////////////////////////////////////////////////////////
-
+/*
 struct KokkosViewOfVIewTest : KokkosBaseTest { };
 
 TEST_F(KokkosViewOfVIewTest, test_view_of_view_init_1) {
@@ -92,6 +92,7 @@ TEST_F(KokkosViewOfVIewTest, test_view_of_view_init_1) {
   using ViewType = Kokkos::View<Kokkos::View<double*>[3]>;
 
   // Default construct
+  // ViewType test_data = Kokkos::View<Kokkos::View<double*>[3]>(Kokkos::view_alloc("test_data", Kokkos::SequentialHostInit));
   ViewType test_data = Kokkos::View<Kokkos::View<double*>[3]>("test");
   test_data(0) = Kokkos::View<double*>();
   test_data(1) = Kokkos::View<double*>();
@@ -142,5 +143,5 @@ TEST_F(KokkosViewOfVIewTest, test_view_of_view_uninit_fix) {
   test_data_initialized(0).label();
   EXPECT_EQ(canUseLabel, true);
 }
-
+*/
 #endif

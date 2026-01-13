@@ -67,10 +67,13 @@ void serializeKokkosUnorderedMapElems(
   using mapSizeType =
     typename Kokkos::UnorderedMap<Key, Value, Device, Hasher, EqualTo>::size_type;
 
+  auto host_map = Kokkos::create_mirror(map);
+  Kokkos::deep_copy(host_map,map);
+
   for (mapSizeType i = 0; i < map.capacity(); i++) {
-    Key keyAtI = map.key_at(i);
-    if (map.exists(keyAtI)) {
-      Value val = map.value_at(map.find(keyAtI));
+    Key keyAtI = host_map.key_at(i);
+    if (host_map.exists(keyAtI)) {
+      Value val = host_map.value_at(host_map.find(keyAtI));
 
       s | keyAtI;
       s | val;
@@ -98,6 +101,8 @@ void deserializeInsertElems(
 
   // resize unordered map
   map.rehash(map_capacity);
+  auto host_map = Kokkos::create_mirror(map);
+  host_map.rehash(map_capacity);
 
   KeyAlloc keyAllocated;
   ValueAlloc valAllocated;
@@ -108,8 +113,10 @@ void deserializeInsertElems(
     s | *key;
     s | *val;
 
-    map.insert(std::move(*key), std::move(*val));
+    host_map.insert(std::move(*key), std::move(*val));
   }
+
+  Kokkos::deep_copy(map,host_map);
 }
 
 template <

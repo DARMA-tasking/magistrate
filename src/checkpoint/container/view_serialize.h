@@ -335,6 +335,8 @@ inline void serialize_impl(SerializerT& s, Kokkos::View<T,Args...>& view) {
     "Serialization not implemented for unmanaged views"
   );
 
+  static_assert(!Kokkos::is_view_v<typename ViewType::value_type>,"ERROR - view of views serialization is unsupported!");
+
   // Serialize the label for the view which is used to construct a new view with
   // the same label. Labels may not be unique and are for debugging Kokkos::View
   auto const label = serializeViewLabel(s,view);
