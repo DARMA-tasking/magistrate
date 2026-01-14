@@ -30,11 +30,7 @@ cd "$kokkos_build"
 mkdir build
 cd build
 
-if [ "$CXX" == "nvcc_wrapper" ]; then
-    backend="-DKokkos_ENABLE_OPENMP:BOOL=${openmp}"
-else
-    backend="-DKokkos_ENABLE_CUDA:BOOL=1"
-fi
+backend="-DKokkos_ENABLE_OPENMP:BOOL=${openmp}"
 
 cmake -G "${CMAKE_GENERATOR:-Ninja}" \
       ${backend} \
