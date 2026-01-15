@@ -49,7 +49,7 @@
 template <typename ViewT, unsigned ndim>
 static void compareInner2d(ViewT const& k1, ViewT const& k2) {
   auto host_k1 = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(),k1);
-  auto host_k2 = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(),k2); 
+  auto host_k2 = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(),k2);
   std::cout << "compareInner2d: " << host_k1.extent(0) << "," << host_k2.extent(0) << "\n";
   std::cout << "compareInner2d: " << host_k1.extent(1) << "," << host_k2.extent(1) << "\n";
   EXPECT_EQ(host_k1.extent(0), host_k2.extent(0));
