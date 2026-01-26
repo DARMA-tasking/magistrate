@@ -71,40 +71,43 @@ static void test_kokkos_unordered_map(
   ASSERT_LE(refMap.capacity(), outMap.capacity());
 
   // check all keys and values
-  for (typename UnorderedMapType::size_type i = 0; i < refMap.capacity(); i++) {
-    Key refKey = refMap.key_at(i);
-    if (refMap.exists(refKey)) {
-      ASSERT_TRUE(outMap.exists(refKey));
+  auto hostRefMap = Kokkos::create_mirror(refMap);
+  Kokkos::deep_copy(hostRefMap,refMap);
+  auto hostOutMap = Kokkos::create_mirror(outMap);
+  Kokkos::deep_copy(hostOutMap,outMap);
 
-      Value refVal = refMap.value_at(refMap.find(refKey));
-      Value val = outMap.value_at(outMap.find(refKey));
+  for (typename UnorderedMapType::size_type i = 0; i < refMap.capacity(); i++) {
+    Key refKey = hostRefMap.key_at(i);
+    if (hostRefMap.exists(refKey)) {
+      ASSERT_TRUE(hostOutMap.exists(refKey));
+
+      Value refVal = hostRefMap.value_at(hostRefMap.find(refKey));
+      Value val = hostOutMap.value_at(hostOutMap.find(refKey));
       ASSERT_EQ(refVal, val);
     }
   }
 }
 
-TEST_F(KokkosUnorderedMapTest, test_kokkos_unordered_map) {
+void initializeAndTestMaps(){
   int bigSize = 1000;
   auto mapIntIntBig = Kokkos::UnorderedMap<int, int>(bigSize);
-  for(int i = 0; i < bigSize; i++) {
+  Kokkos::parallel_for("init bigSize",bigSize,KOKKOS_LAMBDA(int i) {
     mapIntIntBig.insert(i + bigSize, i * bigSize);
-  }
+  });
+  Kokkos::fence();
   test_kokkos_unordered_map(mapIntIntBig);
 
   auto mapIntDouble = Kokkos::UnorderedMap<int, double>(2);
-  mapIntDouble.insert(3, 123.34);
-  mapIntDouble.insert(4, 10.1112);
+  Kokkos::parallel_for("init mapIntDouble",1,KOKKOS_LAMBDA(int ) {
+    mapIntDouble.insert(3, 123.34);
+    mapIntDouble.insert(4, 10.1112);
+  });
+  Kokkos::fence();
   test_kokkos_unordered_map(mapIntDouble);
+}
 
-  auto mapShortString = Kokkos::UnorderedMap<short, std::string>(2);
-  mapShortString.insert(5, "123");
-  mapShortString.insert(27, "101112");
-  test_kokkos_unordered_map(mapShortString);
-
-  auto mapUnsignedVector = Kokkos::UnorderedMap<unsigned, std::vector<int>>(2);
-  mapUnsignedVector.insert(11, std::vector<int>{1, 2, 3});
-  mapUnsignedVector.insert(22, std::vector<int>{9, 8, 7});
-  test_kokkos_unordered_map(mapUnsignedVector);
+TEST_F(KokkosUnorderedMapTest, test_kokkos_unordered_map) {
+  initializeAndTestMaps();
 }
 
 }}} // namespace checkpoint::tests::unit

@@ -632,7 +632,9 @@ TEST_F(TestFootprinter, test_no_serialize) {
 }
 
 #if MAGISTRATE_KOKKOS_ENABLED
-TEST_F(TestFootprinter, test_kokkos_unordered_map) {
+
+void test_unordered_map()
+{
   // empty map
   {
     auto mapEmpty = Kokkos::UnorderedMap<int, int>();
@@ -646,15 +648,22 @@ TEST_F(TestFootprinter, test_kokkos_unordered_map) {
   // map with some elements
   {
     auto mapIntLong = Kokkos::UnorderedMap<int, long>(3);
-    mapIntLong.insert(4, 50);
-    mapIntLong.insert(5, 60);
-    mapIntLong.insert(6, 70);
+    Kokkos::parallel_for("initialize map",1,KOKKOS_LAMBDA (int ) {
+      mapIntLong.insert(4, 50);
+      mapIntLong.insert(5, 60);
+      mapIntLong.insert(6, 70);
+    });
+    Kokkos::fence();
 
     auto expected_size =
       sizeof(mapIntLong) + mapIntLong.capacity() * sizeof(int) + 3 * sizeof(long);
 
     EXPECT_EQ(checkpoint::getMemoryFootprint(mapIntLong), expected_size);
   }
+}
+
+TEST_F(TestFootprinter, test_kokkos_unordered_map) {
+  test_unordered_map();
 }
 
 TEST_F(TestFootprinter, test_kokkos_pair) {

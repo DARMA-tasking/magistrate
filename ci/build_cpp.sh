@@ -25,6 +25,16 @@ then
     is_debug=1
 fi
 
+echo "kokkos: ${MAGISTRATE_KOKKOS_ENABLED}"
+
+if test "${MAGISTRATE_KOKKOS_ENABLED:-0}" -eq 1
+then
+    "$MAGISTRATE/ci/deps/kokkos.sh" "5.0.1" "$MAGISTRATE_BUILD/kokkos_build" 0
+    export KOKKOS_ROOT="$MAGISTRATE_BUILD/kokkos_build/kokkos-install"
+    "$MAGISTRATE/ci/deps/kokkos-kernels.sh" "5.0.1" "$MAGISTRATE_BUILD/kokkos_kernels_build" "$MAGISTRATE_BUILD/kokkos_build/kokkos-install"
+    export KOKKOS_KERNELS_ROOT="$MAGISTRATE_BUILD/kokkos_kernels_build/kokkos-kernels/kokkos-kernels-install"
+fi
+
 cmake -G "${CMAKE_GENERATOR:-Ninja}" \
       -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
       -Dmagistrate_code_coverage="${MAGISTRATE_CODE_COVERAGE:-0}" \

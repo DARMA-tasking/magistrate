@@ -48,13 +48,15 @@
 
 template <typename ViewT, unsigned ndim>
 static void compareInner2d(ViewT const& k1, ViewT const& k2) {
-  std::cout << "compareInner2d: " << k1.extent(0) << "," << k2.extent(0) << "\n";
-  std::cout << "compareInner2d: " << k1.extent(1) << "," << k2.extent(1) << "\n";
-  EXPECT_EQ(k1.extent(0), k2.extent(0));
-  EXPECT_EQ(k1.extent(1), k2.extent(1));
-  for (typename ViewT::size_type i = 0; i < k1.extent(0); i++) {
-    for (typename ViewT::size_type j = 0; j < k1.extent(1); j++) {
-      EXPECT_EQ(k1.operator()(i,j), k2.operator()(i,j));
+  auto host_k1 = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(),k1);
+  auto host_k2 = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(),k2);
+  std::cout << "compareInner2d: " << host_k1.extent(0) << "," << host_k2.extent(0) << "\n";
+  std::cout << "compareInner2d: " << host_k1.extent(1) << "," << host_k2.extent(1) << "\n";
+  EXPECT_EQ(host_k1.extent(0), host_k2.extent(0));
+  EXPECT_EQ(host_k1.extent(1), host_k2.extent(1));
+  for (typename ViewT::size_type i = 0; i < host_k1.extent(0); i++) {
+    for (typename ViewT::size_type j = 0; j < host_k1.extent(1); j++) {
+      EXPECT_EQ(host_k1.operator()(i,j), host_k2.operator()(i,j));
     }
   }
 }
@@ -68,30 +70,33 @@ static void compare2d(ViewT const& k1, ViewT const& k2) {
 // 2-D initialization
 template <typename T, typename... Args>
 static inline void init2d(Kokkos::View<T**,Args...> const& v) {
-  for (auto i = 0UL; i < v.extent(0); i++) {
+  Kokkos::parallel_for("init2d",v.extent(0),KOKKOS_LAMBDA(size_t i){
     for (auto j = 0UL; j < v.extent(1); j++) {
       v.operator()(i,j) = (i*v.extent(1))+j;
     }
-  }
+  });
+  Kokkos::fence();
 }
 
 template <typename T, typename... Args>
 static inline void init2d(Kokkos::DynRankView<T,Args...> const& v) {
-  for (auto i = 0UL; i < v.extent(0); i++) {
+  Kokkos::parallel_for("init2d",v.extent(0),KOKKOS_LAMBDA(size_t i){
     for (auto j = 0UL; j < v.extent(1); j++) {
       v.operator()(i,j) = (i*v.extent(1))+j;
     }
-  }
+  });
+  Kokkos::fence();
 }
 
 template <typename T, unsigned N, typename... Args>
 static inline void init2d(Kokkos::View<T*[N],Args...> const& v) {
   EXPECT_EQ(N, v.extent(1));
-  for (auto i = 0UL; i < v.extent(0); i++) {
+  Kokkos::parallel_for("init2d",v.extent(0),KOKKOS_LAMBDA(size_t i){
     for (auto j = 0U; j < N; j++) {
       v.operator()(i,j) = i*N+j;
     }
-  }
+  });
+  Kokkos::fence();
 }
 
 template <typename LayoutT>

@@ -48,16 +48,18 @@
 
 template <typename ViewT, unsigned ndim>
 static void compareInner3d(ViewT const& k1, ViewT const& k2) {
-  std::cout << "compareInner3d: " << k1.extent(0) << "," << k2.extent(0) << "\n";
-  std::cout << "compareInner3d: " << k1.extent(1) << "," << k2.extent(1) << "\n";
-  std::cout << "compareInner3d: " << k1.extent(2) << "," << k2.extent(2) << "\n";
-  EXPECT_EQ(k1.extent(0), k2.extent(0));
-  EXPECT_EQ(k1.extent(1), k2.extent(1));
-  EXPECT_EQ(k1.extent(2), k2.extent(2));
-  for (typename ViewT::size_type i = 0; i < k1.extent(0); i++) {
-    for (typename ViewT::size_type j = 0; j < k1.extent(1); j++) {
-      for (typename ViewT::size_type k = 0; k < k1.extent(2); k++) {
-        EXPECT_EQ(k1.operator()(i,j,k), k2.operator()(i,j,k));
+  auto host_k1 = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(),k1);
+  auto host_k2 = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(),k2);
+  std::cout << "compareInner3d: " << host_k1.extent(0) << "," << host_k2.extent(0) << "\n";
+  std::cout << "compareInner3d: " << host_k1.extent(1) << "," << host_k2.extent(1) << "\n";
+  std::cout << "compareInner3d: " << host_k1.extent(2) << "," << host_k2.extent(2) << "\n";
+  EXPECT_EQ(host_k1.extent(0), host_k2.extent(0));
+  EXPECT_EQ(host_k1.extent(1), host_k2.extent(1));
+  EXPECT_EQ(host_k1.extent(2), host_k2.extent(2));
+  for (typename ViewT::size_type i = 0; i < host_k1.extent(0); i++) {
+    for (typename ViewT::size_type j = 0; j < host_k1.extent(1); j++) {
+      for (typename ViewT::size_type k = 0; k < host_k1.extent(2); k++) {
+        EXPECT_EQ(host_k1.operator()(i,j,k), host_k2.operator()(i,j,k));
       }
     }
   }
@@ -73,35 +75,38 @@ static void compare3d(ViewT const& k1, ViewT const& k2) {
 // 3-D initialization
 template <typename T, typename... Args>
 static inline void init3d(Kokkos::View<T***,Args...> const& v) {
-  for (auto i = 0UL; i < v.extent(0); i++) {
+  Kokkos::parallel_for("init3d",v.extent(0),KOKKOS_LAMBDA(size_t i){
     for (auto j = 0UL; j < v.extent(1); j++) {
       for (auto k = 0UL; k < v.extent(2); k++) {
         v.operator()(i,j,k) = (i*v.extent(0)*v.extent(1))+(j*v.extent(0))+k;
       }
     }
-  }
+  });
+  Kokkos::fence();
 }
 
 template <typename T, typename... Args>
 static inline void init3d(Kokkos::DynRankView<T,Args...> const& v) {
-  for (auto i = 0UL; i < v.extent(0); i++) {
+  Kokkos::parallel_for("init3d",v.extent(0),KOKKOS_LAMBDA(size_t i){
     for (auto j = 0UL; j < v.extent(1); j++) {
       for (auto k = 0UL; k < v.extent(2); k++) {
         v.operator()(i,j,k) = (i*v.extent(0)*v.extent(1))+(j*v.extent(0))+k;
       }
     }
-  }
+  });
+  Kokkos::fence();
 }
 
 template <typename T, unsigned N, typename... Args>
 static inline void init3d(Kokkos::View<T**[N],Args...> const& v) {
-  for (auto i = 0UL; i < v.extent(0); i++) {
+  Kokkos::parallel_for("init3d",v.extent(0),KOKKOS_LAMBDA(size_t i){
     for (auto j = 0UL; j < v.extent(1); j++) {
       for (auto k = 0U; k < N; k++) {
         v.operator()(i,j,k) = (i*v.extent(0)*v.extent(1))+(j*v.extent(0))+k;
       }
     }
-  }
+  });
+  Kokkos::fence();
 }
 
 template <typename LayoutT>

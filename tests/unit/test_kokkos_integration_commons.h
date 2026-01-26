@@ -79,8 +79,10 @@ struct Data : BaseData {
   using Kokkos_ViewType3 = ::Kokkos::View<float***, AtomicTrait>;
   using Kokkos_ViewType4 = ::Kokkos::View<int*[2]>;
   #if MAGISTRATE_KOKKOS_KERNELS_ENABLED
-  using Kokkos_CrsType = ::Kokkos::StaticCrsGraph<double, Kokkos::DefaultExecutionSpace>;
+  using Kokkos_CrsType = ::KokkosSparse::StaticCrsGraph<double, Kokkos::DefaultExecutionSpace>;
+  using Kokkos_HostCrsGraphType = Kokkos_CrsType::host_mirror_type;
   using Kokkos_CrsMatrix = ::KokkosSparse::CrsMatrix<double, int, Kokkos::DefaultExecutionSpace>;
+  using Kokkos_HostCrsMatrix = Kokkos_CrsMatrix::host_mirror_type;
   #endif
   using DimType          = typename Kokkos_ViewType1::size_type;
 
@@ -95,27 +97,7 @@ struct Data : BaseData {
     Kokkos_ViewType3 v3_tmp("v3_tmp",d3_a,d3_b,d3_c);
     Kokkos_ViewType4 v4_tmp("v4_tmp",d4_a);
 
-    v0_tmp.operator()() = v0val();
-
-    for (DimType i = 0; i < d1_a; i++) {
-      v1_tmp.operator()(i) = v1val(i);
-    }
-    for (DimType i = 0; i < d2_a; i++) {
-      for (DimType j = 0; j < d2_b; j++) {
-        v2_tmp.operator()(i,j) = v2val(i,j);
-      }
-    }
-    for (DimType i = 0; i < d3_a; i++) {
-      for (DimType j = 0; j < d3_b; j++) {
-        for (DimType k = 0; k < d3_c; k++) {
-          v3_tmp.operator()(i,j,k) = v3val(i,j,k);//d3_a*d3_b*i + j*d3_a + k;
-        }
-      }
-    }
-    for (DimType i = 0; i < d4_a; i++) {
-      v4_tmp.operator()(i,0) = v4val(i,0);//d4_a*i*2 + 1;
-      v4_tmp.operator()(i,1) = v4val(i,1);//d4_a*i*2 + 2;
-    }
+    this->init_data_on_device(v0_tmp,v1_tmp,v2_tmp,v3_tmp,v4_tmp);
     v0 = v0_tmp;
     v1 = v1_tmp;
     v2 = v2_tmp;
@@ -132,7 +114,7 @@ struct Data : BaseData {
        }
     }
 
-    crs = Kokkos::create_staticcrsgraph<Kokkos_CrsType>( "crs_type" , graph );
+    crs = KokkosSparse::create_staticcrsgraph<Kokkos_CrsType>( "crs_type" , graph );
 
     int nrow = 5, ncol = 7;
     size_t nnz = 11;
@@ -145,8 +127,11 @@ struct Data : BaseData {
     EXPECT_EQ( nrow, (int) crs_mat.numRows());
     EXPECT_EQ( ncol, (int) crs_mat.numCols());
     EXPECT_EQ( nnz, (size_t) crs_mat.nnz());
-    for (int ir = 0; ir < std::min<int>(nrow, crs_mat.numRows()); ++ir) {
-      auto myRow = crs_mat.rowConst(ir);
+
+    Kokkos_HostCrsMatrix host_crs_mat("host_crs_matrix",crs_mat);
+
+    for (int ir = 0; ir < std::min<int>(nrow, host_crs_mat.numRows()); ++ir) {
+      auto myRow = host_crs_mat.rowConst(ir);
       for (int jc = 0; jc < myRow.length; ++jc) {
         EXPECT_EQ( cols[rows[ir] + jc], myRow.colidx(jc) );
         EXPECT_EQ( values[rows[ir] + jc], myRow.value(jc) );
@@ -155,19 +140,60 @@ struct Data : BaseData {
     #endif
   }
 
+  void init_data_on_device(const Kokkos_ViewType0& v0_tmp,
+                           const Kokkos_ViewType1& v1_tmp,
+                           const Kokkos_ViewType2& v2_tmp,
+                           const Kokkos_ViewType3& v3_tmp,
+                           const Kokkos_ViewType4& v4_tmp)
+  {
+    Kokkos::parallel_for("v0_tmp init",1,KOKKOS_LAMBDA(size_t ){
+      v0_tmp.operator()() = v0val();
+    });
+
+    Kokkos::parallel_for("v1_tmp init",d1_a,KOKKOS_LAMBDA(size_t i){
+      v1_tmp.operator()(i) = v1val(i);
+    });
+
+    Kokkos::parallel_for("v2_tmp init",d2_a,KOKKOS_LAMBDA(size_t i){
+      for (DimType j = 0; j < d2_b; j++) {
+        v2_tmp.operator()(i,j) = v2val(i,j);
+      }
+    });
+
+    Kokkos::parallel_for("v3_tmp init",d3_a,KOKKOS_LAMBDA(size_t i){
+      for (DimType j = 0; j < d3_b; j++) {
+        for (DimType k = 0; k < d3_c; k++) {
+          v3_tmp.operator()(i,j,k) = v3val(i,j,k);//d3_a*d3_b*i + j*d3_a + k;
+        }
+      }
+    });
+
+    Kokkos::parallel_for("v4_tmp init",d4_a,KOKKOS_LAMBDA(size_t i){
+      v4_tmp.operator()(i,0) = v4val(i,0);//d4_a*i*2 + 1;
+      v4_tmp.operator()(i,1) = v4val(i,1);//d4_a*i*2 + 2;
+    });
+
+    Kokkos::fence();
+  }
+
   /* Generators for creating expected data values */
+  KOKKOS_FUNCTION
   static int v0val() {
     return d1_a * 29;
   }
+  KOKKOS_FUNCTION
   static int v1val(DimType i) {
     return d1_a * i;
   }
+  KOKKOS_FUNCTION
   static double v2val(DimType i, DimType j) {
     return d2_a*i + j;
   }
+  KOKKOS_FUNCTION
   static float v3val(DimType i, DimType j, DimType k) {
     return d3_a*d3_b*i + j*d3_a + k;
   }
+  KOKKOS_FUNCTION
   static int v4val(DimType i, DimType j) {
     return j == 0 ? d4_a*i*2 + 1 : d4_a*i*2 + 2;
   }
@@ -186,25 +212,31 @@ struct Data : BaseData {
     EXPECT_EQ(in.v3.size(),d3_a*d3_b*d3_c);
     EXPECT_EQ(in.v4.size(),d4_a*2);
 
-    EXPECT_EQ(in.v0.operator()(), v0val());
+    auto host_v0 = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(),in.v0);
+    auto host_v1 = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(),in.v1);
+    auto host_v2 = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(),in.v2);
+    auto host_v3 = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(),in.v3);
+    auto host_v4 = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(),in.v4);
+
+    EXPECT_EQ(host_v0.operator()(), v0val());
     for (DimType i = 0; i < d1_a; i++) {
-      EXPECT_EQ(in.v1.operator()(i), v1val(i));
+      EXPECT_EQ(host_v1.operator()(i), v1val(i));
     }
     for (DimType i = 0; i < d2_a; i++) {
       for (DimType j = 0; j < d2_b; j++) {
-        EXPECT_EQ(in.v2.operator()(i,j), v2val(i,j));
+        EXPECT_EQ(host_v2.operator()(i,j), v2val(i,j));
       }
     }
     for (DimType i = 0; i < d3_a; i++) {
       for (DimType j = 0; j < d3_b; j++) {
         for (DimType k = 0; k < d3_c; k++) {
-          EXPECT_EQ(in.v3.operator()(i,j,k), v3val(i,j,k));
+          EXPECT_EQ(host_v3.operator()(i,j,k), v3val(i,j,k));
         }
       }
     }
     for (DimType i = 0; i < d4_a; i++) {
-      EXPECT_EQ(in.v4.operator()(i,0), v4val(i,0));
-      EXPECT_EQ(in.v4.operator()(i,1), v4val(i,1));
+      EXPECT_EQ(host_v4.operator()(i,0), v4val(i,0));
+      EXPECT_EQ(host_v4.operator()(i,1), v4val(i,1));
     }
 
     #if MAGISTRATE_KOKKOS_KERNELS_ENABLED
@@ -217,12 +249,18 @@ struct Data : BaseData {
        }
     }
 
+    // build a graph on the host
+    //
+    auto host_entries = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(),in.crs.entries);
+    auto host_row_map = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(),in.crs.row_map);
+    Data::Kokkos_HostCrsGraphType host_crs(host_entries,host_row_map);
+
     for ( size_t i = 0 ; i < d1_a ; ++i ) {
-      const size_t begin = in.crs.row_map[i];
-      const size_t n = in.crs.row_map[i+1] - begin ;
+      const size_t begin = host_crs.row_map[i];
+      const size_t n = host_crs.row_map[i+1] - begin ;
       EXPECT_EQ( n , graph[i].size() );
       for ( size_t j = 0 ; j < n ; ++j ) {
-        EXPECT_EQ( (int) in.crs.entries( j + begin ) , graph[i][j] );
+        EXPECT_EQ( (int) host_crs.entries( j + begin ) , graph[i][j] );
       }
     }
     //--- Check that the output matrix is stored as expected
@@ -235,8 +273,11 @@ struct Data : BaseData {
     EXPECT_EQ( ncol, (int) in.crs_mat.numCols());
     EXPECT_EQ( nnz, (int) in.crs_mat.nnz());
     //
-    for (int ir = 0; ir < in.crs_mat.numRows(); ++ir) {
-      auto myRow = in.crs_mat.row(ir);
+
+    Data::Kokkos_HostCrsMatrix host_crs_mat("host_crs_mat",in.crs_mat);
+
+    for (int ir = 0; ir < host_crs_mat.numRows(); ++ir) {
+      auto myRow = host_crs_mat.row(ir);
       for (int jc = 0; jc < myRow.length; ++jc) {
         EXPECT_EQ( cols[rows[ir] + jc], myRow.colidx(jc) );
         EXPECT_EQ( values[rows[ir] + jc], myRow.value(jc) );
