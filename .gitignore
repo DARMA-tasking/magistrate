@@ -4,5 +4,4 @@ CMakeFiles/
 .dir-locals.el
 
 *.a
-*.cmake
 *.tcl
