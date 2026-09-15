@@ -48,6 +48,10 @@ macro(magistrate_link_target target has_mpi)
   target_link_libraries(${target} PRIVATE Threads::Threads)
   target_link_libraries(${target} PUBLIC ${MAGISTRATE_LIBRARY})
 
+  if (TARGET ${MAGISTRATE_KOKKOS_LIBRARY})
+    target_link_libraries(${target} PUBLIC ${MAGISTRATE_KOKKOS_LIBRARY})
+  endif()
+
   if (${has_mpi})
     target_link_libraries(${target} PUBLIC ${MPI_LIBRARIES})
     target_compile_definitions(${target} PUBLIC HAVE_MPI=1)

@@ -100,6 +100,8 @@ endif()
 set(MAGISTRATE_LIBRARY magistrate CACHE INTERNAL "" FORCE )
 set(MAGISTRATE_LIBRARY_NS vt::lib::magistrate "" CACHE INTERNAL "" FORCE )
 set(CHECKPOINT_LIBRARY_NS vt::lib::checkpoint "" CACHE INTERNAL "" FORCE )
+set(MAGISTRATE_KOKKOS_LIBRARY magistrate_kokkos_serialization CACHE INTERNAL "" FORCE )
+set(MAGISTRATE_KOKKOS_LIBRARY_NS vt::lib::magistrate_kokkos_serialization CACHE INTERNAL "" FORCE )
 
 set(CMAKE_CXX_EXTENSIONS OFF)
 

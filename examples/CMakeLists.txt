@@ -44,5 +44,9 @@ if (magistrate_examples_enabled)
       ${MAGISTRATE_LIBRARY_NS}
     )
 
+    if (TARGET ${MAGISTRATE_KOKKOS_LIBRARY})
+      target_link_libraries(${EXAMPLE} PUBLIC ${MAGISTRATE_KOKKOS_LIBRARY})
+    endif()
+
   endforeach()
 endif()
