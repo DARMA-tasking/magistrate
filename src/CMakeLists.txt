@@ -79,6 +79,15 @@ target_compile_features(${MAGISTRATE_LIBRARY} PUBLIC cxx_std_17)
 include(CMakePrintHelpers)
 
 if (${Kokkos_DIR_FOUND})
+  # Kokkos support is header/template-only in magistrate (no compiled source
+  # file depends on it), so it is exposed as a separate opt-in INTERFACE
+  # target rather than on the base library. Otherwise every consumer of
+  # magistrate, even ones that never serialize a Kokkos view, would inherit
+  # Kokkos::kokkos's compile requirements (e.g. Kokkos's CUDA compiler
+  # redirection via kokkos_launch_compiler).
+  add_library(${MAGISTRATE_KOKKOS_LIBRARY} INTERFACE)
+  add_library(${MAGISTRATE_KOKKOS_LIBRARY_NS} ALIAS ${MAGISTRATE_KOKKOS_LIBRARY})
+
   if (${KokkosKernels_DIR_FOUND})
     message(STATUS "Magistrate: Kokkos kernels enabled")
     set(KERNELS 1)
@@ -87,9 +96,9 @@ if (${Kokkos_DIR_FOUND})
     # Meanwhile, Trilinos installs it under the more consistent KokkosKernels:: namespace.
     # Account for both possible routes of acquiring Kokkos Kernels here
     if(TARGET KokkosKernels::kokkoskernels)
-      target_link_libraries(${MAGISTRATE_LIBRARY} PUBLIC KokkosKernels::kokkoskernels)
+      target_link_libraries(${MAGISTRATE_KOKKOS_LIBRARY} INTERFACE KokkosKernels::kokkoskernels)
     else()
-      target_link_libraries(${MAGISTRATE_LIBRARY} PUBLIC Kokkos::kokkoskernels)
+      target_link_libraries(${MAGISTRATE_KOKKOS_LIBRARY} INTERFACE Kokkos::kokkoskernels)
     endif()
   else()
     message(STATUS "Magistrate: Kokkos kernels disabled")
@@ -97,10 +106,10 @@ if (${Kokkos_DIR_FOUND})
   endif()
   message(STATUS "Magistrate: Kokkos (Version ${Kokkos_VERSION}) enabled")
   target_compile_definitions(
-    ${MAGISTRATE_LIBRARY} PUBLIC
+    ${MAGISTRATE_KOKKOS_LIBRARY} INTERFACE
     MAGISTRATE_KOKKOS_ENABLED=1 MAGISTRATE_KOKKOS_KERNELS_ENABLED=${KERNELS}
   )
-  target_link_libraries(${MAGISTRATE_LIBRARY} PUBLIC Kokkos::kokkos)
+  target_link_libraries(${MAGISTRATE_KOKKOS_LIBRARY} INTERFACE Kokkos::kokkos)
 endif()
 
 target_link_libraries(${MAGISTRATE_LIBRARY} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
@@ -149,6 +158,16 @@ install(
   INCLUDES DESTINATION      ${MAGISTRATE_EXTERNAL_DESTINATION}
 )
 
+set(MAGISTRATE_EXPORTED_TARGETS ${MAGISTRATE_LIBRARY})
+
+if (${Kokkos_DIR_FOUND})
+  install(
+    TARGETS                   ${MAGISTRATE_KOKKOS_LIBRARY}
+    EXPORT                    ${MAGISTRATE_LIBRARY}
+  )
+  list(APPEND MAGISTRATE_EXPORTED_TARGETS ${MAGISTRATE_KOKKOS_LIBRARY})
+endif()
+
 if(magistrate_enable_export_of_targets)
   install(
     EXPORT                    ${MAGISTRATE_LIBRARY}
@@ -159,7 +178,7 @@ if(magistrate_enable_export_of_targets)
   )
 
   export(
-    TARGETS                   ${MAGISTRATE_LIBRARY}
+    TARGETS                   ${MAGISTRATE_EXPORTED_TARGETS}
     FILE                      "magistrateTargets.cmake"
     NAMESPACE                 vt::lib::
   )
