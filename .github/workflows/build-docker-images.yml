@@ -10,6 +10,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  macos:
+    name: macOS (Apple Clang, C++20)
+    runs-on: macos-15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        # Allow GoogleTest 1.12.1 to configure with CMake 4.
+        run: >-
+          cmake -S . -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_CXX_STANDARD=20
+          -DCMAKE_CXX_STANDARD_REQUIRED=ON
+          -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+          -Dmagistrate_tests_enabled=ON
+          -Dmagistrate_examples_enabled=ON
+
+      - name: Build
+        run: cmake --build build --parallel 3
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure --no-tests=error
+
   prepare:
     runs-on: ubuntu-latest
     outputs:
