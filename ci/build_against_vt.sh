@@ -12,6 +12,7 @@ fi
 mkdir -p "$vt_source_dir"
 cd "$vt_source_dir"
 git clone -b develop https://github.com/DARMA-tasking/vt.git .
+git clone -b develop --depth 1 https://github.com/DARMA-tasking/loc.git lib/loc
 
 target="${4:-install}"
 

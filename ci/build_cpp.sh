@@ -61,9 +61,7 @@ cmake_conf_ret=$?
 if test "${MAGISTRATE_DOXYGEN_ENABLED:-0}" -eq 1
 then
     MCSS=$PWD/m.css
-    GHPAGE=$PWD/DARMA-tasking.github.io
 
-    git clone --depth=1 "https://x-access-token:${GITHUB_TOKEN}@github.com/DARMA-tasking/DARMA-tasking.github.io"
     git clone https://github.com/mosra/m.css
     cd m.css
     git checkout 699abdd5
@@ -72,6 +70,10 @@ then
 
     if test "${GIT_BRANCH:-}" = "develop"
     then
+        GHPAGE=$PWD/DARMA-tasking.github.io
+        set +x
+        git clone --depth=1 "https://x-access-token:${GITHUB_TOKEN}@github.com/DARMA-tasking/DARMA-tasking.github.io"
+        set -x
         CKPT_NAME=magistrate_docs
         mv docs "$CKPT_NAME"
         cp  -R "$CKPT_NAME" "$GHPAGE"
@@ -82,6 +84,7 @@ then
         git commit --allow-empty -m "Update magistrate_docs (auto-build)"
         git push origin master
     fi
+    compilation_ret=0
 elif test "${VT_CI_BUILD:-0}" -eq 1
 then
     # Generate output file with compilation warnings and errors
