@@ -142,7 +142,7 @@ target "magistrate-build-all" {
         magistrate_asan_options = "use_sigaltstack=false detect_leaks=1 abort_on_error=1"
       },
       {
-        image = "amd64-ubuntu-22.04-clang-12-cpp",
+        image = "amd64-ubuntu-24.04-clang-18-cpp",
         magistrate_build_against_vt = 1,
         variant = "vt",
         magistrate_ubsan = 1
@@ -168,7 +168,7 @@ target "magistrate-build-all" {
         magistrate_serialization_error_checking = 0
       },
       {
-        image = "amd64-ubuntu-20.04-gcc-9-cpp",
+        image = "amd64-ubuntu-24.04-gcc-14-cpp",
         magistrate_docs = 1,
         variant = "docs",
       },

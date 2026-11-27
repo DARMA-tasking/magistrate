@@ -27,10 +27,14 @@ ARG MAGISTRATE_KOKKOS_ENABLED
 ENV ASAN_OPTIONS=$MAGISTRATE_ASAN_OPTIONS
 ENV GIT_BRANCH=$GIT_BRANCH
 
+# Older ASan runtimes can collide with randomized PIE load addresses on Linux.
 RUN --mount=type=cache,id=${CACHE_ID},target=/build/ccache \
     --mount=type=cache,id=BUILD-${CACHE_ID},target=/build/magistrate \
     --mount=type=secret,id=GITHUB_TOKEN,env=GITHUB_TOKEN \
     --mount=target=/magistrate,rw \
+    if [ "$MAGISTRATE_ASAN_ENABLED" = "1" ]; then \
+        export CMAKE_EXE_LINKER_FLAGS="${CMAKE_EXE_LINKER_FLAGS:+$CMAKE_EXE_LINKER_FLAGS }-no-pie"; \
+    fi; \
     if [ "$MAGISTRATE_BUILD_AGAINST_VT" = "1" ]; then \
         /magistrate/ci/build_against_vt.sh /vt /build_vt /magistrate && \
         /vt/ci/test_cpp.sh /vt /build_vt; \

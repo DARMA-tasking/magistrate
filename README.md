@@ -8,10 +8,10 @@
 [![](https://github.com/DARMA-tasking/badge-generator/wiki/DARMA-tasking/magistrate/ubuntu-22-04-clang-13-badge.svg)](https://github.com/DARMA-tasking/magistrate/actions/workflows/build-docker-images.yml?query=branch%3Adevelop)
 [![](https://github.com/DARMA-tasking/badge-generator/wiki/DARMA-tasking/magistrate/ubuntu-20-04-clang-9-badge.svg)](https://github.com/DARMA-tasking/magistrate/actions/workflows/build-docker-images.yml?query=branch%3Adevelop)
 [![](https://github.com/DARMA-tasking/badge-generator/wiki/DARMA-tasking/magistrate/ubuntu-20-04-gcc-9-badge.svg)](https://github.com/DARMA-tasking/magistrate/actions/workflows/build-docker-images.yml?query=branch%3Adevelop)
-[![](https://github.com/DARMA-tasking/badge-generator/wiki/DARMA-tasking/magistrate/ubuntu-22-04-clang-12-vt-badge.svg)](https://github.com/DARMA-tasking/magistrate/actions/workflows/build-docker-images.yml?query=branch%3Adevelop)
+[![](https://github.com/DARMA-tasking/badge-generator/wiki/DARMA-tasking/magistrate/ubuntu-24-04-clang-18-vt-badge.svg)](https://github.com/DARMA-tasking/magistrate/actions/workflows/build-docker-images.yml?query=branch%3Adevelop)
 [![](https://github.com/DARMA-tasking/badge-generator/wiki/DARMA-tasking/magistrate/ubuntu-20-04-gcc-9-cuda-11-4-3-badge.svg)](https://github.com/DARMA-tasking/magistrate/actions/workflows/build-docker-images.yml?query=branch%3Adevelop)
 [![](https://github.com/DARMA-tasking/badge-generator/wiki/DARMA-tasking/magistrate/ubuntu-22-04-clang-14-badge.svg)](https://github.com/DARMA-tasking/magistrate/actions/workflows/build-docker-images.yml?query=branch%3Adevelop)
-[![](https://github.com/DARMA-tasking/badge-generator/wiki/DARMA-tasking/magistrate/ubuntu-20-04-gcc-9-docs-badge.svg)](https://github.com/DARMA-tasking/magistrate/actions/workflows/build-docker-images.yml?query=branch%3Adevelop)
+[![](https://github.com/DARMA-tasking/badge-generator/wiki/DARMA-tasking/magistrate/ubuntu-24-04-gcc-14-docs-badge.svg)](https://github.com/DARMA-tasking/magistrate/actions/workflows/build-docker-images.yml?query=branch%3Adevelop)
 
 ## Read the documentation
 
